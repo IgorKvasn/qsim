@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: sk.stuba.fiit.kvasnicka.qsimlibraries
+OpenIDE-Module-Localizing-Bundle: sk/stuba/fiit/kvasnicka/qsimlibraries/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
