@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: sk.stuba.fiit.kvasnicka.qsimprojecttype
+OpenIDE-Module-Layer: sk/stuba/fiit/kvasnicka/qsimprojecttype/layer.xml
+OpenIDE-Module-Localizing-Bundle: sk/stuba/fiit/kvasnicka/qsimprojecttype/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
