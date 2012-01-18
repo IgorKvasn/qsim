@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.openide.windows.TopComponent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopolElementTopComponent;
 
 /**
@@ -28,7 +28,7 @@ public class NetbeansWindowHelper {
     private NetbeansWindowHelper() {
     }
 
-    public Topology getActiveTopComponentTopology() {
+    public TopologyCreation getActiveTopComponentTopology() {
         TopolElementTopComponent t = getActiveTopoloElementTopComp();
         if (t == null) {
             logg.error("topCompoenent is NULL");

@@ -22,7 +22,7 @@ import org.openide.loaders.MultiFileLoader;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopolElementTopComponent;
@@ -40,7 +40,7 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
     public TopologyFileTypeDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException, GraphIOException, JAXBException {
         super(pf, loader);
         registerEditor("text/qsim", true);
- 
+
         deserialize();
     }
 
@@ -60,7 +60,7 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
         return new TopologyInformation(lkp);
     }
 
-    private void serialize(XmlSerializationProxy proxy, Topology topology) throws JAXBException, FileNotFoundException, IOException {
+    private void serialize(XmlSerializationProxy proxy, TopologyCreation topology) throws JAXBException, FileNotFoundException, IOException {
         logg.debug("serialisation....");
 
         BufferedWriter fileOutput = new BufferedWriter(new FileWriter(FileUtil.toFile(getPrimaryFile())));
@@ -78,7 +78,7 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
         logg.debug("serialised");
     }
 
-    private String saveJung(Topology topology) throws IOException {
+    private String saveJung(TopologyCreation topology) throws IOException {
         StringWriter out = new StringWriter();
         initSerialisationUtils(topology);
         graphWriter.save(topology.getGraph(), out);
@@ -100,14 +100,14 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
         logg.debug("deserialised");
     }
 
-    public void save(Topology topology) throws JAXBException, FileNotFoundException, IOException {
+    public void save(TopologyCreation topology) throws JAXBException, FileNotFoundException, IOException {
         //create serialisation proxy
         XmlSerializationProxy proxy = new XmlSerializationProxy(topology);
         //call serialize() method
         serialize(proxy, topology);
     }
 
-    private void initSerialisationUtils(final Topology topology) {
+    private void initSerialisationUtils(final TopologyCreation topology) {
         graphWriter.addVertexData("x", null, "0",
                 new Transformer<TopologyVertex, String>() {
 
@@ -161,5 +161,18 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
                         return e.getVertex2().getName();
                     }
                 });
+    }
+
+    /**
+     * saving file this method should be called to mark this file as "modified"
+     * and eligible to save
+     */
+    public void modified(TopComponent window) {
+        setModified(true);
+        window.setDisplayName(getPrimaryFile().getNameExt() + "*");
+//        if (getLookup().lookup(TopolElementTopComponent.TopologySavable.class) == null) {            
+//            callback.updateTitle(dataObject.getPrimaryFile().getNameExt() + "*");
+//            content.add(new TopolElementTopComponent.TopologySavable(dataObject.getName()));
+//        }
     }
 }

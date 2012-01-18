@@ -8,7 +8,7 @@ import org.openide.NotifyDescriptor;
 import org.openide.awt.StatusDisplayer;
 import org.openide.util.NbBundle;
 import sk.stuba.fiit.kvasnicka.topologyvisual.data.Edge;
-import sk.stuba.fiit.kvasnicka.topologyvisual.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.commons.TopologyElementFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
@@ -24,7 +24,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopolElementTopCompone
 public class TopologyElementCreatorHelper {
 
     private static Logger logg = Logger.getLogger(TopologyElementCreatorHelper.class);
-    private Topology topology;
+    private TopologyCreation topology;
     private TopolElementTopComponent topolElementTopComponent;
     private PaletteActionEnum action;
     private TopologyVertex edgeStart;
@@ -32,9 +32,9 @@ public class TopologyElementCreatorHelper {
     /**
      * creates new instance
      *
-     * @param topology reference to Topology object
+     * @param topology reference to TopologyCreation object
      */
-    public TopologyElementCreatorHelper(Topology topology, TopolElementTopComponent topolElementTopComponent) {
+    public TopologyElementCreatorHelper(TopologyCreation topology, TopolElementTopComponent topolElementTopComponent) {
         this.topology = topology;
         this.topolElementTopComponent = topolElementTopComponent;
     }

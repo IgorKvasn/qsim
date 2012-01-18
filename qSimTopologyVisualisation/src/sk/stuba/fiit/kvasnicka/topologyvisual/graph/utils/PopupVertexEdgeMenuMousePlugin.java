@@ -21,7 +21,7 @@ import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
-import sk.stuba.fiit.kvasnicka.topologyvisual.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.TopologyState;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
@@ -43,12 +43,12 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
     private RoutingHelper routingHelper;
     private TopologyVertex selectedVertex = null;
     private TopologyEdge selectedEdge = null;
-    private Topology topology;
+    private TopologyCreation topology;
 
     /**
      * Creates a new instance of PopupVertexEdgeMenuMousePlugin
      */
-    public PopupVertexEdgeMenuMousePlugin(Topology topology) {
+    public PopupVertexEdgeMenuMousePlugin(TopologyCreation topology) {
         this(topology, MouseEvent.BUTTON3_MASK);
     }
 
@@ -58,7 +58,7 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
      * @param modifiers mouse event modifiers see the jung visualization Event
      * class.
      */
-    public PopupVertexEdgeMenuMousePlugin(Topology topology, int modifiers) {
+    public PopupVertexEdgeMenuMousePlugin(TopologyCreation topology, int modifiers) {
         super(modifiers);
         vertexPopup = new VertexPopupCollection();
         edgePopup = new EdgePopupCollection();
@@ -120,18 +120,6 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
      */
     public JPopupMenu getVertexPopup() {
         switch (TopologyState.getTopologyState()) {
-            case ROUTE_EDITING:
-                if (selectedVertex.isRoutingAllowed()) {
-                    return vertexPopup.routeEditing;
-                } else {
-                    return vertexPopup.normal;
-                }
-            case ROUTING_SOURCE_SELECTED:
-                if (selectedVertex.isRoutingAllowed()) {
-                    return vertexPopup.routingDestination;
-                } else {
-                    return vertexPopup.normal;
-                }
             case SIMULATION:
                 return vertexPopup.simulation;
             default:
@@ -141,42 +129,12 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
 
     private class VertexPopupCollection {
 
-        private JPopupMenu normal, simulation, routingDestination, routeEditing;
+        private JPopupMenu normal, simulation, routeEditing;
 
         public VertexPopupCollection() {
             simulation = new JPopupMenu();
             simulation.add(new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "properties")));
-            createRoutingDestinationPopup();
             createNormalPopup();
-            createRouteEditingPopup();
-
-        }
-
-        private void createRoutingDestinationPopup() {
-            routingDestination = new JPopupMenu();
-            routingDestination.add(new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "properties")));
-            JMenuItem routeDestination = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "create.destination"));
-            routeDestination.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    logg.debug("route has been selected - now let's create this route");
-                    //calculating new route
-                    if (NetbeansWindowHelper.getInstance().getActiveTopComponentTopology() == null) {
-                        return;
-                    }
-                    routingHelper.createRoute(NetbeansWindowHelper.getInstance().getActiveTopComponentTopology(), selectedVertex);
-                    //passing information about new route to RoutingTopComponent
-                    RoutingTopComponent component = (RoutingTopComponent) WindowManager.getDefault().findTopComponent("RoutingTopComponent");
-                    component.refresh();
-                    //passing information about new route to TopolElementTopComponent
-                    TopolElementTopComponent topolComponent = NetbeansWindowHelper.getInstance().getActiveTopoloElementTopComp();
-                    topolComponent.routesChanged();
-                    //switching the state
-                    TopologyState.setTopologyState(TopologyState.State.ROUTE_EDITING);
-                }
-            });
-            routingDestination.add(routeDestination);
         }
 
         private void createNormalPopup() {
@@ -218,28 +176,6 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
             });
             normal.add(menuItemDelete);
 
-        }
-
-        private void createRouteEditingPopup() {
-            routeEditing = new JPopupMenu();
-            routeEditing.add(new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "properties")));
-            routeEditing.addSeparator();
-            JMenuItem routeSource = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "create.source"));
-            routeSource.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    try {
-                        routingHelper.setRouteSource(selectedVertex);
-                        TopologyState.setTopologyState(TopologyState.State.ROUTING_SOURCE_SELECTED);
-                    } catch (RoutingException ex) {
-                        logg.error(ex.getMessage(), ex);
-                        JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            });
-            routeEditing.add(routeSource);
-            routeEditing.addSeparator();
         }
     }
 

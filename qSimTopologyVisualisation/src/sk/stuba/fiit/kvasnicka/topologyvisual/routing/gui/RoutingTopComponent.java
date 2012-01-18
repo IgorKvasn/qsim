@@ -91,7 +91,7 @@ public final class RoutingTopComponent extends TopComponent implements ExplorerM
         tableModel = (DefaultTableModel) jTable1.getModel();
         new JComboBoxAutoCompletator(comboRoutingTable); //I do not need to handle newly created instance
 
-        VertexSelectionManager.getInstance().addVertexSelectionChangedListener(this);
+        NetbeansWindowHelper.getInstance().getActiveTopoloElementTopComp().getVertexSelectionManager().addVertexSelectionChangedListener(this);
 
         resultRoute = Utilities.actionsGlobalContext().lookupResult(RouteChanged.class);
         resultRoute.addLookupListener(this);
@@ -99,7 +99,7 @@ public final class RoutingTopComponent extends TopComponent implements ExplorerM
 
     @Override
     public void vertexSelectionChangedOccurred(VertexSelectionChangedEvent evt) {
-        TopologyVertex firstSelectedVertex = VertexSelectionManager.getInstance().getFirstSelectedRouterVertex();
+        TopologyVertex firstSelectedVertex = NetbeansWindowHelper.getInstance().getActiveTopoloElementTopComp().getVertexSelectionManager().getFirstSelectedRouterVertex();
         logg.debug("showing routing table for: " + firstSelectedVertex);
         comboRoutingTable.setSelectedItem(firstSelectedVertex);
         if (firstSelectedVertex == null) {
@@ -204,7 +204,7 @@ public final class RoutingTopComponent extends TopComponent implements ExplorerM
         for (RouterVertex vertex : vertexRouterList) {
             comboRoutingTable.addItem(vertex);
         }
-        TopologyVertex firstSelectedVertex = VertexSelectionManager.getInstance().getFirstSelectedRouterVertex();
+        TopologyVertex firstSelectedVertex = NetbeansWindowHelper.getInstance().getActiveTopoloElementTopComp().getVertexSelectionManager().getFirstSelectedRouterVertex();
         comboRoutingTable.setSelectedItem(firstSelectedVertex);
     }
 

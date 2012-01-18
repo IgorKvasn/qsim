@@ -8,8 +8,6 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Graphics;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
@@ -19,6 +17,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.xml.bind.JAXBException;
+import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
@@ -33,9 +32,10 @@ import org.openide.util.NbBundle;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
-import sk.stuba.fiit.kvasnicka.topologyvisual.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.utils.DialogHandler;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.VertexSelectionManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexCreatedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexCreatedListener;
@@ -62,7 +62,7 @@ position = 2000)
 public final class TopolElementTopComponent extends JPanel implements Serializable, VertexCreatedListener, DocumentListener, MultiViewElement, PaletteSelectionListener {
 
     private static Logger logg = Logger.getLogger(TopolElementTopComponent.class);
-    private Topology topology;
+    private TopologyCreation topology;
     private TopologyElementCreatorHelper topologyElementCreator;
     private PaletteActionEnum selectedPaletteAction = null;
     private DialogHandler dialogHandler;
@@ -70,13 +70,15 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
     private TopologyFileTypeDataObject dataObject;
     private JToolBar toolBar = new JToolBar();
     private MultiViewElementCallback callback;
+    @Getter
+    private VertexSelectionManager vertexSelectionManager = new VertexSelectionManager();
 
     public TopolElementTopComponent(Lookup lkp) {
         this();
         dataObject = lkp.lookup(TopologyFileTypeDataObject.class);
         assert dataObject != null;
 
-        topology = new Topology(this);
+        topology = new TopologyCreation(this);
         DeserialisationResult loadSettings = dataObject.getLoadSettings();
 
         if (loadSettings == null) {//there was some problem when deserialising
@@ -95,7 +97,7 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
 
             @Override
             public void stateChanged(ChangeEvent e) {
-                modified();
+                dataObject.modified(callback.getTopComponent());
             }
         });
         TopologyPaletteTopComponent component = (TopologyPaletteTopComponent) WindowManager.getDefault().findTopComponent("TopologyPaletteTopComponent");
@@ -233,7 +235,7 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
         return dialogHandler;
     }
 
-    public Topology getTopology() {
+    public TopologyCreation getTopology() {
         return topology;
     }
 
@@ -291,40 +293,34 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
     @Override
     public void vertexCreatedOccurred(VertexCreatedEvent evt) {
         content.add(evt.getNewVertex());
-        modified();
+        dataObject.modified(callback.getTopComponent());
     }
 
+    @Deprecated
     public void routesChanged() {
         logg.debug("routes changed");
         content.add(new RouteChanged());
-        modified();
+        dataObject.modified(callback.getTopComponent());
     }
     private static final Icon ICON = ImageUtilities.loadImageIcon("sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/qsimFileType.png", true);
 
     //-------savable-------
     @Override
     public void insertUpdate(DocumentEvent e) {
-        modified();
+        dataObject.modified(callback.getTopComponent());
     }
 
     @Override
     public void removeUpdate(DocumentEvent e) {
-        modified();
+        dataObject.modified(callback.getTopComponent());
     }
 
     @Override
     public void changedUpdate(DocumentEvent e) {
-        modified();
+        dataObject.modified(callback.getTopComponent());
     }
 
-    private void modified() {
-        if (getLookup().lookup(TopologySavable.class) == null) {
-            callback.updateTitle(dataObject.getPrimaryFile().getNameExt() + "*");
-            content.add(new TopologySavable(dataObject.getName()));
-        }
-    }
     //-------------
-
     @Override
     public JComponent getVisualRepresentation() {
         return this;
@@ -383,7 +379,11 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
     @Override
     public void setMultiViewCallback(MultiViewElementCallback callback) {
         this.callback = callback;
-        callback.updateTitle(dataObject.getPrimaryFile().getNameExt());
+        if (dataObject.isModified()) {
+            callback.updateTitle(dataObject.getPrimaryFile().getNameExt() + "*");
+        } else {
+            callback.updateTitle(dataObject.getPrimaryFile().getNameExt());
+        }
     }
 
     @Override

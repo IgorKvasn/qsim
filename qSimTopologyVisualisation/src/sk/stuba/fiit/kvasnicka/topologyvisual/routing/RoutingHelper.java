@@ -14,7 +14,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import sk.stuba.fiit.kvasnicka.topologyvisual.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.facade.TopologyFacade;
@@ -86,7 +86,7 @@ public class RoutingHelper {
         return list;
     }
 
-    public static int getNumberOfNeighboursByType(Topology topology, TopologyVertex v, Class type) {
+    public static int getNumberOfNeighboursByType(TopologyCreation topology, TopologyVertex v, Class type) {
         Collection<TopologyVertex> neighbors = topologyFacade.getNeighbours(topology, v);
         int count = 0;
         for (TopologyVertex vertex : neighbors) {
@@ -199,7 +199,7 @@ public class RoutingHelper {
      * vertices and calculates the shortest paths between them old paths
      * (routes) will be forgotten
      */
-    public void recalculateRoutes(Topology topology) {
+    public void recalculateRoutes(TopologyCreation topology) {
         if (topology == null) {
             throw new IllegalArgumentException("topology is NULL");
         }
@@ -277,7 +277,7 @@ public class RoutingHelper {
      * @throws RoutingException destination is not a router or destination is
      * unreachable
      */
-    public void createRoute(Topology topology, TopologyVertex destination, TopologyVertex... fixedVertices) {
+    public void createRoute(TopologyCreation topology, TopologyVertex destination, TopologyVertex... fixedVertices) {
         if (topology == null) {
             throw new IllegalArgumentException("topology is NULL");
         }

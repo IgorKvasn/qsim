@@ -5,14 +5,14 @@
         <folder name="text">
             <folder name="qsim">
                 <folder name="MultiView">
-                    <file name="sk-stuba-fiit-kvasnicka-topologyvisual-palette-gui-TopologyFileTypeRouting.instance">
-                        <attr name="class" stringvalue="sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopologyFileTypeRouting"/>
+                    <file name="sk-stuba-fiit-kvasnicka-topologyvisual-palette-gui-TopologyMultiviewSimulation.instance">
+                        <attr name="class" stringvalue="sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopologyMultiviewSimulation"/>
                         <attr name="iconBase" stringvalue="sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/qsimFileType.png"/>
                         <attr name="instanceClass" stringvalue="org.netbeans.core.multiview.ContextAwareDescription"/>
                         <attr name="instanceCreate" methodvalue="org.netbeans.core.spi.multiview.MultiViewFactory.createMultiViewDescription"/>
                         <attr name="persistenceType" intvalue="2"/>
                         <attr name="position" intvalue="2000"/>
-                        <attr name="preferredID" stringvalue="TopologyFileTypeRouting"/>
+                        <attr name="preferredID" stringvalue="TopologyMultiviewSimulation"/>
                     </file>
                 </folder>
             </folder>

@@ -32,8 +32,6 @@ public abstract class TopologyState {
 
         NORMAL(null),//no special state
         SIMULATION("Simulating"), //simulation in progress
-        ROUTE_EDITING("Create or edit routes"),//creating/editing routes
-        ROUTING_SOURCE_SELECTED("Select route desitnation")//user is defining routing path; he has already selecte source node
         ;
         private String statusBarText;
 

@@ -10,6 +10,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import org.apache.log4j.Logger;
 
 import org.openide.awt.ActionRegistration;
 import org.openide.awt.ActionReference;
@@ -31,6 +32,7 @@ displayName = "#CTL_ShowRoutingAction")
 })
 public final class ShowRoutingAction extends AbstractAction implements Presenter.Toolbar {
 
+    private static Logger logg = Logger.getLogger(ShowRoutingAction.class);
     private JButton button;
     private Icon normalIcon = new ImageIcon(ImageResourceHelper.class.getResource("files/topology.png"));
     private Icon cancelIcon = new ImageIcon(ImageResourceHelper.class.getResource("files/topology_cancel.png"));
@@ -44,33 +46,34 @@ public final class ShowRoutingAction extends AbstractAction implements Presenter
 
     @Override
     public void actionPerformed(ActionEvent ev) {
-        if (TopologyState.State.ROUTE_EDITING.equals(TopologyState.getTopologyState())//the cancel button is shown
-                || TopologyState.State.ROUTING_SOURCE_SELECTED.equals(TopologyState.getTopologyState())) {
-            button.setIcon(normalIcon);
-            button.setToolTipText(NbBundle.getMessage(ShowRoutingAction.class, "CTL_ShowRoutingAction"));
-            TopologyState.setTopologyState(TopologyState.State.NORMAL);
-
-            TopComponent tc = WindowManager.getDefault().findTopComponent("RoutingTopComponent");
-            if (tc != null) {
-                tc.close();
-            }
-        } else {
-            button.setIcon(cancelIcon);
-            button.setToolTipText(NbBundle.getMessage(ShowRoutingAction.class, "CTL_ShowRoutingAction_cancel"));
-
-            TopologyState.setTopologyState(TopologyState.State.ROUTE_EDITING);
-            TopComponent tc = WindowManager.getDefault().findTopComponent("RoutingTopComponent");
-            if (tc != null) {
-                tc.open();
-                tc.requestActive();
-            }
-
-            TopComponent tc2 = WindowManager.getDefault().findTopComponent("RoutingTableTopComponent");
-            if (tc2 != null) {
-                tc2.open();
-                 tc2.requestActive();
-            }
-        }
+        logg.debug("action routing pressed - nothing to do, because this button is deprecated");
+//        if (TopologyState.State.ROUTE_EDITING.equals(TopologyState.getTopologyState())//the cancel button is shown
+//                || TopologyState.State.ROUTING_SOURCE_SELECTED.equals(TopologyState.getTopologyState())) {
+//            button.setIcon(normalIcon);
+//            button.setToolTipText(NbBundle.getMessage(ShowRoutingAction.class, "CTL_ShowRoutingAction"));
+//            TopologyState.setTopologyState(TopologyState.State.NORMAL);
+//
+//            TopComponent tc = WindowManager.getDefault().findTopComponent("RoutingTopComponent");
+//            if (tc != null) {
+//                tc.close();
+//            }
+//        } else {
+//            button.setIcon(cancelIcon);
+//            button.setToolTipText(NbBundle.getMessage(ShowRoutingAction.class, "CTL_ShowRoutingAction_cancel"));
+//
+//            TopologyState.setTopologyState(TopologyState.State.ROUTE_EDITING);
+//            TopComponent tc = WindowManager.getDefault().findTopComponent("RoutingTopComponent");
+//            if (tc != null) {
+//                tc.open();
+//                tc.requestActive();
+//            }
+//
+//            TopComponent tc2 = WindowManager.getDefault().findTopComponent("RoutingTableTopComponent");
+//            if (tc2 != null) {
+//                tc2.open();
+//                 tc2.requestActive();
+//            }
+//        }
     }
 
     @Override
