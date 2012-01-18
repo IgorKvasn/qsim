@@ -13,12 +13,22 @@ import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.UndoRedo;
 import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
 
 /**
+ * this MultiViewElement is very (!) important to make the whole Topcomponent
+ * serialisable (because of window persistence). it is also very important to
+ * make this MultiViewElement default MultiViewElement that is shown
  *
  * @author Igor Kvasnicka
  */
+@NbBundle.Messages({
+    "number_of_nodes=Number of topology nodes:",
+    "number_of_edges=Number of links",
+    "routers=routers:",
+    "switches=switches:",
+    "computers=computers:"})
 public class TopologyInformation extends javax.swing.JPanel implements MultiViewElement, Serializable {
 
     private JToolBar toolBar = new JToolBar();
@@ -29,8 +39,8 @@ public class TopologyInformation extends javax.swing.JPanel implements MultiView
         obj = lkp.lookup(TopologyFileTypeDataObject.class);
         assert obj != null;
         initComponents();
-        
-        jLabel1.setText(obj.getLoadSettings().getVFactory().getAllVertices().size()+"");
+
+        jLabel1.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_nodes") + ": " + obj.getLoadSettings().getVFactory().getAllVertices().size());
     }
 
     /**
@@ -105,7 +115,11 @@ public class TopologyInformation extends javax.swing.JPanel implements MultiView
     @Override
     public void setMultiViewCallback(MultiViewElementCallback callback) {
         this.callback = callback;
-        callback.updateTitle(obj.getPrimaryFile().getNameExt());
+        if (obj.isModified()) {
+            callback.updateTitle(obj.getPrimaryFile().getNameExt() + "*");
+        } else {
+            callback.updateTitle(obj.getPrimaryFile().getNameExt());
+        }
     }
 
     @Override

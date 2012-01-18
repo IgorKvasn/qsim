@@ -16,7 +16,7 @@ import edu.uci.ics.jung.visualization.control.TranslatingGraphMousePlugin;
 import org.apache.commons.collections15.Factory;
 
 import java.awt.event.InputEvent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 
@@ -28,7 +28,7 @@ public class MyEditingModalGraphMouse extends EditingModalGraphMouse<TopologyVer
      * @param rc render context
      * @param vertexFactory vertex factory to create new vertices
      */
-    public MyEditingModalGraphMouse(RenderContext<TopologyVertex, TopologyEdge> rc, Factory<TopologyVertex> vertexFactory, Topology topology) {
+    public MyEditingModalGraphMouse(RenderContext<TopologyVertex, TopologyEdge> rc, Factory<TopologyVertex> vertexFactory, TopologyCreation topology) {
         super(rc, vertexFactory, null);
     }
 

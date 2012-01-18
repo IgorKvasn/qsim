@@ -30,13 +30,6 @@ public abstract class TopologyVertex implements Serializable {
     protected ImageType imageType;
     @Getter
     protected final Icon icon;
-    /**
-     * Icon that is shown above vertex when it is selected
-     */
-    @XmlTransient
-    public static Icon routeCreationIcon = new Checkmark(Color.GREEN);
-    @XmlTransient
-    public static Icon selectedIcon = new Checkmark(Color.RED);
     @Getter
     @Setter
     @XmlTransient
@@ -54,7 +47,7 @@ public abstract class TopologyVertex implements Serializable {
     protected TopologyVertex(ImageType imageType, String name) {
         this.imageType = imageType;
         this.name = name;
-        this.icon = ImageResourceHelper.loadImageVertex(imageType);
+        this.icon = ImageResourceHelper.loadImageVertex(imageType, false);
         if (icon == null) {
             throw new IllegalStateException("icon not loaded");
         }
@@ -114,13 +107,13 @@ public abstract class TopologyVertex implements Serializable {
      */
     public void deSelectVertex() {
         if (icon instanceof LayeredIcon) {
-            ((LayeredIcon) icon).remove(routeCreationIcon);
+            ((LayeredIcon) icon).setImage(ImageResourceHelper.loadImageVertexAsImage(imageType, selected));
         }
     }
 
     public void deCheckVertex() {
         if (icon instanceof LayeredIcon) {
-            ((LayeredIcon) icon).remove(selectedIcon);
+            ((LayeredIcon) icon).setImage(ImageResourceHelper.loadImageVertexAsImage(imageType, selected));
         }
     }
 

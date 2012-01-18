@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import lombok.Getter;
 import lombok.Setter;
-import sk.stuba.fiit.kvasnicka.topologyvisual.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.data.Edge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
@@ -53,7 +53,7 @@ public class XmlSerializationProxy {
      *
      * @param topology
      */
-    public XmlSerializationProxy(Topology topology) {
+    public XmlSerializationProxy(TopologyCreation topology) {
         if (topology == null) {
             throw new IllegalArgumentException("topology is NULL");
         }

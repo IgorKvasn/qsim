@@ -17,13 +17,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
  */
 public class VertexSelectionManager {
 
-    private static VertexSelectionManager INSTANCE = new VertexSelectionManager();
     @Getter
     private LinkedHashSet<TopologyVertex> selectedVertices = new LinkedHashSet<TopologyVertex>();
-
-    public static VertexSelectionManager getInstance() {
-        return INSTANCE;
-    }
 
     public void addSelectedVertex(TopologyVertex v) {
         selectedVertices.add(v);
@@ -36,8 +31,9 @@ public class VertexSelectionManager {
     }
 
     /**
-     * returns historically first vertex that selected of all currently selected vertices
-     * if no vertices are selected, null will be returned
+     * returns historically first vertex that selected of all currently selected
+     * vertices if no vertices are selected, null will be returned
+     *
      * @return first vertex or null
      */
     public TopologyVertex getFirstSelectedVertex() {
@@ -48,8 +44,10 @@ public class VertexSelectionManager {
     }
 
     /**
-     * returns historically first RouterVertex that selected of all currently selected vertices
-     * if no RouterVertices are selected, null will be returned
+     * returns historically first RouterVertex that selected of all currently
+     * selected vertices if no RouterVertices are selected, null will be
+     * returned
+     *
      * @return first RouterVertex or null
      */
     public RouterVertex getFirstSelectedRouterVertex() {

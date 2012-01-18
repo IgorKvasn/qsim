@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package sk.stuba.fiit.kvasnicka.topologyvisual;
+package sk.stuba.fiit.kvasnicka.topologyvisual.topology;
 
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.swing.JComponent;
 import org.apache.commons.collections15.Transformer;
 import org.apache.log4j.Logger;
+import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexCreatedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexCreatedListener;
@@ -47,9 +48,9 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.SerialisationHelper.
  *
  * @author Igor Kvasnicka
  */
-public class Topology implements VertexCreatedListener {
+public class TopologyCreation implements VertexCreatedListener {
 
-    private static Logger logg = Logger.getLogger(Topology.class);
+    private static Logger logg = Logger.getLogger(TopologyCreation.class);
     private AbstractGraph<TopologyVertex, TopologyEdge> g;
     private AbstractLayout<TopologyVertex, TopologyEdge> layout;
     private PopupVertexEdgeMenuMousePlugin popupVertexMenuMousePlugin;
@@ -64,7 +65,7 @@ public class Topology implements VertexCreatedListener {
      *
      * @param mainFrame instance of MainFrame
      */
-    public Topology(TopolElementTopComponent topolElementTopComponent) {
+    public TopologyCreation(TopolElementTopComponent topolElementTopComponent) {
         this.topolElementTopComponent = topolElementTopComponent;
     }
 
@@ -108,7 +109,7 @@ public class Topology implements VertexCreatedListener {
      * @param mainFrame reference to MainFrame object
      */
     public void initTopology() {
-        logg.debug("init jung");
+        logg.debug("init jung - creation");
 
         //vertex as icon
         Transformer<TopologyVertex, Paint> vpf = new PickableVertexPaintTransformer<TopologyVertex>(vv.getPickedVertexState(), Color.white, Color.yellow);
@@ -380,7 +381,7 @@ public class Topology implements VertexCreatedListener {
 
     }
 
-    private static class MyVertexLabelRenderer extends DefaultVertexLabelRenderer {
+    public static class MyVertexLabelRenderer extends DefaultVertexLabelRenderer {
 
         private Color background_color;
         private Color foreground_color;

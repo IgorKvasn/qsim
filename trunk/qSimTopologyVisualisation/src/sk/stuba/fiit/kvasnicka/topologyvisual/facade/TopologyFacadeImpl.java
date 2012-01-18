@@ -11,7 +11,7 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.log4j.Logger;
 import org.openide.util.lookup.ServiceProvider;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
-import sk.stuba.fiit.kvasnicka.topologyvisual.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.ComputerVertex;
@@ -31,12 +31,12 @@ public class TopologyFacadeImpl implements TopologyFacade {
     private DijkstraShortestPath<TopologyVertex, TopologyEdge> dijkstra;
 
     @Override
-    public Collection<TopologyVertex> getNeighbours(Topology topology, TopologyVertex vertex) {
+    public Collection<TopologyVertex> getNeighbours(TopologyCreation topology, TopologyVertex vertex) {
         return topology.getGraph().getNeighbors(vertex);
     }
 
     @Override
-    public List<TopologyEdge> findShortestPath(Topology topology, TopologyVertex begin, TopologyVertex end) {
+    public List<TopologyEdge> findShortestPath(TopologyCreation topology, TopologyVertex begin, TopologyVertex end) {
         if (PreferenciesHelper.isAutomaticRoutingDistanceProtocol()) {//unweight dijkstra
             logg.debug("findShortestPath - unweight");
             dijkstra = new DijkstraShortestPath(topology.getGraph());

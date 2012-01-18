@@ -4,11 +4,14 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui;
 
+import edu.uci.ics.jung.visualization.VisualizationViewer;
+import java.awt.BorderLayout;
 import java.io.Serializable;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import org.apache.log4j.Logger;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
@@ -17,27 +20,54 @@ import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.SerialisationHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologySimulation;
 
-@MultiViewElement.Registration(displayName = "#LBL_TopologyFileType_Routing",
+@MultiViewElement.Registration(displayName = "#LBL_TopologyFileType_Simulation",
 iconBase = "sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/qsimFileType.png",
 mimeType = "text/qsim",
 persistenceType = TopComponent.PERSISTENCE_NEVER,
-preferredID = "TopologyFileTypeRouting",
+preferredID = "TopologyMultiviewSimulation",
 position = 2000)
-@Messages("LBL_TopologyFileType_Routing=Routing")
-public final class TopologyFileTypeRouting extends JPanel implements MultiViewElement, Serializable {
+@Messages("LBL_TopologyFileType_Simulation=Simulation")
+public final class TopologyMultiviewSimulation extends JPanel implements MultiViewElement, Serializable {
 
+    private static Logger logg = Logger.getLogger(TopologyMultiviewSimulation.class);
     private TopologyFileTypeDataObject obj;
     private JToolBar toolbar = new JToolBar();
     private MultiViewElementCallback callback;
+    private TopologySimulation topology;
 
-    public TopologyFileTypeRouting(Lookup lkp) {
+    public TopologyMultiviewSimulation(Lookup lkp) {
         obj = lkp.lookup(TopologyFileTypeDataObject.class);
         assert obj != null;
         initComponents();
 
+        topology = new TopologySimulation(this);
         SerialisationHelper.DeserialisationResult loadSettings = obj.getLoadSettings();
+
+        if (loadSettings == null) {//there was some problem when deserialising
+            topology.createDefaultSettings();
+        } else {
+            topology.loadFromSettings(loadSettings);
+        }
+
+        topology.initTopology();
+    }
+
+    /**
+     * adds Jung component into TopComponent - this happens when topology has
+     * been loaded from file (successfully or not)
+     *
+     * @param vv
+     */
+    public void addJungIntoFrame(VisualizationViewer<TopologyVertex, TopologyEdge> vv) {
+        logg.debug("adding Jung component to TopComponent");
+        jPanel1.add(topology.getVv(), BorderLayout.CENTER);
+        validate();
+        topology.getVv().repaint();
     }
 
     @Override
@@ -53,20 +83,25 @@ public final class TopologyFileTypeRouting extends JPanel implements MultiViewEl
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
+
+        jPanel1.setLayout(new java.awt.BorderLayout());
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
+
     @Override
     public JComponent getVisualRepresentation() {
         return this;
@@ -119,6 +154,11 @@ public final class TopologyFileTypeRouting extends JPanel implements MultiViewEl
     @Override
     public void setMultiViewCallback(MultiViewElementCallback callback) {
         this.callback = callback;
+        if (obj.isModified()) {
+            callback.updateTitle(obj.getPrimaryFile().getNameExt() + "*");
+        } else {
+            callback.updateTitle(obj.getPrimaryFile().getNameExt());
+        }
     }
 
     @Override

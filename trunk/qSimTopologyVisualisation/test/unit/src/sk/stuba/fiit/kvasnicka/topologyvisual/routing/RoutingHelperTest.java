@@ -13,7 +13,7 @@ import java.util.List;
 import org.easymock.EasyMock;
 import static org.junit.Assert.*;
 import org.netbeans.junit.NbTestCase;
-import sk.stuba.fiit.kvasnicka.topologyvisual.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.data.Edge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.topologyvisual.data.Router;
@@ -32,7 +32,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 public class RoutingHelperTest extends NbTestCase {
 
     RoutingHelper helper;
-    Topology topology;
+    TopologyCreation topology;
 
     public RoutingHelperTest(String name) {
         super(name);
@@ -296,7 +296,7 @@ public class RoutingHelperTest extends NbTestCase {
      */
     public void testCreateRoute_normal_route1() throws Exception {
         helper = new RoutingHelper();
-        topology = new Topology(null);
+        topology = new TopologyCreation(null);
         
         NetworkNode node1 = new Router("meno1");
         NetworkNode node2 = new Router("meno2");
@@ -360,7 +360,7 @@ public class RoutingHelperTest extends NbTestCase {
      */
     public void testCreateRoute_normal_route2() throws RoutingException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
         helper = new RoutingHelper();
-        topology = new Topology(null);
+        topology = new TopologyCreation(null);
         
         NetworkNode node1 = new Router("meno1");
         NetworkNode node2 = new Router("meno2");
@@ -423,7 +423,7 @@ public class RoutingHelperTest extends NbTestCase {
      */
     public void testCreateRoute_normal_noFixedVertices() throws RoutingException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
         helper = new RoutingHelper();
-        topology = new Topology(null);
+        topology = new TopologyCreation(null);
         
         NetworkNode node1 = new Router("meno1");
         NetworkNode node2 = new Router("meno2");
@@ -467,7 +467,7 @@ public class RoutingHelperTest extends NbTestCase {
      * Ypsilon topology
      */
     public void ignoredGetAvailableDestinations() {
-        topology = new Topology(null);
+        topology = new TopologyCreation(null);
         
         NetworkNode source = new Router("source");
         NetworkNode a = new Router("a");
@@ -492,7 +492,7 @@ public class RoutingHelperTest extends NbTestCase {
      * cyclic topology
      */
     public void ignoredGetAvailableDestinations_cycle() {
-        topology = new Topology(null);
+        topology = new TopologyCreation(null);
         
         NetworkNode source = new Router("source");
         NetworkNode a = new Router("a");
@@ -529,7 +529,7 @@ public class RoutingHelperTest extends NbTestCase {
 
     public void testRecalculateRoutes() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
         helper = new RoutingHelper();
-        topology = new Topology(null);
+        topology = new TopologyCreation(null);
 
         NetworkNode a = new Router("a");
         NetworkNode b = new Router("b");
@@ -626,7 +626,7 @@ public class RoutingHelperTest extends NbTestCase {
     }
 
     public void ignoredDirectlyConnected_Positive() throws Exception {
-        topology = new Topology(null);
+        topology = new TopologyCreation(null);
         
         Router r1 = new Router("router1");
         RouterVertex from = new RouterVertex(r1);
