@@ -4,22 +4,17 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.serialisation;
 
-import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
-import edu.uci.ics.jung.algorithms.layout.StaticLayout;
-import edu.uci.ics.jung.graph.AbstractGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.io.GraphIOException;
 import edu.uci.ics.jung.io.graphml.*;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.io.*;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import lombok.Getter;
 import org.apache.commons.collections15.Transformer;
 import org.apache.log4j.Logger;
 import org.openide.util.Exceptions;
@@ -29,6 +24,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
+import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult.EdgeDescriptor;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.dto.EdgeDTO;
 
 /**
@@ -43,15 +39,25 @@ public class SerialisationHelper {
      * Layout object is created and Layout is created after Jung file is loaded
      * - a kind of magic circle
      */
-    private static Map<TopologyVertex, Point2D> vertexLocationMap = new HashMap<TopologyVertex, Point2D>();
+    private Map<TopologyVertex, Point2D> vertexLocationMap = new HashMap<TopologyVertex, Point2D>();
     /**
      * key = vertex name <br> value = NetworkNode object loaded from DataModel
      * file
      */
-    private static Map<String, NetworkNode> networkNodeVertexMap = new HashMap<String, NetworkNode>();
-    private static Map<EdgeDescriptor, Edge> edgeMap = new HashMap<EdgeDescriptor, Edge>();
+    private Map<String, NetworkNode> networkNodeVertexMap = new HashMap<String, NetworkNode>();
+    private Map<EdgeDescriptor, Edge> edgeMap = new HashMap<EdgeDescriptor, Edge>();
+    private String topologyName, topologyDescription;
 
-    public static DeserialisationResult loadSettings(File file) throws GraphIOException, IOException, JAXBException {
+    /**
+     * reads file being loaded
+     *
+     * @param file
+     * @return
+     * @throws GraphIOException
+     * @throws IOException
+     * @throws JAXBException
+     */
+    public DeserialisationResult loadSettings(File file) throws GraphIOException, IOException, JAXBException {
         if (file == null) {
             return null;
         }
@@ -59,29 +65,26 @@ public class SerialisationHelper {
         //first I need to load information about vertices and edges
         int beginData = fileString.indexOf("<xmlSerializationProxy>");
         int endData = fileString.indexOf("</xmlSerializationProxy>");
-        if (beginData < 0 || endData < 0) {
+        if (beginData < 0 || endData < 0) { //data model MUST be present either file contains JUNG graph or not
             logg.error("File is corrupted - could not find data model.");
             return null;
         }
         String dataSettings = new String(fileString.substring(beginData, endData + "</xmlSerializationProxy>".length()));
-        logg.debug("data model string created ");
         loadJaxb(dataSettings);
-        logg.debug("data model loaded");
 
         //now I can load information about graph itself (JUNG data)
         int beginGraph = fileString.indexOf("<graphml");
         int endGraph = fileString.indexOf("</graphml>");
+        String jungSettings = "";
         if (beginGraph < 0 || endGraph < 0) {
-            logg.error("File is corrupted - could not find JUNG data.");
-          return null;
+            logg.info("could not find JUNG data.");
+        } else {
+            jungSettings = new String(fileString.substring(beginGraph, endGraph + "</graphml>".length()));
         }
-
-        String jungSettings = new String(fileString.substring(beginGraph, endGraph + "</graphml>".length()));
-        logg.debug("jung model string created ");
         return loadJung(jungSettings);
     }
 
-    private static String readFileAsString(File file) throws java.io.IOException {
+    private String readFileAsString(File file) throws java.io.IOException {
         byte[] buffer = new byte[(int) file.length()];
         BufferedInputStream f = null;
         try {
@@ -98,7 +101,7 @@ public class SerialisationHelper {
         return new String(buffer);
     }
 
-    private static void loadJaxb(String jaxbString) throws JAXBException, FileNotFoundException {
+    private void loadJaxb(String jaxbString) throws JAXBException, FileNotFoundException {
         JAXBContext context = JAXBContext.newInstance(XmlSerializationProxy.class);
         Unmarshaller unmarshaller = context.createUnmarshaller();
 
@@ -125,10 +128,15 @@ public class SerialisationHelper {
                 edgeMap.put(descr, e);
             }
         }
-
+        topologyName = serProxy.getTopologyName();
+        topologyDescription = serProxy.getTopologyDescription();
     }
 
-    private static DeserialisationResult loadJung(String s) throws FileNotFoundException {
+    private DeserialisationResult loadJung(String s) throws FileNotFoundException {
+        if (s.isEmpty()) {//no JUNG xml to be deserialised
+            logg.debug("no JUNG data found = no topology graph - it is OK");
+            return new DeserialisationResult(topologyName, topologyDescription);
+        }
         final TopologyVertexFactory vFactory = new TopologyVertexFactory();
         Reader reader = new StringReader(s);
 
@@ -189,107 +197,24 @@ public class SerialisationHelper {
             readGraph = gmlr.readGraph();
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
-
             return null;
         }
         logg.debug("jung loaded");
-        return new DeserialisationResult(readGraph, vFactory);
-
+        return new DeserialisationResult(readGraph, vFactory, vertexLocationMap, topologyName, topologyDescription);
     }
 
-    private static NetworkNode findVertexNetworkNode(String name) {
+    private NetworkNode findVertexNetworkNode(String name) {
         if (!networkNodeVertexMap.containsKey(name)) {
             throw new IllegalStateException("Could not find vetex with name: " + name + ". File being loaded is corrupted.");
         }
         return networkNodeVertexMap.get(name);
     }
 
-    private static Edge findEdge(String vertex1, String vertex2) {
+    private Edge findEdge(String vertex1, String vertex2) {
         EdgeDescriptor desc = new EdgeDescriptor(vertex1, vertex2);
         if (edgeMap.containsKey(desc)) {
             return edgeMap.get(desc);
         }
         throw new IllegalStateException("Could not find edge between vertices: " + vertex1 + " and " + vertex2 + ". File being loaded is corrupted.");
-    }
-
-    @Getter
-    public static class DeserialisationResult {
-
-        private AbstractGraph<TopologyVertex, TopologyEdge> g;
-        private AbstractLayout<TopologyVertex, TopologyEdge> layout;
-        private TopologyVertexFactory vFactory;
-
-        public DeserialisationResult(AbstractGraph<TopologyVertex, TopologyEdge> g, TopologyVertexFactory vFactory) {
-            this.vFactory = vFactory;
-            this.g = g;
-            layout = new StaticLayout<TopologyVertex, TopologyEdge>(g);
-
-            for (TopologyVertex v : vertexLocationMap.keySet()) {
-                layout.setLocation(v, vertexLocationMap.get(v));
-            }
-
-            normalizeEdges(g.getEdges());
-        }
-
-        /**
-         * when TopologyEdge was created, special constructor was used. how it
-         * is time to init fields that has been forgotten - vertex1 and vertex2
-         *
-         * @param edges
-         */
-        private void normalizeEdges(Collection<TopologyEdge> edges) {
-            for (TopologyEdge edge : edges) {
-                String v1 = edge.getEdge().getNode1().getName();
-                String v2 = edge.getEdge().getNode2().getName();
-
-                edge.setVertices(findTopologyVertex(v1), findTopologyVertex(v2));
-            }
-        }
-
-        private TopologyVertex findTopologyVertex(String name) {
-            Collection<TopologyVertex> vertices = g.getVertices();
-            for (TopologyVertex v : vertices) {
-                if (v.getName().equals(name)) {
-                    return v;
-                }
-            }
-            throw new IllegalStateException("Unknown vertex with name: " + name);
-        }
-    }
-
-    private static class EdgeDescriptor {
-
-        private String vertex1, vertex2;
-
-        public EdgeDescriptor(String vertex1, String vertex2) {
-            this.vertex1 = vertex1;
-            this.vertex2 = vertex2;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            final EdgeDescriptor other = (EdgeDescriptor) obj;
-            if ((this.vertex1 == null) ? (other.vertex1 != null) : !this.vertex1.equals(other.vertex1)) {
-                return false;
-            }
-            if ((this.vertex2 == null) ? (other.vertex2 != null) : !this.vertex2.equals(other.vertex2)) {
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = 5;
-            hash = 41 * hash + (this.vertex1 != null ? this.vertex1.hashCode() : 0);
-            hash = 41 * hash + (this.vertex2 != null ? this.vertex2.hashCode() : 0);
-            return hash;
-        }
     }
 }

@@ -25,6 +25,7 @@ import java.awt.event.InputEvent;
 import java.awt.geom.Point2D;
 import java.util.Map;
 import javax.swing.JComponent;
+import lombok.Getter;
 import org.apache.commons.collections15.Transformer;
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
@@ -40,7 +41,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.MyVertexIconS
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.VertexToIconTransformer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopolElementTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.routing.RoutingHelper;
-import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.SerialisationHelper.DeserialisationResult;
+import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 
 /**
  * This class is graphical representation of network topology it uses JUNG
@@ -51,7 +52,9 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.SerialisationHelper.
 public class TopologyCreation implements VertexCreatedListener {
 
     private static Logger logg = Logger.getLogger(TopologyCreation.class);
+    @Getter
     private AbstractGraph<TopologyVertex, TopologyEdge> g;
+    @Getter
     private AbstractLayout<TopologyVertex, TopologyEdge> layout;
     private PopupVertexEdgeMenuMousePlugin popupVertexMenuMousePlugin;
     private VisualizationViewer<TopologyVertex, TopologyEdge> vv;
@@ -327,14 +330,6 @@ public class TopologyCreation implements VertexCreatedListener {
 
     public void repaintGraph() {
         vv.repaint();
-    }
-
-    public Graph getGraph() {
-        return g;
-    }
-
-    public AbstractLayout<TopologyVertex, TopologyEdge> getLayout() {
-        return layout;
     }
 
     public boolean edgeExists(TopologyVertex v1, TopologyVertex v2) {

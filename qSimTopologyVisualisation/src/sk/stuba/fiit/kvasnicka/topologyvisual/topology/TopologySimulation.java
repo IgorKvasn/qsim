@@ -35,6 +35,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.MyVertexIconS
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.VertexToIconTransformer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopolElementTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopologyMultiviewSimulation;
+import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.SerialisationHelper;
 
 /**
@@ -155,7 +156,7 @@ public class TopologySimulation {
      *
      * @param loadSettings
      */
-    public void loadFromSettings(SerialisationHelper.DeserialisationResult loadSettings) {
+    public void loadFromSettings(DeserialisationResult loadSettings) {
         if (loadSettings == null) {
             return;
         }

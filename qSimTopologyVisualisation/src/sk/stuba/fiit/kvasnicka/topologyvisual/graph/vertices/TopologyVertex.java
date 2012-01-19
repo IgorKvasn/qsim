@@ -71,8 +71,6 @@ public abstract class TopologyVertex implements Serializable {
         return name;
     }
 
-    ;
-
     @Override
     public String toString() {
         return name;
@@ -103,17 +101,20 @@ public abstract class TopologyVertex implements Serializable {
     public abstract NetworkNode getDataModel();
 
     /**
-     * deselects vertex (removes routeCreationIcon from LayeredIcon)
+     * deselects vertex
      */
     public void deSelectVertex() {
         if (icon instanceof LayeredIcon) {
-            ((LayeredIcon) icon).setImage(ImageResourceHelper.loadImageVertexAsImage(imageType, selected));
+            ((LayeredIcon) icon).setImage(ImageResourceHelper.loadImageVertexAsImage(imageType, false));
         }
     }
 
+    /**
+     * de-checks vertex
+     */
     public void deCheckVertex() {
         if (icon instanceof LayeredIcon) {
-            ((LayeredIcon) icon).setImage(ImageResourceHelper.loadImageVertexAsImage(imageType, selected));
+            ((LayeredIcon) icon).setImage(ImageResourceHelper.loadImageVertexAsImage(imageType, false));
         }
     }
 

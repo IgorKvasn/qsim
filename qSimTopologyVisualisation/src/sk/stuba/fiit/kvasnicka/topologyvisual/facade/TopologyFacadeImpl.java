@@ -32,17 +32,17 @@ public class TopologyFacadeImpl implements TopologyFacade {
 
     @Override
     public Collection<TopologyVertex> getNeighbours(TopologyCreation topology, TopologyVertex vertex) {
-        return topology.getGraph().getNeighbors(vertex);
+        return topology.getG().getNeighbors(vertex);
     }
 
     @Override
     public List<TopologyEdge> findShortestPath(TopologyCreation topology, TopologyVertex begin, TopologyVertex end) {
         if (PreferenciesHelper.isAutomaticRoutingDistanceProtocol()) {//unweight dijkstra
             logg.debug("findShortestPath - unweight");
-            dijkstra = new DijkstraShortestPath(topology.getGraph());
+            dijkstra = new DijkstraShortestPath(topology.getG());
         } else {
             logg.debug("findShortestPath - weight");
-            dijkstra = new DijkstraShortestPath(topology.getGraph(), new Transformer<TopologyEdge, Double>() {
+            dijkstra = new DijkstraShortestPath(topology.getG(), new Transformer<TopologyEdge, Double>() {
 
                 @Override
                 public Double transform(TopologyEdge edge) {

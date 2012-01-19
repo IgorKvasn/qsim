@@ -6,26 +6,19 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui;
 
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Graphics;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.Serializable;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.xml.bind.JAXBException;
 import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
-import org.netbeans.spi.actions.AbstractSavable;
 import org.openide.awt.StatusDisplayer;
 import org.openide.awt.UndoRedo;
-import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -47,7 +40,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectio
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectionListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.lookuputils.RouteChanged;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
-import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.SerialisationHelper.DeserialisationResult;
+import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 
 /**
  * Top component which displays something.
@@ -81,7 +74,7 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
         topology = new TopologyCreation(this);
         DeserialisationResult loadSettings = dataObject.getLoadSettings();
 
-        if (loadSettings == null) {//there was some problem when deserialising
+        if (!loadSettings.isJungLoaded()) {
             dialogHandler = new DialogHandler();
             topology.createDefaultSettings();
         } else {
@@ -97,7 +90,7 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
 
             @Override
             public void stateChanged(ChangeEvent e) {
-                dataObject.modified(callback.getTopComponent());
+                topologyModified();
             }
         });
         TopologyPaletteTopComponent component = (TopologyPaletteTopComponent) WindowManager.getDefault().findTopComponent("TopologyPaletteTopComponent");
@@ -293,31 +286,35 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
     @Override
     public void vertexCreatedOccurred(VertexCreatedEvent evt) {
         content.add(evt.getNewVertex());
-        dataObject.modified(callback.getTopComponent());
+        topologyModified();
     }
 
     @Deprecated
     public void routesChanged() {
         logg.debug("routes changed");
         content.add(new RouteChanged());
-        dataObject.modified(callback.getTopComponent());
+        topologyModified();
+    }
+
+    private void topologyModified() {
+        dataObject.modifiedTopology(callback.getTopComponent(), topology.getG(), topology.getLayout(), topology.getVertexFactory());
     }
     private static final Icon ICON = ImageUtilities.loadImageIcon("sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/qsimFileType.png", true);
 
     //-------savable-------
     @Override
     public void insertUpdate(DocumentEvent e) {
-        dataObject.modified(callback.getTopComponent());
+        topologyModified();
     }
 
     @Override
     public void removeUpdate(DocumentEvent e) {
-        dataObject.modified(callback.getTopComponent());
+        topologyModified();
     }
 
     @Override
     public void changedUpdate(DocumentEvent e) {
-        dataObject.modified(callback.getTopComponent());
+        topologyModified();
     }
 
     //-------------
@@ -389,67 +386,5 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
     @Override
     public CloseOperationState canCloseElement() {
         return CloseOperationState.STATE_OK;
-    }
-
-    private class TopologySavable extends AbstractSavable implements Icon {
-
-        private final String fileName;
-
-        TopologySavable(String fileName) {
-            register();
-            this.fileName = fileName;
-        }
-
-        @Override
-        protected String findDisplayName() {
-            return this.fileName;
-        }
-
-        @Override
-        protected void handleSave() throws IOException {
-            try {
-                tc().content.remove(this);
-                unregister();
-                dataObject.save(TopolElementTopComponent.this.topology);
-                callback.updateTitle(dataObject.getPrimaryFile().getNameExt());
-            } catch (JAXBException ex) {
-                Exceptions.printStackTrace(ex);
-            } catch (FileNotFoundException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-
-        TopolElementTopComponent tc() {
-            return TopolElementTopComponent.this;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof TopologySavable) {
-                TopologySavable m = (TopologySavable) obj;
-                return tc() == m.tc();
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return tc().hashCode();
-        }
-
-        @Override
-        public void paintIcon(Component c, Graphics g, int x, int y) {
-            ICON.paintIcon(c, g, x, y);
-        }
-
-        @Override
-        public int getIconWidth() {
-            return ICON.getIconWidth();
-        }
-
-        @Override
-        public int getIconHeight() {
-            return ICON.getIconHeight();
-        }
     }
 }

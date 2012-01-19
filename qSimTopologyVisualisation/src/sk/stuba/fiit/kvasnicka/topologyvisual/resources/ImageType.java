@@ -1,6 +1,7 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.resources;
 
 /**
+ * each image is defined by enum "ImageType"
  * User: Igor Kvasnicka Date: 9/2/11 Time: 1:15 PM
  */
 public enum ImageType {
