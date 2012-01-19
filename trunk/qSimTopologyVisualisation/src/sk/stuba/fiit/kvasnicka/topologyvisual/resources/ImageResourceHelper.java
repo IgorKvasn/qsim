@@ -7,6 +7,7 @@ import javax.swing.ImageIcon;
 import java.awt.Image;
 import java.net.URL;
 import java.util.HashMap;
+import org.openide.util.ImageUtilities;
 
 /**
  * images are cached, so that when image is to be loaded, previously loaded
@@ -35,6 +36,12 @@ public class ImageResourceHelper {
         return new LayeredIcon(loadImageVertexAsImage(imgType, selected));
     }
 
+    /**
+     * loads image and returns its representation as Image object
+     *
+     * @param imgType
+     * @return
+     */
     public static Image loadImageVertexAsImage(ImageType imgType, boolean selected) {
         String imgPath = selected ? imgType.getSelectePath() : imgType.getResourcePath();
         ImageKey imageKey = new ImageKey(imgPath, true, 0, 0);
@@ -44,6 +51,13 @@ public class ImageResourceHelper {
         return cache.get(imageKey).getImage();
     }
 
+    /**
+     * loads image that represents Vertex checked state and returns its
+     * representation as Image object
+     *
+     * @param imgType
+     * @return
+     */
     public static Image loadCheckedImageVertexAsImage(ImageType imgType) {
         String imgPath = imgType.getCheckedPath();
         ImageKey imageKey = new ImageKey(imgPath, true, 0, 0);

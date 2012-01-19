@@ -4,6 +4,7 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.serialisation;
 
+import edu.uci.ics.jung.graph.Graph;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,6 +17,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.data.Edge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.dto.EdgeDTO;
@@ -41,36 +43,29 @@ public class XmlSerializationProxy {
     private ArrayList<NetworkNode> vertices;
     private int numberOfEdges;
     private ArrayList<EdgeDTO> edges;
+    private String topologyName, topologyDescription;
 
     /**
-     * used when deserialisation process
+     * initializes serialisation proxy - fills it with actual data that are
+     * about to be saved
      */
-    public XmlSerializationProxy() {
-    }
+    public void prepareProxy(TopologyVertexFactory vertexFactory, Graph topologyGraph, String name, String description) {
+        //saving JUNG topology
+        if (vertexFactory != null && topologyGraph != null) {
+            this.vertices = getNetworkNodes(vertexFactory);
+            this.numberOfVertices = vertices.size();
 
-    /**
-     * used when serialising
-     *
-     * @param topology
-     */
-    public XmlSerializationProxy(TopologyCreation topology) {
-        if (topology == null) {
-            throw new IllegalArgumentException("topology is NULL");
+            this.edges = getDataModelEdges(topologyGraph);
+            this.numberOfEdges = edges.size();
         }
-        prepareJungProxy();
+        
+        //saving topology information
+        this.topologyName = name;
+        this.topologyDescription = description;
     }
 
-    private void prepareJungProxy() {
-        this.vertices = getNetworkNodes();
-        this.numberOfVertices = vertices.size();
-
-        this.edges = getDataModelEdges();
-        this.numberOfEdges = edges.size();
-
-    }
-
-    private ArrayList<NetworkNode> getNetworkNodes() {
-        List<TopologyVertex> allVertices = NetbeansWindowHelper.getInstance().getActiveTopComponentTopology().getVertexFactory().getAllVertices();
+    private ArrayList<NetworkNode> getNetworkNodes(TopologyVertexFactory vertexFactory) {
+        List<TopologyVertex> allVertices = vertexFactory.getAllVertices();
         ArrayList<NetworkNode> list = new ArrayList<NetworkNode>(allVertices.size());
         for (TopologyVertex v : allVertices) {
             list.add(v.getDataModel());
@@ -78,8 +73,8 @@ public class XmlSerializationProxy {
         return list;
     }
 
-    private ArrayList<EdgeDTO> getDataModelEdges() {
-        Collection<TopologyEdge> edgesCol = NetbeansWindowHelper.getInstance().getActiveTopComponentTopology().getGraph().getEdges();
+    private ArrayList<EdgeDTO> getDataModelEdges(Graph topologyGraph) {
+        Collection<TopologyEdge> edgesCol = topologyGraph.getEdges();
 
         ArrayList<EdgeDTO> list = new ArrayList<EdgeDTO>(edgesCol.size());
         for (TopologyEdge e : edgesCol) {

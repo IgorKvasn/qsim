@@ -22,6 +22,7 @@ import org.openide.windows.TopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
+import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.SerialisationHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologySimulation;
 
@@ -46,9 +47,9 @@ public final class TopologyMultiviewSimulation extends JPanel implements MultiVi
         initComponents();
 
         topology = new TopologySimulation(this);
-        SerialisationHelper.DeserialisationResult loadSettings = obj.getLoadSettings();
+        DeserialisationResult loadSettings = obj.getLoadSettings();
 
-        if (loadSettings == null) {//there was some problem when deserialising
+        if (!loadSettings.isJungLoaded()) {
             topology.createDefaultSettings();
         } else {
             topology.loadFromSettings(loadSettings);

@@ -4,9 +4,15 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.filetype;
 
+import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
+import edu.uci.ics.jung.graph.AbstractGraph;
+import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.io.GraphIOException;
 import edu.uci.ics.jung.io.GraphMLWriter;
+import java.awt.Component;
+import java.awt.Graphics;
 import java.io.*;
+import javax.swing.Icon;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -14,34 +20,53 @@ import lombok.Getter;
 import org.apache.commons.collections15.Transformer;
 import org.apache.log4j.Logger;
 import org.netbeans.core.spi.multiview.MultiViewElement;
+import org.netbeans.spi.actions.AbstractSavable;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
+import org.openide.util.Exceptions;
+import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.TopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
-import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopolElementTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopologyInformation;
+import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.SerialisationHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.XmlSerializationProxy;
 
 public class TopologyFileTypeDataObject extends MultiDataObject {
 
     private static Logger logg = Logger.getLogger(TopologyFileTypeDataObject.class);
-    @Getter
-    private transient SerialisationHelper.DeserialisationResult loadSettings;
+    private transient DeserialisationResult loadSettings;
     private transient GraphMLWriter<TopologyVertex, TopologyEdge> graphWriter = new GraphMLWriter<TopologyVertex, TopologyEdge>();
+    private SerialisationHelper serialisationHelper = new SerialisationHelper();
+    private TopComponent topComponent;
 
     public TopologyFileTypeDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException, GraphIOException, JAXBException {
         super(pf, loader);
         registerEditor("text/qsim", true);
+        //deseralise file
+        this.loadSettings = deserialize();
+        logg.debug("deserialisation completed");
+    }
 
-        deserialize();
+    /**
+     * cannot return null
+     *
+     * @return
+     */
+    public DeserialisationResult getLoadSettings() {
+        if (loadSettings == null) {
+            loadSettings = new DeserialisationResult();
+        }
+        return loadSettings;
     }
 
     @Override
@@ -60,17 +85,21 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
         return new TopologyInformation(lkp);
     }
 
-    private void serialize(XmlSerializationProxy proxy, TopologyCreation topology) throws JAXBException, FileNotFoundException, IOException {
+    private void serialize(XmlSerializationProxy proxy, Graph topologyGraph, AbstractLayout<TopologyVertex, TopologyEdge> layout) throws JAXBException, FileNotFoundException, IOException {
         logg.debug("serialisation....");
 
         BufferedWriter fileOutput = new BufferedWriter(new FileWriter(FileUtil.toFile(getPrimaryFile())));
+        String jaxbString = "";
+        if (proxy != null) {
+            StringWriter sw = new StringWriter();
+            marshall(proxy, sw);
+            jaxbString = sw.toString();
+        }
 
-        StringWriter sw = new StringWriter();
-        marshall(proxy, sw);
-        String jaxbString = sw.toString();
-
-        String jungString = saveJung(topology);
-
+        String jungString = "";
+        if (topologyGraph != null && layout != null) {
+            jungString = saveJung(topologyGraph, layout);
+        }
         fileOutput.write(jaxbString);
         fileOutput.newLine();
         fileOutput.write(jungString);
@@ -78,10 +107,10 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
         logg.debug("serialised");
     }
 
-    private String saveJung(TopologyCreation topology) throws IOException {
+    private String saveJung(Graph topologyGraph, AbstractLayout<TopologyVertex, TopologyEdge> layout) throws IOException {
         StringWriter out = new StringWriter();
-        initSerialisationUtils(topology);
-        graphWriter.save(topology.getGraph(), out);
+        initSerialisationUtils(layout);
+        graphWriter.save(topologyGraph, out);
         return out.toString();
     }
 
@@ -94,26 +123,32 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
         m.marshal(proxy, output);
     }
 
-    private void deserialize() throws GraphIOException, IOException, JAXBException {
+    private DeserialisationResult deserialize() throws GraphIOException, IOException, JAXBException {
         logg.debug("deserialisation....");
-        this.loadSettings = SerialisationHelper.loadSettings(FileUtil.toFile(getPrimaryFile()));
-        logg.debug("deserialised");
+        return serialisationHelper.loadSettings(FileUtil.toFile(getPrimaryFile()));
     }
 
-    public void save(TopologyCreation topology) throws JAXBException, FileNotFoundException, IOException {
+    public void save() throws JAXBException, FileNotFoundException, IOException {
+        logg.debug("saving topology");
         //create serialisation proxy
-        XmlSerializationProxy proxy = new XmlSerializationProxy(topology);
+        XmlSerializationProxy proxy = new XmlSerializationProxy();
+        proxy.prepareProxy(getLoadSettings().getVFactory(), getLoadSettings().getG(), getLoadSettings().getName(), getLoadSettings().getDescription());
         //call serialize() method
-        serialize(proxy, topology);
+        serialize(proxy, getLoadSettings().getG(), getLoadSettings().getLayout());
     }
 
-    private void initSerialisationUtils(final TopologyCreation topology) {
+    /**
+     * init some serialisation settings for JUNG serialisation
+     *
+     * @param layout
+     */
+    private void initSerialisationUtils(final AbstractLayout<TopologyVertex, TopologyEdge> layout) {
         graphWriter.addVertexData("x", null, "0",
                 new Transformer<TopologyVertex, String>() {
 
                     @Override
                     public String transform(TopologyVertex v) {
-                        return Double.toString(topology.getLayout().getX(v));
+                        return Double.toString(layout.getX(v));
                     }
                 });
 
@@ -122,7 +157,7 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
 
                     @Override
                     public String transform(TopologyVertex v) {
-                        return Double.toString(topology.getLayout().getY(v));
+                        return Double.toString(layout.getY(v));
                     }
                 });
 
@@ -162,17 +197,111 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
                     }
                 });
     }
+    private InstanceContent content = new InstanceContent();
 
     /**
-     * saving file this method should be called to mark this file as "modified"
-     * and eligible to save
+     * mark this file as modified because topology information has changed
+     *
+     * @param window
+     * @param name
+     * @param description
      */
-    public void modified(TopComponent window) {
-        setModified(true);
+    public void modifiedInformation(TopComponent window, String name, String description) {
+        topComponent = window;
+        loadSettings.setDescription(description);
+        loadSettings.setName(name);
+        markModified(window);
+    }
+
+    /**
+     * mark file as modified because topology was changed
+     *
+     * @param window
+     */
+    public void modifiedTopology(TopComponent window,AbstractGraph<TopologyVertex,TopologyEdge> g, AbstractLayout<TopologyVertex, TopologyEdge> layout, TopologyVertexFactory vFactory) {
+        topComponent = window;
+        loadSettings.setG(g);
+        loadSettings.setLayout(layout);
+        loadSettings.setVFactory(vFactory);
+        markModified(window);
+    }
+
+    /**
+     * marks this file as modified
+     *
+     * @param window
+     */
+    private void markModified(TopComponent window) {
         window.setDisplayName(getPrimaryFile().getNameExt() + "*");
-//        if (getLookup().lookup(TopolElementTopComponent.TopologySavable.class) == null) {            
-//            callback.updateTitle(dataObject.getPrimaryFile().getNameExt() + "*");
-//            content.add(new TopolElementTopComponent.TopologySavable(dataObject.getName()));
-//        }
+        if (getLookup().lookup(TopologySavable.class) == null) {
+            content.add(new TopologySavable(getPrimaryFile().getNameExt()));
+        }
+    }
+    private static final Icon ICON = ImageUtilities.loadImageIcon("sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/qsimFileType.png", true);
+
+    public class TopologySavable extends AbstractSavable implements Icon {
+
+        private final String fileName;
+
+        TopologySavable(String fileName) {
+            register();
+            this.fileName = fileName;
+        }
+
+        @Override
+        protected String findDisplayName() {
+            return this.fileName;
+        }
+
+        @Override
+        protected void handleSave() throws IOException {
+            if (topComponent == null) {
+                throw new IllegalStateException("underlying TopComponent was not set");
+            }
+            try {
+                content.remove(this);
+                unregister();
+                logg.debug("---------saving");
+                TopologyFileTypeDataObject.this.save();
+                topComponent.setDisplayName(fileName);
+            } catch (JAXBException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (FileNotFoundException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+
+        TopologyFileTypeDataObject tc() {
+            return TopologyFileTypeDataObject.this;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof TopologySavable) {
+                TopologySavable m = (TopologySavable) obj;
+                return tc() == m.tc();
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return tc().hashCode();
+        }
+
+        @Override
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            ICON.paintIcon(c, g, x, y);
+        }
+
+        @Override
+        public int getIconWidth() {
+            return ICON.getIconWidth();
+        }
+
+        @Override
+        public int getIconHeight() {
+            return ICON.getIconHeight();
+        }
     }
 }

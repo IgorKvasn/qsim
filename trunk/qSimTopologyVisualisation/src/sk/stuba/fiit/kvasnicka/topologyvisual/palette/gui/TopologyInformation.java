@@ -8,6 +8,8 @@ import java.io.Serializable;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JToolBar;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
@@ -24,11 +26,11 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObjec
  * @author Igor Kvasnicka
  */
 @NbBundle.Messages({
-    "number_of_nodes=Number of topology nodes:",
+    "number_of_nodes=Number of topology nodes",
     "number_of_edges=Number of links",
-    "routers=routers:",
-    "switches=switches:",
-    "computers=computers:"})
+    "routers=routers",
+    "switches=switches",
+    "computers=computers"})
 public class TopologyInformation extends javax.swing.JPanel implements MultiViewElement, Serializable {
 
     private JToolBar toolBar = new JToolBar();
@@ -39,8 +41,24 @@ public class TopologyInformation extends javax.swing.JPanel implements MultiView
         obj = lkp.lookup(TopologyFileTypeDataObject.class);
         assert obj != null;
         initComponents();
+        jTextField1.setText(obj.getLoadSettings().getName());
+        jTextArea1.setText(obj.getLoadSettings().getDescription());
+        if (obj.getLoadSettings().getG() != null) {//topology was loaded
+            jLabel1.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_nodes") + ": " + obj.getLoadSettings().getVFactory().getAllVertices().size());
+        }
+        initDocumentListeners();
+    }
 
-        jLabel1.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_nodes") + ": " + obj.getLoadSettings().getVFactory().getAllVertices().size());
+    /**
+     * inits document listeners to listen for changes in name/description
+     * textfield/area the problem is that when keyTyped() method is used, I
+     * encounter Swing bug #4140413
+     */
+    private void initDocumentListeners() {
+        DocumentListener documentListenerImpl = new DocumentListenerImpl();
+
+        jTextArea1.getDocument().addDocumentListener(documentListenerImpl);
+        jTextField1.getDocument().addDocumentListener(new DocumentListenerImpl());
     }
 
     /**
@@ -51,16 +69,86 @@ public class TopologyInformation extends javax.swing.JPanel implements MultiView
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
+        jLabel2 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
 
-        setLayout(new java.awt.BorderLayout());
+        setLayout(new java.awt.GridBagLayout());
+
+        jLabel2.setText(org.openide.util.NbBundle.getMessage(TopologyInformation.class, "TopologyInformation.jLabel2.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+        add(jLabel2, gridBagConstraints);
+
+        jTextField1.setText(org.openide.util.NbBundle.getMessage(TopologyInformation.class, "TopologyInformation.jTextField1.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 311;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
+        add(jTextField1, gridBagConstraints);
+
+        jLabel3.setText(org.openide.util.NbBundle.getMessage(TopologyInformation.class, "TopologyInformation.jLabel3.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(18, 0, 0, 0);
+        add(jLabel3, gridBagConstraints);
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane1.setViewportView(jTextArea1);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 6;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = 389;
+        gridBagConstraints.ipady = 156;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 10, 0, 68);
+        add(jScrollPane1, gridBagConstraints);
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(TopologyInformation.class, "TopologyInformation.jPanel1.border.title"))); // NOI18N
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(TopologyInformation.class, "TopologyInformation.jLabel1.text")); // NOI18N
-        add(jLabel1, java.awt.BorderLayout.CENTER);
+        jPanel1.add(jLabel1);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.ipadx = 202;
+        gridBagConstraints.ipady = 77;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(25, 12, 12, 0);
+        add(jPanel1, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 
     @Override
@@ -125,5 +213,26 @@ public class TopologyInformation extends javax.swing.JPanel implements MultiView
     @Override
     public CloseOperationState canCloseElement() {
         return CloseOperationState.STATE_OK;
+    }
+
+    private class DocumentListenerImpl implements DocumentListener {
+
+        public DocumentListenerImpl() {
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            obj.modifiedInformation(callback.getTopComponent(), jTextField1.getText(), jTextArea1.getText());
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            obj.modifiedInformation(callback.getTopComponent(), jTextField1.getText(), jTextArea1.getText());
+        }
+
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            obj.modifiedInformation(callback.getTopComponent(), jTextField1.getText(), jTextArea1.getText());
+        }
     }
 }
