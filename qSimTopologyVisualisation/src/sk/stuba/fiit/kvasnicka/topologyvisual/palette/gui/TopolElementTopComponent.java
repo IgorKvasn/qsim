@@ -7,7 +7,10 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import java.awt.BorderLayout;
 import java.io.Serializable;
-import javax.swing.*;
+import javax.swing.Action;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -19,13 +22,11 @@ import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.StatusDisplayer;
 import org.openide.awt.UndoRedo;
-import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
-import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.utils.DialogHandler;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.VertexSelectionManager;
@@ -41,6 +42,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectio
 import sk.stuba.fiit.kvasnicka.topologyvisual.lookuputils.RouteChanged;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 
 /**
  * Top component which displays something.
@@ -67,11 +69,38 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
     private VertexSelectionManager vertexSelectionManager = new VertexSelectionManager();
 
     public TopolElementTopComponent(Lookup lkp) {
-        this();
         dataObject = lkp.lookup(TopologyFileTypeDataObject.class);
         assert dataObject != null;
 
+        if (dialogHandler == null) {
+            dialogHandler = new DialogHandler();
+        }
+
+        initComponents();
+
+        content = new InstanceContent();
+
         topology = new TopologyCreation(this);
+        initTopology();
+        initPalette();
+    }
+
+    /**
+     * inits listeners for topology palette
+     */
+    private void initPalette() {
+        TopologyPaletteTopComponent component = (TopologyPaletteTopComponent) WindowManager.getDefault().findTopComponent("TopologyPaletteTopComponent");
+        if (component == null) {
+            logg.error("Could not find component TopologyPaletteTopComponent");
+            return;
+        }
+        component.initListener(this);
+    }
+
+    /**
+     * inits topology object
+     */
+    private void initTopology() {
         DeserialisationResult loadSettings = dataObject.getLoadSettings();
 
         if (!loadSettings.isJungLoaded()) {
@@ -93,64 +122,27 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
                 topologyModified();
             }
         });
-        TopologyPaletteTopComponent component = (TopologyPaletteTopComponent) WindowManager.getDefault().findTopComponent("TopologyPaletteTopComponent");
-        if (component == null) {
-            logg.error("Could not find component TopologyPaletteTopComponent");
-            return;
-        }
-        component.initListener(this);
     }
 
+    @Deprecated
     private TopolElementTopComponent() {
-        if (dialogHandler == null) {
-            dialogHandler = new DialogHandler();
-        }
-
-        initComponents();
-
-        // setName(NbBundle.getMessage(TopolElementTopComponent.class, "CTL_TopolElementTopComponent"));
-        // setToolTipText(NbBundle.getMessage(TopolElementTopComponent.class, "HINT_TopolElementTopComponent"));
-
-
-
-//        paletteController.addPropertyChangeListener(new PropertyChangeListener() {
-//
-//            @Override
-//            public void propertyChange(PropertyChangeEvent evt) {
-//                MyNode selectedItem = paletteController.getSelectedItem().lookup(MyNode.class);
-//                if (selectedItem == null) {
-//                    selectedPaletteAction = null;
-//                    logg.debug("disselected action");
-//                    topologyElementCreator.cancelAction();
-//                    return;
-//                }
-//                PaletteActionEnum selAction = selectedItem.getPaletteTopologyElement().getPaletteAction();
-//
-//                setStatusBarText(NbBundle.getMessage(TopolElementTopComponent.class, "creating.new") + " " + selectedItem.getPaletteTopologyElement().getName());
-//
-//                if (!PaletteActionEnum.isEdgeAction(selAction)) {//when creating new Vertex, editing mode is required
-//                    topology.setEditingMode();
-//                }
-//                if (selectedPaletteAction == null) {
-//                    selectedPaletteAction = selAction;
-//                } else {
-//                    selectedPaletteAction = selAction;
-//                }
-//                topologyElementCreator.setAction(selAction);
-//            }
-//        });
-
-
-        content = new InstanceContent();
-
 //        associateLookup(new ProxyLookup(new Lookup[]{
 //                    new AbstractLookup(content),//creating new nodes will invoke certain action in RoutingTopComponent
 ////                    Lookups.fixed(paletteController), //palette is opening together with this window
 //                //   Lookups.singleton(this)//used to retieve curently activated TopolElementTopComponent window
 //                }));
-
     }
 
+    /**
+     * Some Netbeans tutorial said that this ought to be here. I read that
+     * tutorial some time ago and a I vividly recall that I was a bit frustrated
+     * that nothing worked... Nevertheless this method has something to do with
+     * MultiViews. Don't ask me what does this method or why is it here - I also
+     * don't understand, why (if it is soooo important) is not part of some
+     * interface/TomComponent class
+     *
+     * @return
+     */
     public Object getDefault() {
         return null;
     }
@@ -299,7 +291,6 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
     private void topologyModified() {
         dataObject.modifiedTopology(callback.getTopComponent(), topology.getG(), topology.getLayout(), topology.getVertexFactory());
     }
-    private static final Icon ICON = ImageUtilities.loadImageIcon("sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/qsimFileType.png", true);
 
     //-------savable-------
     @Override
