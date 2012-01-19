@@ -56,7 +56,7 @@ public class RoutingReviewCategoryFactory extends ChildFactory<TopologyVertex> i
      * @param showNextHop
      */
     public RoutingReviewCategoryFactory(final JComboBox combo) {
-        result = Utilities.actionsGlobalContext().lookupResult(TopologyVertex.class);//todo toto pouzit, ked budem chciet disablovat routing button
+        result = Utilities.actionsGlobalContext().lookupResult(TopologyVertex.class);
         result.addLookupListener(this);
 
         resultRoute = Utilities.actionsGlobalContext().lookupResult(RouteChanged.class);
