@@ -7,7 +7,6 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.topology;
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.AbstractGraph;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -188,6 +187,7 @@ public class TopologyCreation implements VertexCreatedListener {
 
         popupVertexMenuMousePlugin = new PopupVertexEdgeMenuMousePlugin(this);
         graphMouse.add(popupVertexMenuMousePlugin);
+        graphMouse.setZoomAtMouse(true);
 
         vv.setGraphMouse(graphMouse);
     }

@@ -17,6 +17,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.collections15.Transformer;
 import org.apache.log4j.Logger;
 import org.netbeans.core.spi.multiview.MultiViewElement;
@@ -32,7 +33,6 @@ import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.TopComponent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
@@ -48,6 +48,12 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
     private transient GraphMLWriter<TopologyVertex, TopologyEdge> graphWriter = new GraphMLWriter<TopologyVertex, TopologyEdge>();
     private SerialisationHelper serialisationHelper = new SerialisationHelper();
     private TopComponent topComponent;
+    @Getter
+    /**
+     * flag that indicates whether this file was modified or not. I know, it can
+     * be done in other more elegant way (SaveCookie), but it did not work...
+     */
+    private boolean dirty = false;
 
     public TopologyFileTypeDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException, GraphIOException, JAXBException {
         super(pf, loader);
@@ -218,7 +224,7 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
      *
      * @param window
      */
-    public void modifiedTopology(TopComponent window,AbstractGraph<TopologyVertex,TopologyEdge> g, AbstractLayout<TopologyVertex, TopologyEdge> layout, TopologyVertexFactory vFactory) {
+    public void modifiedTopology(TopComponent window, AbstractGraph<TopologyVertex, TopologyEdge> g, AbstractLayout<TopologyVertex, TopologyEdge> layout, TopologyVertexFactory vFactory) {
         topComponent = window;
         loadSettings.setG(g);
         loadSettings.setLayout(layout);
@@ -232,6 +238,7 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
      * @param window
      */
     private void markModified(TopComponent window) {
+        dirty = true;
         window.setDisplayName(getPrimaryFile().getNameExt() + "*");
         if (getLookup().lookup(TopologySavable.class) == null) {
             content.add(new TopologySavable(getPrimaryFile().getNameExt()));
@@ -259,11 +266,12 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
                 throw new IllegalStateException("underlying TopComponent was not set");
             }
             try {
+                dirty = false;
                 content.remove(this);
                 unregister();
                 logg.debug("---------saving");
                 TopologyFileTypeDataObject.this.save();
-                topComponent.setDisplayName(fileName);
+                topComponent.setDisplayName(TopologyFileTypeDataObject.this.getPrimaryFile().getNameExt());
             } catch (JAXBException ex) {
                 Exceptions.printStackTrace(ex);
             } catch (FileNotFoundException ex) {
