@@ -4,21 +4,12 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils;
  * @author Igor Kvasnicka
  */
 import edu.uci.ics.jung.visualization.RenderContext;
-import edu.uci.ics.jung.visualization.control.AnimatedPickingGraphMousePlugin;
-import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
-import edu.uci.ics.jung.visualization.control.EditingModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.LabelEditingGraphMousePlugin;
-import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
-import edu.uci.ics.jung.visualization.control.RotatingGraphMousePlugin;
-import edu.uci.ics.jung.visualization.control.ScalingGraphMousePlugin;
-import edu.uci.ics.jung.visualization.control.ShearingGraphMousePlugin;
-import edu.uci.ics.jung.visualization.control.TranslatingGraphMousePlugin;
-import org.apache.commons.collections15.Factory;
-
+import edu.uci.ics.jung.visualization.control.*;
 import java.awt.event.InputEvent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
+import org.apache.commons.collections15.Factory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 
 public class MyEditingModalGraphMouse extends EditingModalGraphMouse<TopologyVertex, TopologyEdge> {
 

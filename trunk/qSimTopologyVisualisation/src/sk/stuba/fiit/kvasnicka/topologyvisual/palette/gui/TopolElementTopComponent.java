@@ -367,7 +367,7 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
     @Override
     public void setMultiViewCallback(MultiViewElementCallback callback) {
         this.callback = callback;
-        if (dataObject.isModified()) {
+        if (dataObject.isDirty()) {
             callback.updateTitle(dataObject.getPrimaryFile().getNameExt() + "*");
         } else {
             callback.updateTitle(dataObject.getPrimaryFile().getNameExt());

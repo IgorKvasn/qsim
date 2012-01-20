@@ -10,6 +10,7 @@ import javax.swing.JComponent;
 import javax.swing.JToolBar;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.PlainDocument;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
@@ -52,13 +53,12 @@ public class TopologyInformation extends javax.swing.JPanel implements MultiView
     /**
      * inits document listeners to listen for changes in name/description
      * textfield/area the problem is that when keyTyped() method is used, I
-     * encounter Swing bug #4140413
+     * encountered Swing bug #4140413
      */
     private void initDocumentListeners() {
-        DocumentListener documentListenerImpl = new DocumentListenerImpl();
-
+        DocumentListenerImpl documentListenerImpl = new DocumentListenerImpl();
         jTextArea1.getDocument().addDocumentListener(documentListenerImpl);
-        jTextField1.getDocument().addDocumentListener(new DocumentListenerImpl());
+        jTextField1.getDocument().addDocumentListener(documentListenerImpl);
     }
 
     /**
@@ -189,6 +189,8 @@ public class TopologyInformation extends javax.swing.JPanel implements MultiView
 
     @Override
     public void componentActivated() {
+        checkDocumentListeners((PlainDocument) jTextArea1.getDocument());
+        checkDocumentListeners((PlainDocument) jTextField1.getDocument());
     }
 
     @Override
@@ -200,10 +202,29 @@ public class TopologyInformation extends javax.swing.JPanel implements MultiView
         return UndoRedo.NONE;
     }
 
+    /**
+     * There is a problem when this TopComponent is opened and user closes qSim.
+     * That means that all opened TopComponents are persisted so that when qSim
+     * is later re-started, these TopComponent are opened again. However I've
+     * noticed that my DocumentListeners associated with JTextArea and
+     * JTextField are not persisted. So in this method I check if
+     * DocumentListeners are registered (if not that means qSim re-opened this
+     * TopComponent). I would say it is Netbeans RCP's bug, but how can it be,
+     * right? It is a fundamental feature that is used all across Netbeans IDE.
+     *
+     * @param plainDocument
+     */
+    private void checkDocumentListeners(PlainDocument plainDocument) {
+        DocumentListenerImpl[] listeners = plainDocument.getListeners(DocumentListenerImpl.class);
+        if (listeners.length == 0) {//no document listeners of my type are yet registered
+            initDocumentListeners();
+        }
+    }
+
     @Override
     public void setMultiViewCallback(MultiViewElementCallback callback) {
         this.callback = callback;
-        if (obj.isModified()) {
+        if (obj.isDirty()) {
             callback.updateTitle(obj.getPrimaryFile().getNameExt() + "*");
         } else {
             callback.updateTitle(obj.getPrimaryFile().getNameExt());

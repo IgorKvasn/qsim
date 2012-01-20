@@ -1,20 +1,18 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils;
 
 import org.apache.log4j.Logger;
-
-import java.awt.Cursor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.StatusDisplayer;
 import org.openide.util.NbBundle;
 import sk.stuba.fiit.kvasnicka.topologyvisual.data.Edge;
-import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.commons.TopologyElementFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopolElementTopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 
 /**
  * handles all requests to create new graph element (vertex or edge)
@@ -47,7 +45,6 @@ public class TopologyElementCreatorHelper {
         topology.setPickingMode();
         edgeStart = null;
         deselectVertices();
-        topology.getVv().setCursor(Cursor.getDefaultCursor());
         topolElementTopComponent.paletteClearSelection();
         StatusDisplayer.getDefault().setStatusText("");
     }
