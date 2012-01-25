@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
 OpenIDE-Module: sk.stuba.fiit.kvasnicka.topologyvisual
-OpenIDE-Module-Install: sk/stuba/fiit/kvasnicka/topologyvisual/Installer.class
 OpenIDE-Module-Layer: sk/stuba/fiit/kvasnicka/topologyvisual/layer.xml
 OpenIDE-Module-Localizing-Bundle: sk/stuba/fiit/kvasnicka/topologyvisual/Bundle.properties
 OpenIDE-Module-Requires: org.openide.windows.WindowManager

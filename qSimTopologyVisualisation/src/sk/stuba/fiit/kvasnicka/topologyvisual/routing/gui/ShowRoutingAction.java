@@ -20,7 +20,6 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.Presenter;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
-import sk.stuba.fiit.kvasnicka.topologyvisual.TopologyState;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
 
 @ActionID(category = "Edit",

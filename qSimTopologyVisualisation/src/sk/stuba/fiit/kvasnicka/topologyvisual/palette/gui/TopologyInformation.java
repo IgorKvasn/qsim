@@ -18,6 +18,7 @@ import org.openide.awt.UndoRedo;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 
 /**
  * this MultiViewElement is very (!) important to make the whole Topcomponent

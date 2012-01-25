@@ -38,7 +38,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.VertexPickedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.MyVertexIconShapeTransformer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.VertexToIconTransformer;
-import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopolElementTopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopologyMultiviewElement;
 import sk.stuba.fiit.kvasnicka.topologyvisual.routing.RoutingHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 
@@ -48,9 +48,9 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResul
  *
  * @author Igor Kvasnicka
  */
-public class TopologyCreation implements VertexCreatedListener {
+public class Topology implements VertexCreatedListener {
 
-    private static Logger logg = Logger.getLogger(TopologyCreation.class);
+    private static Logger logg = Logger.getLogger(Topology.class);
     @Getter
     private AbstractGraph<TopologyVertex, TopologyEdge> g;
     @Getter
@@ -60,14 +60,14 @@ public class TopologyCreation implements VertexCreatedListener {
     private MyEditingModalGraphMouse graphMouse;
     private TopologyVertexFactory vertexFactory;
     private RoutingHelper routingHelper = new RoutingHelper();
-    private final TopolElementTopComponent topolElementTopComponent;
+    private final TopologyMultiviewElement topolElementTopComponent;
 
     /**
      * creates new instance
      *
      * @param mainFrame instance of MainFrame
      */
-    public TopologyCreation(TopolElementTopComponent topolElementTopComponent) {
+    public Topology(TopologyMultiviewElement topolElementTopComponent) {
         this.topolElementTopComponent = topolElementTopComponent;
     }
 
@@ -178,7 +178,7 @@ public class TopologyCreation implements VertexCreatedListener {
      *
      * @param mainFrame reference to MainFrame object
      */
-    private void initMouseControl(TopolElementTopComponent topolElementTopComponent) {
+    private void initMouseControl(TopologyMultiviewElement topolElementTopComponent) {
         graphMouse = new MyEditingModalGraphMouse(vv.getRenderContext(), vertexFactory, this);
         graphMouse.getMyEditingGraphMousePlugin().addVertexCreatedListener(this);
         graphMouse.getMyEditingGraphMousePlugin().addVertexCreatedListener(topolElementTopComponent);

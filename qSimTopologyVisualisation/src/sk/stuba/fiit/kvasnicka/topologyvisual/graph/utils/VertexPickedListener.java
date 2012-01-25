@@ -8,9 +8,11 @@ import java.awt.event.MouseEvent;
 import org.apache.log4j.Logger;
 
 import javax.swing.Icon;
+import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.AddSimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
-import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopolElementTopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopologyMultiviewElement;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
 
@@ -21,32 +23,41 @@ public class VertexPickedListener implements GraphMouseListener<TopologyVertex> 
 
     private static Logger logg = Logger.getLogger(VertexPickedListener.class);
     private DefaultVertexIconTransformer<TopologyVertex> imager;
-    private TopolElementTopComponent topComponent;
+    private TopologyMultiviewElement topComponent;
     private PickedState<TopologyVertex> ps;
+    private AddSimulationTopComponent component;
 
-    public VertexPickedListener(DefaultVertexIconTransformer<TopologyVertex> imager, TopolElementTopComponent topComponent, PickedState<TopologyVertex> ps) {
+    public VertexPickedListener(DefaultVertexIconTransformer<TopologyVertex> imager, TopologyMultiviewElement topComponent, PickedState<TopologyVertex> ps) {
         this.imager = imager;
         this.topComponent = topComponent;
         this.ps = ps;
+        component = (AddSimulationTopComponent) WindowManager.getDefault().findTopComponent("AddSimulationTopComponent");
+        if (component == null) {
+            throw new IllegalStateException("Could not ind window: AddSimulationTopComponent");
+        }
     }
 
+    /**
+     * well, this method really needs some refactoring...maybe next time :)
+     */
     @Override
     public void graphClicked(TopologyVertex v, MouseEvent me) {
         logg.debug("vertex picked");
         Icon icon = imager.transform(v);
         if (icon != null && icon instanceof LayeredIcon) {
-            if (v.isSelected() && !PaletteActionEnum.isEdgeAction(topComponent.getSelectedPaletteAction())) {
-                //    pickedState.pick((TopologyVertex) e.getItem(), false); cannto be used, otherwise moving with vertices won't work at all
-                v.setSelected(false);
-                selectVertex(((LayeredIcon) icon), v.getImageType(), false);
-                topComponent.getVertexSelectionManager().removeSelectedVertex(v);
+            if (v.isSelected()) {//is selected
+                if (!PaletteActionEnum.isEdgeAction(topComponent.getSelectedPaletteAction())) {//edge not creating
+                    v.setSelected(false);
+                    selectVertex(((LayeredIcon) icon), v.getImageType(), false);
+                    topComponent.getVertexSelectionManager().removeSelectedVertex(v);
+                }
             } else {//not selected
                 if (PaletteActionEnum.isEdgeAction(topComponent.getSelectedPaletteAction())) { //new edge is being created
                     v.setSelected(false);
                     ((LayeredIcon) icon).setImage(ImageResourceHelper.loadCheckedImageVertexAsImage(v.getImageType()));
                     topComponent.getTopologyElementCreator().vertexSelected(v);
                     ps.pick(v, false);
-                } else {
+                } else {//not selected - edge not creating
                     v.setSelected(true);
                     selectVertex(((LayeredIcon) icon), v.getImageType(), true);
                     topComponent.getVertexSelectionManager().addSelectedVertex(v);

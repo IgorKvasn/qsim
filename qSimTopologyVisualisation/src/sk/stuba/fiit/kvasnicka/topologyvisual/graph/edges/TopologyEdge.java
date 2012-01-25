@@ -2,7 +2,7 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.Edge;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 
 /**

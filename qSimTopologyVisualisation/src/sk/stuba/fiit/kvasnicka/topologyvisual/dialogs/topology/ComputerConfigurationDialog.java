@@ -1,64 +1,50 @@
-package sk.stuba.fiit.kvasnicka.topologyvisual.dialogs;
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.topology;
 
-import org.apache.log4j.Logger;
-import org.jdesktop.swingx.JXLabel;
-import org.jdesktop.swingx.JXTextField;
-
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.Router;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Computer;
+import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.panels.ComputerPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.utils.BlockingDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 
 /**
- * provides dialog for initial configuration of router
  *
  * @author Igor Kvasnicka
  */
-public class RouterConfigurationDialog extends BlockingDialog<RouterConfigurationDialog.ResultObject> {
+public class ComputerConfigurationDialog extends BlockingDialog<ComputerConfigurationDialog.ResultObject> {
 
-    private static Logger logg = Logger.getLogger(RouterConfigurationDialog.class);
-    private Router router;
-    private JXTextField txtName;
+    private ComputerPanel compPanel;
+    private JButton btnOk, btnCancel;
+    private JTextField txtName;
 
-    /**
-     * creates new instance of dialog
-     *
-     * @param router Router object that is being configured; this object is
-     * read-only
-     */
-    public RouterConfigurationDialog(Router router) {
+    public ComputerConfigurationDialog(Computer computer) {
         super(null);
-        setTitle(NbBundle.getMessage(RouterConfigurationDialog.class, "create.new.router"));
-        this.router = router;
+        setTitle(NbBundle.getMessage(ComputerConfigurationDialog.class, "create.new.computer"));
+        compPanel = new ComputerPanel();
+        btnOk = compPanel.btnOK;
+        txtName = compPanel.txtName;
+        btnCancel = compPanel.btnCancel;
 
-        initGui();
+        initGui(computer);
     }
 
-    private void initGui() {
-        setLayout(new BorderLayout());
+    private void initGui(Computer computer) {
+        add(compPanel);
 
-        JPanel centerPanel = new JPanel();
-        add(centerPanel, BorderLayout.CENTER);
-        txtName = new JXTextField();
-        txtName.setColumns(10);
-        txtName.setText(router.getName());
-        JXLabel lblName = new JXLabel(NbBundle.getMessage(RouterConfigurationDialog.class, "name"));
-        lblName.setLabelFor(txtName);
-        centerPanel.add(lblName);
-        centerPanel.add(txtName);
+        txtName.setText(computer.getName());
 
-        JPanel bottomPanel = new JPanel();
-        JButton btnOk = new JButton(NbBundle.getMessage(RouterConfigurationDialog.class, "ok"));
         btnOk.addActionListener(new ActionListener() {
 
             @Override
@@ -73,7 +59,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 closeDialog();
             }
         });
-        JButton btnCancel = new JButton(NbBundle.getMessage(RouterConfigurationDialog.class, "cancel"));
+
         btnCancel.addActionListener(new ActionListener() {
 
             @Override
@@ -82,11 +68,6 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 closeDialog();
             }
         });
-        bottomPanel.add(btnOk);
-        bottomPanel.add(btnCancel);
-
-
-        add(bottomPanel, BorderLayout.PAGE_END);
         pack();
     }
 
@@ -96,10 +77,10 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             txtName.setBackground(new Color(249, 77, 77));
             ok = false;
         } else {
-            if (NetbeansWindowHelper.getInstance().getActiveTopComponentTopology() == null) {
+            if (NetbeansWindowHelper.getInstance().getActiveTopology() == null) {
                 return false;
             }
-            if (!NetbeansWindowHelper.getInstance().getActiveTopComponentTopology().getVertexFactory().isVertexNameUnique(txtName.getText())) {//router name must be unique
+            if (!NetbeansWindowHelper.getInstance().getActiveTopology().getVertexFactory().isVertexNameUnique(txtName.getText())) {//computer name must be unique
                 JOptionPane.showMessageDialog(this, NbBundle.getMessage(RouterConfigurationDialog.class, "duplicity.name.text"), NbBundle.getMessage(RouterConfigurationDialog.class, "duplicity.name.title"), JOptionPane.ERROR_MESSAGE);
                 txtName.setBackground(new Color(249, 77, 77));
                 ok = false;

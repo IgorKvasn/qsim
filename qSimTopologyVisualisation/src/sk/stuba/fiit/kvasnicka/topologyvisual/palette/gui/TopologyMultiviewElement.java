@@ -42,7 +42,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectio
 import sk.stuba.fiit.kvasnicka.topologyvisual.lookuputils.RouteChanged;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
-import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 
 /**
  * Top component which displays something.
@@ -51,13 +51,13 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 iconBase = "sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/qsimFileType.png",
 mimeType = "text/qsim",
 persistenceType = TopComponent.PERSISTENCE_NEVER,
-preferredID = "TopologyCreatorMultiview",
+preferredID = "TopologyMultiviewElement",
 position = 2000)
-@NbBundle.Messages("LBL_TopologyCreatorMultiview=Creator")
-public final class TopolElementTopComponent extends JPanel implements Serializable, VertexCreatedListener, DocumentListener, MultiViewElement, PaletteSelectionListener {
+@NbBundle.Messages("LBL_TopologyCreatorMultiview=Topology")
+public final class TopologyMultiviewElement extends JPanel implements Serializable, VertexCreatedListener, DocumentListener, MultiViewElement, PaletteSelectionListener {
 
-    private static Logger logg = Logger.getLogger(TopolElementTopComponent.class);
-    private TopologyCreation topology;
+    private static Logger logg = Logger.getLogger(TopologyMultiviewElement.class);
+    private Topology topology;
     private TopologyElementCreatorHelper topologyElementCreator;
     private PaletteActionEnum selectedPaletteAction = null;
     private DialogHandler dialogHandler;
@@ -68,7 +68,7 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
     @Getter
     private VertexSelectionManager vertexSelectionManager = new VertexSelectionManager();
 
-    public TopolElementTopComponent(Lookup lkp) {
+    public TopologyMultiviewElement(Lookup lkp) {
         dataObject = lkp.lookup(TopologyFileTypeDataObject.class);
         assert dataObject != null;
 
@@ -80,7 +80,7 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
 
         content = new InstanceContent();
 
-        topology = new TopologyCreation(this);
+        topology = new Topology(this);
         initTopology();
         initPalette();
     }
@@ -125,32 +125,18 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
     }
 
     @Deprecated
-    private TopolElementTopComponent() {
+    private TopologyMultiviewElement() {
 //        associateLookup(new ProxyLookup(new Lookup[]{
 //                    new AbstractLookup(content),//creating new nodes will invoke certain action in RoutingTopComponent
 ////                    Lookups.fixed(paletteController), //palette is opening together with this window
-//                //   Lookups.singleton(this)//used to retieve curently activated TopolElementTopComponent window
+//                //   Lookups.singleton(this)//used to retieve curently activated TopologyMultiviewElement window
 //                }));
-    }
-
-    /**
-     * Some Netbeans tutorial said that this ought to be here. I read that
-     * tutorial some time ago and a I vividly recall that I was a bit frustrated
-     * that nothing worked... Nevertheless this method has something to do with
-     * MultiViews. Don't ask me what does this method or why is it here - I also
-     * don't understand, why (if it is soooo important) is not part of some
-     * interface/TomComponent class
-     *
-     * @return
-     */
-    public Object getDefault() {
-        return null;
     }
 
     @Override
     public void paletteSelectedOccurred(PaletteSelectionEvent evt) {
         selectedPaletteAction = evt.getSelectedAction();
-        setStatusBarText(NbBundle.getMessage(TopolElementTopComponent.class, "creating.new") + " " + selectedPaletteAction.getDisplayableName());
+        setStatusBarText(NbBundle.getMessage(TopologyMultiviewElement.class, "creating.new") + " " + selectedPaletteAction.getDisplayableName());
         if (!PaletteActionEnum.isEdgeAction(selectedPaletteAction)) {//when creating new Vertex, editing mode is required
             topology.setEditingMode();
         }
@@ -220,7 +206,7 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
         return dialogHandler;
     }
 
-    public TopologyCreation getTopology() {
+    public Topology getTopology() {
         return topology;
     }
 
@@ -331,10 +317,14 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
 
     @Override
     public void componentOpened() {
+        if (NetbeansWindowHelper.getInstance().getActiveTopologyMultiviewElement() == null) {
+            NetbeansWindowHelper.getInstance().setActiveTopologyMultiviewElement(this);
+        }
     }
 
     @Override
     public void componentClosed() {
+        NetbeansWindowHelper.getInstance().clearActiveTopologyMultiviewElement();
     }
 
     @Override
@@ -351,7 +341,7 @@ public final class TopolElementTopComponent extends JPanel implements Serializab
 
     @Override
     public void componentActivated() {
-        NetbeansWindowHelper.getInstance().setActiveTopologyTopComponent(this);
+        NetbeansWindowHelper.getInstance().setActiveTopologyMultiviewElement(this);
         openPaletteWindow();
     }
 

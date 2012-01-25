@@ -27,7 +27,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.ConfirmDialogPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
@@ -83,10 +83,10 @@ public class RoutingReviewCategoryFactory extends ChildFactory<TopologyVertex> i
 
     @Override
     protected boolean createKeys(List<TopologyVertex> toPopulate) {
-        if (NetbeansWindowHelper.getInstance().getActiveTopComponentTopology() == null) {
+        if (NetbeansWindowHelper.getInstance().getActiveTopology() == null) {
             return true;
         }
-        for (TopologyVertex v : NetbeansWindowHelper.getInstance().getActiveTopComponentTopology().getVertexFactory().getAllVertices()) {
+        for (TopologyVertex v : NetbeansWindowHelper.getInstance().getActiveTopology().getVertexFactory().getAllVertices()) {
             if (isNodeAllowed(v.getDataModel())) {
                 toPopulate.add(v);
             }

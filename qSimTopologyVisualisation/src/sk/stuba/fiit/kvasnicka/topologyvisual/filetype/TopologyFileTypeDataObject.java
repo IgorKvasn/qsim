@@ -17,7 +17,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.collections15.Transformer;
 import org.apache.log4j.Logger;
 import org.netbeans.core.spi.multiview.MultiViewElement;
