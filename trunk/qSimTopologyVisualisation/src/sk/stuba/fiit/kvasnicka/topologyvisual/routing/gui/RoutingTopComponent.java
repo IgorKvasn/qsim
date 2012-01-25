@@ -27,10 +27,10 @@ import org.openide.util.LookupListener;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.Computer;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.Router;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.Switch;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Computer;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Switch;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.VertexSelectionManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexSelectionChangedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexSelectionChangedListener;
@@ -91,7 +91,7 @@ public final class RoutingTopComponent extends TopComponent implements ExplorerM
         tableModel = (DefaultTableModel) jTable1.getModel();
         new JComboBoxAutoCompletator(comboRoutingTable); //I do not need to handle newly created instance
 
-        NetbeansWindowHelper.getInstance().getActiveTopoloElementTopComp().getVertexSelectionManager().addVertexSelectionChangedListener(this);
+        NetbeansWindowHelper.getInstance().getActiveTopologyMultiviewElement().getVertexSelectionManager().addVertexSelectionChangedListener(this);
 
         resultRoute = Utilities.actionsGlobalContext().lookupResult(RouteChanged.class);
         resultRoute.addLookupListener(this);
@@ -99,7 +99,7 @@ public final class RoutingTopComponent extends TopComponent implements ExplorerM
 
     @Override
     public void vertexSelectionChangedOccurred(VertexSelectionChangedEvent evt) {
-        TopologyVertex firstSelectedVertex = NetbeansWindowHelper.getInstance().getActiveTopoloElementTopComp().getVertexSelectionManager().getFirstSelectedRouterVertex();
+        TopologyVertex firstSelectedVertex = NetbeansWindowHelper.getInstance().getActiveTopologyMultiviewElement().getVertexSelectionManager().getFirstSelectedRouterVertex();
         logg.debug("showing routing table for: " + firstSelectedVertex);
         comboRoutingTable.setSelectedItem(firstSelectedVertex);
         if (firstSelectedVertex == null) {
@@ -196,15 +196,15 @@ public final class RoutingTopComponent extends TopComponent implements ExplorerM
 
     private void fillComboBox() {
         logg.debug("filling combobox");
-        if (NetbeansWindowHelper.getInstance().getActiveTopComponentTopology() == null) {
+        if (NetbeansWindowHelper.getInstance().getActiveTopology() == null) {
             return;
         }
-        List<RouterVertex> vertexRouterList = NetbeansWindowHelper.getInstance().getActiveTopComponentTopology().getVertexFactory().getVertexRouterList();
+        List<RouterVertex> vertexRouterList = NetbeansWindowHelper.getInstance().getActiveTopology().getVertexFactory().getVertexRouterList();
         comboRoutingTable.removeAllItems();
         for (RouterVertex vertex : vertexRouterList) {
             comboRoutingTable.addItem(vertex);
         }
-        TopologyVertex firstSelectedVertex = NetbeansWindowHelper.getInstance().getActiveTopoloElementTopComp().getVertexSelectionManager().getFirstSelectedRouterVertex();
+        TopologyVertex firstSelectedVertex = NetbeansWindowHelper.getInstance().getActiveTopologyMultiviewElement().getVertexSelectionManager().getFirstSelectedRouterVertex();
         comboRoutingTable.setSelectedItem(firstSelectedVertex);
     }
 

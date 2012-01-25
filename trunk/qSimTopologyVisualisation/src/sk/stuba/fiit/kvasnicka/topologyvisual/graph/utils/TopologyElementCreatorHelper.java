@@ -5,14 +5,14 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.StatusDisplayer;
 import org.openide.util.NbBundle;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.Edge;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.commons.TopologyElementFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
-import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopolElementTopComponent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
+import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopologyMultiviewElement;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 
 /**
  * handles all requests to create new graph element (vertex or edge)
@@ -22,17 +22,17 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
 public class TopologyElementCreatorHelper {
 
     private static Logger logg = Logger.getLogger(TopologyElementCreatorHelper.class);
-    private TopologyCreation topology;
-    private TopolElementTopComponent topolElementTopComponent;
+    private Topology topology;
+    private TopologyMultiviewElement topolElementTopComponent;
     private PaletteActionEnum action;
     private TopologyVertex edgeStart;
 
     /**
      * creates new instance
      *
-     * @param topology reference to TopologyCreation object
+     * @param topology reference to Topology object
      */
-    public TopologyElementCreatorHelper(TopologyCreation topology, TopolElementTopComponent topolElementTopComponent) {
+    public TopologyElementCreatorHelper(Topology topology, TopologyMultiviewElement topolElementTopComponent) {
         this.topology = topology;
         this.topolElementTopComponent = topolElementTopComponent;
     }
@@ -50,10 +50,10 @@ public class TopologyElementCreatorHelper {
     }
 
     private void deselectVertices() {
-        if (NetbeansWindowHelper.getInstance().getActiveTopComponentTopology() == null) {
+        if (NetbeansWindowHelper.getInstance().getActiveTopology() == null) {
             return;
         }
-        for (TopologyVertex vertex : NetbeansWindowHelper.getInstance().getActiveTopComponentTopology().getVertexFactory().getAllVertices()) {
+        for (TopologyVertex vertex : NetbeansWindowHelper.getInstance().getActiveTopology().getVertexFactory().getAllVertices()) {
             vertex.deSelectVertex();
             vertex.deCheckVertex();
         }

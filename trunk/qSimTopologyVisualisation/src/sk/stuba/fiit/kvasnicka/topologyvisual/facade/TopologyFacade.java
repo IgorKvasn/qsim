@@ -6,7 +6,7 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.facade;
 
 import java.util.Collection;
 import java.util.List;
-import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.ComputerVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.RouterVertex;
@@ -26,7 +26,7 @@ public interface TopologyFacade {
      * @param vertex
      * @return
      */
-    public Collection<TopologyVertex> getNeighbours(TopologyCreation topology, TopologyVertex vertex);
+    public Collection<TopologyVertex> getNeighbours(Topology topology, TopologyVertex vertex);
 
     /**
      * finds the shortest path between two vertices the algorithm used is
@@ -36,7 +36,7 @@ public interface TopologyFacade {
      * @param end destination vertex
      * @return
      */
-    public List<TopologyEdge> findShortestPath(TopologyCreation topology, TopologyVertex begin, TopologyVertex end);
+    public List<TopologyEdge> findShortestPath(Topology topology, TopologyVertex begin, TopologyVertex end);
 
     /**
      * returns list of all topology routers

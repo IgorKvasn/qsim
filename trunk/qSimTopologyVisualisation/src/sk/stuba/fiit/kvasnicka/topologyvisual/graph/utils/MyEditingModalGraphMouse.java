@@ -9,7 +9,7 @@ import java.awt.event.InputEvent;
 import org.apache.commons.collections15.Factory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
-import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 
 public class MyEditingModalGraphMouse extends EditingModalGraphMouse<TopologyVertex, TopologyEdge> {
 
@@ -19,7 +19,7 @@ public class MyEditingModalGraphMouse extends EditingModalGraphMouse<TopologyVer
      * @param rc render context
      * @param vertexFactory vertex factory to create new vertices
      */
-    public MyEditingModalGraphMouse(RenderContext<TopologyVertex, TopologyEdge> rc, Factory<TopologyVertex> vertexFactory, TopologyCreation topology) {
+    public MyEditingModalGraphMouse(RenderContext<TopologyVertex, TopologyEdge> rc, Factory<TopologyVertex> vertexFactory, Topology topology) {
         super(rc, vertexFactory, null);
     }
 

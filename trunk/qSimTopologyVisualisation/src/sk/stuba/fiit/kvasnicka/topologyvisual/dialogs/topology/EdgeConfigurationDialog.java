@@ -1,4 +1,4 @@
-package sk.stuba.fiit.kvasnicka.topologyvisual.dialogs;
+package sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.topology;
 
 import org.jdesktop.swingx.JXLabel;
 
@@ -15,7 +15,7 @@ import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.Edge;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.utils.BlockingDialog;
 
 /**

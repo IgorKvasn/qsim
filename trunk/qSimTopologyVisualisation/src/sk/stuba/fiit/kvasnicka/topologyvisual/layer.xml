@@ -4,15 +4,15 @@
     <folder name="Editors">
         <folder name="text">
             <folder name="qsim">
-                <folder name="MultiView">
-                    <file name="sk-stuba-fiit-kvasnicka-topologyvisual-palette-gui-TopologyMultiviewSimulation.instance">
-                        <attr name="class" stringvalue="sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopologyMultiviewSimulation"/>
+                <folder name="MultiView">             
+                    <file name="sk-stuba-fiit-kvasnicka-topologyvisual-palette-gui-TopologyMultiviewElement.instance">
+                        <attr name="class" stringvalue="sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopologyMultiviewElement"/>
                         <attr name="iconBase" stringvalue="sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/qsimFileType.png"/>
                         <attr name="instanceClass" stringvalue="org.netbeans.core.multiview.ContextAwareDescription"/>
                         <attr name="instanceCreate" methodvalue="org.netbeans.core.spi.multiview.MultiViewFactory.createMultiViewDescription"/>
                         <attr name="persistenceType" intvalue="2"/>
                         <attr name="position" intvalue="2000"/>
-                        <attr name="preferredID" stringvalue="TopologyMultiviewSimulation"/>
+                        <attr name="preferredID" stringvalue="TopologyMultiviewElement"/>
                     </file>
                 </folder>
             </folder>
@@ -92,7 +92,7 @@
     </folder>
     <folder name="Menu">
         <folder name="Window">
-            <file name="sk-stuba-fiit-kvasnicka-topologyvisual-palette-gui-TopolElementTopComponent.shadow_hidden"/>
+            <file name="sk-stuba-fiit-kvasnicka-topologyvisual-palette-gui-TopologyMultiviewElement.shadow_hidden"/>
         </folder>
     </folder>
     <folder name="Services">

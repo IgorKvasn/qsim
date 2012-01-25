@@ -1,15 +1,15 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.utils;
 
 import org.apache.log4j.Logger;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.Computer;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.Edge;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.Router;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.Switch;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.utils.VertexFactory;
-import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.ComputerConfigurationDialog;
-import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.EdgeConfigurationDialog;
-import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.RouterConfigurationDialog;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Computer;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Switch;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.VertexFactory;
+import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.topology.ComputerConfigurationDialog;
+import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.topology.EdgeConfigurationDialog;
+import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.topology.RouterConfigurationDialog;
 
 /**
  * handles all requests to show dialogs

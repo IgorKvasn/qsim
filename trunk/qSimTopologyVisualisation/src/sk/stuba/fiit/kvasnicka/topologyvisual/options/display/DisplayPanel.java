@@ -100,8 +100,8 @@ final class DisplayPanel extends javax.swing.JPanel {
         PreferenciesHelper.setNodeTooltipDescription(chckDescr.isSelected());
         PreferenciesHelper.setNodeTooltipName(chckName.isSelected());
 
-        if (NetbeansWindowHelper.getInstance().getActiveTopComponentTopology() != null) {
-            NetbeansWindowHelper.getInstance().getActiveTopComponentTopology().repaintGraph();
+        if (NetbeansWindowHelper.getInstance().getActiveTopology() != null) {
+            NetbeansWindowHelper.getInstance().getActiveTopology().repaintGraph();
         }
 
         //  store modified settings

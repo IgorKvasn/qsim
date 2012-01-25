@@ -1,8 +1,8 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices;
 
 import lombok.EqualsAndHashCode;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.Router;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
 
 /**

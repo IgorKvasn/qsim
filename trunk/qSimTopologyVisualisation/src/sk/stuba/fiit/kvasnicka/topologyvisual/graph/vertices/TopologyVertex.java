@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 import lombok.Getter;
 import lombok.Setter;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.Computer;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.Router;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Computer;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
 

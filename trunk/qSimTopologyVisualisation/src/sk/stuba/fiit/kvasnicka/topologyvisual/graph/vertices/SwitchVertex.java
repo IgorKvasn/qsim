@@ -4,8 +4,8 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices;
 
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.topologyvisual.data.Switch;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Switch;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
 
 /**

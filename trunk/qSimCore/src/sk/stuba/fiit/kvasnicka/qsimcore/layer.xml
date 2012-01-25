@@ -67,6 +67,7 @@
         </folder>
     </folder>
     <folder name="Menu">
+        <file name="BuildProject_hidden"/>
         <folder name="Edit">
             <file name="Separator1.instance_hidden"/>
             <file name="SeparatorAfterProjectsSearch.instance_hidden"/>
@@ -80,8 +81,13 @@
             <file name="org-openide-actions-UndoAction.shadow_hidden"/>
             <file name="sep-before-reposearch.instance_hidden"/>
         </folder>
+        <file name="RunProject_hidden"/>
         <folder name="Tools">
             <file name="PaletteManager_hidden"/>
+        </folder>
+        <folder name="Window">
+            <file name="sk-stuba-fiit-kvasnicka-topologyvisual-gui-palette-TopologyPaletteTopComponent.shadow_hidden"/>
+            <file name="sk-stuba-fiit-kvasnicka-topologyvisual-gui-simulation-AddSimulationTopComponent.shadow_hidden"/>
         </folder>
     </folder>
     <folder name="OptionsDialog"/>

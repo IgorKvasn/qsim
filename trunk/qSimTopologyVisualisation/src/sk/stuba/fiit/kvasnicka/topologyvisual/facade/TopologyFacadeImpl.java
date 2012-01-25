@@ -11,7 +11,7 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.log4j.Logger;
 import org.openide.util.lookup.ServiceProvider;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
-import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyCreation;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.ComputerVertex;
@@ -31,12 +31,12 @@ public class TopologyFacadeImpl implements TopologyFacade {
     private DijkstraShortestPath<TopologyVertex, TopologyEdge> dijkstra;
 
     @Override
-    public Collection<TopologyVertex> getNeighbours(TopologyCreation topology, TopologyVertex vertex) {
+    public Collection<TopologyVertex> getNeighbours(Topology topology, TopologyVertex vertex) {
         return topology.getG().getNeighbors(vertex);
     }
 
     @Override
-    public List<TopologyEdge> findShortestPath(TopologyCreation topology, TopologyVertex begin, TopologyVertex end) {
+    public List<TopologyEdge> findShortestPath(Topology topology, TopologyVertex begin, TopologyVertex end) {
         if (PreferenciesHelper.isAutomaticRoutingDistanceProtocol()) {//unweight dijkstra
             logg.debug("findShortestPath - unweight");
             dijkstra = new DijkstraShortestPath(topology.getG());
@@ -56,33 +56,33 @@ public class TopologyFacadeImpl implements TopologyFacade {
 
     @Override
     public List<RouterVertex> getAllRouters() {
-        if (NetbeansWindowHelper.getInstance().getActiveTopComponentTopology() == null) {
+        if (NetbeansWindowHelper.getInstance().getActiveTopology() == null) {
             throw new IllegalStateException("no topology selected");
         }
-        return NetbeansWindowHelper.getInstance().getActiveTopComponentTopology().getVertexFactory().getVertexRouterList();
+        return NetbeansWindowHelper.getInstance().getActiveTopology().getVertexFactory().getVertexRouterList();
     }
 
     @Override
     public List<ComputerVertex> getAllComputers() {
-          if (NetbeansWindowHelper.getInstance().getActiveTopComponentTopology() == null) {
+          if (NetbeansWindowHelper.getInstance().getActiveTopology() == null) {
             throw new IllegalStateException("no topology selected");
         }
-        return NetbeansWindowHelper.getInstance().getActiveTopComponentTopology().getVertexFactory().getVertexComputerList();
+        return NetbeansWindowHelper.getInstance().getActiveTopology().getVertexFactory().getVertexComputerList();
     }
 
     @Override
     public List<SwitchVertex> getAllSwitches() {
-          if (NetbeansWindowHelper.getInstance().getActiveTopComponentTopology() == null) {
+          if (NetbeansWindowHelper.getInstance().getActiveTopology() == null) {
             throw new IllegalStateException("no topology selected");
         }
-        return NetbeansWindowHelper.getInstance().getActiveTopComponentTopology().getVertexFactory().getVertexSwitchList();
+        return NetbeansWindowHelper.getInstance().getActiveTopology().getVertexFactory().getVertexSwitchList();
     }
 
     @Override
     public List<TopologyVertex> getAllVertices() {
-          if (NetbeansWindowHelper.getInstance().getActiveTopComponentTopology() == null) {
+          if (NetbeansWindowHelper.getInstance().getActiveTopology() == null) {
             throw new IllegalStateException("no topology selected");
         }
-        return NetbeansWindowHelper.getInstance().getActiveTopComponentTopology().getVertexFactory().getAllVertices();
+        return NetbeansWindowHelper.getInstance().getActiveTopology().getVertexFactory().getAllVertices();
     }
 }
