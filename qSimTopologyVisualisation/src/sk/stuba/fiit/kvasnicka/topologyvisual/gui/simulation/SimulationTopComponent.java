@@ -16,8 +16,6 @@ import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.events.TopologyWindowChangeEvent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.events.TopologyWindowChangeListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 
 /**
@@ -40,7 +38,7 @@ preferredID = "SimulationTopComponent")
     "CTL_SimulationTopComponent=Simulation Window",
     "HINT_SimulationTopComponent=This is a Simulation window"
 })
-public final class SimulationTopComponent extends TopComponent implements TopologyWindowChangeListener {
+public final class SimulationTopComponent extends TopComponent {
 
     private static Logger logg = Logger.getLogger(SimulationTopComponent.class);
     private Topology topology;
@@ -58,7 +56,7 @@ public final class SimulationTopComponent extends TopComponent implements Topolo
             return;
         }
         component.open();
-        component.requestActive();  
+        component.requestActive();
     }
 
     /**
@@ -145,13 +143,10 @@ public final class SimulationTopComponent extends TopComponent implements Topolo
 
     @Override
     public void componentOpened() {
-        NetbeansWindowHelper.getInstance().addTopologyWindowChangeListener(this);
-        updateTopologyReference();
     }
 
     @Override
     public void componentClosed() {
-        NetbeansWindowHelper.getInstance().removeTopologyWindowChangeListener(this);
     }
 
     void writeProperties(java.util.Properties p) {
@@ -162,16 +157,6 @@ public final class SimulationTopComponent extends TopComponent implements Topolo
 
     void readProperties(java.util.Properties p) {
         String version = p.getProperty("version");
-    }
-
-    @Override
-    public void topologyWindowChangeOccurred(TopologyWindowChangeEvent evt) {
-        updateTopologyReference();
-    }
-
-    private void updateTopologyReference() {
-        topology = NetbeansWindowHelper.getInstance().getActiveTopology();
-        btnAdd.setEnabled(topology != null);
     }
 
     class ButtonRenderer implements TableCellRenderer {

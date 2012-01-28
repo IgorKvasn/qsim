@@ -93,7 +93,7 @@ public class ImageResourceHelper {
         }
         URL url = ImageResourceHelper.class.getResource(resourcePath);
         if (url == null) {
-            throw new NullPointerException("resource file not found");
+            throw new IllegalStateException("resource file " + resourcePath + " not found");
         }
         return new ImageIcon(url);
     }

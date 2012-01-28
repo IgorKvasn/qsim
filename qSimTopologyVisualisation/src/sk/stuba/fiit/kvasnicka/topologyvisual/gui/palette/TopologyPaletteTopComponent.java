@@ -10,9 +10,9 @@ import org.openide.awt.ActionReference;
 import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectionListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
-import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopologyMultiviewElement;
 
 /**
  * Top component which displays something.
@@ -49,18 +49,18 @@ public final class TopologyPaletteTopComponent extends TopComponent {
     }
 
     private void initPalette() {
-        String category = NbBundle.getMessage(TopologyMultiviewElement.class, "nodesCategory");
+        String category = NbBundle.getMessage(TopologyVisualisation.class, "nodesCategory");
         topologyPalette1.addCategory(category);
-        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyMultiviewElement.class, "routerVertex"), PaletteActionEnum.NEW_VERTEX_ROUTER);
-        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyMultiviewElement.class, "switchVertex"), PaletteActionEnum.NEW_VERTEX_SWITCH);
-        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyMultiviewElement.class, "computerVertex"), PaletteActionEnum.NEW_VERTEX_PC);
+        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyVisualisation.class, "routerVertex"), PaletteActionEnum.NEW_VERTEX_ROUTER);
+        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyVisualisation.class, "switchVertex"), PaletteActionEnum.NEW_VERTEX_SWITCH);
+        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyVisualisation.class, "computerVertex"), PaletteActionEnum.NEW_VERTEX_PC);
 
-        category = NbBundle.getMessage(TopologyMultiviewElement.class, "linksCategory");
+        category = NbBundle.getMessage(TopologyVisualisation.class, "linksCategory");
         topologyPalette1.addCategory(category);
-        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyMultiviewElement.class, "gigaEthernetLink"), PaletteActionEnum.NEW_EDGE_GIGA_ETHERNET);
-        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyMultiviewElement.class, "fastEthernetLink"), PaletteActionEnum.NEW_EDGE_FAST_ETHERNET);
-        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyMultiviewElement.class, "ethernetLink"), PaletteActionEnum.NEW_EDGE_ETHERNET);
-        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyMultiviewElement.class, "customLink"), PaletteActionEnum.NEW_EDGE_CUSTOM);
+        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyVisualisation.class, "gigaEthernetLink"), PaletteActionEnum.NEW_EDGE_GIGA_ETHERNET);
+        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyVisualisation.class, "fastEthernetLink"), PaletteActionEnum.NEW_EDGE_FAST_ETHERNET);
+        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyVisualisation.class, "ethernetLink"), PaletteActionEnum.NEW_EDGE_ETHERNET);
+        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyVisualisation.class, "customLink"), PaletteActionEnum.NEW_EDGE_CUSTOM);
 
         topologyPalette1.addCategory(NbBundle.getMessage(TopologyPaletteTopComponent.class, "custom_nodes"));
         topologyPalette1.addCategory(NbBundle.getMessage(TopologyPaletteTopComponent.class, "custom_edges"));

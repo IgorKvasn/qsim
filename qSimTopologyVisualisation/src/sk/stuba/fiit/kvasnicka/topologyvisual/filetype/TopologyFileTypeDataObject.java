@@ -26,6 +26,8 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
+import org.openide.nodes.CookieSet;
+import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
@@ -35,7 +37,7 @@ import org.openide.windows.TopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
-import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopologyInformation;
+import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyInformation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.SerialisationHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.XmlSerializationProxy;
@@ -56,10 +58,12 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
 
     public TopologyFileTypeDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException, GraphIOException, JAXBException {
         super(pf, loader);
-        registerEditor("text/qsim", true);
+//        registerEditor("text/qsim", true);
+        CookieSet cookies = getCookieSet();
+        cookies.add((Node.Cookie) new MyOpenSupport(getPrimaryEntry()));
         //deseralise file
         this.loadSettings = deserialize();
-        logg.debug("deserialisation completed");
+        logg.debug("deserialisation completed - file: " + getPrimaryFile().getNameExt());
     }
 
     /**
@@ -79,19 +83,18 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
         return 1;
     }
 
-    @MultiViewElement.Registration(displayName = "#LBL_TopologyInfoMultiview",
-    iconBase = "sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/qsimFileType.png",
-    mimeType = "text/qsim",
-    persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
-    preferredID = "TopologyInfoMultiview",
-    position = 1000)
-    @Messages("LBL_TopologyInfoMultiview=Info")
-    public static TopologyInformation createEditor(Lookup lkp) {
-        return new TopologyInformation(lkp);
-    }
-
+//    @MultiViewElement.Registration(displayName = "#LBL_TopologyInfoMultiview",
+//    iconBase = "sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/qsimFileType.png",
+//    mimeType = "text/qsim",
+//    persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
+//    preferredID = "TopologyInfoMultiview",
+//    position = 1000)
+//    @Messages("LBL_TopologyInfoMultiview=Info")
+//    public static TopologyInformation createEditor(Lookup lkp) {
+//        return new TopologyInformation(lkp);
+//    }
     private void serialize(XmlSerializationProxy proxy, Graph topologyGraph, AbstractLayout<TopologyVertex, TopologyEdge> layout) throws JAXBException, FileNotFoundException, IOException {
-        logg.debug("serialisation....");
+        logg.debug("serialisation....- file: " + getPrimaryFile().getNameExt());
 
         BufferedWriter fileOutput = new BufferedWriter(new FileWriter(FileUtil.toFile(getPrimaryFile())));
         String jaxbString = "";
@@ -109,7 +112,7 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
         fileOutput.newLine();
         fileOutput.write(jungString);
         fileOutput.close();
-        logg.debug("serialised");
+        logg.debug("serialised - file: " + getPrimaryFile().getNameExt());
     }
 
     private String saveJung(Graph topologyGraph, AbstractLayout<TopologyVertex, TopologyEdge> layout) throws IOException {
@@ -129,7 +132,7 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
     }
 
     private DeserialisationResult deserialize() throws GraphIOException, IOException, JAXBException {
-        logg.debug("deserialisation....");
+        logg.debug("deserialisation.... - file: " + getPrimaryFile().getNameExt());
         return serialisationHelper.loadSettings(FileUtil.toFile(getPrimaryFile()));
     }
 

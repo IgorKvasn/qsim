@@ -91,7 +91,7 @@ public final class RoutingTopComponent extends TopComponent implements ExplorerM
         tableModel = (DefaultTableModel) jTable1.getModel();
         new JComboBoxAutoCompletator(comboRoutingTable); //I do not need to handle newly created instance
 
-        NetbeansWindowHelper.getInstance().getActiveTopologyMultiviewElement().getVertexSelectionManager().addVertexSelectionChangedListener(this);
+        NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().getVertexSelectionManager().addVertexSelectionChangedListener(this);
 
         resultRoute = Utilities.actionsGlobalContext().lookupResult(RouteChanged.class);
         resultRoute.addLookupListener(this);
@@ -99,7 +99,7 @@ public final class RoutingTopComponent extends TopComponent implements ExplorerM
 
     @Override
     public void vertexSelectionChangedOccurred(VertexSelectionChangedEvent evt) {
-        TopologyVertex firstSelectedVertex = NetbeansWindowHelper.getInstance().getActiveTopologyMultiviewElement().getVertexSelectionManager().getFirstSelectedRouterVertex();
+        TopologyVertex firstSelectedVertex = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().getVertexSelectionManager().getFirstSelectedRouterVertex();
         logg.debug("showing routing table for: " + firstSelectedVertex);
         comboRoutingTable.setSelectedItem(firstSelectedVertex);
         if (firstSelectedVertex == null) {
@@ -204,7 +204,7 @@ public final class RoutingTopComponent extends TopComponent implements ExplorerM
         for (RouterVertex vertex : vertexRouterList) {
             comboRoutingTable.addItem(vertex);
         }
-        TopologyVertex firstSelectedVertex = NetbeansWindowHelper.getInstance().getActiveTopologyMultiviewElement().getVertexSelectionManager().getFirstSelectedRouterVertex();
+        TopologyVertex firstSelectedVertex = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().getVertexSelectionManager().getFirstSelectedRouterVertex();
         comboRoutingTable.setSelectedItem(firstSelectedVertex);
     }
 

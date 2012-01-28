@@ -23,8 +23,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.ConfirmDialogPanel;
+import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
-import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopologyMultiviewElement;
 
 /**
  *
@@ -123,8 +123,8 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                 topology.deleteVertex(selectedVertex);
                 routingHelper.recalculateRoutes(NetbeansWindowHelper.getInstance().getActiveTopology());
                 logg.debug("vertex: " + selectedVertex + " was deleted");
-                //passing information about route deletion to TopologyMultiviewElement                    
-                TopologyMultiviewElement topolComponent = NetbeansWindowHelper.getInstance().getActiveTopologyMultiviewElement();
+                //passing information about route deletion to TopologyVisualisation                    
+                TopologyVisualisation topolComponent = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation();
                 topolComponent.routesChanged();
             }
         });
@@ -163,8 +163,8 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
 
                 topology.deleteEdge(selectedEdge);
                 logg.debug("edge: " + selectedEdge + " was deleted");
-                //passing information about route deletion to TopologyMultiviewElement
-                TopologyMultiviewElement topolComponent = NetbeansWindowHelper.getInstance().getActiveTopologyMultiviewElement();
+                //passing information about route deletion to TopologyVisualisation
+                TopologyVisualisation topolComponent = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation();
                 topolComponent.routesChanged();
             }
         });

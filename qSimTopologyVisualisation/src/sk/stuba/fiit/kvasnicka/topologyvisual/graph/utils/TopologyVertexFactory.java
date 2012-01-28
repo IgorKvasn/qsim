@@ -9,12 +9,12 @@ import org.apache.log4j.Logger;
 import java.util.LinkedList;
 import java.util.List;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.commons.TopologyElementFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.ComputerVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.RouterVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.SwitchVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
-import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopologyMultiviewElement;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
 
 /**
@@ -28,21 +28,21 @@ public class TopologyVertexFactory implements Factory<TopologyVertex> {
     private List<RouterVertex> vertexRouterList = new LinkedList<RouterVertex>();
     private List<ComputerVertex> vertexComputerList = new LinkedList<ComputerVertex>();
     private List<SwitchVertex> vertexSwitchList = new LinkedList<SwitchVertex>();
-    private TopologyMultiviewElement topolElementTopComponent;
+    private TopologyVisualisation topolElementTopComponent;
 
     /**
      * creates new instance
      *
      * @param mainFrame reference to MainFrame
      */
-    public TopologyVertexFactory(TopologyMultiviewElement topolElementTopComponent) {
+    public TopologyVertexFactory(TopologyVisualisation topolElementTopComponent) {
         this.topolElementTopComponent = topolElementTopComponent;
     }
 
     public TopologyVertexFactory() {
     }
 
-    public void setTopolElementTopComponent(TopologyMultiviewElement topolElementTopComponent) {
+    public void setTopolElementTopComponent(TopologyVisualisation topolElementTopComponent) {
         this.topolElementTopComponent = topolElementTopComponent;
     }
 
