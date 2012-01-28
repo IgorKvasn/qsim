@@ -5,7 +5,7 @@
         <folder name="text">
             <folder name="qsim">
                 <folder name="MultiView">             
-                    <file name="sk-stuba-fiit-kvasnicka-topologyvisual-palette-gui-TopologyMultiviewElement.instance">
+<!--                    <file name="sk-stuba-fiit-kvasnicka-topologyvisual-palette-gui-TopologyMultiviewElement.instance">
                         <attr name="class" stringvalue="sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopologyMultiviewElement"/>
                         <attr name="iconBase" stringvalue="sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/qsimFileType.png"/>
                         <attr name="instanceClass" stringvalue="org.netbeans.core.multiview.ContextAwareDescription"/>
@@ -13,7 +13,7 @@
                         <attr name="persistenceType" intvalue="2"/>
                         <attr name="position" intvalue="2000"/>
                         <attr name="preferredID" stringvalue="TopologyMultiviewElement"/>
-                    </file>
+                    </file>-->
                 </folder>
             </folder>
         </folder>
@@ -92,6 +92,8 @@
     </folder>
     <folder name="Menu">
         <folder name="Window">
+            <file name="sk-stuba-fiit-kvasnicka-topologyvisual-gui-SimulationTopComponent.shadow_hidden"/>
+            <file name="sk-stuba-fiit-kvasnicka-topologyvisual-gui-simulation-AddSimulationTopComponent.shadow_hidden"/>
             <file name="sk-stuba-fiit-kvasnicka-topologyvisual-palette-gui-TopologyMultiviewElement.shadow_hidden"/>
         </folder>
     </folder>

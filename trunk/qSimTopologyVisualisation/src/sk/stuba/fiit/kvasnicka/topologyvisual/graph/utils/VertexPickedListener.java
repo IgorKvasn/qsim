@@ -9,10 +9,10 @@ import org.apache.log4j.Logger;
 
 import javax.swing.Icon;
 import org.openide.windows.WindowManager;
+import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.AddSimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
-import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopologyMultiviewElement;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
 
@@ -23,11 +23,11 @@ public class VertexPickedListener implements GraphMouseListener<TopologyVertex> 
 
     private static Logger logg = Logger.getLogger(VertexPickedListener.class);
     private DefaultVertexIconTransformer<TopologyVertex> imager;
-    private TopologyMultiviewElement topComponent;
+    private TopologyVisualisation topComponent;
     private PickedState<TopologyVertex> ps;
     private AddSimulationTopComponent component;
 
-    public VertexPickedListener(DefaultVertexIconTransformer<TopologyVertex> imager, TopologyMultiviewElement topComponent, PickedState<TopologyVertex> ps) {
+    public VertexPickedListener(DefaultVertexIconTransformer<TopologyVertex> imager, TopologyVisualisation topComponent, PickedState<TopologyVertex> ps) {
         this.imager = imager;
         this.topComponent = topComponent;
         this.ps = ps;

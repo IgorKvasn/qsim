@@ -4,14 +4,18 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Set;
 import org.apache.log4j.Logger;
+import org.netbeans.core.api.multiview.MultiViewHandler;
+import org.netbeans.core.api.multiview.MultiViewPerspective;
+import org.netbeans.core.api.multiview.MultiViews;
+import org.openide.util.*;
 import org.openide.windows.TopComponent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.events.TopologyWindowChangeEvent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.events.TopologyWindowChangeListener;
+import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.descriptors.TopologyVisualisationDescription;
+import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
-import sk.stuba.fiit.kvasnicka.topologyvisual.palette.gui.TopologyMultiviewElement;
 
 /**
  *
@@ -21,7 +25,6 @@ public class NetbeansWindowHelper {
 
     private final static NetbeansWindowHelper INSTANCE = new NetbeansWindowHelper();
     private static Logger logg = Logger.getLogger(NetbeansWindowHelper.class);
-    private TopologyMultiviewElement activeTopologyMultiviewElement;
 
     public static NetbeansWindowHelper getInstance() {
         return INSTANCE;
@@ -37,7 +40,7 @@ public class NetbeansWindowHelper {
      * @return returns null if no active TopologyMultiviewElement window
      */
     public Topology getActiveTopology() {
-        TopologyMultiviewElement t = getActiveTopologyMultiviewElement();
+        TopologyVisualisation t = getActiveTopologyVisualisation();
         if (t == null) {
             logg.info("activeTopologyTopComponent is NULL");
             return null;
@@ -45,38 +48,61 @@ public class NetbeansWindowHelper {
         return t.getTopology();
     }
 
-    public void setActiveTopologyMultiviewElement(TopologyMultiviewElement activeTopologyTopComponent) {
-        this.activeTopologyMultiviewElement = activeTopologyTopComponent;
-        fireTopologyWindowChangeOccurred(new TopologyWindowChangeEvent(this));
-    }
-
-    public TopologyMultiviewElement getActiveTopologyMultiviewElement() {
-        return activeTopologyMultiviewElement;
-    }
-
-    public void clearActiveTopologyMultiviewElement() {
-        activeTopologyMultiviewElement = null;
-        fireTopologyWindowChangeOccurred(new TopologyWindowChangeEvent(this));
-    }
-    //----listeners
-    private javax.swing.event.EventListenerList listenerList = new javax.swing.event.EventListenerList();
-
-    public void addTopologyWindowChangeListener(TopologyWindowChangeListener listener) {
-        listenerList.add(TopologyWindowChangeListener.class, listener);
-    }
-
-    public void removeTopologyWindowChangeListener(TopologyWindowChangeListener listener) {
-        listenerList.remove(TopologyWindowChangeListener.class, listener);
-    }
-
-    private synchronized void fireTopologyWindowChangeOccurred(TopologyWindowChangeEvent evt) {
-        Object[] listeners = listenerList.getListenerList();
-        // Each listener occupies two elements - the first is the listener class
-        // and the second is the listener instance
-        for (int i = 0; i < listeners.length; i += 2) {
-            if (listeners[i] == TopologyWindowChangeListener.class) {
-                ((TopologyWindowChangeListener) listeners[i + 1]).topologyWindowChangeOccurred(evt);
+    /**
+     * returns null if no Active topology visualisation Element found
+     *
+     * @return
+     */
+    public TopologyVisualisation getActiveTopologyVisualisation() {
+        TopComponent.Registry registry = TopComponent.getRegistry();
+        Set<TopComponent> opened = registry.getOpened();
+        for (TopComponent tc : opened) {
+            MultiViewHandler mh = MultiViews.findMultiViewHandler(tc);
+            if (mh == null) {//it is not a multiview top component
+                continue;
+            }
+            if (mh.getPerspectives().length != 2) {//double-check that it is really what I want
+                continue;
+            }
+            if (!("TopologyInfoMultiview".equals(mh.getPerspectives()[0].preferredID()))) {
+                continue;
+            }
+            if (!("TopologyVisualisationDescription".equals(mh.getPerspectives()[1].preferredID()))) {
+                continue;
+            }
+            //allright now, I am 100% sure it is what I am looking for :)
+            if ("TopologyVisualisationDescription".equals(mh.getSelectedPerspective().preferredID())) {
+                TopologyVisualisation topolVisual = getTopologyVisualisationByReflection(mh.getSelectedPerspective());
+                if (topolVisual.isActive()) {
+                    return topolVisual;
+                } else {
+                    continue;
+                }
             }
         }
+        return null;
+    }
+
+    private TopologyVisualisation getTopologyVisualisationByReflection(MultiViewPerspective selectedPerspective) {
+        try {
+            Method privateStringMethod = MultiViewPerspective.class.getDeclaredMethod("getDescription");
+            privateStringMethod.setAccessible(true);
+            TopologyVisualisationDescription returnValue = (TopologyVisualisationDescription) privateStringMethod.invoke(selectedPerspective);
+            if (returnValue == null) {
+                return null;
+            }
+            return returnValue.getTopologyVisualisation();
+        } catch (IllegalAccessException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (IllegalArgumentException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (InvocationTargetException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (NoSuchMethodException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (SecurityException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        throw new IllegalStateException("could not retrieve active TopologyVisualisation");
     }
 }
