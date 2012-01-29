@@ -1,5 +1,8 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.palette;
 
+import lombok.Getter;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.VertexPickActionEnum;
+
 /**
  * Date: 9/3/11 Time: 3:44 PM
  * <p/>
@@ -9,17 +12,29 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.palette;
  */
 public enum PaletteActionEnum {
 
-    NEW_VERTEX_ROUTER("router"),
-    NEW_VERTEX_PC("PC"),
-    NEW_VERTEX_SWITCH("Switch"),
-    NEW_EDGE_ETHERNET("Ethernet"),
-    NEW_EDGE_FAST_ETHERNET("Fast Ethernet"),
-    NEW_EDGE_GIGA_ETHERNET("Giga Ethernet"),
-    NEW_EDGE_CUSTOM("Custom link");
+    NEW_VERTEX_ROUTER("router", VertexPickActionEnum.NONE),
+    NEW_VERTEX_PC("PC", VertexPickActionEnum.NONE),
+    NEW_VERTEX_SWITCH("Switch", VertexPickActionEnum.NONE),
+    NEW_EDGE_ETHERNET("Ethernet", VertexPickActionEnum.NONE),
+    NEW_EDGE_FAST_ETHERNET("Fast Ethernet", VertexPickActionEnum.CREATING_EDGE),
+    NEW_EDGE_GIGA_ETHERNET("Giga Ethernet", VertexPickActionEnum.CREATING_EDGE),
+    NEW_EDGE_CUSTOM("Custom link", VertexPickActionEnum.CREATING_EDGE);
+    @Getter
     private final String displayableName;
+    @Getter
+    private final VertexPickActionEnum vertexPickActionEnum;
 
-    PaletteActionEnum(String displayableName) {
+    /**
+     * constructor
+     *
+     * @param displayableName name that will be displayed in palette window
+     * @param vertexPickActionEnum action that will be used in
+     * VertexPickedListener - edges should be
+     * VertexPickActionEnum.CREATING_EDGE, vertices VertexPickActionEnum.NONE
+     */
+    PaletteActionEnum(String displayableName, VertexPickActionEnum vertexPickActionEnum) {
         this.displayableName = displayableName;
+        this.vertexPickActionEnum = vertexPickActionEnum;
     }
 
     /**
@@ -32,10 +47,6 @@ public enum PaletteActionEnum {
         if (action == null) {
             return false;
         }
-        return action.equals(NEW_EDGE_CUSTOM) || action.equals(NEW_EDGE_FAST_ETHERNET) || action.equals(NEW_EDGE_ETHERNET) || action.equals(NEW_EDGE_GIGA_ETHERNET);
-    }
-
-    public String getDisplayableName() {
-        return displayableName;
+        return VertexPickActionEnum.CREATING_EDGE == action.getVertexPickActionEnum();
     }
 }

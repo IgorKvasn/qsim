@@ -10,6 +10,7 @@ import edu.uci.ics.jung.graph.AbstractGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.TranslatingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.decorators.DefaultVertexIconTransformer;
@@ -29,13 +30,15 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.MyVisualizationViewer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexCreatedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexCreatedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.MyEditingModalGraphMouse;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.PopupVertexEdgeMenuMousePlugin;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.VertexPickedListener;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.VertexPickedSimulRulesListener;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.VertexPickedTopolCreationListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.MyVertexIconShapeTransformer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.VertexToIconTransformer;
@@ -56,11 +59,14 @@ public class Topology implements VertexCreatedListener {
     @Getter
     private AbstractLayout<TopologyVertex, TopologyEdge> layout;
     private PopupVertexEdgeMenuMousePlugin popupVertexMenuMousePlugin;
-    private VisualizationViewer<TopologyVertex, TopologyEdge> vv;
+    private MyVisualizationViewer vv;
     private MyEditingModalGraphMouse graphMouse;
     private TopologyVertexFactory vertexFactory;
     private RoutingHelper routingHelper = new RoutingHelper();
     private final TopologyVisualisation topolElementTopComponent;
+    @Getter
+    private TopologyModeEnum topologyMode = null;
+    private GraphMouseListener<TopologyVertex> vertexPickedListener;
 
     /**
      * creates new instance
@@ -73,6 +79,25 @@ public class Topology implements VertexCreatedListener {
 
     public TopologyVertexFactory getVertexFactory() {
         return vertexFactory;
+    }
+
+    public void setMode(TopologyModeEnum mode) {
+        if (mode == topologyMode) {//mode did not change
+            return;
+        }
+        switch (mode) {
+            case CREATION:
+                initTopologyCreator();
+                break;
+            case SIMULATION:
+                break;
+            case SIMULATION_RULES:
+                initTopologySimulationRulesCreation();
+                break;
+            default:
+                throw new IllegalStateException("unkown TopologyModeEnum");
+        }
+        topologyMode = mode;
     }
 
     @Override
@@ -106,11 +131,10 @@ public class Topology implements VertexCreatedListener {
     }
 
     /**
-     * initialises JUNG stuff
+     * initialises JUNG stuff for topology creation
      *
-     * @param mainFrame reference to MainFrame object
      */
-    public void initTopology() {
+    private void initTopologyCreator() {
         logg.debug("init jung - creation");
 
         //vertex as icon
@@ -160,25 +184,24 @@ public class Topology implements VertexCreatedListener {
             }
         });
 
-
-
         //init mouse
-        initMouseControl(topolElementTopComponent);
+        initMouseControlTopologyCreation(topolElementTopComponent);
 
         //picking support, so that vertices can be selected
         vv.setPickSupport(new ShapePickSupport<TopologyVertex, TopologyEdge>(vv));
         //vv.setPickedVertexState(new MultiPickedState<TopologyVertex>());
         PickedState<TopologyVertex> ps = vv.getPickedVertexState();
-        vv.addGraphMouseListener(new VertexPickedListener(vertexIconFunction, topolElementTopComponent, ps));
-
+        vv.removeGraphMouseListener(vertexPickedListener);
+        vertexPickedListener = new VertexPickedTopolCreationListener(vertexIconFunction, topolElementTopComponent, ps);
+        vv.addGraphMouseListener(vertexPickedListener);
     }
 
     /**
-     * initializes mouse controls
+     * initializes mouse controls for topology creation
      *
      * @param mainFrame reference to MainFrame object
      */
-    private void initMouseControl(TopologyVisualisation topolElementTopComponent) {
+    private void initMouseControlTopologyCreation(TopologyVisualisation topolElementTopComponent) {
         graphMouse = new MyEditingModalGraphMouse(vv.getRenderContext(), vertexFactory, this);
         graphMouse.getMyEditingGraphMousePlugin().addVertexCreatedListener(this);
         graphMouse.getMyEditingGraphMousePlugin().addVertexCreatedListener(topolElementTopComponent);
@@ -190,6 +213,73 @@ public class Topology implements VertexCreatedListener {
         graphMouse.setZoomAtMouse(true);
 
         vv.setGraphMouse(graphMouse);
+    }
+
+    /**
+     * initialises JUNG stuff when user is creating simulation rules
+     *
+     * @param mainFrame reference to MainFrame object
+     */
+    public void initTopologySimulationRulesCreation() {
+        logg.debug("init jung - simulation");
+
+        //vertex as icon
+        Transformer<TopologyVertex, Paint> vpf = new PickableVertexPaintTransformer<TopologyVertex>(vv.getPickedVertexState(), Color.white, Color.yellow);
+        vv.getRenderContext().setVertexFillPaintTransformer(vpf);
+        vv.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<TopologyEdge>(vv.getPickedEdgeState(), Color.black, Color.cyan));
+
+        final MyVertexIconShapeTransformer<TopologyVertex> vertexImageShapeFunction = new MyVertexIconShapeTransformer<TopologyVertex>();
+        final DefaultVertexIconTransformer<TopologyVertex> vertexIconFunction = new VertexToIconTransformer<TopologyVertex>();
+
+        vv.getRenderContext().setVertexShapeTransformer(vertexImageShapeFunction);
+        vv.getRenderContext().setVertexIconTransformer(vertexIconFunction);
+
+
+        //tooltips over the vertex
+        vv.setVertexToolTipTransformer(new Transformer<TopologyVertex, String>() {
+
+            @Override
+            public String transform(TopologyVertex topologyVertex) {
+                if (!PreferenciesHelper.isNodeTooltipName() && !PreferenciesHelper.isNodeTooltipDescription()) {
+                    return null;
+                }
+                StringBuilder sb = new StringBuilder("<html>");
+                if (PreferenciesHelper.isNodeTooltipName()) {
+                    sb.append("<b>Name: </b>").append(topologyVertex.getName());
+                }
+                if (PreferenciesHelper.isNodeTooltipDescription()) {
+                    if (PreferenciesHelper.isNodeTooltipName()) {
+                        sb.append("<br>");
+                    }
+                    sb.append("<b>Description: </b>").append(topologyVertex.getDescription());
+                }
+                sb.append("</html>");
+                return sb.toString();
+            }
+        });
+        vv.getRenderContext().setVertexLabelRenderer(new MyVertexLabelRenderer(Color.BLACK));
+        vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.S);
+        vv.getRenderContext().setVertexLabelTransformer(new Transformer<TopologyVertex, String>() {
+
+            @Override
+            public String transform(TopologyVertex v) {
+                if (PreferenciesHelper.isShowNodeNamesInTopology()) {
+                    return v.getName();
+                }
+                return null;
+            }
+        });
+
+        //init mouse
+        initMouseControlTopologyCreation(topolElementTopComponent);
+
+        //picking support, so that vertices can be selected
+        vv.setPickSupport(new ShapePickSupport<TopologyVertex, TopologyEdge>(vv));
+        //vv.setPickedVertexState(new MultiPickedState<TopologyVertex>());
+        PickedState<TopologyVertex> ps = vv.getPickedVertexState();
+        vv.removeGraphMouseListener(vertexPickedListener);
+        vertexPickedListener = new VertexPickedSimulRulesListener(vertexIconFunction, topolElementTopComponent, ps);
+        vv.addGraphMouseListener(vertexPickedListener);
     }
 
     /**
@@ -348,7 +438,7 @@ public class Topology implements VertexCreatedListener {
 
         layout = new StaticLayout<TopologyVertex, TopologyEdge>(g);
 
-        vv = new VisualizationViewer<TopologyVertex, TopologyEdge>(layout);
+        vv = new MyVisualizationViewer(layout);
 
         vv.setBackground(Color.WHITE);
 
@@ -370,7 +460,7 @@ public class Topology implements VertexCreatedListener {
         g = loadSettings.getG();
         layout = loadSettings.getLayout();
         layout.setGraph(g);
-        vv = new VisualizationViewer<TopologyVertex, TopologyEdge>(layout);
+        vv = new MyVisualizationViewer(layout);
         vv.setBackground(Color.WHITE);
         topolElementTopComponent.addJungIntoFrame(vv);
 
@@ -398,5 +488,12 @@ public class Topology implements VertexCreatedListener {
 
             return res;
         }
+    }
+
+    public enum TopologyModeEnum {
+
+        CREATION,//creating new topology
+        SIMULATION_RULES,//defining simulation rules
+        SIMULATION//simulation running
     }
 }

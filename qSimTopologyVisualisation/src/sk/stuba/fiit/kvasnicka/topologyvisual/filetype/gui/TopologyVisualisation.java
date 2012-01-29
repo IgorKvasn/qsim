@@ -11,13 +11,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.io.Serializable;
-import javax.swing.Action;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JToolBar;
+import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.plaf.basic.BasicSliderUI;
 import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.netbeans.core.spi.multiview.CloseOperationState;
@@ -44,8 +39,10 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectio
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectionListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.AddSimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.SimulationTopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.VerticesSelectionPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.lookuputils.RouteChanged;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
+import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 
@@ -64,7 +61,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     private static Logger logg = Logger.getLogger(TopologyVisualisation.class);
     private Topology topology;
     private TopologyElementCreatorHelper topologyElementCreator;
-    private PaletteActionEnum selectedPaletteAction = null;
+    private PaletteActionEnum selectedAction = null;
     private DialogHandler dialogHandler;
     private InstanceContent content;
     private TopologyFileTypeDataObject dataObject;
@@ -74,6 +71,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     private VertexSelectionManager vertexSelectionManager = new VertexSelectionManager();
     @Getter
     private boolean active = false;
+    private VerticesSelectionPanel verticesSelectionPanel = null;//used as callback object when user is selecting vertex during simulation rules definition
 
     public TopologyVisualisation(TopologyFileTypeDataObject dataObject) {
         this.dataObject = dataObject;
@@ -136,7 +134,10 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
      * inits toolbar buttons for this MultiViewElement
      */
     private void initToolbar() {
-        JButton btnSimulRules = new JButton(NbBundle.getMessage(TopologyVisualisation.class, "bntDefineSimulation"));
+        toolBar.setLayout(new BoxLayout(toolBar, BoxLayout.LINE_AXIS));
+        JButton btnSimulRules = new JButton(ImageResourceHelper.loadImage("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/play_simul_16.png"));
+        btnSimulRules.setToolTipText(NbBundle.getMessage(TopologyVisualisation.class, "bntDefineSimulation"));
+        btnSimulRules.setFocusPainted(false);
         btnSimulRules.addActionListener(new ActionListener() {
 
             @Override
@@ -149,9 +150,11 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
                 component.open();
             }
         });
-        toolBar.add(btnSimulRules);
 
-        JButton btnPlay = new JButton(NbBundle.getMessage(TopologyVisualisation.class, "btnPlay"));
+
+        JButton btnPlay = new JButton(ImageResourceHelper.loadImage("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/play_16.png"));
+        btnPlay.setToolTipText(NbBundle.getMessage(TopologyVisualisation.class, "btnPlay"));
+        btnPlay.setFocusPainted(false);
         btnPlay.addActionListener(new ActionListener() {
 
             @Override
@@ -159,6 +162,8 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
                 throw new UnsupportedOperationException("Not supported yet.");
             }
         });
+        toolBar.add(Box.createHorizontalStrut(30));
+        toolBar.add(btnSimulRules);
         toolBar.add(btnPlay);
     }
 
@@ -188,8 +193,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
             topology.loadFromSettings(loadSettings);
             dialogHandler = new DialogHandler(topology.getVertexFactory().getVertexRouterList().size(), topology.getVertexFactory().getVertexSwitchList().size(), topology.getVertexFactory().getVertexComputerList().size());
         }
-
-        topology.initTopology();
+        setTopologyCreationMode();
         topologyElementCreator = new TopologyElementCreatorHelper(topology, this);
         //listen for vertices to change their position
         topology.getVv().addChangeListener(new ChangeListener() {
@@ -212,12 +216,12 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
 
     @Override
     public void paletteSelectedOccurred(PaletteSelectionEvent evt) {
-        selectedPaletteAction = evt.getSelectedAction();
-        setStatusBarText(NbBundle.getMessage(TopologyVisualisation.class, "creating.new") + " " + selectedPaletteAction.getDisplayableName());
-        if (!PaletteActionEnum.isEdgeAction(selectedPaletteAction)) {//when creating new Vertex, editing mode is required
+        selectedAction = evt.getSelectedAction();
+        setStatusBarText(NbBundle.getMessage(TopologyVisualisation.class, "creating.new") + " " + selectedAction.getDisplayableName());
+        if (!PaletteActionEnum.isEdgeAction(selectedAction)) {//when creating new Vertex, editing mode is required
             topology.setEditingMode();
         }
-        topologyElementCreator.setAction(selectedPaletteAction);
+        topologyElementCreator.setAction(selectedAction);
     }
 
     @Override
@@ -291,6 +295,45 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
         StatusDisplayer.getDefault().setStatusText(text);
     }
 
+    /**
+     * returns name of the vertex that user has clicked on
+     *
+     * @return
+     * @see
+     * #retrieveVertexByClickCancel(sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.VerticesSelectionPanel)
+     */
+    public void retrieveVertexByClick(VerticesSelectionPanel verticesSelectionPanel) {
+        this.verticesSelectionPanel = verticesSelectionPanel;
+        setSimulationRulesMode();
+    }
+
+    /**
+     * cancels user decision to pick vertex for his simulation rule
+     *
+     * @return
+     * @see
+     * #retrieveVertexByClick(sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.VerticesSelectionPanel)
+     */
+    public void retrieveVertexByClickCancel(VerticesSelectionPanel verticesSelectionPanel) {
+        setTopologyCreationMode();
+        this.verticesSelectionPanel = null;
+    }
+
+    /**
+     * callback from VertexPickedSimulRulesListener
+     *
+     * @param v
+     */
+    public void simulationRulesVertexPicked(TopologyVertex v) {
+        if (Topology.TopologyModeEnum.SIMULATION_RULES != topology.getTopologyMode()) {//this method is active only when creating simulation rules
+            return;
+        }
+        if (verticesSelectionPanel == null) {
+            throw new IllegalStateException("verticesSelectionPanel is NULL");
+        }
+        verticesSelectionPanel.setVertexPicked(v);
+    }
+
     public TopologyElementCreatorHelper getTopologyElementCreator() {
         return topologyElementCreator;
     }
@@ -301,6 +344,20 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
 
     public Topology getTopology() {
         return topology;
+    }
+
+    /**
+     * mode for creating topology
+     */
+    public void setTopologyCreationMode() {
+        topology.setMode(Topology.TopologyModeEnum.CREATION);
+    }
+
+    /**
+     * mode for defining simulation rules
+     */
+    public void setSimulationRulesMode() {
+        topology.setMode(Topology.TopologyModeEnum.SIMULATION_RULES);
     }
 
     /**
@@ -352,8 +409,8 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
         //  read your settings according to their version
     }
 
-    public PaletteActionEnum getSelectedPaletteAction() {
-        return selectedPaletteAction;
+    public PaletteActionEnum getSelectedAction() {
+        return selectedAction;
     }
 
     @Override
@@ -418,6 +475,8 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     @Override
     public void componentClosed() {
         hideSimulationTopComponents();
+        topologyElementCreator.cancelAction();
+        selectedAction = null;
         active = false;
     }
 
