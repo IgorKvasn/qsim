@@ -9,8 +9,8 @@ import org.apache.log4j.Logger;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import org.openide.windows.TopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.ContainerPanel;
 
@@ -30,7 +30,7 @@ persistenceType = TopComponent.PERSISTENCE_NEVER)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_AddSimulationAction",
 preferredID = "AddSimulationTopComponent")
 @Messages({
-    "CTL_AddSimulationAction=AddSimulation",
+    "CTL_AddSimulationAction=Add new simulation rule",
     "CTL_AddSimulationTopComponent=AddSimulation Window",
     "HINT_AddSimulationTopComponent=This is a AddSimulation window"
 })

@@ -23,6 +23,8 @@ public class ContainerPanel extends javax.swing.JPanel {
     public ContainerPanel(SimulationRuleIterator panelIterator) {
         initComponents();
         this.panelIterator = panelIterator;
+        jButton3.setEnabled(false);
+        jButton4.setEnabled(!panelIterator.isPanelLast());
     }
 
     public void setPanel(JPanel panel) {

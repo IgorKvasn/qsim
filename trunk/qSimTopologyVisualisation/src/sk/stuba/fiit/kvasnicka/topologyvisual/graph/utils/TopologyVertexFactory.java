@@ -53,7 +53,7 @@ public class TopologyVertexFactory implements Factory<TopologyVertex> {
         }
         try {
             NetworkNode node;
-            switch (topolElementTopComponent.getSelectedPaletteAction()) {
+            switch (topolElementTopComponent.getSelectedAction()) {
                 case NEW_VERTEX_ROUTER:
                     node = topolElementTopComponent.getDialogHandler().showRouterConfigurationDialog();
                     break;
@@ -65,9 +65,9 @@ public class TopologyVertexFactory implements Factory<TopologyVertex> {
                     break;
 
                 default:
-                    throw new IllegalStateException("undefined action for creating new vertex " + topolElementTopComponent.getSelectedPaletteAction());
+                    throw new IllegalStateException("undefined action for creating new vertex " + topolElementTopComponent.getSelectedAction());
             }
-            TopologyVertex vertex = TopologyElementFactory.createVertex(topolElementTopComponent.getSelectedPaletteAction(), node);
+            TopologyVertex vertex = TopologyElementFactory.createVertex(topolElementTopComponent.getSelectedAction(), node);
             addVertexToList(vertex);
             return vertex;
         } catch (IllegalStateException e) {//user hit cancel button
