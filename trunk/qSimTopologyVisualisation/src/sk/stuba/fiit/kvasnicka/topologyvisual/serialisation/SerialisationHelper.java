@@ -47,6 +47,7 @@ public class SerialisationHelper {
     private Map<String, NetworkNode> networkNodeVertexMap = new HashMap<String, NetworkNode>();
     private Map<EdgeDescriptor, Edge> edgeMap = new HashMap<EdgeDescriptor, Edge>();
     private String topologyName, topologyDescription;
+    private boolean distanceVectorRouting;
 
     /**
      * reads file being loaded
@@ -130,12 +131,14 @@ public class SerialisationHelper {
         }
         topologyName = serProxy.getTopologyName();
         topologyDescription = serProxy.getTopologyDescription();
+        distanceVectorRouting = serProxy.isDistanceVectorRouting();
+
     }
 
     private DeserialisationResult loadJung(String s) throws FileNotFoundException {
         if (s.isEmpty()) {//no JUNG xml to be deserialised
             logg.debug("no JUNG data found = no topology graph - it is OK");
-            return new DeserialisationResult(topologyName, topologyDescription);
+            return new DeserialisationResult(topologyName, topologyDescription, distanceVectorRouting);
         }
         final TopologyVertexFactory vFactory = new TopologyVertexFactory();
         Reader reader = new StringReader(s);
@@ -200,7 +203,7 @@ public class SerialisationHelper {
             return null;
         }
         logg.debug("jung loaded");
-        return new DeserialisationResult(readGraph, vFactory, vertexLocationMap, topologyName, topologyDescription);
+        return new DeserialisationResult(readGraph, vFactory, vertexLocationMap, topologyName, topologyDescription, distanceVectorRouting);
     }
 
     private NetworkNode findVertexNetworkNode(String name) {

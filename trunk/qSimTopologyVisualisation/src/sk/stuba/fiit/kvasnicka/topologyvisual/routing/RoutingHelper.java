@@ -4,6 +4,7 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.routing;
 
+import edu.uci.ics.jung.graph.AbstractGraph;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -277,6 +278,7 @@ public class RoutingHelper {
      * @throws RoutingException destination is not a router or destination is
      * unreachable
      */
+    @Deprecated
     public void createRoute(Topology topology, TopologyVertex destination, TopologyVertex... fixedVertices) {
         if (topology == null) {
             throw new IllegalArgumentException("topology is NULL");
@@ -288,37 +290,31 @@ public class RoutingHelper {
             throw new IllegalStateException(NbBundle.getMessage(RoutingHelper.class, "routers.exception"));
         }
 
-
         if (routeSource.equals(destination)) {//no route will be created for a cyclic path
             return;
         }
 
-        if (fixedVertices
-                == null) {
+        if (fixedVertices == null) {
             fixedVertices = new TopologyVertex[0];
         }
         List<TopologyEdge> path = new LinkedList<TopologyEdge>();
         List<TopologyVertex> fixed = new ArrayList(Arrays.asList(fixedVertices)); //Arrays.asList() returns read-only List
 
 
-        if (fixed.isEmpty()
-                || !fixed.get(0).equals(routeSource)) {//source is also a fixed vertex 
+        if (fixed.isEmpty() || !fixed.get(0).equals(routeSource)) {//source is also a fixed vertex 
             fixed.add(0, routeSource);
         }
-
 
         if (!fixed.get(fixed.size() - 1).equals(destination)) {//destination is also a fixed vertex
             fixed.add(destination);
         }
         TopologyVertex vBegin, vEnd;
 
-        for (int i = 0;
-                i < fixed.size()
-                - 1; i++) {
+        for (int i = 0; i < fixed.size() - 1; i++) {
             vBegin = fixed.get(i);
             vEnd = fixed.get(i + 1);
-            List<TopologyEdge> shortestPath = topologyFacade.findShortestPath(topology, vBegin, vEnd);
-            path.addAll(shortestPath);
+//            List<TopologyEdge> shortestPath = topologyFacade.findShortestPath(topology.getG(), vBegin, vEnd);
+//            path.addAll(shortestPath);
         }
 
         calculateRoute(routeSource, destination, path);
@@ -386,5 +382,44 @@ public class RoutingHelper {
             sb.append(tEdge.getVertex1()).append(":").append(tEdge.getVertex2()).append(" ");
         }
         logg.debug(sb.toString());
+    }
+
+    /**
+     * finds all edges from one vertex to the last vertex specified in vararg
+     * (the second parameter). These edges connects all vertices (beginning with
+     * source) in other specified in method parameters. The first vertex
+     * (source) is mandatory.
+     *
+     * @param source first vertex
+     * @param fixedPoints other vertices that must be included in the way (order
+     * is important; the last vertex is "destination")
+     */
+    public Collection<TopologyEdge> retrieveEdges(AbstractGraph<TopologyVertex, TopologyEdge> graph, TopologyVertex source, boolean distanceVector, TopologyVertex... fixedVertices) {
+        if (graph == null) {
+            throw new IllegalArgumentException("graph is NULL");
+        }
+        if (source == null) {
+            throw new IllegalArgumentException("source is NULL");
+        }
+        if (!source.isRoutingAllowed()) {
+            throw new IllegalStateException(NbBundle.getMessage(RoutingHelper.class, "routers.exception" + " " + source.getName()));
+        }
+        if (fixedVertices == null || fixedVertices.length == 0) {
+            return null;
+        }
+
+        List<TopologyEdge> path = new LinkedList<TopologyEdge>();
+        List<TopologyVertex> fixed = new ArrayList(Arrays.asList(fixedVertices)); //Arrays.asList() returns read-only List
+        fixed.add(0, source);
+
+        TopologyVertex vBegin, vEnd;
+        for (int i = 0; i < fixed.size() - 1; i++) {
+            vBegin = fixed.get(i);
+            vEnd = fixed.get(i + 1);
+            List<TopologyEdge> shortestPath = topologyFacade.findShortestPath(graph, vBegin, vEnd, distanceVector);
+            path.addAll(shortestPath);
+        }
+
+        return path;
     }
 }

@@ -121,7 +121,6 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                     }
                 }
                 topology.deleteVertex(selectedVertex);
-                routingHelper.recalculateRoutes(NetbeansWindowHelper.getInstance().getActiveTopology());
                 logg.debug("vertex: " + selectedVertex + " was deleted");
                 //passing information about route deletion to TopologyVisualisation                    
                 TopologyVisualisation topolComponent = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation();

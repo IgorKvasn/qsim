@@ -4,8 +4,10 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard;
 
+import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.ContainerPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.PacketSendingPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.PanelInterface;
@@ -23,6 +25,9 @@ public class SimulationRuleIterator {
     private int actualPanel = -1;
     @Setter
     private ContainerPanel containerPanel;
+    @Getter
+    @Setter
+    private TopologyVertex sourceVertex, destinationVertex;
 
     public SimulationRuleIterator() {
     }
@@ -59,7 +64,7 @@ public class SimulationRuleIterator {
     public void initDefaultPanel() {
         initPanels();
         actualPanel = 0;
-        panels[actualPanel].init();
+        panels[actualPanel].init(this);
         containerPanel.setPanel(panels[actualPanel]);
     }
 
@@ -78,7 +83,7 @@ public class SimulationRuleIterator {
             return;
         }
         actualPanel++;
-        boolean initResult = panels[actualPanel].init();
+        boolean initResult = panels[actualPanel].init(this);
         if (!initResult) {//panel did not init properly            
             logg.error("Error during panel initialisation - panel number: " + actualPanel);
             actualPanel--;
@@ -100,12 +105,20 @@ public class SimulationRuleIterator {
         }
         actualPanel--;
 
-        boolean initResult = panels[actualPanel].init();
+        boolean initResult = panels[actualPanel].init(this);
         if (!initResult) {//panel did not init properly            
             logg.error("Error during panel initialisation - panel number: " + actualPanel);
             actualPanel++;
             return;
         }
         containerPanel.setPanel(panels[actualPanel]);
+    }
+
+    /**
+     * deletes all information stored during wizard life-cycle
+     */
+    public void cancelIterator() {
+        sourceVertex = null;
+        destinationVertex = null;
     }
 }

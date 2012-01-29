@@ -4,6 +4,7 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.facade;
 
+import edu.uci.ics.jung.graph.AbstractGraph;
 import java.util.Collection;
 import java.util.List;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
@@ -36,7 +37,7 @@ public interface TopologyFacade {
      * @param end destination vertex
      * @return
      */
-    public List<TopologyEdge> findShortestPath(Topology topology, TopologyVertex begin, TopologyVertex end);
+    public List<TopologyEdge> findShortestPath( AbstractGraph<TopologyVertex,TopologyEdge> graph, TopologyVertex begin, TopologyVertex end, boolean distanceVector);
 
     /**
      * returns list of all topology routers

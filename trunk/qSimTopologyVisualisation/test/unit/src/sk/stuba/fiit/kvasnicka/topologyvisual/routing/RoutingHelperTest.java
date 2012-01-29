@@ -325,11 +325,11 @@ public class RoutingHelperTest extends NbTestCase {
 
         TopologyFacade facadeMock = EasyMock.createMock(TopologyFacade.class);
 
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertex1, vertex2)).andReturn(Arrays.asList(topolEdge1));
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertex2, vertex3)).andReturn(Arrays.asList(topolEdge2));
+        EasyMock.expect(facadeMock.findShortestPath(topology.getG(),vertex1, vertex2,EasyMock.anyBoolean())).andReturn(Arrays.asList(topolEdge1));
+        EasyMock.expect(facadeMock.findShortestPath(topology.getG(),vertex2, vertex3,EasyMock.anyBoolean())).andReturn(Arrays.asList(topolEdge2));
 
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertex1, vertex4)).andReturn(Arrays.asList(topolEdge3));
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertex4, vertex3)).andReturn(Arrays.asList(topolEdge4));
+        EasyMock.expect(facadeMock.findShortestPath(topology.getG(),vertex1, vertex4,EasyMock.anyBoolean())).andReturn(Arrays.asList(topolEdge3));
+        EasyMock.expect(facadeMock.findShortestPath(topology.getG(),vertex4, vertex3,EasyMock.anyBoolean())).andReturn(Arrays.asList(topolEdge4));
 
         EasyMock.replay(facadeMock);
 
@@ -389,11 +389,11 @@ public class RoutingHelperTest extends NbTestCase {
 
         TopologyFacade facadeMock = EasyMock.createMock(TopologyFacade.class);
 
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertex1, vertex2)).andReturn(Arrays.asList(topolEdge1));
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertex2, vertex3)).andReturn(Arrays.asList(topolEdge2));
+        EasyMock.expect(facadeMock.findShortestPath(topology.getG(),vertex1, vertex2,EasyMock.anyBoolean())).andReturn(Arrays.asList(topolEdge1));
+        EasyMock.expect(facadeMock.findShortestPath(topology.getG(),vertex2, vertex3,EasyMock.anyBoolean())).andReturn(Arrays.asList(topolEdge2));
 
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertex1, vertex4)).andReturn(Arrays.asList(topolEdge3));
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertex4, vertex3)).andReturn(Arrays.asList(topolEdge4));
+        EasyMock.expect(facadeMock.findShortestPath(topology.getG(),vertex1, vertex4,EasyMock.anyBoolean())).andReturn(Arrays.asList(topolEdge3));
+        EasyMock.expect(facadeMock.findShortestPath(topology.getG(),vertex4, vertex3,EasyMock.anyBoolean())).andReturn(Arrays.asList(topolEdge4));
 
         EasyMock.replay(facadeMock);
 
@@ -452,7 +452,7 @@ public class RoutingHelperTest extends NbTestCase {
 
         TopologyFacade facadeMock = EasyMock.createMock(TopologyFacade.class);
 
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertex1, vertex3)).andReturn(Arrays.asList(topolEdge1, topolEdge2));
+        EasyMock.expect(facadeMock.findShortestPath(topology.getG(),vertex1, vertex3,EasyMock.anyBoolean())).andReturn(Arrays.asList(topolEdge1, topolEdge2));
 
 
         EasyMock.replay(facadeMock);
@@ -527,94 +527,7 @@ public class RoutingHelperTest extends NbTestCase {
         assertTrue(a.getName().equals(b.getNextHopFromRoutingTable(a.getName())));
     }
 
-    public void testRecalculateRoutes() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-        helper = new RoutingHelper();
-        topology = new Topology(null);
-
-        NetworkNode a = new Router("a");
-        NetworkNode b = new Router("b");
-        NetworkNode c = new Router("c");
-        NetworkNode d = new Router("d");
-
-        RouterVertex vertexA = new RouterVertex(a);
-        RouterVertex vertexB = new RouterVertex(b);
-        RouterVertex vertexC = new RouterVertex(c);
-        RouterVertex vertexD = new RouterVertex(d);
-
-        Edge edge1 = new Edge(a, b);
-        Edge edge2 = new Edge(b, c);
-        Edge edge3 = new Edge(a, d);
-        Edge edge4 = new Edge(b, d);
-
-        TopologyEdge topolEdgeA = new TopologyEdge(edge1, vertexA, vertexB);
-        TopologyEdge topolEdgeB = new TopologyEdge(edge2, vertexB, vertexC);
-        TopologyEdge topolEdgeC = new TopologyEdge(edge3, vertexA, vertexD);
-        TopologyEdge topolEdgeD = new TopologyEdge(edge4, vertexD, vertexB);
-
-        Field topologyFacadeField = RoutingHelper.class.getDeclaredField("topologyFacade");
-        topologyFacadeField.setAccessible(true);
-        TopologyFacade facadeMock = EasyMock.createMock(TopologyFacade.class);
-        EasyMock.expect(facadeMock.getAllRouters()).andReturn(Arrays.asList(vertexA, vertexB, vertexC, vertexD));
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertexA, vertexB)).andReturn(Arrays.asList(topolEdgeA));
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertexB, vertexA)).andReturn(Arrays.asList(topolEdgeA));
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertexA, vertexD)).andReturn(Arrays.asList(topolEdgeC));
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertexD, vertexA)).andReturn(Arrays.asList(topolEdgeC));
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertexB, vertexD)).andReturn(Arrays.asList(topolEdgeD));
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertexD, vertexB)).andReturn(Arrays.asList(topolEdgeD));
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertexB, vertexC)).andReturn(Arrays.asList(topolEdgeB));
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertexC, vertexB)).andReturn(Arrays.asList(topolEdgeB));
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertexA, vertexC)).andReturn(Arrays.asList(topolEdgeA, topolEdgeB));
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertexC, vertexA)).andReturn(Arrays.asList(topolEdgeB, topolEdgeA));
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertexC, vertexD)).andReturn(Arrays.asList(topolEdgeB, topolEdgeD));
-        EasyMock.expect(facadeMock.findShortestPath(topology,vertexD, vertexC)).andReturn(Arrays.asList(topolEdgeD, topolEdgeB));
-        EasyMock.replay(facadeMock);
-
-        topologyFacadeField.set(helper, facadeMock);
-
-        RoutingHelper.createTwoWayRoute(a, b); //a -> b
-        RoutingHelper.createTwoWayRoute(a, d); // a -> d
-        RoutingHelper.createTwoWayRoute(b, c); //b -> c
-        RoutingHelper.createTwoWayRoute(b, d); //b -> d - this path should not be present after recalculating
-
-        helper.recalculateRoutes(topology);
-
-        assertEquals(3, a.getAllDestinations().size());
-        assertEquals(3, b.getAllDestinations().size());
-        assertEquals(3, c.getAllDestinations().size());
-        assertEquals(3, d.getAllDestinations().size());
-
-        assertTrue(a.containsRoute(b.getName()));
-        assertTrue(a.containsRoute(c.getName()));
-        assertTrue(a.containsRoute(d.getName()));
-
-        assertEquals(a.getNextHopFromRoutingTable(b.getName()), b.getName());
-        assertEquals(a.getNextHopFromRoutingTable(c.getName()), b.getName());
-        assertEquals(a.getNextHopFromRoutingTable(d.getName()), d.getName());
-
-        assertTrue(b.containsRoute(a.getName()));
-        assertTrue(b.containsRoute(c.getName()));
-        assertTrue(b.containsRoute(d.getName()));
-
-        assertEquals(b.getNextHopFromRoutingTable(a.getName()), a.getName());
-        assertEquals(b.getNextHopFromRoutingTable(c.getName()), c.getName());
-        assertEquals(b.getNextHopFromRoutingTable(d.getName()), d.getName());
-
-        assertTrue(c.containsRoute(b.getName()));
-        assertTrue(c.containsRoute(a.getName()));
-        assertTrue(c.containsRoute(d.getName()));
-
-        assertEquals(c.getNextHopFromRoutingTable(b.getName()), b.getName());
-        assertEquals(c.getNextHopFromRoutingTable(a.getName()), b.getName());
-        assertEquals(c.getNextHopFromRoutingTable(d.getName()), b.getName());
-
-        assertTrue(d.containsRoute(b.getName()));
-        assertTrue(d.containsRoute(c.getName()));
-        assertTrue(d.containsRoute(a.getName()));
-
-        assertEquals(d.getNextHopFromRoutingTable(b.getName()), b.getName());
-        assertEquals(d.getNextHopFromRoutingTable(a.getName()), a.getName());
-        assertEquals(d.getNextHopFromRoutingTable(c.getName()), b.getName());
-    }
+  
 
     public void testDirectlyConnected_Negative() {
         TopologyVertex from = new RouterVertex(new Router("router1"));

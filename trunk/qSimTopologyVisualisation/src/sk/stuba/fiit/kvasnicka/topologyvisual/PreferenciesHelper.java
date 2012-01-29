@@ -12,20 +12,12 @@ import org.openide.util.NbPreferences;
  */
 public class PreferenciesHelper {
 
-    public static boolean isAutomaticRouting() {
-        return NbPreferences.forModule(PreferenciesHelper.class).getBoolean("isAutomaticRouting", true);
+    public static boolean isRoutingDistanceProtocol() {
+        return NbPreferences.forModule(PreferenciesHelper.class).getBoolean("isRoutingDistanceProtocol", true);
     }
 
-    public static void setAutomaticRouting(boolean routing) {
-        NbPreferences.forModule(PreferenciesHelper.class).putBoolean("isAutomaticRouting", routing);
-    }
-
-    public static boolean isAutomaticRoutingDistanceProtocol() {
-        return NbPreferences.forModule(PreferenciesHelper.class).getBoolean("isAutomaticRoutingDistanceProtocol", true);
-    }
-
-    public static void setAutomaticRoutingDistanceProtocol(boolean routing) {
-        NbPreferences.forModule(PreferenciesHelper.class).putBoolean("isAutomaticRoutingDistanceProtocol", routing);
+    public static void setRoutingDistanceProtocol(boolean routing) {
+        NbPreferences.forModule(PreferenciesHelper.class).putBoolean("isRoutingDistanceProtocol", routing);
     }
 
     public static boolean isNeverShowEdgeDeleteConfirmation() {
