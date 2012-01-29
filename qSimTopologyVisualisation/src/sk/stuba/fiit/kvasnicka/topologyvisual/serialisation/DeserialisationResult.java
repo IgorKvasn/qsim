@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
@@ -28,10 +29,13 @@ public class DeserialisationResult {
     private AbstractLayout<TopologyVertex, TopologyEdge> layout;
     private TopologyVertexFactory vFactory;
     private String name, description;
+    private boolean distanceVectorRouting;
+
     /**
      * empty constructor used when it is a new file
      */
     public DeserialisationResult() {
+        distanceVectorRouting = PreferenciesHelper.isRoutingDistanceProtocol();
     }
 
     /**
@@ -42,7 +46,7 @@ public class DeserialisationResult {
      * @param name
      * @param description
      */
-    public DeserialisationResult(AbstractGraph<TopologyVertex, TopologyEdge> g, TopologyVertexFactory vFactory, Map<TopologyVertex, Point2D> vertexLocationMap, String name, String description) {
+    public DeserialisationResult(AbstractGraph<TopologyVertex, TopologyEdge> g, TopologyVertexFactory vFactory, Map<TopologyVertex, Point2D> vertexLocationMap, String name, String description, boolean distanceVectorRouting) {
         this.name = name;
         this.description = description;
         this.vFactory = vFactory;
@@ -54,11 +58,19 @@ public class DeserialisationResult {
         }
 
         normalizeEdges(g.getEdges());
+        this.distanceVectorRouting = distanceVectorRouting;
     }
 
-    public DeserialisationResult(String name, String description) {
+    /**
+     * used when no JUNG data is provided
+     *
+     * @param name
+     * @param description
+     */
+    public DeserialisationResult(String name, String description,boolean distanceVectorRouting) {
         this.name = name;
         this.description = description;
+        this.distanceVectorRouting = distanceVectorRouting;
     }
 
     /**

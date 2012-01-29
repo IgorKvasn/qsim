@@ -64,6 +64,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     private PaletteActionEnum selectedAction = null;
     private DialogHandler dialogHandler;
     private InstanceContent content;
+    @Getter
     private TopologyFileTypeDataObject dataObject;
     private JToolBar toolBar = new JToolBar();
     private MultiViewElementCallback callback;
@@ -193,6 +194,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
             topology.loadFromSettings(loadSettings);
             dialogHandler = new DialogHandler(topology.getVertexFactory().getVertexRouterList().size(), topology.getVertexFactory().getVertexSwitchList().size(), topology.getVertexFactory().getVertexComputerList().size());
         }
+        topology.initTopology();
         setTopologyCreationMode();
         topologyElementCreator = new TopologyElementCreatorHelper(topology, this);
         //listen for vertices to change their position
@@ -314,7 +316,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
      * @see
      * #retrieveVertexByClick(sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.VerticesSelectionPanel)
      */
-    public void retrieveVertexByClickCancel(VerticesSelectionPanel verticesSelectionPanel) {
+    public void retrieveVertexByClickCancel() {
         setTopologyCreationMode();
         this.verticesSelectionPanel = null;
     }

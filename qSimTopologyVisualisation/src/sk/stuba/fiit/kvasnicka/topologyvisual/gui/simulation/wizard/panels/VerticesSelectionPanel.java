@@ -13,6 +13,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.JComboBoxAutoCompletator;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 
 /**
@@ -27,6 +28,7 @@ public class VerticesSelectionPanel extends PanelInterface {
     private boolean inited = false;
     //this is a combobox that user is selecting by clickin on topology
     private JComboBox pickingNameComboBox;
+    private SimulationRuleIterator iterator;
 
     /**
      * Creates new form VerticesSelectionPanel
@@ -42,7 +44,8 @@ public class VerticesSelectionPanel extends PanelInterface {
      * initializes panel; do not forget to call this method
      */
     @Override
-    public boolean init() {
+    public boolean init(SimulationRuleIterator iterator) {
+        this.iterator = iterator;
         lblError.setVisible(false);
         if (inited) {
             return true;
@@ -86,6 +89,9 @@ public class VerticesSelectionPanel extends PanelInterface {
             lblError.setVisible(true);
             return false;
         }
+           //data is valid - now it is a good time to store these data
+        iterator.setDestinationVertex((TopologyVertex) combDestination.getSelectedItem());
+        iterator.setDestinationVertex((TopologyVertex) combSource.getSelectedItem());
         return true;
     }
 
@@ -136,10 +142,10 @@ public class VerticesSelectionPanel extends PanelInterface {
      *
      * @param combo where to write user's choice
      */
-    private void pickVertexFromTopologyCancel(JComboBox combo) {
+    private void pickVertexFromTopologyCancel() {
         pickingNameComboBox = null;
         TopologyVisualisation topolVisual = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation();
-        topolVisual.retrieveVertexByClickCancel(this);
+        topolVisual.retrieveVertexByClickCancel();
     }
 
     /**
@@ -250,7 +256,7 @@ public class VerticesSelectionPanel extends PanelInterface {
         if (jToggleButton1.isSelected()) {
             pickVertexFromTopology(combSource);
         }else{//cancel action
-             pickVertexFromTopologyCancel(combSource);
+             pickVertexFromTopologyCancel();
         }
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
@@ -258,7 +264,7 @@ public class VerticesSelectionPanel extends PanelInterface {
          if (jToggleButton2.isSelected()) {
             pickVertexFromTopology(combDestination);
         }else{//cancel action
-             pickVertexFromTopologyCancel(combDestination);
+             pickVertexFromTopologyCancel();
         }
     }//GEN-LAST:event_jToggleButton2ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables

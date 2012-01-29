@@ -5,6 +5,7 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels;
 
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.SimulationRuleException;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
 
 /**
  *
@@ -20,7 +21,7 @@ public class PacketSendingPanel extends PanelInterface {
     }
 
     @Override
-    public boolean init() {
+    public boolean init(SimulationRuleIterator iterator) {
         return true;
     }
 

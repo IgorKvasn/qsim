@@ -9,7 +9,6 @@ import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.AbstractGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.TranslatingGraphMousePlugin;
@@ -23,7 +22,9 @@ import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.geom.Point2D;
+import java.util.Collection;
 import java.util.Map;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import lombok.Getter;
 import org.apache.commons.collections15.Transformer;
@@ -34,11 +35,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.MyVisualizationViewer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexCreatedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexCreatedListener;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.MyEditingModalGraphMouse;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.PopupVertexEdgeMenuMousePlugin;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.VertexPickedSimulRulesListener;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.VertexPickedTopolCreationListener;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.*;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.MyVertexIconShapeTransformer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.VertexToIconTransformer;
@@ -87,12 +84,14 @@ public class Topology implements VertexCreatedListener {
         }
         switch (mode) {
             case CREATION:
-                initTopologyCreator();
+                initTopologyCreateMode();
                 break;
             case SIMULATION:
                 break;
             case SIMULATION_RULES:
                 initTopologySimulationRulesCreation();
+                break;
+            case ROUTING:
                 break;
             default:
                 throw new IllegalStateException("unkown TopologyModeEnum");
@@ -108,33 +107,11 @@ public class Topology implements VertexCreatedListener {
         topolElementTopComponent.paletteClearSelection();
     }
 
-    private void edgeCreated(TopologyVertex begin, TopologyVertex end) {
-        if (begin == null || end == null) {
-            throw new IllegalArgumentException("one of the vertices of newly created edge is null: begin=" + begin + " end=" + end);
-        }
-        logg.debug("edge created");
-
-        if (PreferenciesHelper.isAutomaticRouting()) {
-            logg.debug("edge was created - recalculatin routes");
-
-            routingHelper.recalculateRoutes(this);
-            topolElementTopComponent.routesChanged();
-        }
-        //cancelAction() must not be called - it would clear selected vertex; it will be called later....well...not sure about it...
-        topolElementTopComponent.paletteClearSelection();
-    }
-
-    private void edgeDeleted(TopologyEdge edge) {
-        RoutingHelper.deleteRoute(edge);
-        routingHelper.recalculateRoutes(this);
-        topolElementTopComponent.routesChanged();
-    }
-
     /**
      * initialises JUNG stuff for topology creation
      *
      */
-    private void initTopologyCreator() {
+    public void initTopology() {
         logg.debug("init jung - creation");
 
         //vertex as icon
@@ -184,16 +161,25 @@ public class Topology implements VertexCreatedListener {
             }
         });
 
-        //init mouse
-        initMouseControlTopologyCreation(topolElementTopComponent);
 
         //picking support, so that vertices can be selected
         vv.setPickSupport(new ShapePickSupport<TopologyVertex, TopologyEdge>(vv));
         //vv.setPickedVertexState(new MultiPickedState<TopologyVertex>());
-        PickedState<TopologyVertex> ps = vv.getPickedVertexState();
+
+    }
+
+    /**
+     * inits stuff related to Creation Mode
+     */
+    private void initTopologyCreateMode() {
         vv.removeGraphMouseListener(vertexPickedListener);
-        vertexPickedListener = new VertexPickedTopolCreationListener(vertexIconFunction, topolElementTopComponent, ps);
+        PickedState<TopologyVertex> ps = vv.getPickedVertexState();
+        DefaultVertexIconTransformer<TopologyVertex> vertexIconTransformer = (DefaultVertexIconTransformer<TopologyVertex>) vv.getRenderContext().getVertexIconTransformer();
+        vertexPickedListener = new VertexPickedTopolCreationListener(vertexIconTransformer, topolElementTopComponent, ps);
         vv.addGraphMouseListener(vertexPickedListener);
+        //init mouse
+        initMouseControlTopologyCreation(topolElementTopComponent);
+
     }
 
     /**
@@ -220,65 +206,11 @@ public class Topology implements VertexCreatedListener {
      *
      * @param mainFrame reference to MainFrame object
      */
-    public void initTopologySimulationRulesCreation() {
-        logg.debug("init jung - simulation");
-
-        //vertex as icon
-        Transformer<TopologyVertex, Paint> vpf = new PickableVertexPaintTransformer<TopologyVertex>(vv.getPickedVertexState(), Color.white, Color.yellow);
-        vv.getRenderContext().setVertexFillPaintTransformer(vpf);
-        vv.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<TopologyEdge>(vv.getPickedEdgeState(), Color.black, Color.cyan));
-
-        final MyVertexIconShapeTransformer<TopologyVertex> vertexImageShapeFunction = new MyVertexIconShapeTransformer<TopologyVertex>();
-        final DefaultVertexIconTransformer<TopologyVertex> vertexIconFunction = new VertexToIconTransformer<TopologyVertex>();
-
-        vv.getRenderContext().setVertexShapeTransformer(vertexImageShapeFunction);
-        vv.getRenderContext().setVertexIconTransformer(vertexIconFunction);
-
-
-        //tooltips over the vertex
-        vv.setVertexToolTipTransformer(new Transformer<TopologyVertex, String>() {
-
-            @Override
-            public String transform(TopologyVertex topologyVertex) {
-                if (!PreferenciesHelper.isNodeTooltipName() && !PreferenciesHelper.isNodeTooltipDescription()) {
-                    return null;
-                }
-                StringBuilder sb = new StringBuilder("<html>");
-                if (PreferenciesHelper.isNodeTooltipName()) {
-                    sb.append("<b>Name: </b>").append(topologyVertex.getName());
-                }
-                if (PreferenciesHelper.isNodeTooltipDescription()) {
-                    if (PreferenciesHelper.isNodeTooltipName()) {
-                        sb.append("<br>");
-                    }
-                    sb.append("<b>Description: </b>").append(topologyVertex.getDescription());
-                }
-                sb.append("</html>");
-                return sb.toString();
-            }
-        });
-        vv.getRenderContext().setVertexLabelRenderer(new MyVertexLabelRenderer(Color.BLACK));
-        vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.S);
-        vv.getRenderContext().setVertexLabelTransformer(new Transformer<TopologyVertex, String>() {
-
-            @Override
-            public String transform(TopologyVertex v) {
-                if (PreferenciesHelper.isShowNodeNamesInTopology()) {
-                    return v.getName();
-                }
-                return null;
-            }
-        });
-
-        //init mouse
-        initMouseControlTopologyCreation(topolElementTopComponent);
-
-        //picking support, so that vertices can be selected
-        vv.setPickSupport(new ShapePickSupport<TopologyVertex, TopologyEdge>(vv));
-        //vv.setPickedVertexState(new MultiPickedState<TopologyVertex>());
+    private void initTopologySimulationRulesCreation() {
         PickedState<TopologyVertex> ps = vv.getPickedVertexState();
         vv.removeGraphMouseListener(vertexPickedListener);
-        vertexPickedListener = new VertexPickedSimulRulesListener(vertexIconFunction, topolElementTopComponent, ps);
+        DefaultVertexIconTransformer<TopologyVertex> vertexIconTransformer = (DefaultVertexIconTransformer<TopologyVertex>) vv.getRenderContext().getVertexIconTransformer();
+        vertexPickedListener = new VertexPickedSimulRulesListener(vertexIconTransformer, topolElementTopComponent, ps);
         vv.addGraphMouseListener(vertexPickedListener);
     }
 
@@ -324,9 +256,7 @@ public class Topology implements VertexCreatedListener {
      */
     public void addEdge(TopologyVertex begin, TopologyVertex end, TopologyEdge edge) {
         g.addEdge(edge, begin, end);
-
-        RoutingHelper.createTwoWayRoute(begin.getDataModel(), end.getDataModel());
-        edgeCreated(begin, end);
+        topolElementTopComponent.paletteClearSelection();
     }
 
     /**
@@ -376,7 +306,7 @@ public class Topology implements VertexCreatedListener {
     public void deleteEdge(TopologyEdge edge) {
         g.removeEdge(edge);
         getVv().repaint();
-        edgeDeleted(edge);
+        topolElementTopComponent.paletteClearSelection();
     }
 
     /**
@@ -466,6 +396,43 @@ public class Topology implements VertexCreatedListener {
 
     }
 
+    /**
+     * higlights edges from one vertex to other. to computer edges between these
+     * two vertices will be used algorithm specified in file settings. This
+     * method may be used only when Topology is in ROUTING mode
+     *
+     * @param sourceVertex
+     * @param destinationVertex
+     */
+    public void highlightEdgesFromTo(TopologyVertex source, TopologyVertex dest) {
+        if (TopologyModeEnum.ROUTING != topologyMode) {
+            return;
+        }
+        //first retirieve edges between these two vertices
+        boolean distanceVector = topolElementTopComponent.getDataObject().getLoadSettings().isDistanceVectorRouting();
+        final Collection<TopologyEdge> edges = routingHelper.retrieveEdges(getG(), source, distanceVector, dest);
+        //now highlight each edge
+        vv.getRenderContext().setEdgeFillPaintTransformer(new Transformer<TopologyEdge, Paint>() {
+
+            @Override
+            public Paint transform(TopologyEdge i) {
+                for (TopologyEdge e : edges) {
+                    if (i == e) { //they are literally the same - the same object
+                        return Color.YELLOW;
+                    }
+                }
+                return Color.BLACK;
+            }
+        });
+
+        //and do not forget to highlight source and destination vertices, too
+    }
+
+    /**
+     * this is renderer for vertex labels. the problem with a default one is
+     * that when vertex is selected, label is blue - I do not want this
+     * behaviour, because I do not use Pick mouse plugin
+     */
     public static class MyVertexLabelRenderer extends DefaultVertexLabelRenderer {
 
         private Color background_color;
@@ -494,6 +461,7 @@ public class Topology implements VertexCreatedListener {
 
         CREATION,//creating new topology
         SIMULATION_RULES,//defining simulation rules
+        ROUTING,//used when defining routing path
         SIMULATION//simulation running
     }
 }

@@ -33,9 +33,4 @@ public class RouterVertex extends TopologyVertex {
     public NetworkNode getDataModel() {
         return router;
     }
-
-    @Override
-    public boolean isRoutingAllowed() {
-        return true;
-    }
 }

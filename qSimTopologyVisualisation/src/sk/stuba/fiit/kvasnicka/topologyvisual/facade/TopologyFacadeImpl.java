@@ -5,6 +5,7 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.facade;
 
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
+import edu.uci.ics.jung.graph.AbstractGraph;
 import java.util.Collection;
 import java.util.List;
 import org.apache.commons.collections15.Transformer;
@@ -36,13 +37,13 @@ public class TopologyFacadeImpl implements TopologyFacade {
     }
 
     @Override
-    public List<TopologyEdge> findShortestPath(Topology topology, TopologyVertex begin, TopologyVertex end) {
-        if (PreferenciesHelper.isAutomaticRoutingDistanceProtocol()) {//unweight dijkstra
-            logg.debug("findShortestPath - unweight");
-            dijkstra = new DijkstraShortestPath(topology.getG());
+    public List<TopologyEdge> findShortestPath( AbstractGraph<TopologyVertex,TopologyEdge> graph, TopologyVertex begin, TopologyVertex end, boolean distanceVector) {
+        if (distanceVector) {//unweight dijkstra = distance vector routing protocol
+            logg.debug("findShortestPath - unweight = distance vector");
+            dijkstra = new DijkstraShortestPath(graph);
         } else {
-            logg.debug("findShortestPath - weight");
-            dijkstra = new DijkstraShortestPath(topology.getG(), new Transformer<TopologyEdge, Double>() {
+            logg.debug("findShortestPath - weight = link state");
+            dijkstra = new DijkstraShortestPath(graph, new Transformer<TopologyEdge, Double>() {
 
                 @Override
                 public Double transform(TopologyEdge edge) {

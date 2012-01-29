@@ -5,6 +5,7 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels;
 
 import javax.swing.JPanel;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
 
 /**
  * All wizard's panels must extends this interface
@@ -18,7 +19,7 @@ public abstract class PanelInterface extends JPanel {
      *
      * @return false if there was a problem during initialisation
      */
-    public abstract boolean init();
+    public abstract boolean init(SimulationRuleIterator iterator);
 
     /**
      * validation of user data

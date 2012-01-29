@@ -78,17 +78,14 @@ public abstract class TopologyVertex implements Serializable {
 
     /**
      * identifies if this NetworkNode is able of <b>creating</b> routes</p> that
-     * means it can be a source or destination of some route a typical example
-     * of such a node is Router on the other hand Computer or Switch cannot
-     * create a route - they are either only a destination (Computer) or routing
-     * protocol will create a route instead of them (Switch)
+     * means it can be a source or destination of some route
      *
      * override this method if you want to create new type of NetworkNode
      *
      * @return false if not overriden
      */
     public boolean isRoutingAllowed() {
-        return false;
+        return true;
     }
 
     /**
