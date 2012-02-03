@@ -86,6 +86,7 @@ public final class AddSimulationTopComponent extends TopComponent {
 
     @Override
     public void componentClosed() {
+        panelIterator.cancelIterator();
     }
 
     void writeProperties(java.util.Properties p) {

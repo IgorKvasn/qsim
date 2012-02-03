@@ -4,13 +4,16 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.ContainerPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.PacketSendingPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.PanelInterface;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.RoutingPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.VerticesSelectionPanel;
 
 /**
@@ -20,7 +23,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.Verti
 public class SimulationRuleIterator {
 
     private final static Logger logg = Logger.getLogger(SimulationRuleIterator.class);
-    private final int NUMBER_OF_PANELS = 2;
+    private final int NUMBER_OF_PANELS = 3;
     private PanelInterface[] panels = new PanelInterface[NUMBER_OF_PANELS];
     private int actualPanel = -1;
     @Setter
@@ -28,6 +31,9 @@ public class SimulationRuleIterator {
     @Getter
     @Setter
     private TopologyVertex sourceVertex, destinationVertex;
+    @Getter
+    @Setter
+    private List<TopologyEdge> route;
 
     public SimulationRuleIterator() {
     }
@@ -37,7 +43,8 @@ public class SimulationRuleIterator {
      */
     private void initPanels() {
         panels[0] = new VerticesSelectionPanel();
-        panels[1] = new PacketSendingPanel();
+        panels[1] = new RoutingPanel();
+        panels[2] = new PacketSendingPanel();
     }
 
     /**

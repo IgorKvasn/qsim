@@ -1,8 +1,6 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices;
 
 import edu.uci.ics.jung.visualization.LayeredIcon;
-import edu.uci.ics.jung.visualization.renderers.Checkmark;
-import java.awt.Color;
 import java.io.Serializable;
 import javax.swing.Icon;
 import javax.xml.bind.annotation.XmlAccessType;

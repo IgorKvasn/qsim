@@ -91,7 +91,7 @@ public class VerticesSelectionPanel extends PanelInterface {
         }
            //data is valid - now it is a good time to store these data
         iterator.setDestinationVertex((TopologyVertex) combDestination.getSelectedItem());
-        iterator.setDestinationVertex((TopologyVertex) combSource.getSelectedItem());
+        iterator.setSourceVertex((TopologyVertex) combSource.getSelectedItem());
         return true;
     }
 
