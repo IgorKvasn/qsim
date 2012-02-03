@@ -27,7 +27,10 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
  *
  * @author Igor Kvasnicka
  */
-@NbBundle.Messages({"fixed_vertixes=Source or destination node must not be in fixed nodes list"})
+@NbBundle.Messages({
+    "fixed_vertixes=Source or destination node must not be in fixed nodes list", 
+    "unreachable_vertex=Unable to find valid path to vertex \"{0}\""
+})
 public class RoutingHelper {
 
     private static Logger logg = Logger.getLogger(RoutingHelper.class);
@@ -441,9 +444,12 @@ public class RoutingHelper {
             vertices.removeAll(fixed);//only non-fixed vertices
             vertices.add(vBegin);//and two vertices I am lookung path between
             vertices.add(vEnd);
-            
+
             AbstractGraph<TopologyVertex, TopologyEdge> subGraph = FilterUtils.createInducedSubgraph(vertices, graph);
             List<TopologyEdge> shortestPath = topologyFacade.findShortestPath(subGraph, vBegin, vEnd, distanceVector);
+            if (shortestPath.isEmpty()) {
+                throw new RoutingException(NbBundle.getMessage(RoutingHelper.class, "unreachable_vertex",vEnd.getName()));
+            }
             path.addAll(shortestPath);
         }
 
