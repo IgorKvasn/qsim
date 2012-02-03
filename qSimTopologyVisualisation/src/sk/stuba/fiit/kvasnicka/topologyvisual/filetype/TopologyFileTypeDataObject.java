@@ -37,7 +37,6 @@ import org.openide.windows.TopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
-import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyInformation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.SerialisationHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.XmlSerializationProxy;
@@ -55,6 +54,7 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
      * be done in other more elegant way (SaveCookie), but it did not work...
      */
     private boolean dirty = false;
+    private InstanceContent content = new InstanceContent();
 
     public TopologyFileTypeDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException, GraphIOException, JAXBException {
         super(pf, loader);
@@ -140,7 +140,7 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
         logg.debug("saving topology");
         //create serialisation proxy
         XmlSerializationProxy proxy = new XmlSerializationProxy();
-        proxy.prepareProxy(getLoadSettings().getVFactory(), getLoadSettings().getG(), getLoadSettings().getName(), getLoadSettings().getDescription(),getLoadSettings().isDistanceVectorRouting());
+        proxy.prepareProxy(getLoadSettings().getVFactory(), getLoadSettings().getG(), getLoadSettings().getName(), getLoadSettings().getDescription(), getLoadSettings().isDistanceVectorRouting());
         //call serialize() method
         serialize(proxy, getLoadSettings().getG(), getLoadSettings().getLayout());
     }
@@ -205,7 +205,6 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
                     }
                 });
     }
-    private InstanceContent content = new InstanceContent();
 
     /**
      * mark this file as modified because topology information has changed

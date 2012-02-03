@@ -4,14 +4,9 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.routing;
 
+import edu.uci.ics.jung.algorithms.filters.FilterUtils;
 import edu.uci.ics.jung.graph.AbstractGraph;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import org.apache.log4j.Logger;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -32,6 +27,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
  *
  * @author Igor Kvasnicka
  */
+@NbBundle.Messages({"fixed_vertixes=Source or destination node must not be in fixed nodes list"})
 public class RoutingHelper {
 
     private static Logger logg = Logger.getLogger(RoutingHelper.class);
@@ -394,32 +390,100 @@ public class RoutingHelper {
      * @param fixedPoints other vertices that must be included in the way (order
      * is important; the last vertex is "destination")
      */
-    public Collection<TopologyEdge> retrieveEdges(AbstractGraph<TopologyVertex, TopologyEdge> graph, TopologyVertex source, boolean distanceVector, TopologyVertex... fixedVertices) {
+    public Collection<TopologyEdge> retrieveEdges(AbstractGraph<TopologyVertex, TopologyEdge> graph, TopologyVertex source, TopologyVertex destination, boolean distanceVector, TopologyVertex[] fixedVertices) throws RoutingException {
         if (graph == null) {
             throw new IllegalArgumentException("graph is NULL");
         }
         if (source == null) {
             throw new IllegalArgumentException("source is NULL");
         }
+        if (destination == null) {
+            throw new IllegalArgumentException("destination is NULL");
+        }
         if (!source.isRoutingAllowed()) {
             throw new IllegalStateException(NbBundle.getMessage(RoutingHelper.class, "routers.exception" + " " + source.getName()));
         }
-        if (fixedVertices == null || fixedVertices.length == 0) {
-            return null;
+        if (fixedVertices == null) {
+            fixedVertices = new TopologyVertex[0];
         }
 
+        //check if source or destination is not fixed
+
+        for (TopologyVertex v : fixedVertices) {
+            if (source.equals(v)) {
+                throw new RoutingException(NbBundle.getMessage(RoutingHelper.class, "fixed_vertixes"));
+            }
+            if (destination.equals(v)) {
+                throw new RoutingException(NbBundle.getMessage(RoutingHelper.class, "fixed_vertixes"));
+            }
+            if (v == null) {
+                throw new IllegalStateException("fixed vertex is NULL");
+            }
+        }
+
+        //lets go
         List<TopologyEdge> path = new LinkedList<TopologyEdge>();
         List<TopologyVertex> fixed = new ArrayList(Arrays.asList(fixedVertices)); //Arrays.asList() returns read-only List
         fixed.add(0, source);
+        fixed.add(destination);
+
+        //for each fixed pair of vertices (source and destination are fixed, too now) I create a subgraph
+        //that contains only non-fixed vertices and these two fixed vertices
+        //then I calculate shortest path between them
+        //note, that I take two sucessors from fixed list - e.g. fixed[i] and fixed[i+1]
 
         TopologyVertex vBegin, vEnd;
         for (int i = 0; i < fixed.size() - 1; i++) {
             vBegin = fixed.get(i);
             vEnd = fixed.get(i + 1);
-            List<TopologyEdge> shortestPath = topologyFacade.findShortestPath(graph, vBegin, vEnd, distanceVector);
+
+            List<TopologyVertex> vertices = new ArrayList<TopologyVertex>(graph.getVertices());
+            vertices.removeAll(fixed);//only non-fixed vertices
+            vertices.add(vBegin);//and two vertices I am lookung path between
+            vertices.add(vEnd);
+            
+            AbstractGraph<TopologyVertex, TopologyEdge> subGraph = FilterUtils.createInducedSubgraph(vertices, graph);
+            List<TopologyEdge> shortestPath = topologyFacade.findShortestPath(subGraph, vBegin, vEnd, distanceVector);
             path.addAll(shortestPath);
         }
 
         return path;
+    }
+
+    /**
+     * checks route for cycles
+     *
+     * @param edges
+     * @return false if no cycles were found; true otherwise
+     */
+    public boolean checkRouteForCycle(Collection<TopologyEdge> edges) {
+        //each vertex should be used at most twice 
+        //the first time it is end of edge, the second time it is edge start
+        //there must be two verteices with only one repetition - source and destination vertex
+        //weeel, I sould use Boolean instead of Integer, but with int it is more readable don't you think?
+        Map<TopologyVertex, Integer> used = new HashMap<TopologyVertex, Integer>(1 + (int) (edges.size() / 0.75));
+        for (TopologyEdge edge : edges) {
+
+            if (used.containsKey(edge.getVertex1())) {
+                if (used.get(edge.getVertex1()) == 2) {//it has been used for 2 times already
+                    return false;
+                } else {
+                    used.put(edge.getVertex1(), 2);
+                }
+            } else {
+                used.put(edge.getVertex1(), 1);
+            }
+
+            if (used.containsKey(edge.getVertex2())) {
+                if (used.get(edge.getVertex2()) == 2) {//it has been used for 2 times already
+                    return false;
+                } else {
+                    used.put(edge.getVertex2(), 2);
+                }
+            } else {
+                used.put(edge.getVertex2(), 1);
+            }
+        }
+        return true;
     }
 }

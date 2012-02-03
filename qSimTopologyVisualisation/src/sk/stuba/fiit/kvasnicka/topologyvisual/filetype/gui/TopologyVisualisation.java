@@ -489,6 +489,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
 
     @Override
     public void componentHidden() {
+        active=false;
         hidePaletteWindow();
         setStatusBarText("");
         topologyElementCreator.cancelAction();

@@ -9,6 +9,7 @@ import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.AbstractGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
+import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.TranslatingGraphMousePlugin;
@@ -29,7 +30,9 @@ import javax.swing.JComponent;
 import lombok.Getter;
 import org.apache.commons.collections15.Transformer;
 import org.apache.log4j.Logger;
+import org.openide.util.NbBundle;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.MyVisualizationViewer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
@@ -48,6 +51,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResul
  *
  * @author Igor Kvasnicka
  */
+@NbBundle.Messages({"cycle_exception=No cycles are allowed in the route"})
 public class Topology implements VertexCreatedListener {
 
     private static Logger logg = Logger.getLogger(Topology.class);
@@ -59,11 +63,12 @@ public class Topology implements VertexCreatedListener {
     private MyVisualizationViewer vv;
     private MyEditingModalGraphMouse graphMouse;
     private TopologyVertexFactory vertexFactory;
-    private RoutingHelper routingHelper = new RoutingHelper();
+    private transient RoutingHelper routingHelper = new RoutingHelper();
     private final TopologyVisualisation topolElementTopComponent;
     @Getter
     private TopologyModeEnum topologyMode = null;
     private GraphMouseListener<TopologyVertex> vertexPickedListener;
+    private DefaultModalGraphMouse defaultGm;
 
     /**
      * creates new instance
@@ -78,10 +83,20 @@ public class Topology implements VertexCreatedListener {
         return vertexFactory;
     }
 
+    /**
+     * sets topology into specified mode. each mode is used for different
+     * purpose. in fact mode means set of JUNG plugins
+     *
+     * @param mode
+     */
     public void setMode(TopologyModeEnum mode) {
         if (mode == topologyMode) {//mode did not change
             return;
         }
+
+        clearRoutingMode();
+        clearTopologyCreateMode();
+
         switch (mode) {
             case CREATION:
                 initTopologyCreateMode();
@@ -89,14 +104,30 @@ public class Topology implements VertexCreatedListener {
             case SIMULATION:
                 break;
             case SIMULATION_RULES:
-                initTopologySimulationRulesCreation();
+                initTopologySimulationRulesCreationMode();
                 break;
             case ROUTING:
+                initTopologyRoutingMode();
                 break;
             default:
                 throw new IllegalStateException("unkown TopologyModeEnum");
         }
         topologyMode = mode;
+    }
+
+    /**
+     * reverts all changes made by Routing mode
+     */
+    private void clearRoutingMode() {
+        vv.getRenderContext().setEdgeDrawPaintTransformer(new PickableEdgePaintTransformer<TopologyEdge>(vv.getPickedEdgeState(), Color.black, Color.cyan));
+    }
+
+    private void clearTopologyCreateMode() {
+        if (defaultGm == null) {
+            defaultGm = new DefaultModalGraphMouse();
+            defaultGm.setMode(ModalGraphMouse.Mode.TRANSFORMING);
+        }
+        vv.setGraphMouse(defaultGm);
     }
 
     @Override
@@ -108,7 +139,7 @@ public class Topology implements VertexCreatedListener {
     }
 
     /**
-     * initialises JUNG stuff for topology creation
+     * initialises JUNG stuff. here are all default plugins initialised
      *
      */
     public void initTopology() {
@@ -206,12 +237,18 @@ public class Topology implements VertexCreatedListener {
      *
      * @param mainFrame reference to MainFrame object
      */
-    private void initTopologySimulationRulesCreation() {
+    private void initTopologySimulationRulesCreationMode() {
         PickedState<TopologyVertex> ps = vv.getPickedVertexState();
         vv.removeGraphMouseListener(vertexPickedListener);
         DefaultVertexIconTransformer<TopologyVertex> vertexIconTransformer = (DefaultVertexIconTransformer<TopologyVertex>) vv.getRenderContext().getVertexIconTransformer();
         vertexPickedListener = new VertexPickedSimulRulesListener(vertexIconTransformer, topolElementTopComponent, ps);
         vv.addGraphMouseListener(vertexPickedListener);
+    }
+
+    /**
+     * inits plugins for routing mode
+     */
+    private void initTopologyRoutingMode() {
     }
 
     /**
@@ -403,28 +440,32 @@ public class Topology implements VertexCreatedListener {
      *
      * @param sourceVertex
      * @param destinationVertex
+     * @param vertices between them
      */
-    public void highlightEdgesFromTo(TopologyVertex source, TopologyVertex dest) {
+    public void highlightEdgesFromTo(TopologyVertex source, TopologyVertex destination, TopologyVertex... fixedVertices) throws RoutingException {
         if (TopologyModeEnum.ROUTING != topologyMode) {
             return;
         }
         //first retirieve edges between these two vertices
         boolean distanceVector = topolElementTopComponent.getDataObject().getLoadSettings().isDistanceVectorRouting();
-        final Collection<TopologyEdge> edges = routingHelper.retrieveEdges(getG(), source, distanceVector, dest);
+        final Collection<TopologyEdge> edges = routingHelper.retrieveEdges(getG(), source, destination, distanceVector, fixedVertices);
+        if (!routingHelper.checkRouteForCycle(edges)) {
+            throw new RoutingException(NbBundle.getMessage(Topology.class, "cycle_exception"));
+        }
         //now highlight each edge
-        vv.getRenderContext().setEdgeFillPaintTransformer(new Transformer<TopologyEdge, Paint>() {
+        vv.getRenderContext().setEdgeDrawPaintTransformer(new Transformer<TopologyEdge, Paint>() {
 
             @Override
             public Paint transform(TopologyEdge i) {
                 for (TopologyEdge e : edges) {
                     if (i == e) { //they are literally the same - the same object
-                        return Color.YELLOW;
+                        return Color.BLUE;
                     }
                 }
                 return Color.BLACK;
             }
         });
-
+        vv.repaint();
         //and do not forget to highlight source and destination vertices, too
     }
 
