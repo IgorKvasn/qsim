@@ -546,6 +546,24 @@ public class RoutingHelperTest extends NbTestCase {
         assertEquals(topolEdge2, toArray[1]);
         assertEquals(topolEdge3, toArray[2]);
     }
+    
+    
+    public void testRetrieveEdges_unreachable() throws RoutingException {
+        helper = new RoutingHelper();
+
+        NetworkNode node1 = new Router("meno1");
+        NetworkNode node2 = new Router("meno2");
+
+        TopologyVertex vertex1 = new RouterVertex(node1);
+        TopologyVertex vertex2 = new RouterVertex(node2);
+
+        AbstractGraph<TopologyVertex, TopologyEdge> graph = new UndirectedSparseGraph<TopologyVertex, TopologyEdge>();
+        graph.addVertex(vertex1);
+        graph.addVertex(vertex2);
+
+        Collection<TopologyEdge> retrieveEdges = helper.retrieveEdges(graph, vertex1, vertex2, true, null);
+        assertEquals(3, retrieveEdges.size());
+    }
 
     /**
      * source is fixed vertex
