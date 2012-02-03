@@ -5,6 +5,7 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.components;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedHashMap;
@@ -13,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import org.apache.commons.lang3.StringUtils;
+import org.jdesktop.swingx.JXCollapsiblePane;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectionEvent;
@@ -142,6 +144,24 @@ public class TopologyPalette extends JPanel {
             if (listeners[i] == PaletteSelectionListener.class) {
                 ((PaletteSelectionListener) listeners[i + 1]).paletteDeselectedOccurred(evt);
             }
+        }
+    }
+
+    /**
+     * disables/enables all buttons in all categories
+     */
+    public void setEnabledButtons(boolean enable) {
+        for (JXTaskPane cat : categories.values()) {
+            for (Component comp : cat.getComponents()) {
+                if (comp instanceof JXCollapsiblePane) {
+                    for (Component c : ((JXCollapsiblePane) comp).getContentPane().getComponents()) {
+                        if (c instanceof JToggleButton) {
+                            c.setEnabled(enable);
+                        }
+                    }
+                }
+            }
+
         }
     }
 }

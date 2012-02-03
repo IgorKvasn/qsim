@@ -11,8 +11,10 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.ContainerPanel;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 
 /**
  * Top component which displays something.
@@ -87,6 +89,7 @@ public final class AddSimulationTopComponent extends TopComponent {
     @Override
     public void componentClosed() {
         panelIterator.cancelIterator();
+        NetbeansWindowHelper.getInstance().getActiveTopology().setDefaultMode();
     }
 
     void writeProperties(java.util.Properties p) {

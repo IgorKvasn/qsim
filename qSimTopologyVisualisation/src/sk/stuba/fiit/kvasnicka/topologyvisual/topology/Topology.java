@@ -31,6 +31,7 @@ import lombok.Getter;
 import org.apache.commons.collections15.Transformer;
 import org.apache.log4j.Logger;
 import org.openide.util.NbBundle;
+import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
@@ -42,6 +43,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.*;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.MyVertexIconShapeTransformer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.VertexToIconTransformer;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.TopologyPaletteTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.routing.RoutingHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 
@@ -55,6 +57,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResul
 public class Topology implements VertexCreatedListener {
 
     private static Logger logg = Logger.getLogger(Topology.class);
+    private final TopologyModeEnum DEFAULT_MODE = TopologyModeEnum.CREATION;
     @Getter
     private AbstractGraph<TopologyVertex, TopologyEdge> g;
     @Getter
@@ -81,6 +84,13 @@ public class Topology implements VertexCreatedListener {
 
     public TopologyVertexFactory getVertexFactory() {
         return vertexFactory;
+    }
+
+    /**
+     * sets topology to its default mode
+     */
+    public void setDefaultMode() {
+        setMode(DEFAULT_MODE);
     }
 
     /**
@@ -128,6 +138,13 @@ public class Topology implements VertexCreatedListener {
             defaultGm.setMode(ModalGraphMouse.Mode.TRANSFORMING);
         }
         vv.setGraphMouse(defaultGm);
+
+        TopologyPaletteTopComponent component = (TopologyPaletteTopComponent) WindowManager.getDefault().findTopComponent("TopologyPaletteTopComponent");
+        if (component == null) {
+            logg.error("Could not find component TopologyPaletteTopComponent");
+            return;
+        }
+        component.setEnabledPalette(false);
     }
 
     @Override
@@ -210,6 +227,14 @@ public class Topology implements VertexCreatedListener {
         vv.addGraphMouseListener(vertexPickedListener);
         //init mouse
         initMouseControlTopologyCreation(topolElementTopComponent);
+
+        //palette
+        TopologyPaletteTopComponent component = (TopologyPaletteTopComponent) WindowManager.getDefault().findTopComponent("TopologyPaletteTopComponent");
+        if (component == null) {
+            logg.error("Could not find component TopologyPaletteTopComponent");
+            return;
+        }
+        component.setEnabledPalette(true);
 
     }
 
