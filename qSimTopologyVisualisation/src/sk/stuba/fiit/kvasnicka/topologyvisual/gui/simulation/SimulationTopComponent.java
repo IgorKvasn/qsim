@@ -14,6 +14,7 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import org.openide.windows.Mode;
 import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
@@ -41,7 +42,6 @@ preferredID = "SimulationTopComponent")
 public final class SimulationTopComponent extends TopComponent {
 
     private static Logger logg = Logger.getLogger(SimulationTopComponent.class);
-    private Topology topology;
 
     public SimulationTopComponent() {
         initComponents();
@@ -49,14 +49,20 @@ public final class SimulationTopComponent extends TopComponent {
         setToolTipText(Bundle.HINT_SimulationTopComponent());
     }
 
+    /**
+     * opens AddSimulationTopcompnent window it also includes workaround for bug
+     * #208059: http://netbeans.org/bugzilla/show_bug.cgi?id=208059
+     */
     private void addSimulation() {
-        AddSimulationTopComponent component = (AddSimulationTopComponent) WindowManager.getDefault().findTopComponent("AddSimulationTopComponent");
-        if (component == null) {
+        Mode outputMode = WindowManager.getDefault().findMode("output");
+        TopComponent myTC = WindowManager.getDefault().findTopComponent("AddSimulationTopComponent");
+        if (myTC == null) {
             logg.error("Could not ind window: AddSimulationTopComponent");
             return;
         }
-        component.open();
-        component.requestActive();
+        outputMode.dockInto(myTC);
+        myTC.open();
+        myTC.requestActive();
     }
 
     /**
@@ -112,6 +118,11 @@ public final class SimulationTopComponent extends TopComponent {
 
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/remove.png"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jButton1.text")); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/edit.png"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(jButton2, org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jButton2.text")); // NOI18N
@@ -151,6 +162,9 @@ public final class SimulationTopComponent extends TopComponent {
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         addSimulation();
     }//GEN-LAST:event_btnAddActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_jButton1ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
     private javax.swing.JButton jButton1;

@@ -158,21 +158,19 @@ public class RoutingPanel extends PanelInterface {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jButton1)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel1))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 4, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         addRow(null);
     }//GEN-LAST:event_jButton1ActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
@@ -360,6 +358,7 @@ public class RoutingPanel extends PanelInterface {
 //
 //  Implement TableCellRenderer interface
 //
+        @Override
         public Component getTableCellRendererComponent(
                 JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             if (isSelected) {
@@ -398,6 +397,7 @@ public class RoutingPanel extends PanelInterface {
          * The button has been pressed. Stop editing and invoke the custom
          * Action
          */
+        @Override
         public void actionPerformed(ActionEvent e) {
             int row = table.convertRowIndexToModel(table.getEditingRow());
             fireEditingStopped();
@@ -420,6 +420,7 @@ public class RoutingPanel extends PanelInterface {
          * still active. Make sure editing is stopped when the mouse is
          * released.
          */
+        @Override
         public void mousePressed(MouseEvent e) {
             if (table.isEditing()
                     && table.getCellEditor() == this) {
@@ -427,6 +428,7 @@ public class RoutingPanel extends PanelInterface {
             }
         }
 
+        @Override
         public void mouseReleased(MouseEvent e) {
             if (isButtonColumnEditor
                     && table.isEditing()) {
@@ -436,12 +438,15 @@ public class RoutingPanel extends PanelInterface {
             isButtonColumnEditor = false;
         }
 
+        @Override
         public void mouseClicked(MouseEvent e) {
         }
 
+        @Override
         public void mouseEntered(MouseEvent e) {
         }
 
+        @Override
         public void mouseExited(MouseEvent e) {
         }
     }
