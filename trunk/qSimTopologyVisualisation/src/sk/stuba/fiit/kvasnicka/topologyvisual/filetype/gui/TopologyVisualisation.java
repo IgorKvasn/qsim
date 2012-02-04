@@ -8,12 +8,11 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.io.Serializable;
 import javax.swing.*;
 import javax.swing.event.*;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
@@ -71,6 +70,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     @Getter
     private VertexSelectionManager vertexSelectionManager = new VertexSelectionManager();
     @Getter
+    @Setter
     private boolean active = false;
     private VerticesSelectionPanel verticesSelectionPanel = null;//used as callback object when user is selecting vertex during simulation rules definition
 
@@ -87,47 +87,6 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
         topology = new Topology(this);
         initTopology();
         initPalette();
-        NetbeansWindowHelper.getInstance();
-
-        this.addAncestorListener(new AncestorListener() {
-
-            @Override
-            public void ancestorAdded(AncestorEvent event) {
-                System.out.println("ancestorAdded");
-            }
-
-            @Override
-            public void ancestorRemoved(AncestorEvent event) {
-                System.out.println("ancestorRemoved");
-            }
-
-            @Override
-            public void ancestorMoved(AncestorEvent event) {
-            }
-        });
-
-        this.addComponentListener(new ComponentListener() {
-
-            @Override
-            public void componentResized(ComponentEvent e) {
-            }
-
-            @Override
-            public void componentMoved(ComponentEvent e) {
-            }
-
-            @Override
-            public void componentShown(ComponentEvent e) {
-                System.out.println("componentShown");
-                active = true;
-            }
-
-            @Override
-            public void componentHidden(ComponentEvent e) {
-                System.out.println("componentHidden");
-                active = false;
-            }
-        });
         initToolbar();
     }
 
@@ -408,6 +367,9 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     void readProperties(java.util.Properties p) {
         String version = p.getProperty("version");
         active = Boolean.parseBoolean(p.getProperty("active"));
+        if (active){//make this topolvisual active and all other non-active
+            NetbeansWindowHelper.getInstance().activateWindow(this);
+        }
         //  read your settings according to their version
     }
 
@@ -471,7 +433,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
 
     @Override
     public void componentOpened() {
-        active = true;
+        NetbeansWindowHelper.getInstance().activateWindow(this);
     }
 
     @Override
@@ -479,17 +441,15 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
         hideSimulationTopComponents();
         topologyElementCreator.cancelAction();
         selectedAction = null;
-        active = false;
     }
 
     @Override
     public void componentShowing() {
-        active = true;
+        NetbeansWindowHelper.getInstance().activateWindow(this);
     }
 
     @Override
     public void componentHidden() {
-        active=false;
         hidePaletteWindow();
         setStatusBarText("");
         topologyElementCreator.cancelAction();
@@ -499,7 +459,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     @Override
     public void componentActivated() {
         openPaletteWindow();
-        active = true;
+        NetbeansWindowHelper.getInstance().activateWindow(this);
     }
 
     @Override

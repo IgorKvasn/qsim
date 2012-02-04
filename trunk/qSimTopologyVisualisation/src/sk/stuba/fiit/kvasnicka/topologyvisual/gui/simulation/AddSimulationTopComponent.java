@@ -29,11 +29,12 @@ persistenceType = TopComponent.PERSISTENCE_NEVER)
 @ActionReference(path = "Menu/Window" /*
  * , position = 333
  */)
-@TopComponent.OpenActionRegistration(displayName = "#CTL_AddSimulationAction",
-preferredID = "AddSimulationTopComponent")
+//workaround for bug: http://netbeans.org/bugzilla/show_bug.cgi?id=208059
+//@TopComponent.OpenActionRegistration(displayName = "#CTL_AddSimulationAction",
+//preferredID = "AddSimulationTopComponent")
 @Messages({
     "CTL_AddSimulationAction=Add new simulation rule",
-    "CTL_AddSimulationTopComponent=AddSimulation Window",
+    "CTL_AddSimulationTopComponent=Add new simulation rule",
     "HINT_AddSimulationTopComponent=This is a AddSimulation window"
 })
 public final class AddSimulationTopComponent extends TopComponent {
@@ -46,6 +47,7 @@ public final class AddSimulationTopComponent extends TopComponent {
         initComponents();
         setName(Bundle.CTL_AddSimulationTopComponent());
         setToolTipText(Bundle.HINT_AddSimulationTopComponent());
+        putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
         panelIterator = new SimulationRuleIterator();
         containerPanel = new ContainerPanel(panelIterator);
         panelIterator.setContainerPanel(containerPanel);

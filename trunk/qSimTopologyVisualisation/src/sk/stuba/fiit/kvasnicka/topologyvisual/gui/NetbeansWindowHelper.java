@@ -49,6 +49,41 @@ public class NetbeansWindowHelper {
     }
 
     /**
+     * sets specified TopologyVisualisation to active state
+     *
+     * @param activeVisual
+     */
+    public void activateWindow(TopologyVisualisation activeVisual) {
+        logg.debug("activating window " + activeVisual.getDataObject().getPrimaryFile().getNameExt());
+        //to make sure I first go through all opened TopolVisuals and set them as not active
+        TopComponent.Registry registry = TopComponent.getRegistry();
+        Set<TopComponent> opened = registry.getOpened();
+        for (TopComponent tc : opened) {
+            MultiViewHandler mh = MultiViews.findMultiViewHandler(tc);
+            if (mh == null) {//it is not a multiview top component
+                continue;
+            }
+            if (mh.getPerspectives().length != 2) {//double-check that it is really what I want
+                continue;
+            }
+            if (!("TopologyInfoMultiview".equals(mh.getPerspectives()[0].preferredID()))) {
+                continue;
+            }
+            if (!("TopologyVisualisationDescription".equals(mh.getPerspectives()[1].preferredID()))) {
+                continue;
+            }
+            //allright now, I am 100% sure it is what I am looking for :)
+            if ("TopologyVisualisationDescription".equals(mh.getSelectedPerspective().preferredID())) {
+                TopologyVisualisation topolVisual = getTopologyVisualisationByReflection(mh.getSelectedPerspective());
+                topolVisual.setActive(false);
+            }
+        }
+        //now set specified TopologyVisual as active
+        activeVisual.setActive(true);
+
+    }
+
+    /**
      * returns null if no Active topology visualisation Element found
      *
      * @return
