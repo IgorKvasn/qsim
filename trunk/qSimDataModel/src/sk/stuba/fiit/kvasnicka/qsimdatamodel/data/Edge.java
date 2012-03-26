@@ -1,5 +1,10 @@
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data;
 
+import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * @author Igor Kvasnicka
  */
@@ -8,6 +13,8 @@ public class Edge {
     private long speed;
     private int length;
     private NetworkNode node1, node2;
+
+    private List<Packet> packets = new LinkedList<Packet>();
 
     /**
      * creates new instance of Edge object with speed parameter defined do not
@@ -31,6 +38,28 @@ public class Edge {
         length = - 1;
         this.node1 = node1;
         this.node2 = node2;
+    }
+
+    public void addPacket(Packet packet) {
+        packets.add(packet);
+    }
+
+    public void removePacket(Packet packet) {
+        packets.remove(packet);
+    }
+
+    public List<Packet> getPackets(double simulationTime) {
+        List<Packet> list = new LinkedList<Packet>();
+        for (Packet packet : packets) {
+            if (packet.getTimeWhenNextStateOccures() <= simulationTime) {
+                list.add(packet);
+            }
+        }
+        return list;
+    }
+
+    public List<Packet> getAllPackets(){
+        return packets;
     }
 
     /**
