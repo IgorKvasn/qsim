@@ -33,14 +33,12 @@ public class SimulationRuleBean {
      */
     private int numberOfPackets;
     private int packetSize;
-    @Setter
-    private boolean finished;
+
     /**
      * true if this rule is automatic = it starts when simulation starts
      * manual (non-automatic) rules starts when user says so
      */
     private boolean automatic;
-    private double processingDelay;
 
     /**
      * creates new simulation rule
@@ -59,9 +57,7 @@ public class SimulationRuleBean {
         this.activationTime = activeDelay;
         this.repeat = repeat;
         this.packetTypeEnum = packetTypeEnum;
-        this.processingDelay = 10; //TODO make this a parametrized value depending on NetworkNode processing load
         this.active = false;
-        this.finished = false;
         this.source = source;
         this.destination = destination;
         this.numberOfPackets = numberOfPackets;
@@ -76,7 +72,6 @@ public class SimulationRuleBean {
     public void decreaseRuleRepetition() {
         if (repeat <= 0) return;//so when rule is finished (repeat=0) or if it is set to infinity (repeat=-1)
         repeat--;
-        if (repeat == 0) finished = true;
     }
 
     public void decreaseNumberOfPackets() {
@@ -90,5 +85,9 @@ public class SimulationRuleBean {
      */
     public void increaseActivationTime(double timeQuantum) {
         activationTime += timeQuantum;
+    }
+
+    public boolean isFinished() {
+        return repeat == 0 && numberOfPackets == 0;
     }
 }

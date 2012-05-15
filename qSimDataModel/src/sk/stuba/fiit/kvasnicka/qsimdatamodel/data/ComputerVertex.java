@@ -5,6 +5,7 @@ package sk.stuba.fiit.kvasnicka.qsimdatamodel.data;
  */
 public class ComputerVertex extends TopologyVertex {
     Computer c;
+
     public ComputerVertex() {
     }
 }

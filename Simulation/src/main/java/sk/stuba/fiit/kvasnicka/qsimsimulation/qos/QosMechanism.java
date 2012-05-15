@@ -1,5 +1,6 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos;
 
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
 import java.util.List;
@@ -23,13 +24,14 @@ public interface QosMechanism {
      * @see sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet#qosQueue here will be return value stored
      */
 
-    int markPacket(Packet packet);
+    int classifyAndMarkPacket(Packet packet);
 
     /**
      * decides which packets should be moved from output queue
      *
      * @param outputQueuePackets all packets in all output queues (it does not matter what priority ar what queue are they in)
+     * @param swQueues           definition of QoS queues
      * @return list of packets to send
      */
-    List<Packet> decitePacketsToMoveFromOutputQueue(List<Packet> outputQueuePackets);
+    List<Packet> decitePacketsToMoveFromOutputQueue(List<Packet> outputQueuePackets, SwQueues swQueues);
 }

@@ -1,5 +1,6 @@
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data;
 
+import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
 import java.util.LinkedList;
@@ -13,17 +14,24 @@ public class Edge {
     private long speed;
     private int length;
     private NetworkNode node1, node2;
+    private int mtu;
 
-    private List<Packet> packets = new LinkedList<Packet>();
+    private List<Packet> packets = new LinkedList<Packet>();//todo toto tu asi je zbytocne, lebo teraz uz su fragmenty
+    /**
+     * all fragments that are on the wire
+     */
+    private List<Fragment> fragments = new LinkedList<Fragment>();
 
     /**
      * creates new instance of Edge object with speed parameter defined do not
      * forget to set length parameter later on
      *
      * @param speed bitrate [bit/s]
+     * @param mtu   maximum transfer unit
      */
-    public Edge(long speed, NetworkNode node1, NetworkNode node2) {
+    public Edge(long speed, NetworkNode node1, NetworkNode node2, int mtu) {//fixme mozno mtu nebude ako argument, ale podobne ako speed a length sa bude nastavovat neskor
         this.speed = speed;
+        this.mtu = mtu;
         length = - 1;
         this.node1 = node1;
         this.node2 = node2;
@@ -33,7 +41,8 @@ public class Edge {
      * used when in time of creating new instance, speed and length parameters
      * are not known yet
      */
-    public Edge(NetworkNode node1, NetworkNode node2) {
+    public Edge(NetworkNode node1, NetworkNode node2, int mtu) { //fixme ako v tom druhom konstruktore
+        this.mtu = mtu;
         speed = - 1;
         length = - 1;
         this.node1 = node1;
@@ -58,8 +67,19 @@ public class Edge {
         return list;
     }
 
-    public List<Packet> getAllPackets(){
+    public List<Packet> getAllPackets() {
         return packets;
+    }
+
+    public int getMtu() {
+        if (mtu == - 1) {
+            throw new IllegalStateException("speed of this edge us not defined");
+        }
+        return mtu;
+    }
+
+    public void setMtu(int mtu) {
+        this.mtu = mtu;
     }
 
     /**
@@ -110,5 +130,25 @@ public class Edge {
 
     public NetworkNode getNode2() {
         return node2;
+    }
+
+    public void addFragment(Fragment fragment) {
+        fragments.add(fragment);
+    }
+
+    public void moveFragmentsToNetworkNode(double simulationTime) {
+        for (int i = 0, fragmentsSize = fragments.size(); i < fragmentsSize; i++) {
+            Fragment fragment = fragments.get(i);
+
+            if (fragment.getSimulationTime() <= simulationTime) { //this packet was propagated and serialised on the destination (next-hop) network node
+
+                //remove fragment from the edge
+                fragments.remove(fragment);//critical kvoli tomuto otestovat
+                i--;
+
+                //add fragment to the appropriate network node
+                fragment.getTo().addToRxBuffer(fragment, fragment.getSimulationTime());
+            }
+        }
     }
 }

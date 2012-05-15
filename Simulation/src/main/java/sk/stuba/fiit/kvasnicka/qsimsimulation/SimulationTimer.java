@@ -8,7 +8,6 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
 import javax.swing.Timer;
 import java.awt.event.ActionEvent;
@@ -51,6 +50,9 @@ public class SimulationTimer implements ActionListener {
      * @param simulationManager reference to SimulationManager object
      */
     public void startSimulationTimer(SimulationManager simulationManager) {
+        if (packetManager != null) { //simulation has been started some time before
+            packetManager.clearAllPackets();//clean-up all packets
+        }
         packetManager = new PacketManager(this);
         this.simulationManager = simulationManager;
         packetGenerator = new PacketGenerator(simulationManager.getRulesUnmodifiable(), this, topologyManager.getEdgeList(), topologyManager.getNodeList());
@@ -98,26 +100,33 @@ public class SimulationTimer implements ActionListener {
 
             simulationTime += TIME_QUANTUM;//increase simulation clock
 
-
-            //--------handle all packets in PROCESSING state and see what can I do about them i.e. change THEIR status first
-            //here is QoS used (RED/WRED,...) to put packets into output queue
-            packetManager.moveProcessedPackets(simulationTime);
-
             //-------generate new packets in all network nodes
-            //new packets are created into output buffer, so generatePavkets() should be called before emptying output buffers
+            //new packets are created into output buffer, so generatePackets() should be called before emptying output buffers
             packetGenerator.generatePackets(simulationTime, TIME_QUANTUM);
 
-            //todo the rest of the timer tick method can be paralelized
 
+            for (Edge edge : packetManager.getEdgeList()) {
+                edge.moveFragmentsToNetworkNode(simulationTime);
+            }
 
-            //-------- empty output queues - move apply QoS and move packets to OUTPUT_SERIALISATION state
-            packetManager.movePacketsFromOutputQueue(simulationTime);
+            //from input queue to processing
+            for (NetworkNode node : packetManager.getNetworknodeList()) {
+                node.moveFromInputQueueToProcessing(simulationTime);
+            }
 
+            //from processing to output queue
+            for (NetworkNode node : packetManager.getNetworknodeList()) {
+                node.moveFromProcessingToOutputQueue(simulationTime);
+            }
 
-            //--------change status of all packets
-            List<Packet> packetsToChange = packetManager.getAllPacketsOnTheWire(simulationTime);//here are all packets that are waiting to change their state
-            packetManager.changePacketsState(packetsToChange, simulationTime);//change their state
-
+            //from output queue to TX buffer
+            for (NetworkNode node : packetManager.getNetworknodeList()) {
+                node.sendPackets(simulationTime);
+            }
+            //from TX buffer to the wire and to the RX buffer on the next-hop network node
+            for (NetworkNode node : packetManager.getNetworknodeList()) {
+                node.movePacketsToTheWire(simulationTime);
+            }
 
             //---------now calculate statistic data
             //todo vypocitaj vyuzitie output queues - vysledok hod do QueueDefinition.usedCapacity
@@ -133,6 +142,7 @@ public class SimulationTimer implements ActionListener {
             logg.error("Error during timer execution", throwable);
         }
     }
+
 
     public boolean isRunning() {
         return timer.isRunning();

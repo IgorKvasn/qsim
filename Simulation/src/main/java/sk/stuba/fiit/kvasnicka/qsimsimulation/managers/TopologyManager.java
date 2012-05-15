@@ -32,7 +32,7 @@ public class TopologyManager {
      * @return edge between them
      * @throws IllegalStateException if no such edge exists
      */
-    public Edge findEdge(String node1, String node2) {
+    public Edge findEdge(String node1, String node2) { //todo cache? - klucom je objekt s parametrami node1 a node2, value je Edge medzi nimi
         if (StringUtils.isEmpty(node1)) {
             throw new IllegalArgumentException("node1 cannot be null or empty");
         }

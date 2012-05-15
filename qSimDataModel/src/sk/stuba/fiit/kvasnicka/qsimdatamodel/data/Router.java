@@ -1,5 +1,6 @@
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data;
 
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -16,14 +17,10 @@ public class Router extends NetworkNode {
      *
      * @param name default name of the router
      */
-    public Router(String name, QosMechanism qosMechanism, int markDelay, int queueCount, QueueDefinition[] queues) {
-        super(name, qosMechanism, markDelay, queues);
+    public Router(String name, QosMechanism qosMechanism, int queueCount, SwQueues queues, int maxTxBufferSize, int maxIntputQueueSize, int maxOutputQueueSize, int maxProcessingPackets) {
+        super(name, qosMechanism, queues, maxTxBufferSize, maxIntputQueueSize, maxOutputQueueSize, maxProcessingPackets);
     }
 
-    @Override
-    public boolean isQosCapable() {
-        return true;
-    }
 
     public Router() {
     }

@@ -1,5 +1,6 @@
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data;
 
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -17,11 +18,10 @@ public class Computer extends NetworkNode {
      *
      * @param name         name of the computer
      * @param qosMechanism
-     * @param markDelay
-     * @param queues    sizes of all queues, size is in Bytes
+     * @param queues       sizes of all queues, size is in Bytes
      */
-    public Computer(String name, QosMechanism qosMechanism, int markDelay, QueueDefinition[] queues) {
-        super(name, qosMechanism, markDelay, queues); //computer has got only one queue
+    public Computer(String name, QosMechanism qosMechanism, SwQueues queues, int maxTxBufferSize, int maxIntputQueueSize, int maxOutputQueueSize, int maxProcessingPackets) {
+        super(name, qosMechanism, queues, maxTxBufferSize, maxIntputQueueSize, maxOutputQueueSize, maxProcessingPackets);
     }
 
     /**
@@ -33,10 +33,5 @@ public class Computer extends NetworkNode {
     @Override
     protected void fillForbiddenRoutingRules(Map<Class, Integer> routingRules) {
         routingRules.put(Computer.class, 0);//no computers as neighbours
-    }
-
-    @Override
-    public boolean isQosCapable() {
-        return false;
     }
 }
