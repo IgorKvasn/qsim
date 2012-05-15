@@ -42,15 +42,17 @@ public class PacketGenerator {
             if (rule.isFinished()) continue; //I don't care about finished simulation rules
             if (rule.isActive()) {//rule has been activated and it is not finished yet
                 addPacketsToNetworkNode(timeQuantum, rule.getActivationTime(), rule);
+
+                rule.decreaseRuleRepetition();
             } else {//check if the time came to activate this rule
                 if (checkRuleActivate(rule, simulationTime)) {//yes, I should activate it
                     rule.setActive(true);
                     addPacketsToNetworkNode(timeQuantum, rule.getActivationTime(), rule);
                     rule.increaseActivationTime(timeQuantum);
+
+                    rule.decreaseRuleRepetition();
                 }
             }
-            //after the rule is used I will take care of rule repetition
-            rule.decreaseRuleRepetition();
         }
     }
 
@@ -83,7 +85,8 @@ public class PacketGenerator {
     private List<Packet> generatePacketsFromSimulRule(SimulationRuleBean rule, double timeQuantum) {
         List<Packet> packets = new LinkedList<Packet>();
         double timeSpent = 0;
-        while (timeSpent <= timeQuantum && rule.getNumberOfPackets() > 0) {
+        double creationTime = rule.getActivationTime() % timeQuantum;
+        while (timeSpent <= creationTime && rule.getNumberOfPackets() > 0) {
             double creationDelay = DelayHelper.calculatePacketCreationDelay(rule.getSource(), rule.getPacketSize(), rule.getPacketTypeEnum());
             if (timeSpent + creationDelay > timeQuantum) break; //no time left to spent
             packets.add(createPacket(rule.getPacketSize(), rule.getDestination(), rule.getSource(), rule.getPacketTypeEnum(), rule.getActivationTime() + timeSpent));
@@ -105,9 +108,6 @@ public class PacketGenerator {
      * @return
      */
     private Packet createPacket(int packetSize, NetworkNode destination, NetworkNode source, PacketTypeEnum packetTypeEnum, double creationTime) {
-        Packet packet = new Packet(packetSize, destination, source, packetManager, packetTypeEnum, creationTime);
-        int mark = source.getQosMechanism().markPacket(packet); //todo mark delay
-        packet.setQosQueue(mark);
-        return packet;
+        return new Packet(packetSize, destination, source, packetManager, packetTypeEnum, creationTime);
     }
 }

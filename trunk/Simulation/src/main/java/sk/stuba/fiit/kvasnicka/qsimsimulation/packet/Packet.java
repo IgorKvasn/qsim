@@ -15,7 +15,11 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 @Getter
 @EqualsAndHashCode
 public class Packet {
-
+    /**
+     * state of the packet is determined by other ways, e.g. internal List where it is placed,...
+     * also there are some new states, that are not in PacketStateEnum (INPUT_QUEUE,TX_BUFFER,...)
+     */
+    @Deprecated
     private PacketStateEnum state;
     private int packetSize;
     private NetworkNode destination;
@@ -39,9 +43,10 @@ public class Packet {
     @Setter
     private double timeWhenNextStateOccures;
     @Setter
-    private double timeWhenCameToBuffer;
+    private double timeWhenCameToQueue;
     @Setter
     private double timeWhenCameToNetworkNode;
+
 
     private final double creationTime;
 
@@ -62,9 +67,10 @@ public class Packet {
         this.packetManager = packetManager;
         this.packetType = packetType;
         this.timeWhenNextStateOccures = creationTime;
-        this.state = PacketStateEnum.OUPUT_BUFFER;
+
+        this.state = PacketStateEnum.OUPUT_QUEUE;
         this.position = new PacketPosition(source, state, this);
-        this.qosQueue = source.getQosMechanism().markPacket(this);
+        this.qosQueue = -1;// source.getQosMechanism().classifyAndMarkPacket(this);
         this.creationTime = creationTime;
     }
 
@@ -77,7 +83,7 @@ public class Packet {
     public double calculateTimeToNextState() {
         if (state == null) throw new IllegalStateException("packet state is NULL");
 
-        if (PacketStateEnum.OUPUT_BUFFER == state) {
+        if (PacketStateEnum.OUPUT_QUEUE == state) {
             checkPositionInTheNetworkNode();
             return Double.MAX_VALUE;
         }
@@ -125,8 +131,8 @@ public class Packet {
      * @return new state
      */
     public PacketStateEnum getNextState() {
-        if (PacketStateEnum.PROCESSING.equals(state)) {   //after PROCESSING is OUPUT_BUFFER state
-            return PacketStateEnum.OUPUT_BUFFER;
+        if (PacketStateEnum.PROCESSING.equals(state)) {   //after PROCESSING is OUPUT_QUEUE state
+            return PacketStateEnum.OUPUT_QUEUE;
         }
         return state.getNext();
     }

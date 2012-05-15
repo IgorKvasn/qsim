@@ -31,7 +31,7 @@ public abstract class DelayHelper {
 
     public static double calculateProcessingDelay(NetworkNode networkNode) {
 //        logg.debug("processing delay");
-        return 0.2D;
+        return 0.018;
     }
 
     /**

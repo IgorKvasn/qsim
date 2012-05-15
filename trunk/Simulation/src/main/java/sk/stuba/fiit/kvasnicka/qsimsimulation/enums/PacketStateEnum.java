@@ -7,11 +7,13 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.enums;
  *
  * @author Igor Kvasnicka
  */
+@Deprecated //see Packet object for explanation - "field state"
 public enum PacketStateEnum {
+    TX_BUFFER,
     /**
      * packet is placed in output buffer
      */
-    OUPUT_BUFFER,
+    OUPUT_QUEUE,
     /**
      * packet starts to be serialised
      */
@@ -24,9 +26,6 @@ public enum PacketStateEnum {
      * packet starts to be received
      */
     SERIALISING_INPUT_START,
-
-
-    //MARKED,//todo nezabudnut na marked stav
 
     /**
      * packet is in the network node and it starts to be processed
@@ -42,6 +41,6 @@ public enum PacketStateEnum {
     }
 
     public boolean isInBuffer() {
-        return OUPUT_BUFFER == this;
+        return OUPUT_QUEUE == this;
     }
 }

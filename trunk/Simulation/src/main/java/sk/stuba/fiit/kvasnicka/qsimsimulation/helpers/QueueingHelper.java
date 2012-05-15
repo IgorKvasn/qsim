@@ -1,13 +1,10 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation.helpers;
 
 import org.apache.log4j.Logger;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.decorators.ProcessedPacketDecorator;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketStateEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
 import java.util.LinkedList;
@@ -28,41 +25,6 @@ public class QueueingHelper {
         this.topologyManager = topologyManager;
     }
 
-    /**
-     * moves all packets that has been processed to output queue
-     * some of the packets may be dropped due to queue size limit
-     *
-     * @param simulationTime current simulation time
-     */
-
-    public void movePacketsToOutputQueue(double simulationTime) {
-        for (NetworkNode node : packetManager.getNetworknodeList()) {
-            List<ProcessedPacketDecorator> processedPackets;
-            //iterate through packets in processing state and put processed packets to output queue
-            while ((processedPackets = node.getProcessingFinishedPacket(simulationTime)) != null) {
-                for (ProcessedPacketDecorator p : processedPackets) {
-                    if (p.getPacket().isPacketDelivered(node)) {
-                        packetIsDelivered(p.getPacket());
-                        processedPackets.remove(p);
-                        p.getPacket().setState(PacketStateEnum.DELIVERED);
-                        break;
-                    }
-                    node.addToOutputQueue(p.getPacket(), p.getTimeWhenProcessingFinished());
-                }
-            }
-        }
-    }
-
-    /**
-     * this method deals with packets that have been delivered
-     *
-     * @param packet packet that has been delivered
-     */
-    private void packetIsDelivered(Packet packet) {
-        logg.debug("packet has been delivered to destination " + packet.getDestination() + " - it took" + (packet.getTimeWhenNextStateOccures() - packet.getCreationTime()) + "msec");
-        packet = null;
-    }
-
 
 //    /**
 //     * checks if there is enough space left in the output queue
@@ -78,7 +40,7 @@ public class QueueingHelper {
 //        DelayQueue<Packet> packets = networkNodeMap.get(node);
 //        int size = 0;
 //        for (Packet p : packets) {
-//            if ((PacketStateEnum.OUPUT_BUFFER == p.getState()) && (p.getQosQueue() == queueNumber)) {
+//            if ((PacketStateEnum.OUPUT_QUEUE == p.getState()) && (p.getQosQueue() == queueNumber)) {
 //                size += p.getPacketSize();
 //            }
 //        }
@@ -128,24 +90,23 @@ public class QueueingHelper {
      *
      * @param simulationTime current simulation time
      */
-    public void movePacketsFromOutputQueue(double simulationTime) {
-        for (NetworkNode node : packetManager.getNetworknodeList()) {
-            for (NetworkNode.OutputInterface outputInterface : node.getOutputInterfaces().values()) {
-
-                double serialisationEndTime = outputInterface.getSerialisationEndTime();
-
-                while (serialisationEndTime <= simulationTime) {
-                    boolean moved = movePacketsFromOutputQueueInInterval(node, outputInterface, serialisationEndTime);
-                    if (! moved) {
-                        break;
-                    }
-                    double next = outputInterface.getSerialisationEndTime();
-                    serialisationEndTime += next;
-                }
-            }
-        }
-    }
-
+//    public void movePacketsFromOutputQueue(double simulationTime) {
+//        for (NetworkNode node : packetManager.getNetworknodeList()) {
+//            for (NetworkNode.OutputInterface outputInterface : node.getOutputInterfaces().values()) {
+//
+//                double serialisationEndTime = outputInterface.getSerialisationEndTime();
+//
+//                while (serialisationEndTime <= simulationTime) {
+//                    boolean moved = movePacketsFromOutputQueueInInterval(node, outputInterface, serialisationEndTime);
+//                    if (! moved) {
+//                        break;
+//                    }
+//                    double next = outputInterface.getSerialisationEndTime();
+//                    serialisationEndTime += next;
+//                }
+//            }
+//        }
+//    }
     private double previousTimeQuantum(double simulationTime) {
         return simulationTime - SimulationTimer.TIME_QUANTUM;
     }
@@ -158,27 +119,27 @@ public class QueueingHelper {
      * @param endTime
      * @return true if packet was moved; false if no such packet was found
      */
-    private boolean movePacketsFromOutputQueueInInterval(NetworkNode node, NetworkNode.OutputInterface outputInterface, double endTime) {
-        List<Packet> outputPackets = getPacketsInOutputQueue(outputInterface.getPackets(), endTime);
-        //todo tu urobit tail drop, ake je v queue prilis vela packetov a pretecie mi buffer
-        List<Packet> qosChoosen = node.getQosMechanism().decitePacketsToMoveFromOutputQueue(outputPackets);//these packets are eligible to change their state to PROCESSING
-
-        Packet p = findPacketToSend(qosChoosen);
-        if (p == null) {
-            return false;
-        }
-
-        p.setState(PacketStateEnum.SERIALISING_OUTPUT_START);
-        Edge newPosition = p.getPosition().getEdge();
-        newPosition.addPacket(p); //adds packet to the edge
-
-        p.setTimeWhenNextStateOccures(p.getTimeWhenNextStateOccures() + endTime + DelayHelper.calculateSerialisationDelay(newPosition, p.getPacketSize()));
-
-        outputInterface.setSerialisationEndTime(topologyManager.getSerialisationDelay(node, outputInterface.getNetworknodeNextHop(), p.getPacketSize()));
-
-        outputInterface.removePacket(p);//remove packet from output queue
-        return true;
-    }
+//    private boolean movePacketsFromOutputQueueInInterval(NetworkNode node, NetworkNode.OutputInterface outputInterface, double endTime) {
+//        List<Packet> outputPackets = getPacketsInOutputQueue(outputInterface.getPackets(), endTime);
+//        //todo tu urobit tail drop, ake je v queue prilis vela packetov a pretecie mi buffer - pouzijem networkNode.getPacketsByPriority
+//        List<Packet> qosChoosen = node.getQosMechanism().decitePacketsToMoveFromOutputQueue(outputPackets);//these packets are eligible to change their state to PROCESSING
+//
+//        Packet p = findPacketToSend(qosChoosen);
+//        if (p == null) {
+//            return false;
+//        }
+//
+//        p.setState(PacketStateEnum.SERIALISING_OUTPUT_START);
+//        Edge newPosition = p.getPosition().getEdge();
+//        newPosition.addPacket(p); //adds packet to the edge
+//
+//        p.setTimeWhenNextStateOccures(p.getTimeWhenNextStateOccures() + endTime + DelayHelper.calculateSerialisationDelay(newPosition, p.getPacketSize()));
+//
+//        outputInterface.setSerialisationEndTime(topologyManager.getSerialisationDelay(node, outputInterface.getNetworknodeNextHop(), p.getPacketSize()));
+//
+//        outputInterface.removePacket(p);//remove packet from output queue
+//        return true;
+//    }
 
 
     /**
@@ -190,9 +151,13 @@ public class QueueingHelper {
      */
     private List<Packet> getPacketsInOutputQueue(List<Packet> packets, double endTime) {
         List<Packet> list = new LinkedList<Packet>();
+        if (endTime == 0) {//there has not been any serialisation, yet
+            list.addAll(packets);
+            return list;
+        }
         for (Packet packet : packets) {
-            if (PacketStateEnum.OUPUT_BUFFER == packet.getState()) {
-                if (packet.getTimeWhenCameToBuffer() <= endTime) {
+            if (PacketStateEnum.OUPUT_QUEUE == packet.getState()) {
+                if (packet.getTimeWhenCameToQueue() <= endTime) {
                     list.add(packet);
                 }
             }
@@ -207,7 +172,7 @@ public class QueueingHelper {
      * @param packets list of packets I am reviewing
      * @return packet to serialise
      */
-    private Packet findPacketToSend(List<Packet> packets) {
+    private Packet findPacketToSend(List<Packet> packets) {//todo najdem vsetky pakety na poslanie do simulacneho casu (ktore som mal poslat) - tieto budu v HW queue a tie zacnem serializovat a vyhadzovat z HW queue
         double time = Double.MAX_VALUE;
         Packet packet = null;
         for (Packet p : packets) {
