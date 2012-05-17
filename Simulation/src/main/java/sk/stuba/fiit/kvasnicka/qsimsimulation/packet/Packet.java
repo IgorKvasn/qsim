@@ -41,7 +41,7 @@ public class Packet {
      * simulation time when this packets changes its state
      */
     @Setter
-    private double timeWhenNextStateOccures;
+    private double simulationTime;
     @Setter
     private double timeWhenCameToQueue;
     @Setter
@@ -66,11 +66,11 @@ public class Packet {
         this.destination = destination;
         this.packetManager = packetManager;
         this.packetType = packetType;
-        this.timeWhenNextStateOccures = creationTime;
+        this.simulationTime = creationTime;
 
         this.state = PacketStateEnum.OUPUT_QUEUE;
         this.position = new PacketPosition(source, state, this);
-        this.qosQueue = -1;// source.getQosMechanism().classifyAndMarkPacket(this);
+        this.qosQueue = - 1;// source.getQosMechanism().classifyAndMarkPacket(this);
         this.creationTime = creationTime;
     }
 
@@ -120,22 +120,6 @@ public class Packet {
         }
     }
 
-    public void setState(PacketStateEnum newState) {
-        state = newState;
-        getPosition().setNewPosition(state);
-    }
-
-    /**
-     * gets next state of packet
-     *
-     * @return new state
-     */
-    public PacketStateEnum getNextState() {
-        if (PacketStateEnum.PROCESSING.equals(state)) {   //after PROCESSING is OUPUT_QUEUE state
-            return PacketStateEnum.OUPUT_QUEUE;
-        }
-        return state.getNext();
-    }
 
     /**
      * answers the question: Is this packet finally delivered to his destination?

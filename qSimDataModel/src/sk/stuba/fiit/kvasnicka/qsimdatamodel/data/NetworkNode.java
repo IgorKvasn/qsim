@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.InputInterface;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.OutputInterface;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.decorators.ProcessedPacketDecorator;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
@@ -25,7 +27,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * superclass of all nodes in topology (router/computer) all NetworkNodes are
@@ -67,12 +68,17 @@ public abstract class NetworkNode implements Serializable {
 
     private SwQueues swQueues;
 
+    /**
+     * map of all output interfaces - this is used as TX buffers
+     */
     @XmlTransient
     @Getter
     private Map<NetworkNode, OutputInterface> txInterfaces;
     /**
      * map of all input interfaces - this is used as RX buffers
      */
+    @XmlTransient
+    @Getter
     private Map<NetworkNode, InputInterface> rxInterfaces;
 
     private int maxTxBufferSize;
@@ -138,7 +144,8 @@ public abstract class NetworkNode implements Serializable {
      * @param packet packet to be processed
      */
     public void addPacketToProcessing(Packet packet) {
-        processingPackets.add(new ProcessedPacketDecorator(packet, packet.getTimeWhenNextStateOccures() + DelayHelper.calculateProcessingDelay(this), this));
+        packet.setSimulationTime(packet.getSimulationTime() + DelayHelper.calculateProcessingDelay(this));
+        processingPackets.add(new ProcessedPacketDecorator(packet, packet.getSimulationTime(), this));
     }
 
     /**
@@ -224,7 +231,7 @@ public abstract class NetworkNode implements Serializable {
      * @param packet packet that has been delivered
      */
     private void packetIsDelivered(Packet packet) {
-        logg.debug("packet has been delivered to destination " + packet.getDestination() + " - it took " + (packet.getTimeWhenNextStateOccures() - packet.getCreationTime()) + "msec");
+        logg.debug("packet has been delivered to destination " + packet.getDestination() + " - it took " + (packet.getSimulationTime() - packet.getCreationTime()) + "msec");
         packet = null;
     }
 
@@ -496,7 +503,7 @@ public abstract class NetworkNode implements Serializable {
         NetworkNode nextHop = getNextHopNetworkNode(packet);
 
         //create fragments
-        Fragment[] fragments = createFragments(packet, mtu, nextHop);
+        Fragment[] fragments = QueueingHelper.createFragments(packet, mtu, this, nextHop);
 
 
         if (! txInterfaces.containsKey(nextHop)) {
@@ -514,39 +521,10 @@ public abstract class NetworkNode implements Serializable {
         }
     }
 
-    /**
-     * determines if there is enough space in TX buffer for given number of fragments
-     *
-     * @param nextHopNetworkNode next hop NetworkNode
-     * @param newFragmentSize    fragments I want to put into TX buffer
-     * @return true/false according to method description
-     */
-    private boolean isTxAvailable(NetworkNode nextHopNetworkNode, int newFragmentSize) {
-
-        if (! txInterfaces.containsKey(nextHopNetworkNode)) {//create Tx buffer if not exists
-            txInterfaces.put(nextHopNetworkNode, new OutputInterface(maxTxBufferSize, this, nextHopNetworkNode, topologyManager));
-        }
-
-        int currentFragmentSize = txInterfaces.get(nextHopNetworkNode).getFragmentsCount();
-        if (currentFragmentSize + newFragmentSize > txInterfaces.get(nextHopNetworkNode).getMaxBufferSize()) {
-            return false;
-        }
-        return true;
-    }
-
-
-    private Fragment[] createFragments(Packet packet, int mtu, NetworkNode nextHop) {
-        Fragment[] fragments = new Fragment[QueueingHelper.calculateNumberOfFragments(packet.getPacketSize(), mtu)];
-        String fragmentID = UUID.randomUUID().toString();
-        for (int i = 0; i < fragments.length; i++) {
-            fragments[i] = new Fragment(packet, fragments.length, fragmentID, this, nextHop);
-        }
-        return fragments;
-    }
 
     public void movePacketsToTheWire(double simulationTime) {
         for (OutputInterface outputInterface : txInterfaces.values()) {
-            outputInterface.sendPackets(simulationTime);
+            outputInterface.serialisePackets(simulationTime);
         }
     }
 
@@ -564,7 +542,7 @@ public abstract class NetworkNode implements Serializable {
         if (! rxInterfaces.containsKey(fragment.getFrom())) {
             rxInterfaces.put(fragment.getFrom(), new InputInterface(fragment.getFrom(), maxTxBufferSize));
         }
-        Packet packet = rxInterfaces.get(fragment.getFrom()).fragmentReceived(fragment);
+        Packet packet = rxInterfaces.get(fragment.getFrom()).fragmentReceived(fragment, timeReceived);
         if (packet != null) {//this was the last fragment to complete a whole packet - now I can place this packet into input queue
             if (isProcessingAvailable()) {//packet can be processed
                 addPacketToProcessing(packet);
@@ -637,152 +615,5 @@ public abstract class NetworkNode implements Serializable {
             if (! inputInterface.isEmpty()) return false;
         }
         return true;
-    }
-
-    //todo z input a output interface urobit zvlast triedy - nie inner triedy
-    public static class OutputInterface {
-
-        private List<Fragment> fragments = new LinkedList<Fragment>();
-        /**
-         * determines when packet serialisation is done and next packet is ready to be serialised
-         */
-        private double serialisationEndTime = 0;
-
-        @Getter
-        private int maxBufferSize;
-
-        @Getter
-        private NetworkNode networknodeNextHop;
-
-        private Edge edge;
-
-        public OutputInterface(int maxBufferSize, NetworkNode currentNode, NetworkNode networknodeNextHop, TopologyManager topologyManager) {
-
-            if (maxBufferSize == - 1) {
-                this.maxBufferSize = Integer.MAX_VALUE;
-            } else {
-                this.maxBufferSize = maxBufferSize;
-            }
-            this.networknodeNextHop = networknodeNextHop;
-            edge = topologyManager.findEdge(currentNode.getName(), networknodeNextHop.getName());
-        }
-
-        public void addFragment(Fragment packet) {
-            fragments.add(packet);
-        }
-
-        /**
-         * returns number of fragments placed int this TX
-         *
-         * @return
-         */
-        public int getFragmentsCount() {
-            return fragments.size();
-        }
-
-        public void reset() {
-            serialisationEndTime = 0;
-            fragments.clear();
-        }
-
-        public boolean isEmpty() {
-            return fragments.isEmpty();
-        }
-
-        /**
-         * serialises as many packets as possible
-         * if time after serialisation is complete is bigger than current simulation time, sending quits
-         */
-        public void sendPackets(double simulationTime) {
-            for (int i = 0, fragmentsSize = fragments.size(); i < fragmentsSize; i++) {//iterate through all the fragments in TX
-                Fragment fragment = fragments.get(i);
-
-                int fragmentSize = QueueingHelper.calculateFragmentSize(i + 1, QueueingHelper.calculateNumberOfFragments(fragment.getOriginalPacket().getPacketSize(), edge.getMtu()), edge.getMtu(), fragment.getOriginalPacket().getPacketSize());
-                double serDelay = DelayHelper.calculateSerialisationDelay(edge,fragmentSize);
-                if (serialisationEndTime + serDelay > simulationTime) { //there is no time left to serialise this packet
-                    break;
-                }
-                serialisationEndTime += serDelay;
-
-                double propagationDelay = DelayHelper.calculatePropagationDelay(edge);
-                fragment.setSimulationTime(serialisationEndTime + serDelay + propagationDelay);
-                //remove fragment from TX
-                fragments.remove(fragment);//critical kvoli tomuto to otestuj!!! mazem z Listu pocas toho, ako ho iterujem - iterujem cez index, takze by to mohlo byt OK
-                i--;
-                //add fragment to the edge
-                edge.addFragment(fragment);
-            }
-        }
-    }
-
-    private class InputInterface {
-
-        //what newtork node is on the other end of the wire
-        private NetworkNode networkNodeFrom;
-        private int maxTxSize;
-        /**
-         * key = fragmentID
-         * value = number of fragment already received
-         */
-        private Map<String, Integer> fragmentMap;
-
-        private InputInterface(NetworkNode networkNodeFrom, int maxTxSize) {
-            if (maxTxSize == - 1) {
-                this.maxTxSize = - 1;
-            } else {
-                this.maxTxSize = maxTxSize;
-            }
-            this.networkNodeFrom = networkNodeFrom;
-
-            fragmentMap = new HashMap<String, Integer>();
-        }
-
-        /**
-         * this method is called whenever fragment is received
-         *
-         * @param fragment received fragment
-         * @return reference to Packet objekt when all fragments are received; null if there are some fragments to be received
-         */
-        public Packet fragmentReceived(Fragment fragment) {
-            if (! fragmentMap.containsKey(fragment.getFragmentID())) {//this is the first fragment I received
-
-                if (fragment.getFragmentCountTotal() == 1) {//there is only one fragment
-                    return fragment.getOriginalPacket();
-                }
-
-                fragmentMap.put(fragment.getFragmentID(), 1);
-                return null;
-            }
-            int recievedFragments = fragmentMap.get(fragment.getFragmentID());
-
-            if (getNumberOfFragments() == maxTxSize) {//there is not enough space - tail drop
-                logg.debug("no spaceleft in TX buffer -> packet dropped"); //todo retransmisia; pouzit NotEnoughBufferSpaceException
-                return null;
-            }
-
-            if (recievedFragments + 1 == fragment.getFragmentCountTotal()) { //fragment I've just received is the last one
-                fragmentMap.remove(fragment.getFragmentID());
-                return fragment.getOriginalPacket();
-            }
-
-            fragmentMap.put(fragment.getFragmentID(), recievedFragments + 1);
-            return null;
-        }
-
-        public int getNumberOfFragments() {
-            int numberOfFragments = 0;
-            for (Integer fragmentCount : fragmentMap.values()) {
-                numberOfFragments += fragmentCount;
-            }
-            return numberOfFragments;
-        }
-
-        public void clear() {
-            fragmentMap.clear();
-        }
-
-        public boolean isEmpty() {
-            return fragmentMap.isEmpty();
-        }
     }
 }

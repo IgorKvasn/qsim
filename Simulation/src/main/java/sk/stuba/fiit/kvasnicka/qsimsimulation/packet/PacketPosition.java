@@ -12,6 +12,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
  * @author Igor Kvasnicka
  */
 @Getter
+@Deprecated
 public class PacketPosition {
     private Edge edge;
     private NetworkNode node;
@@ -24,34 +25,6 @@ public class PacketPosition {
         this.state = state;
         this.packet = packet;
         this.edgeNodeFrom = sourceNode;
-    }
-
-    public void setNewPosition(PacketStateEnum newState) {
-
-        if (newState == null) {
-            throw new IllegalArgumentException("newState is NULL");
-        }
-
-        this.state = newState;
-        /**
-         * here comes the position change - position can change in these states
-         */
-        switch (newState) {
-            case PROCESSING://packet was on the wire, new position is in the NetworkNode
-                if (edge == null) {
-                    throw new IllegalStateException("packet changes its state to PROCESSING but previous edge was not defined");
-                }
-                edge.removePacket(packet);
-                node = getOtherEndOfEdge(edge, node);
-                edge = null;
-                break;
-            case SERIALISING_OUTPUT_START://packet was in the NetworkNode, now it is placed onto wire
-
-                edge = getEdgeByRouting(edgeNodeFrom, packet, node.getTopologyManager());
-                edgeNodeFrom = node;
-                //do not nullify "node" because ut will be needed when moved to PROCESSING state
-                break;
-        }
     }
 
 
