@@ -6,7 +6,9 @@ import lombok.Setter;
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.decorators.ProcessedPacketDecorator;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.QueueingHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
@@ -33,6 +35,11 @@ import java.util.UUID;
  */
 
 //todo porozmyslat, co ma byt JAXB transient
+//todo Cav, future me: potom nezabudni, ze ak max size TX alebo RX je -1, tak sa to berie ako nekonecno - uz to je nakodene, len v GUI na to nezabudni ;)
+
+
+//todo kde bude volany RED/WRED ?
+
 @EqualsAndHashCode(of = {"name"})
 @XmlSeeAlso({Router.class, Switch.class, Computer.class})
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -56,7 +63,7 @@ public abstract class NetworkNode implements Serializable {
 
 
     @XmlTransient
-    private List<ProcessedPacketDecorator> processingPackets;     //todo aj pocet processing paketov je obmedzeny vid: router_architecture.pdf
+    private List<ProcessedPacketDecorator> processingPackets;
 
     private SwQueues swQueues;
 
@@ -152,7 +159,7 @@ public abstract class NetworkNode implements Serializable {
                     processedPackets.remove(p);
                     continue;
                 }
-                addToOutputQueue(p.getPacket(), p.getTimeWhenProcessingFinished());
+                moveFromProcessingToOutputQueue(p.getPacket(), p.getTimeWhenProcessingFinished());
             }
         }
     }
@@ -165,15 +172,19 @@ public abstract class NetworkNode implements Serializable {
      * @param packet packet to be added
      * @param time   time, when this happens
      */
-    private void addToOutputQueue(Packet packet, double time) {
+    private void moveFromProcessingToOutputQueue(Packet packet, double time) {
         //classify and mark packet first
-        packet.setQosQueue(qosMechanism.classifyAndMarkPacket(packet));
+        packet.setQosQueue(qosMechanism.classifyAndMarkPacket(packet)); //todo toto ma bt este pred processingom, po prijati paketu, aby som zistil, ci to ma byt fast switching
         //add as much packets (fragments) as possible to TX buffer - packet can be put into TX only if there is enough space for ALL its fragments
         int mtu = topologyManager.findEdge(getName(), getNextHopNetworkNode(packet).getName()).getMtu();
-        if (isTxAvailable(getNextHopNetworkNode(packet), calculateNumberOfFragments(packet.getPacketSize(), mtu))) { //yes, all fragments can be put into TX buffer
+        try {
             addToTxBuffer(packet, mtu);
-            return;
+        } catch (NotEnoughBufferSpaceException e) {
+            addToOutputQueue(packet, time);
         }
+    }
+
+    private void addToOutputQueue(Packet packet, double time) {
         //add packet to output queue
         if (isOutputQueueAvailable(packet.getQosQueue())) {        //first check if there is enough space in output queue
             logg.debug("no space left in output queue -> packet dropped");     //todo retransmisia: tu pridat paket do nejakej fronty v predoslom network node, aby znovu poslal paket - ale iba, ak je to TCP
@@ -190,7 +201,7 @@ public abstract class NetworkNode implements Serializable {
      * @return
      */
     private boolean isOutputQueueAvailable(int qosQueue) {
-        if (swQueues.getQueueUsedCapacity(qosQueue) + 1 > swQueues.getQueueMaxCapacity(qosQueue)) {
+        if (swQueues.getQueueUsedCapacity(qosQueue) + 1 <= swQueues.getQueueMaxCapacity(qosQueue)) {
             return false;
         }
         return true;
@@ -203,22 +214,7 @@ public abstract class NetworkNode implements Serializable {
      * @param time   time when this happens
      */
     public void addNewPacketsToOutputQueue(Packet packet, double time) {
-        addToOutputQueue(packet, time);
-    }
-
-
-    /**
-     * calculates, how many fragments will be created for a packet
-     *
-     * @param packetSize size of packet
-     * @param mtu        maximum transfer unit - maximum size of a packet to be non-fragmented
-     * @return number of fragments to be created
-     */
-    public static int calculateNumberOfFragments(int packetSize, int mtu) { //todo presunut do queuing helper ako static metodu
-        if (packetSize % mtu == 0) {
-            return packetSize / mtu;
-        }
-        return (packetSize / mtu) + 1;
+        moveFromProcessingToOutputQueue(packet, time);
     }
 
 
@@ -459,12 +455,16 @@ public abstract class NetworkNode implements Serializable {
 //        }
 //        return packets;
 //    }
-    public void sendPackets(double time) {
+    public void moveFromOutputQueueToTxBuffer(double time) {
         List<Packet> eligiblePackets = getPacketsInOutputQueue(time);
         List<Packet> packetsToSend = qosMechanism.decitePacketsToMoveFromOutputQueue(eligiblePackets, swQueues);
         for (Packet p : packetsToSend) {
             int mtu = topologyManager.findEdge(getName(), getNextHopNetworkNode(p).getName()).getMtu();
-            addToTxBuffer(p, mtu);
+            try {
+                addToTxBuffer(p, mtu);
+            } catch (NotEnoughBufferSpaceException e) {
+                addToOutputQueue(p, time);
+            }
         }
     }
 
@@ -487,13 +487,12 @@ public abstract class NetworkNode implements Serializable {
 
     /**
      * adds packet to TX buffer
-     * before calling this method check, if there is enough space in TX by calling isTxAvailable method
      *
      * @param packet packet to add
      * @param mtu    maximum transfer unit
-     * @see #isTxAvailable(NetworkNode, int)
+     * @throws NotEnoughBufferSpaceException if there is not enough space in TX for all fragments of specified packet
      */
-    public void addToTxBuffer(Packet packet, int mtu) {
+    public void addToTxBuffer(Packet packet, int mtu) throws NotEnoughBufferSpaceException {
         NetworkNode nextHop = getNextHopNetworkNode(packet);
 
         //create fragments
@@ -503,6 +502,13 @@ public abstract class NetworkNode implements Serializable {
         if (! txInterfaces.containsKey(nextHop)) {
             txInterfaces.put(nextHop, new OutputInterface(maxTxBufferSize, this, nextHop, topologyManager));
         }
+
+        OutputInterface txInterface = txInterfaces.get(nextHop);
+
+        if (txInterface.getFragmentsCount() + fragments.length > txInterface.getMaxBufferSize()) {
+            throw new NotEnoughBufferSpaceException();
+        }
+
         for (Fragment f : fragments) {
             txInterfaces.get(nextHop).addFragment(f); //finally add fragment to output queue
         }
@@ -521,7 +527,7 @@ public abstract class NetworkNode implements Serializable {
             txInterfaces.put(nextHopNetworkNode, new OutputInterface(maxTxBufferSize, this, nextHopNetworkNode, topologyManager));
         }
 
-        int currentFragmentSize = txInterfaces.get(nextHopNetworkNode).getFragmentsSize();
+        int currentFragmentSize = txInterfaces.get(nextHopNetworkNode).getFragmentsCount();
         if (currentFragmentSize + newFragmentSize > txInterfaces.get(nextHopNetworkNode).getMaxBufferSize()) {
             return false;
         }
@@ -530,7 +536,7 @@ public abstract class NetworkNode implements Serializable {
 
 
     private Fragment[] createFragments(Packet packet, int mtu, NetworkNode nextHop) {
-        Fragment[] fragments = new Fragment[calculateNumberOfFragments(packet.getPacketSize(), mtu)];
+        Fragment[] fragments = new Fragment[QueueingHelper.calculateNumberOfFragments(packet.getPacketSize(), mtu)];
         String fragmentID = UUID.randomUUID().toString();
         for (int i = 0; i < fragments.length; i++) {
             fragments[i] = new Fragment(packet, fragments.length, fragmentID, this, nextHop);
@@ -554,6 +560,7 @@ public abstract class NetworkNode implements Serializable {
     public void addToRxBuffer(Fragment fragment, double timeReceived) {
 
         //todo ziaden tail drop tu nie je - ak sa fragment nezmesti, tak by som ho mal dropnut - posielam prilis rychlo a vela fragmentov
+        //todo  pouzit NotEnoughBufferSpaceException
         if (! rxInterfaces.containsKey(fragment.getFrom())) {
             rxInterfaces.put(fragment.getFrom(), new InputInterface(fragment.getFrom(), maxTxBufferSize));
         }
@@ -650,7 +657,12 @@ public abstract class NetworkNode implements Serializable {
         private Edge edge;
 
         public OutputInterface(int maxBufferSize, NetworkNode currentNode, NetworkNode networknodeNextHop, TopologyManager topologyManager) {
-            this.maxBufferSize = maxBufferSize;
+
+            if (maxBufferSize == - 1) {
+                this.maxBufferSize = Integer.MAX_VALUE;
+            } else {
+                this.maxBufferSize = maxBufferSize;
+            }
             this.networknodeNextHop = networknodeNextHop;
             edge = topologyManager.findEdge(currentNode.getName(), networknodeNextHop.getName());
         }
@@ -659,7 +671,12 @@ public abstract class NetworkNode implements Serializable {
             fragments.add(packet);
         }
 
-        public int getFragmentsSize() {
+        /**
+         * returns number of fragments placed int this TX
+         *
+         * @return
+         */
+        public int getFragmentsCount() {
             return fragments.size();
         }
 
@@ -680,7 +697,8 @@ public abstract class NetworkNode implements Serializable {
             for (int i = 0, fragmentsSize = fragments.size(); i < fragmentsSize; i++) {//iterate through all the fragments in TX
                 Fragment fragment = fragments.get(i);
 
-                double serDelay = DelayHelper.calculateSerialisationDelay(edge, calculateFragmentSize(i + 1, NetworkNode.calculateNumberOfFragments(fragment.getOriginalPacket().getPacketSize(), edge.getMtu()), edge.getMtu(), fragment.getOriginalPacket().getPacketSize()));
+                int fragmentSize = QueueingHelper.calculateFragmentSize(i + 1, QueueingHelper.calculateNumberOfFragments(fragment.getOriginalPacket().getPacketSize(), edge.getMtu()), edge.getMtu(), fragment.getOriginalPacket().getPacketSize());
+                double serDelay = DelayHelper.calculateSerialisationDelay(edge,fragmentSize);
                 if (serialisationEndTime + serDelay > simulationTime) { //there is no time left to serialise this packet
                     break;
                 }
@@ -694,26 +712,6 @@ public abstract class NetworkNode implements Serializable {
                 //add fragment to the edge
                 edge.addFragment(fragment);
             }
-        }
-
-        /**
-         * calculates, how big is a fragment - most fragments are as big as MTU, but the last one is smaller (in most cases)
-         *
-         * @param fragmentIndex counted from 1
-         * @param fragmentCount total number of fragments
-         * @param mtu           MTU
-         * @param packetSize    total packet size
-         * @return size of a single fragment
-         */
-        private int calculateFragmentSize(int fragmentIndex, int fragmentCount, int mtu, int packetSize) { //todo presunut do queuing helper ako static metodu
-            //critical otestovat tuto metodu
-            if (fragmentIndex != fragmentCount) {
-                return mtu;
-            }
-            if (packetSize % mtu == 0) {
-                return mtu;
-            }
-            return packetSize / mtu;
         }
     }
 
@@ -729,8 +727,13 @@ public abstract class NetworkNode implements Serializable {
         private Map<String, Integer> fragmentMap;
 
         private InputInterface(NetworkNode networkNodeFrom, int maxTxSize) {
+            if (maxTxSize == - 1) {
+                this.maxTxSize = - 1;
+            } else {
+                this.maxTxSize = maxTxSize;
+            }
             this.networkNodeFrom = networkNodeFrom;
-            this.maxTxSize = maxTxSize;
+
             fragmentMap = new HashMap<String, Integer>();
         }
 
@@ -753,7 +756,7 @@ public abstract class NetworkNode implements Serializable {
             int recievedFragments = fragmentMap.get(fragment.getFragmentID());
 
             if (getNumberOfFragments() == maxTxSize) {//there is not enough space - tail drop
-                logg.debug("no spaceleft in TX buffer -> packet dropped"); //todo retransmisia
+                logg.debug("no spaceleft in TX buffer -> packet dropped"); //todo retransmisia; pouzit NotEnoughBufferSpaceException
                 return null;
             }
 
@@ -766,7 +769,7 @@ public abstract class NetworkNode implements Serializable {
             return null;
         }
 
-        public int getNumberOfFragments() {//todo pouzit, ked budem kontrolovat pretecenie RX
+        public int getNumberOfFragments() {
             int numberOfFragments = 0;
             for (Integer fragmentCount : fragmentMap.values()) {
                 numberOfFragments += fragmentCount;

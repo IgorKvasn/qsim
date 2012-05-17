@@ -26,6 +26,52 @@ public class QueueingHelper {
     }
 
 
+    /**
+     * calculates, how big [bytes] is a fragment - most fragments are as big as MTU, but the last one is smaller (in most cases)
+     *
+     * @param fragmentIndex counted from 1
+     * @param fragmentCount total number of fragments
+     * @param mtu           MTU
+     * @param packetSize    total packet size
+     * @return size of a single fragment [bytes]
+     */
+    public static int calculateFragmentSize(int fragmentIndex, int fragmentCount, int mtu, int packetSize) { //todo presunut do queuing helper ako static metodu
+        if (fragmentIndex > fragmentCount) {
+            throw new IllegalArgumentException("fragmentIndex is bigger than fragmentCount");
+        }
+
+        if ((fragmentCount == fragmentIndex) && (packetSize > fragmentCount * mtu)) {
+            //this is the last fragment, but I need more fragments to send this packet
+            throw new IllegalStateException("not enough fragments: packet size = " + packetSize + ", MTU = " + mtu + " calculated fragment count: " + fragmentCount);
+        }
+
+        if (packetSize < mtu) {
+            return packetSize;
+        }
+
+        if (fragmentIndex != fragmentCount) {
+            return mtu;
+        }
+
+        return packetSize % mtu;
+    }
+
+    /**
+     * calculates, how many fragments will be created for a packet
+     *
+     * @param packetSize size of packet
+     * @param mtu        maximum transfer unit - maximum size of a packet to be non-fragmented
+     * @return number of fragments to be created
+     */
+    public static int calculateNumberOfFragments(int packetSize, int mtu) {
+        if (mtu <= 0) throw new IllegalArgumentException("MTU is zero or negative");
+        if (packetSize % mtu == 0) {
+            return packetSize / mtu;
+        }
+        return (packetSize / mtu) + 1;
+    }
+
+
 //    /**
 //     * checks if there is enough space left in the output queue
 //     *

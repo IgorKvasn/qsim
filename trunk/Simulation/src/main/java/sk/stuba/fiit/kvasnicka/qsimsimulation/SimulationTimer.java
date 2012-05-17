@@ -121,7 +121,7 @@ public class SimulationTimer implements ActionListener {
 
             //from output queue to TX buffer
             for (NetworkNode node : packetManager.getNetworknodeList()) {
-                node.sendPackets(simulationTime);
+                node.moveFromOutputQueueToTxBuffer(simulationTime);
             }
             //from TX buffer to the wire and to the RX buffer on the next-hop network node
             for (NetworkNode node : packetManager.getNetworknodeList()) {
