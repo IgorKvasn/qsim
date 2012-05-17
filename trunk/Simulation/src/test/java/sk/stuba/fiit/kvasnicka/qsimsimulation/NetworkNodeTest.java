@@ -16,6 +16,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.decorators.ProcessedPacketDecorator;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
@@ -36,9 +37,6 @@ import static org.junit.Assert.fail;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(DelayHelper.class)
 public class NetworkNodeTest {
-
-    public NetworkNodeTest() {
-    }
 
     PacketManager packetManager;
     SimulationTimer timer;
@@ -262,6 +260,58 @@ public class NetworkNodeTest {
         List<Packet> outputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "outputQueue");
         assertNotNull(outputQueue);
         assertEquals(1, outputQueue.size());
+    }
+
+    /**
+     * adds 2 packets to processing
+     */
+    @Test
+    public void testAddPacketToProcessing() {
+
+        //prepare processing delay calculation
+        PowerMock.mockStatic(DelayHelper.class);
+        EasyMock.expect(DelayHelper.calculateProcessingDelay(node1)).andReturn(10.0).times(2);
+        PowerMock.replay(DelayHelper.class);
+
+        //create packets
+        Packet p1 = new Packet(100, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
+        Packet p2 = new Packet(200, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+
+        //add to processing
+        node1.addPacketToProcessing(p1);
+        node1.addPacketToProcessing(p2);
+
+        //assert
+        List<ProcessedPacketDecorator> processed = node1.getProcessingFinishedPacket(40);
+        assertNotNull(processed);
+        assertEquals(2, processed.size());
+    }
+
+
+    /**
+     * adds 2 packets to processing
+     * the first one will be processed within given simulation time
+     */
+    @Test
+    public void testAddPacketToProcessing_processingDelay() {
+
+        //prepare processing delay calculation
+        PowerMock.mockStatic(DelayHelper.class);
+        EasyMock.expect(DelayHelper.calculateProcessingDelay(node1)).andReturn(10.0).times(2);
+        PowerMock.replay(DelayHelper.class);
+
+        //create packets
+        Packet p1 = new Packet(100, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
+        Packet p2 = new Packet(200, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+
+        //add to processing
+        node1.addPacketToProcessing(p1);
+        node1.addPacketToProcessing(p2);
+
+        //assert
+        List<ProcessedPacketDecorator> processed = node1.getProcessingFinishedPacket(20);
+        assertNotNull(processed);
+        assertEquals(1, processed.size());
     }
 
 

@@ -7,8 +7,6 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.QueueingHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -71,33 +69,6 @@ public class PacketManager {
         }
     }
 
-
-    /**
-     * returns all packets that are about to change their state
-     *
-     * @param simulationTime
-     * @return list of packets
-     */
-    public List<Packet> getAllPacketsOnTheWire(double simulationTime) {
-        List<Packet> result = new LinkedList<Packet>();
-        for (Edge edge : getEdgeList()) {
-            result.addAll(getPackets(edge, simulationTime));
-        }
-
-        return result;
-    }
-
-
-    /**
-     * returns all expired packets associated with given Edge
-     *
-     * @param edge           edge
-     * @param simulationTime
-     * @return list of packets
-     */
-    private Collection<Packet> getPackets(Edge edge, double simulationTime) {
-        return edge.getPackets(simulationTime);
-    }
 
 
 //
@@ -200,7 +171,7 @@ public class PacketManager {
         }
 
         for (Edge edge : simulationTimer.getTopologyManager().getEdgeList()) {
-            edge.getAllPackets().clear();
+            edge.getFragments().clear();
         }
     }
 
@@ -211,7 +182,7 @@ public class PacketManager {
      */
     public boolean checkNoPacketsInSimulation() {
         for (Edge e : getEdgeList()) {
-            if (! e.getAllPackets().isEmpty()) return false;
+            if (! e.getFragments().isEmpty()) return false;
         }
 
         for (NetworkNode networkNode : getNetworknodeList()) {

@@ -10,11 +10,6 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
  * @author Igor Kvasnicka
  */
 
-
-//moze to byt takto: po sieti sa bude posielat Fragment, ktory bude mat fragmentID a pocetFragmentov
-//kazdy fragment ma referenciu na povodny paket
-//ked v NetworkNode som dostal vsetky fragmenty, vezmem paket z referencie fragmentu a pracujem s nim v network node
-
 //todo namiesto objektov Fragment len simulovat posielanie - vzdy, kedy by mal prist fragment, tak sa len zvysi nejaky counter v input interface
 @Getter
 public class Fragment {
@@ -24,6 +19,11 @@ public class Fragment {
      * how many fragments are there in total for one packet
      */
     private final int fragmentCountTotal;
+    /**
+     * number of fragment
+     * counted from 1
+     */
+    private final int fragmentNumber;
     /**
      * this is ID of fragments - all fragments with the same ID were created from the same packet
      */
@@ -43,10 +43,14 @@ public class Fragment {
      * time fragment is serialised on the next-hop network node
      */
     @Setter
-    private double simulationTime;
+    private double receivedTime;
 
-    public Fragment(Packet originalPacket, int fragmentCountTotal, String fragmentID, NetworkNode from, NetworkNode to) {
+    public Fragment(Packet originalPacket, int fragmentNumber, int fragmentCountTotal, String fragmentID, NetworkNode from, NetworkNode to) {
+        if (fragmentNumber > fragmentCountTotal) {
+            throw new IllegalArgumentException("fragmentNumber is bigger than total fragment count");
+        }
         this.originalPacket = originalPacket;
+        this.fragmentNumber = fragmentNumber;
         this.fragmentCountTotal = fragmentCountTotal;
         this.fragmentID = fragmentID;
         this.from = from;

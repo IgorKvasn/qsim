@@ -1,8 +1,8 @@
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data;
 
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,7 +16,6 @@ public class Edge {
     private NetworkNode node1, node2;
     private int mtu;
 
-    private List<Packet> packets = new LinkedList<Packet>();//todo toto tu asi je zbytocne, lebo teraz uz su fragmenty
     /**
      * all fragments that are on the wire
      */
@@ -49,27 +48,6 @@ public class Edge {
         this.node2 = node2;
     }
 
-    public void addPacket(Packet packet) {
-        packets.add(packet);
-    }
-
-    public void removePacket(Packet packet) {
-        packets.remove(packet);
-    }
-
-    public List<Packet> getPackets(double simulationTime) {
-        List<Packet> list = new LinkedList<Packet>();
-        for (Packet packet : packets) {
-            if (packet.getTimeWhenNextStateOccures() <= simulationTime) {
-                list.add(packet);
-            }
-        }
-        return list;
-    }
-
-    public List<Packet> getAllPackets() {
-        return packets;
-    }
 
     public int getMtu() {
         if (mtu == - 1) {
@@ -132,22 +110,24 @@ public class Edge {
         return node2;
     }
 
+    public List<Fragment> getFragments() {
+        return fragments;
+    }
+
     public void addFragment(Fragment fragment) {
         fragments.add(fragment);
     }
 
     public void moveFragmentsToNetworkNode(double simulationTime) {
-        for (int i = 0, fragmentsSize = fragments.size(); i < fragmentsSize; i++) {
-            Fragment fragment = fragments.get(i);
-
-            if (fragment.getSimulationTime() <= simulationTime) { //this packet was propagated and serialised on the destination (next-hop) network node
+        for (Iterator<Fragment> iterator = fragments.iterator(); iterator.hasNext(); ) {
+            Fragment fragment = iterator.next();
+            if (fragment.getReceivedTime() <= simulationTime) { //this packet was propagated and serialised on the destination (next-hop) network node
 
                 //remove fragment from the edge
-                fragments.remove(fragment);//critical kvoli tomuto otestovat
-                i--;
+                iterator.remove();
 
                 //add fragment to the appropriate network node
-                fragment.getTo().addToRxBuffer(fragment, fragment.getSimulationTime());
+                fragment.getTo().addToRxBuffer(fragment, fragment.getReceivedTime());
             }
         }
     }
