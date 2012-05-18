@@ -71,11 +71,21 @@ public class OutputInterface {
     public void serialisePackets(double simulationTime) {
         for (Iterator<Fragment> iterator = fragments.iterator(); iterator.hasNext(); ) {   //iterate through all the fragments in TX
             Fragment fragment = iterator.next();
-            if (serialisationEndTime >= fragment.getOriginalPacket().getSimulationTime()) {//this fragment will be ready to send after serialisation ends
+
+            if (serialisationEndTime >= fragment.getReceivedTime() ) {//this fragment will be ready to send after previous serialisation ends
+                fragment.setReceivedTime(serialisationEndTime);//new fragment can be serialised after the previous one is finished
+            }
+
+            if (fragment.getReceivedTime() > simulationTime) {//this fragment is not ready to serialise, yet
                 continue;
             }
-            if (serialisationEndTime == 0) {//this is the first packet to serialise
-                serialisationEndTime = fragment.getOriginalPacket().getSimulationTime();
+
+            if (simulationTime > serialisationEndTime) {//all fragments are serialised until given simulation time
+                serialisationEndTime = 0;
+            }
+
+            if (serialisationEndTime == 0) {//serialisation end time is not initialised, because all serialisation has already finished
+                serialisationEndTime = fragment.getReceivedTime();
             }
 
             int fragmentSize = QueueingHelper.calculateFragmentSize(fragment.getFragmentNumber(), QueueingHelper.calculateNumberOfFragments(fragment.getOriginalPacket().getPacketSize(), edge.getMtu()), edge.getMtu(), fragment.getOriginalPacket().getPacketSize());

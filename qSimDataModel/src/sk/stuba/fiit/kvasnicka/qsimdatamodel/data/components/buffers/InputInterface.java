@@ -2,6 +2,7 @@ package sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers;
 
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
@@ -38,13 +39,13 @@ public class InputInterface {
      * this method is called whenever fragment is received
      *
      * @param fragment received fragment
-     * @param time     simulaiton time, when fragment was received
      * @return reference to Packet objekt when all fragments are received; null if there are some fragments to be received
      */
-    public Packet fragmentReceived(Fragment fragment, double time) {
+    public Packet fragmentReceived(Fragment fragment) throws NotEnoughBufferSpaceException {
         if (! fragmentMap.containsKey(fragment.getFragmentID())) {//this is the first fragment I received
 
             if (fragment.getFragmentCountTotal() == 1) {//there is only one fragment
+                fragment.getOriginalPacket().setSimulationTime(fragment.getReceivedTime());
                 return fragment.getOriginalPacket();
             }
 
@@ -54,13 +55,12 @@ public class InputInterface {
         int recievedFragments = fragmentMap.get(fragment.getFragmentID());
 
         if (getNumberOfFragments() == maxTxSize) {//there is not enough space - tail drop
-            logg.debug("no spaceleft in TX buffer -> packet dropped"); //todo retransmisia; pouzit NotEnoughBufferSpaceException
-            return null;
+            throw new NotEnoughBufferSpaceException("Not enough space in RX buffer");
         }
 
         if (recievedFragments + 1 == fragment.getFragmentCountTotal()) { //fragment I've just received is the last one - the packet is compete
             fragmentMap.remove(fragment.getFragmentID());
-            fragment.getOriginalPacket().setSimulationTime(time);
+            fragment.getOriginalPacket().setSimulationTime(fragment.getReceivedTime());
             return fragment.getOriginalPacket();
         }
 

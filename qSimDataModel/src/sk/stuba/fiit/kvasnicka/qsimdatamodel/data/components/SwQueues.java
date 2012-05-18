@@ -2,9 +2,10 @@ package sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
 import javax.xml.bind.annotation.XmlTransient;
+import java.util.List;
 
 /**
  * this class represents software queues in network nodes
@@ -46,14 +47,22 @@ public class SwQueues {
      * returns used capacity of appropriate output queue
      *
      * @param queueNumber queue number
+     * @param outputQueue all packets in output queue - regardless of QoS queue number
      * @return queue size
      */
-    public int getQueueUsedCapacity(int queueNumber) {
-        if (queueNumber > queues.length) {
-            throw new IllegalArgumentException("Invalid queueNumber: " + queueNumber);
+    public int getQueueUsedCapacity(int queueNumber, List<Packet> outputQueue) {
+        if (queueNumber >= queues.length) {
+            throw new IllegalArgumentException("Invalid queueNumber - max number of QoS queue: " + (queues.length - 1) + ", but method argument was queue number " + queueNumber);
         }
-        QueueDefinition queueDefinition = queues[queueNumber];
-        return queueDefinition.getUsedCapacity();
+        if (queueNumber == - 1) {
+            throw new IllegalStateException("This packet has not been marked and classified - QoS queue number is -1 (default value)");
+        }
+        int size = 0;
+        for (Packet p : outputQueue) {
+            if (p.getQosQueue() == - 1) throw new IllegalStateException("packet is not marked");
+            if (p.getQosQueue() == queueNumber) size++;
+        }
+        return size;
     }
 
     /**
@@ -64,12 +73,17 @@ public class SwQueues {
     public static class QueueDefinition {
 
         private int maxCapacity;
-        @Setter
-        private int usedCapacity;
+        private String queueLabel;
 
-        public QueueDefinition(int maxCapacity) {
+        /**
+         * creates new QoS queue
+         *
+         * @param maxCapacity maximum capacity of this queue; all packets above this capacity will be dropped
+         * @param queueLabel  user defined label for this queue - e.g.: "high priority"
+         */
+        public QueueDefinition(int maxCapacity, String queueLabel) {
             this.maxCapacity = maxCapacity;
-            this.usedCapacity = 0;
+            this.queueLabel = queueLabel;
         }
     }
 }

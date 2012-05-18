@@ -39,11 +39,11 @@ public class IntegrationTest {
 
 
         SwQueues.QueueDefinition[] q = new SwQueues.QueueDefinition[1];
-        q[0] = new SwQueues.QueueDefinition(50);
+        q[0] = new SwQueues.QueueDefinition(50, "queue 1");
         SwQueues swQueues = new SwQueues(q);
 
         SwQueues.QueueDefinition[] q2 = new SwQueues.QueueDefinition[1];
-        q2[0] = new SwQueues.QueueDefinition(50);
+        q2[0] = new SwQueues.QueueDefinition(50, "queue 1");
         SwQueues swQueues2 = new SwQueues(q2);
 
 
@@ -95,11 +95,11 @@ public class IntegrationTest {
     @Test
     public void testSinglePacketSimulation() throws NoSuchFieldException, IllegalAccessException {
 
-//        System.out.println("Processing delay node2: " + DelayHelper.calculateProcessingDelay(node2));
-//        System.out.println("Serialisation delay: " + DelayHelper.calculateSerialisationDelay(edge, 50));
-//        System.out.println("Propagation delay: " + DelayHelper.calculatePropagationDelay(edge));
+        System.out.println("Processing delay node2: " + DelayHelper.calculateProcessingDelay(node2));
+        System.out.println("Serialisation delay: " + DelayHelper.calculateSerialisationDelay(edge, 50));
+        System.out.println("Propagation delay: " + DelayHelper.calculatePropagationDelay(edge));
         double sumTime = (DelayHelper.calculateProcessingDelay(node2) + 2 * DelayHelper.calculateSerialisationDelay(edge, 50) + DelayHelper.calculatePropagationDelay(edge));
-//        System.out.println("Delay sum: " + sumTime);
+        System.out.println("Delay sum: " + sumTime);
 
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2));
 
@@ -114,8 +114,6 @@ public class IntegrationTest {
 
 
         assertFalse(timer.isRunning());
-//        assertEquals(PacketStateEnum.DELIVERED, p.getState());
-//        assertEquals(sumTime, p.getTimeWhenNextStateOccures(), 0.01);
 
         checkNoPacketsInTopology(timer);
     }
@@ -144,29 +142,6 @@ public class IntegrationTest {
         timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-
 
         assertFalse(timer.isRunning());
         checkNoPacketsInTopology(timer);

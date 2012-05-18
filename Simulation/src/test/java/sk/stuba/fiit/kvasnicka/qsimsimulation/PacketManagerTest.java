@@ -49,11 +49,11 @@ public class PacketManagerTest {
 
 
         SwQueues.QueueDefinition[] q = new SwQueues.QueueDefinition[1];
-        q[0] = new SwQueues.QueueDefinition(50);
+        q[0] = new SwQueues.QueueDefinition(50, "queue 1");
         swQueues = new SwQueues(q);
 
         SwQueues.QueueDefinition[] q2 = new SwQueues.QueueDefinition[1];
-        q2[0] = new SwQueues.QueueDefinition(50);
+        q2[0] = new SwQueues.QueueDefinition(50, "queue 1");
         swQueues2 = new SwQueues(q2);
 
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
