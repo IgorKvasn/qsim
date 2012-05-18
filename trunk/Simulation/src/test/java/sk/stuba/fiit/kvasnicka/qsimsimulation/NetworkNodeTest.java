@@ -27,11 +27,15 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 @RunWith(PowerMockRunner.class)
@@ -48,6 +52,8 @@ public class NetworkNodeTest {
     SwQueues swQueues, swQueues2;
     private final int MAX_TX_SIZE = 200;
     private final int MTU = 100;
+    private final int MAX_OUTPUT_QUEUE_SIZE = 10;
+    private static final int MAX_PROCESSING_PACKETS = 3;
 
     @Before
     public void before() {
@@ -56,12 +62,13 @@ public class NetworkNodeTest {
         qosMechanism = EasyMock.createMock(QosMechanism.class);
 
 
-        SwQueues.QueueDefinition[] q = new SwQueues.QueueDefinition[1];
-        q[0] = new SwQueues.QueueDefinition(50);
+        SwQueues.QueueDefinition[] q = new SwQueues.QueueDefinition[2];
+        q[0] = new SwQueues.QueueDefinition(50, "queue 1");
+        q[1] = new SwQueues.QueueDefinition(1, "queue 2");
         swQueues = new SwQueues(q);
 
         SwQueues.QueueDefinition[] q2 = new SwQueues.QueueDefinition[1];
-        q2[0] = new SwQueues.QueueDefinition(50);
+        q2[0] = new SwQueues.QueueDefinition(50, "queue 1");
         swQueues2 = new SwQueues(q2);
 
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
@@ -74,7 +81,7 @@ public class NetworkNodeTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, 2, swQueues, MAX_TX_SIZE, 10, 10, 10);
+        node1 = new Router("node1", qosMechanism, 2, swQueues, MAX_TX_SIZE, 10, MAX_OUTPUT_QUEUE_SIZE, MAX_PROCESSING_PACKETS);
         node2 = new Router("node2", qosMechanism, 2, swQueues2, MAX_TX_SIZE, 10, 10, 10);
 
 
@@ -314,6 +321,259 @@ public class NetworkNodeTest {
         assertEquals(1, processed.size());
     }
 
+    /**
+     * moves 2 packets from output queue to TX
+     */
+    @Test
+    public void testMoveFromOutputQueueToTxBuffer() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        //preparation
+        Packet p1 = new Packet(MTU, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);//note that every packet is one 1 fragment big
+        Packet p2 = new Packet(MTU, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+
+        p1.setQosQueue(qosMechanism.classifyAndMarkPacket(p1));
+        p2.setQosQueue(qosMechanism.classifyAndMarkPacket(p2));
+
+        //add packets directly to output queue - NOT to output buffer
+        Method privateStringMethod = NetworkNode.class.getDeclaredMethod("addToOutputQueue", Packet.class, double.class);
+        privateStringMethod.setAccessible(true);
+        privateStringMethod.invoke(node1, p1, 20);
+        privateStringMethod.invoke(node1, p2, 35);
+
+
+        //pre-test check: there should be 0 fragments in TX and 2 packets in output queue
+        assertNull(node1.getTxInterfaces().get(node2));
+
+        List<Packet> outputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "outputQueue");
+        assertNotNull(outputQueue);
+        assertEquals(2, outputQueue.size());
+
+
+        //test method
+        node1.moveFromOutputQueueToTxBuffer(40);
+
+        //both packets should be in TX queue
+        assertNotNull(node1.getTxInterfaces().get(node2));
+        int fragments = node1.getTxInterfaces().get(node2).getFragmentsCount();
+        assertEquals(2, fragments);
+    }
+
+    /**
+     * moves 1 packet from output queue to TX, the other one must leave in output queue,
+     * because there is not enough space in TX
+     */
+    @Test
+    public void testMoveFromOutputQueueToTxBuffer_overflow() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        //preparation
+        Packet p1 = new Packet(MTU, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);//note that every packet is one 1 fragment big
+        Packet p2 = new Packet(MTU, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p3 = new Packet(MTU * (MAX_TX_SIZE - 1), node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);//this packet is very big - it will be put into TX
+
+        p1.setQosQueue(qosMechanism.classifyAndMarkPacket(p1));
+        p2.setQosQueue(qosMechanism.classifyAndMarkPacket(p2));
+
+        //add packets directly to output queue - NOT to output buffer
+        Method privateStringMethod = NetworkNode.class.getDeclaredMethod("addToOutputQueue", Packet.class, double.class);
+        privateStringMethod.setAccessible(true);
+        privateStringMethod.invoke(node1, p1, 20);
+        privateStringMethod.invoke(node1, p2, 35);
+
+        //also put some fragments into TX to make space just for one extra fragment
+        privateStringMethod = NetworkNode.class.getDeclaredMethod("addToTxBuffer", Packet.class, int.class);
+        privateStringMethod.setAccessible(true);
+        privateStringMethod.invoke(node1, p3, MTU);
+
+
+        //pre-test check: there should be 0 fragments in TX and 2 packets in output queue
+        assertNotNull(node1.getTxInterfaces().get(node2));
+        int fragments = node1.getTxInterfaces().get(node2).getFragmentsCount();
+        assertEquals(MAX_TX_SIZE - 1, fragments);
+
+
+        List<Packet> outputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "outputQueue");
+        assertNotNull(outputQueue);
+        assertEquals(2, outputQueue.size());
+
+
+        //test method
+        node1.moveFromOutputQueueToTxBuffer(40);
+
+        //one packets should be in TX queue and one should left in output queue
+
+        outputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "outputQueue");
+        assertNotNull(outputQueue);
+        assertEquals(1, outputQueue.size());
+
+        assertNotNull(node1.getTxInterfaces().get(node2));
+        fragments = node1.getTxInterfaces().get(node2).getFragmentsCount();
+        assertEquals(MAX_TX_SIZE, fragments);
+    }
+
+    /**
+     * adds new packets to output queue
+     * both packets should be placed in TX buffer, because it is empty
+     */
+    @Test
+    public void testAddNewPacketsToOutputQueue() {
+        //preparation
+        Packet p1 = new Packet(MTU, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
+        Packet p2 = new Packet(MTU, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+
+        //test method
+        node1.addNewPacketsToOutputQueue(p1, 10);
+        node1.addNewPacketsToOutputQueue(p2, 15);
+
+        //assert
+        List<Packet> outputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "outputQueue");
+        assertNotNull(outputQueue);
+        assertEquals(0, outputQueue.size());
+
+        assertNotNull(node1.getTxInterfaces().get(node2));
+        int fragments = node1.getTxInterfaces().get(node2).getFragmentsCount();
+        assertEquals(2, fragments);
+    }
+
+    /**
+     * adds new packets to output queue
+     * one packet should be placed in TX buffer and the second one should wait in output queue
+     */
+    @Test
+    public void testAddNewPacketsToOutputQueue_overflow() {
+        //preparation
+        Packet p1 = new Packet(MTU * (MAX_TX_SIZE - 1), node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
+        Packet p2 = new Packet(MTU * 2, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+
+        //test method
+        node1.addNewPacketsToOutputQueue(p1, 10);
+        node1.addNewPacketsToOutputQueue(p2, 15);
+
+        //assert
+        List<Packet> outputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "outputQueue");
+        assertNotNull(outputQueue);
+        assertEquals(1, outputQueue.size());
+
+        assertNotNull(node1.getTxInterfaces().get(node2));
+        int fragments = node1.getTxInterfaces().get(node2).getFragmentsCount();
+        assertEquals(MAX_TX_SIZE - 1, fragments);
+    }
+
+    /**
+     * adds packets to processing
+     */
+    @Test
+    public void testMoveFromInputQueueToProcessing() throws NoSuchFieldException, IllegalAccessException {
+        //prepare some packets into input queue
+        Packet p1 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
+        Packet p2 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+
+        List<Packet> list = new LinkedList<Packet>(Arrays.asList(p1, p2));
+
+        Field f = NetworkNode.class.getDeclaredField("inputQueue");
+        f.setAccessible(true);
+        f.set(node1, list);
+
+        //test method
+        node1.moveFromInputQueueToProcessing(40);
+
+        //assert - both packets should be in processing
+        assertEquals(2, node1.getPacketsInProcessing().size());
+
+        List<Packet> inputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "inputQueue");
+        assertNotNull(inputQueue);
+        assertEquals(0, inputQueue.size());
+    }
+
+    /**
+     * adds packets to processing, but there should be max 3 packets in processing and I will try to put there 5 packets
+     * that means 2 packets should be left in input queue
+     */
+    @Test
+    public void testMoveFromInputQueueToProcessing_overflow() throws NoSuchFieldException, IllegalAccessException {
+        //prepare some packets into input queue
+        Packet p1 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
+        Packet p2 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p3 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p4 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p5 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+
+        List<Packet> list = new LinkedList<Packet>(Arrays.asList(p1, p2, p3, p4, p5));
+
+        Field f = NetworkNode.class.getDeclaredField("inputQueue");
+        f.setAccessible(true);
+        f.set(node1, list);
+
+        //test method
+        node1.moveFromInputQueueToProcessing(40);
+
+        //assert - both packets should be in processing
+        assertEquals(MAX_PROCESSING_PACKETS, node1.getPacketsInProcessing().size());
+        List<Packet> inputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "inputQueue");
+        assertNotNull(inputQueue);
+        assertEquals(2, inputQueue.size());
+    }
+
+    /**
+     * adds two packets into output queue (NOT TX buffer)
+     */
+    @Test
+    public void testAddToOutputQueue() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Packet p1 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
+        Packet p2 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+
+        p1.setQosQueue(qosMechanism.classifyAndMarkPacket(p1));
+        p2.setQosQueue(qosMechanism.classifyAndMarkPacket(p2));
+
+        //test
+        Method privateStringMethod = NetworkNode.class.getDeclaredMethod("addToOutputQueue", Packet.class, double.class);
+        privateStringMethod.setAccessible(true);
+        privateStringMethod.invoke(node1, p1, 20);
+        privateStringMethod.invoke(node1, p2, 35);
+
+        //assert
+        List<Packet> inputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "outputQueue");
+        assertNotNull(inputQueue);
+        assertEquals(2, inputQueue.size());
+    }
+
+    /**
+     * adds 3 packets into output queue (NOT TX buffer)
+     * one packet will be placed in output queue, the other one will be dropped because there will be no space left for him
+     * the third packet however will be added, because it has go different QoS queue number
+     */
+    @Test
+    public void testAddToOutputQueue_overflow() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Packet p1 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
+        Packet p2 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p3 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+
+
+        p1.setQosQueue(1);
+        p2.setQosQueue(0);
+        p3.setQosQueue(1);
+
+        //test
+        Method privateStringMethod = NetworkNode.class.getDeclaredMethod("addToOutputQueue", Packet.class, double.class);
+        privateStringMethod.setAccessible(true);
+        privateStringMethod.invoke(node1, p1, 20);
+        privateStringMethod.invoke(node1, p2, 35);
+        try {
+            privateStringMethod.invoke(node1, p3, 45);
+            fail("buffer NotEnoughBufferSpaceException should be thrown");
+        } catch (InvocationTargetException e) {
+            //seems ok
+            if (e.getCause() instanceof NotEnoughBufferSpaceException) {
+                //ok
+            } else {
+                e.printStackTrace();
+                fail("exception was thrown, but it is not NotEnoughBufferSpaceException");
+            }
+        }
+
+
+        //assert
+        List<Packet> inputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "outputQueue");
+        assertNotNull(inputQueue);
+        assertEquals(2, inputQueue.size());
+    }
 
     /**
      * creating new packets according to SimulationRuleBean
@@ -347,6 +607,7 @@ public class NetworkNodeTest {
         int fragments = node1.getTxInterfaces().get(node2).getFragmentsCount();
         assertEquals(2, fragments);
     }
+
 
     private Object getPropertyWithoutGetter(Class klass, Object bean, String field) {
         Field f = null;

@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +84,6 @@ public abstract class NetworkNode implements Serializable {
 
     private int maxTxBufferSize;
     private int maxIntputQueueSize;
-    private int maxOutputQueueSize;
 
 
     private List<Packet> inputQueue;
@@ -117,14 +117,13 @@ public abstract class NetworkNode implements Serializable {
         outputQueue = new LinkedList<Packet>();
     }
 
-    protected NetworkNode(String name, QosMechanism qosMechanism, SwQueues swQueues, int maxTxBufferSize, int maxIntputQueueSize, int maxOutputQueueSize, int maxProcessingPackets) {
+    protected NetworkNode(String name, QosMechanism qosMechanism, SwQueues swQueues, int maxTxBufferSize, int maxIntputQueueSize, int maxProcessingPackets) {
         this();
         this.name = name;
         this.swQueues = swQueues;
         this.qosMechanism = qosMechanism;
         this.maxTxBufferSize = maxTxBufferSize;
         this.maxIntputQueueSize = maxIntputQueueSize;
-        this.maxOutputQueueSize = maxOutputQueueSize;
         this.maxProcessingPackets = maxProcessingPackets;
     }
 
@@ -159,11 +158,12 @@ public abstract class NetworkNode implements Serializable {
         List<ProcessedPacketDecorator> processedPackets;
         //iterate through packets in processing state and put processed packets to output queue
         while ((processedPackets = getProcessingFinishedPacket(simulationTime)) != null) {
-            for (ProcessedPacketDecorator p : processedPackets) {
+            for (Iterator<ProcessedPacketDecorator> iterator = processedPackets.iterator(); iterator.hasNext(); ) {
+                ProcessedPacketDecorator p = iterator.next();   //CRITICAL vyhodit decorator
 
                 if (p.getPacket().isPacketDelivered(this)) {//is packet delivered?
                     packetIsDelivered(p.getPacket());
-                    processedPackets.remove(p);
+                    iterator.remove();
                     continue;
                 }
                 moveFromProcessingToOutputQueue(p.getPacket(), p.getTimeWhenProcessingFinished());
@@ -187,15 +187,18 @@ public abstract class NetworkNode implements Serializable {
         try {
             addToTxBuffer(packet, mtu);
         } catch (NotEnoughBufferSpaceException e) {
-            addToOutputQueue(packet, time);
+            try {
+                addToOutputQueue(packet, time);
+            } catch (NotEnoughBufferSpaceException e1) {
+                logg.debug("no space left in output queue -> packet dropped");     //todo retransmisia: tu pridat paket do nejakej fronty v predoslom network node, aby znovu poslal paket - ale iba, ak je to TCP
+            }
         }
     }
 
-    private void addToOutputQueue(Packet packet, double time) {
+    private void addToOutputQueue(Packet packet, double time) throws NotEnoughBufferSpaceException {
         //add packet to output queue
-        if (isOutputQueueAvailable(packet.getQosQueue())) {        //first check if there is enough space in output queue
-            logg.debug("no space left in output queue -> packet dropped");     //todo retransmisia: tu pridat paket do nejakej fronty v predoslom network node, aby znovu poslal paket - ale iba, ak je to TCP
-            return;
+        if (! isOutputQueueAvailable(packet.getQosQueue())) {        //first check if there is enough space in output queue
+            throw new NotEnoughBufferSpaceException("There is not enough space in output queue for packet with QoS queue: " + packet.getQosQueue());
         }
         packet.setTimeWhenCameToQueue(time);
         outputQueue.add(packet);
@@ -205,10 +208,10 @@ public abstract class NetworkNode implements Serializable {
      * determines if there is enough space in QoS queue in output queue for this packet
      *
      * @param qosQueue number of qos queue where this packet belongs
-     * @return
+     * @return true/false according to description
      */
     private boolean isOutputQueueAvailable(int qosQueue) {
-        if (swQueues.getQueueUsedCapacity(qosQueue) + 1 <= swQueues.getQueueMaxCapacity(qosQueue)) {
+        if (swQueues.getQueueUsedCapacity(qosQueue, outputQueue) + 1 > swQueues.getQueueMaxCapacity(qosQueue)) {
             return false;
         }
         return true;
@@ -257,69 +260,6 @@ public abstract class NetworkNode implements Serializable {
 
         return result;
     }
-
-
-    /**
-     * retrieves number of packets of certain priority
-     *
-     * @param delayQueue packets associated with one output interface
-     * @param priority   packet priority
-     * @return number of packets
-     */
-    private int getSizeOfPacketsByPriority(List<Packet> delayQueue, int priority) {
-        int size = 0;
-        for (Packet p : delayQueue) {
-            if (p.getQosQueue() == null) throw new IllegalStateException("packet is not marked");
-            if (p.getQosQueue() == priority) size += p.getPacketSize();
-        }
-        return size;
-    }
-
-    @Deprecated
-    public void checkOutputBuffersSize() {
-
-
-        //podla router_switch_architecture-velmi_dobre\!\!\!\!.pdf nezalezi na velkosti paketov ale len na ich pocte
-
-//        for (DelayQueue<Packet> delayQueue : outputInterfaces.values()) {  //iterate through all output interfaces
-//
-//            for (int queueNumber = 0; queueNumber < getQueueCount(); queueNumber++) {
-//
-//                int size = getSizeOfPacketsByPriority(delayQueue, queueNumber);
-//                if (size > getQueueSize(queueNumber)) {
-//                    performTailDrop(getPacketsByPriority(delayQueue, queueNumber), getQueueSize(queueNumber), size);
-//                }
-//            }
-//        }
-    }
-
-//    private void performTailDrop(List<Packet> packets, int maxQueueSize, int actualQueueSize) {
-//
-//        //sort all packets by time they came to buffer
-//        Collections.sort(packets, new Comparator<Packet>() {
-//            @Override
-//            public int compare(Packet o1, Packet o2) {
-//                return ((Long) o1.getTimeWhenCameToBuffer()).compareTo(o2.getTimeWhenCameToBuffer());
-//            }
-//        });
-//
-//        for (Packet packet : packets) {
-//            if (actualQueueSize <= maxQueueSize) break; //queue is now OK
-//            actualQueueSize -= packet.getPacketSize();
-//            dropPacketFromOutputQueue(packet);
-//        }
-//    }
-
-//    /**
-//     * this method is called whenever packet should be dropped
-//     *
-//     * @param packet packet to drop
-//     */
-//    private void dropPacketFromOutputQueue(Packet packet) {
-//        logg.debug("packet has been dropped on network node: " + this.getName());
-//        removePacketFromQueue(packet);
-//        packet = null;
-//    }
 
 
     public void clearPackets() {
@@ -431,46 +371,18 @@ public abstract class NetworkNode implements Serializable {
         return "NetworkNode{" + "name=" + name + '}';
     }
 
-    /**
-     * finds all packets in given queue
-     *
-     * @param delayQueue  output queue
-     * @param queueNumber number of desired queue; counted from 1
-     * @return list of packets of certain priority
-     */
-    public List<Packet> getPacketsByPriority(List<Packet> delayQueue, int queueNumber) {
-        List<Packet> packets = new LinkedList<Packet>();
-        for (Packet p : delayQueue) {
-            if (p.getQosQueue() == queueNumber) packets.add(p);
-        }
-        return packets;
-    }
 
-
-    /**
-     * returns all packets that are in all output interfaces in all output queues of this network node
-     *
-     * @return
-     */
-//    public List<Packet> getPacketsInOutputQueues() {
-//        List<Packet> packets = new LinkedList<Packet>();
-//        for (OutputInterface outputQueue : outputInterfaces.values()) {
-//
-//            for (Packet p : outputQueue.get()) {
-//                packets.add(p);
-//            }
-//        }
-//        return packets;
-//    }
     public void moveFromOutputQueueToTxBuffer(double time) {
         List<Packet> eligiblePackets = getPacketsInOutputQueue(time);
         List<Packet> packetsToSend = qosMechanism.decitePacketsToMoveFromOutputQueue(eligiblePackets, swQueues);
         for (Packet p : packetsToSend) {
             int mtu = topologyManager.findEdge(getName(), getNextHopNetworkNode(p).getName()).getMtu();
             try {
-                addToTxBuffer(p, mtu);
+                addToTxBuffer(p, mtu); //add packet to TX buffer
+                outputQueue.remove(p); //remove packet from output queue
             } catch (NotEnoughBufferSpaceException e) {
-                addToOutputQueue(p, time);
+                //there is not enough space in TX, so packet stays in output queue
+                break;//no need to continue
             }
         }
     }
@@ -513,7 +425,7 @@ public abstract class NetworkNode implements Serializable {
         OutputInterface txInterface = txInterfaces.get(nextHop);
 
         if (txInterface.getFragmentsCount() + fragments.length > txInterface.getMaxBufferSize()) {
-            throw new NotEnoughBufferSpaceException();
+            throw new NotEnoughBufferSpaceException("Not enough space in RX buffer");
         }
 
         for (Fragment f : fragments) {
@@ -532,22 +444,24 @@ public abstract class NetworkNode implements Serializable {
     /**
      * adds packet to RX buffer - if all fragments are present, a packet if put into input queue
      *
-     * @param fragment     fragment to add/receive
-     * @param timeReceived simulation time, when fragment came to the network node
+     * @param fragment fragment to add/receive
      */
-    public void addToRxBuffer(Fragment fragment, double timeReceived) {
-
-        //todo ziaden tail drop tu nie je - ak sa fragment nezmesti, tak by som ho mal dropnut - posielam prilis rychlo a vela fragmentov
-        //todo  pouzit NotEnoughBufferSpaceException
+    public void addToRxBuffer(Fragment fragment) {
         if (! rxInterfaces.containsKey(fragment.getFrom())) {
             rxInterfaces.put(fragment.getFrom(), new InputInterface(fragment.getFrom(), maxTxBufferSize));
         }
-        Packet packet = rxInterfaces.get(fragment.getFrom()).fragmentReceived(fragment, timeReceived);
+        Packet packet = null;
+        try {
+            packet = rxInterfaces.get(fragment.getFrom()).fragmentReceived(fragment);
+        } catch (NotEnoughBufferSpaceException e) {
+            logg.debug("no space left in TX buffer -> packet dropped"); //todo retransmisia
+            return;
+        }
         if (packet != null) {//this was the last fragment to complete a whole packet - now I can place this packet into input queue
             if (isProcessingAvailable()) {//packet can be processed
                 addPacketToProcessing(packet);
             } else {//there is no CPU left for this packet to be processed - it is placed into input queue
-                packet.setTimeWhenCameToQueue(timeReceived);
+                packet.setTimeWhenCameToQueue(packet.getSimulationTime()); //packet.getSimulationTime() is a time, when packet was de-fragmented
                 inputQueue.add(packet);
             }
         }
@@ -557,11 +471,11 @@ public abstract class NetworkNode implements Serializable {
      * tries to move as much packets as possible from input queue to processing
      */
     public void moveFromInputQueueToProcessing(double simulationTime) {
-
-        for (Packet packet : inputQueue) {
+        for (Iterator<Packet> iterator = inputQueue.iterator(); iterator.hasNext(); ) {
+            Packet packet = iterator.next();
             if (packet.getTimeWhenCameToQueue() <= simulationTime) {
                 if (isProcessingAvailable()) {//is it possible to start processing this packet?
-                    inputQueue.remove(packet);
+                    iterator.remove();
                     addPacketToProcessing(packet);
                 } else {
                     return; //there is no reason to try to move other packets

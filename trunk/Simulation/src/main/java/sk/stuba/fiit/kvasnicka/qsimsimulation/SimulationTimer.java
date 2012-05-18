@@ -104,7 +104,6 @@ public class SimulationTimer implements ActionListener {
             //new packets are created into output buffer, so generatePackets() should be called before emptying output buffers
             packetGenerator.generatePackets(simulationTime, TIME_QUANTUM);
 
-
             for (Edge edge : packetManager.getEdgeList()) {
                 edge.moveFragmentsToNetworkNode(simulationTime);
             }
@@ -123,6 +122,7 @@ public class SimulationTimer implements ActionListener {
             for (NetworkNode node : packetManager.getNetworknodeList()) {
                 node.moveFromOutputQueueToTxBuffer(simulationTime);
             }
+
             //from TX buffer to the wire and to the RX buffer on the next-hop network node
             for (NetworkNode node : packetManager.getNetworknodeList()) {
                 node.movePacketsToTheWire(simulationTime);

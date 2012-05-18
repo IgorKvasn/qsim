@@ -21,7 +21,7 @@ public class Computer extends NetworkNode {
      * @param queues       sizes of all queues, size is in Bytes
      */
     public Computer(String name, QosMechanism qosMechanism, SwQueues queues, int maxTxBufferSize, int maxIntputQueueSize, int maxOutputQueueSize, int maxProcessingPackets) {
-        super(name, qosMechanism, queues, maxTxBufferSize, maxIntputQueueSize, maxOutputQueueSize, maxProcessingPackets);
+        super(name, qosMechanism, queues, maxTxBufferSize, maxIntputQueueSize, maxProcessingPackets);
     }
 
     /**

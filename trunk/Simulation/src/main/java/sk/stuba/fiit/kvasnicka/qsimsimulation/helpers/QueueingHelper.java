@@ -71,59 +71,12 @@ public class QueueingHelper {
     }
 
 
-//    /**
-//     * checks if there is enough space left in the output queue
-//     *
-//     * @param queueNumber queue number (packet priority)
-//     * @param node        network node I am interested in
-//     * @return true if packet can be added
-//     */
-//    private boolean isEnoughSpaceInOutputQueue(int queueNumber, NetworkNode node) {
-//        if (queueNumber > node.getQueueCount()) {
-//            throw new IllegalArgumentException("queueNumber is higher than maximum queue count: " + queueNumber + " > " + node.getQueueCount());
-//        }
-//        DelayQueue<Packet> packets = networkNodeMap.get(node);
-//        int size = 0;
-//        for (Packet p : packets) {
-//            if ((PacketStateEnum.OUPUT_QUEUE == p.getState()) && (p.getQosQueue() == queueNumber)) {
-//                size += p.getPacketSize();
-//            }
-//        }
-//        if (size <= node.getQueueSize(queueNumber)) {
-//            return true;
-//        }
-//        return false;
-//    }
-
-
-//    /**
-//     * changes packet state of packets in input buffer and make them PROCESSING state
-//     *
-//     * @param simulationTime current simulation time
-//     */
-//    public void changePacketsStateInputBuffer(long simulationTime) {
-//
-//        for (NetworkNode node : networkNodeMap.keySet()) {
-//            long startTime = simulationTime - SimulationTimer.TIME_QUANTUM; //previous time
-//            long endTime = startTime + node.getPacketProcessingEndsTime();
-//
-//            //QoS method for queueing is called each time there is some CPU left to process packet
-//            //so I have to iterate through all these times and call QoS queueing method
-//
-//            while (endTime > simulationTime) {
-//                movePacketsFromOutputQueueInInterval(node, startTime, endTime);
-//                startTime += node.getPacketProcessingEndsTime();
-//                endTime += node.getPacketProcessingEndsTime();
-//            }
-//        }
-//    }
-
-
     public static Fragment[] createFragments(Packet packet, int mtu, NetworkNode currentNode, NetworkNode nextHop) {
         Fragment[] fragments = new Fragment[QueueingHelper.calculateNumberOfFragments(packet.getPacketSize(), mtu)];
         String fragmentID = UUID.randomUUID().toString();
         for (int i = 0; i < fragments.length; i++) {
             fragments[i] = new Fragment(packet, i + 1, fragments.length, fragmentID, currentNode, nextHop);
+            fragments[i].setReceivedTime(packet.getSimulationTime());
         }
         return fragments;
     }

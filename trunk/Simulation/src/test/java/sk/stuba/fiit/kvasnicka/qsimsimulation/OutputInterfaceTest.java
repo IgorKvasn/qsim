@@ -52,11 +52,11 @@ public class OutputInterfaceTest {
 
 
         SwQueues.QueueDefinition[] q = new SwQueues.QueueDefinition[1];
-        q[0] = new SwQueues.QueueDefinition(50);
+        q[0] = new SwQueues.QueueDefinition(50, "queue 1");
         swQueues = new SwQueues(q);
 
         SwQueues.QueueDefinition[] q2 = new SwQueues.QueueDefinition[1];
-        q2[0] = new SwQueues.QueueDefinition(50);
+        q2[0] = new SwQueues.QueueDefinition(50, "queue 1");
         swQueues2 = new SwQueues(q2);
 
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
@@ -117,12 +117,15 @@ public class OutputInterfaceTest {
         //assert - all packets should be on the wire
         assertEquals(0, outputInterface.getFragmentsCount());
         assertEquals(2, edge.getFragments().size());
+        assertEquals(10 + 1 + 1 + 3, edge.getFragments().get(0).getReceivedTime(), 0.0);
+        assertEquals(30 + 1 + 1 + 3, edge.getFragments().get(1).getReceivedTime(), 0.0);
 
         EasyMock.verify();
     }
 
     /**
-     * serialises 1 packet to the wire, but there will be no time to serialise second packet
+     * serialises 2 packets to the wire and the third one is out of simulation time
+     * I do not care about timing now
      *
      * @throws NotEnoughBufferSpaceException
      */
@@ -131,24 +134,68 @@ public class OutputInterfaceTest {
         //preparation
         PowerMock.mockStatic(DelayHelper.class);
         EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(1.0).times(2);
-        EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(1);
+        EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(2);
+        PowerMock.replay(DelayHelper.class);
+
+        Packet p1 = new Packet(MTU / 2, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);//OK
+        Packet p2 = new Packet(MTU / 2, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 12); //OK;packet will be ready to serialise after previous serialisation ends
+        Packet p3 = new Packet(MTU / 2, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 50); //packet will be ready to serialise some after simulation time
+
+        node1.addToTxBuffer(p1, MTU);
+        node1.addToTxBuffer(p2, MTU);
+        node1.addToTxBuffer(p3, MTU);
+
+        //test method
+        OutputInterface outputInterface = node1.getTxInterfaces().get(node2);
+        outputInterface.serialisePackets(20);
+
+        //assert - 2 packets should left in TX and 2 packets should be moved on the edge
+        assertEquals(1, outputInterface.getFragmentsCount());
+        assertEquals(2, edge.getFragments().size());
+
+
+        EasyMock.verify();
+    }
+
+
+    /**
+     * serialises 1 packet to the wire, but the second packet have to wait until the second will be serialised
+     * multiple are serialised within given time quantum
+     *
+     * @throws NotEnoughBufferSpaceException
+     */
+    @Test
+    public void serialisePackets_not_enough_time_2() throws NotEnoughBufferSpaceException {
+        //preparation
+        PowerMock.mockStatic(DelayHelper.class);
+        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(5.0).times(2);
+        EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(2);
         PowerMock.replay(DelayHelper.class);
 
         Packet p1 = new Packet(MTU / 2, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
-        Packet p2 = new Packet(MTU / 2, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 11); //it is important to set packet creation time greater than first packet's plus serialisation delay
+        Packet p2 = new Packet(MTU / 2, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 12);
 
         node1.addToTxBuffer(p1, MTU);
         node1.addToTxBuffer(p2, MTU);
 
         //test method
         OutputInterface outputInterface = node1.getTxInterfaces().get(node2);
-        outputInterface.serialisePackets(20);
+        outputInterface.serialisePackets(50);
 
         //assert - all packets should be on the wire
-        assertEquals(1, outputInterface.getFragmentsCount());
-        assertEquals(1, edge.getFragments().size());
-        assertEquals(10 + 1 + 1 + 3, edge.getFragments().get(0).getReceivedTime(), 0.0);
+        assertEquals(0, outputInterface.getFragmentsCount());
+        assertEquals(2, edge.getFragments().size());
+
+        assertEquals(10 + 5 + 5 + 3, edge.getFragments().get(0).getReceivedTime(), 0.0);//first packet
+        //explanation: packet will come at sim. time 10, it will be 2 times serialised and once propagated
+
+
+        assertEquals((10 + 5) + 5 + 5 + 3, edge.getFragments().get(1).getReceivedTime(), Double.MIN_VALUE);//second packet
+        //explanation: the first packet will be serialised at 10+5 (simulationTime+serialisationTime) - then it will be 2 times serialised and propagated
 
         EasyMock.verify();
     }
+
+//critical urobit zlozity test, kde sa budu pakety prekryvat, budu medzi nimi medzery a budu presahovat time quantum
+    //critical tiez test na viacnasobne volanie tejto metody - s uz nainicializovanym serialisationEndTime
 }

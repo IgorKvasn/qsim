@@ -1,5 +1,6 @@
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data;
 
+import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 
 import java.util.Iterator;
@@ -11,6 +12,7 @@ import java.util.List;
  */
 public class Edge {
 
+    private static final Logger logg = Logger.getLogger(Edge.class);
     private long speed;
     private int length;
     private NetworkNode node1, node2;
@@ -127,7 +129,7 @@ public class Edge {
                 iterator.remove();
 
                 //add fragment to the appropriate network node
-                fragment.getTo().addToRxBuffer(fragment, fragment.getReceivedTime());
+                fragment.getTo().addToRxBuffer(fragment);
             }
         }
     }
