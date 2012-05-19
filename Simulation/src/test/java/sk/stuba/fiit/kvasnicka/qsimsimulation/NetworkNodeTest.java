@@ -16,7 +16,6 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.decorators.ProcessedPacketDecorator;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
@@ -289,7 +288,7 @@ public class NetworkNodeTest {
         node1.addPacketToProcessing(p2);
 
         //assert
-        List<ProcessedPacketDecorator> processed = node1.getProcessingFinishedPacket(40);
+        List<Packet> processed = node1.getProcessingFinishedPacket(40);
         assertNotNull(processed);
         assertEquals(2, processed.size());
     }
@@ -316,7 +315,7 @@ public class NetworkNodeTest {
         node1.addPacketToProcessing(p2);
 
         //assert
-        List<ProcessedPacketDecorator> processed = node1.getProcessingFinishedPacket(20);
+        List<Packet> processed = node1.getProcessingFinishedPacket(20);
         assertNotNull(processed);
         assertEquals(1, processed.size());
     }

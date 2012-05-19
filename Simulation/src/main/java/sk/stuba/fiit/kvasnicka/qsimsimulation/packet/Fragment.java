@@ -10,7 +10,6 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
  * @author Igor Kvasnicka
  */
 
-//todo namiesto objektov Fragment len simulovat posielanie - vzdy, kedy by mal prist fragment, tak sa len zvysi nejaky counter v input interface
 @Getter
 public class Fragment {
     private final Packet originalPacket;
