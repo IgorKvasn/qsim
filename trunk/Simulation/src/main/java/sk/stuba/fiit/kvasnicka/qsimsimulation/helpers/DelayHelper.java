@@ -17,7 +17,7 @@ public abstract class DelayHelper {
     public static final double MIN_PROCESSING_DELAY = 0.5; //msec
 
 
-    public static double calculateSerialisationDelay(Edge edge, int packetSize) {                //todo toto vsetko mockovat!!!!!!!!!
+    public static double calculateSerialisationDelay(Edge edge, int packetSize) {
 //        logg.debug("serialisable delay");
         if (edge == null) throw new IllegalArgumentException("edge is NULL");
         return (double) packetSize / edge.getSpeed();

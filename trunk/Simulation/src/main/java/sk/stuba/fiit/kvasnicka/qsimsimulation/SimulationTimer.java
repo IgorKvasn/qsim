@@ -129,7 +129,7 @@ public class SimulationTimer implements ActionListener {
             }
 
             //---------now calculate statistic data
-            //todo vypocitaj vyuzitie output queues - vysledok hod do QueueDefinition.usedCapacity
+            //todo vypocitaj vyuzitie output queues
 
 
             //check if there is nothing more to simulate

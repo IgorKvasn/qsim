@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.InputInterface;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.OutputInterface;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.decorators.ProcessedPacketDecorator;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.QueueingHelper;
@@ -65,7 +64,7 @@ public abstract class NetworkNode implements Serializable {
 
 
     @XmlTransient
-    private List<ProcessedPacketDecorator> processingPackets;
+    private List<Packet> processingPackets;
 
     private SwQueues swQueues;
 
@@ -110,7 +109,7 @@ public abstract class NetworkNode implements Serializable {
         routes = new HashMap<String, String>();
         routingRules = new HashMap<Class, Integer>();
         fillForbiddenRoutingRules(routingRules);
-        processingPackets = new LinkedList<ProcessedPacketDecorator>();
+        processingPackets = new LinkedList<Packet>();
         txInterfaces = new HashMap<NetworkNode, OutputInterface>();
         rxInterfaces = new HashMap<NetworkNode, InputInterface>();
         inputQueue = new LinkedList<Packet>();
@@ -144,7 +143,7 @@ public abstract class NetworkNode implements Serializable {
      */
     public void addPacketToProcessing(Packet packet) {
         packet.setSimulationTime(packet.getSimulationTime() + DelayHelper.calculateProcessingDelay(this));
-        processingPackets.add(new ProcessedPacketDecorator(packet, packet.getSimulationTime(), this));
+        processingPackets.add(packet);
     }
 
     /**
@@ -155,18 +154,18 @@ public abstract class NetworkNode implements Serializable {
      */
 
     public void moveFromProcessingToOutputQueue(double simulationTime) {
-        List<ProcessedPacketDecorator> processedPackets;
+        List<Packet> processedPackets;
         //iterate through packets in processing state and put processed packets to output queue
         while ((processedPackets = getProcessingFinishedPacket(simulationTime)) != null) {
-            for (Iterator<ProcessedPacketDecorator> iterator = processedPackets.iterator(); iterator.hasNext(); ) {
-                ProcessedPacketDecorator p = iterator.next();   //CRITICAL vyhodit decorator
+            for (Iterator<Packet> iterator = processedPackets.iterator(); iterator.hasNext(); ) {
+                Packet p = iterator.next();
 
-                if (p.getPacket().isPacketDelivered(this)) {//is packet delivered?
-                    packetIsDelivered(p.getPacket());
+                if (p.isPacketDelivered(this)) {//is packet delivered?
+                    packetIsDelivered(p);
                     iterator.remove();
                     continue;
                 }
-                moveFromProcessingToOutputQueue(p.getPacket(), p.getTimeWhenProcessingFinished());
+                moveFromProcessingToOutputQueue(p, p.getSimulationTime());
             }
         }
     }
@@ -245,12 +244,12 @@ public abstract class NetworkNode implements Serializable {
      * @param simulationTime current simulation time
      * @return null if no such packet found
      */
-    public List<ProcessedPacketDecorator> getProcessingFinishedPacket(double simulationTime) {
-        List<ProcessedPacketDecorator> result = new LinkedList<ProcessedPacketDecorator>();
+    public List<Packet> getProcessingFinishedPacket(double simulationTime) {
+        List<Packet> result = new LinkedList<Packet>();
 
-        for (ProcessedPacketDecorator decorator : processingPackets) {
-            if (decorator.getTimeWhenProcessingFinished() <= simulationTime) {
-                result.add(decorator);
+        for (Packet packet : processingPackets) {
+            if (packet.getSimulationTime() <= simulationTime) {
+                result.add(packet);
             }
         }
         if (result.isEmpty()) return null;
@@ -509,8 +508,8 @@ public abstract class NetworkNode implements Serializable {
     public List<Packet> getPacketsInProcessing() {
         List<Packet> list = new LinkedList<Packet>();
 
-        for (ProcessedPacketDecorator decorator : processingPackets) {
-            list.add(decorator.getPacket());
+        for (Packet packet : processingPackets) {
+            list.add(packet);
         }
         return list;
     }
