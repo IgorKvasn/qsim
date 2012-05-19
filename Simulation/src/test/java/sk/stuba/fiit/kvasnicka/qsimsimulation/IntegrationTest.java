@@ -4,6 +4,10 @@ import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.easymock.PowerMock;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
@@ -27,6 +31,8 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Igor Kvasnicka
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(DelayHelper.class)
 public class IntegrationTest {
     QosMechanism qosMechanism;
     TopologyManager topologyManager;
@@ -139,6 +145,45 @@ public class IntegrationTest {
 
         timer.startSimulationTimer(simulationManager);     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
 
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+
+        assertFalse(timer.isRunning());
+        checkNoPacketsInTopology(timer);
+    }
+
+
+    /**
+     * create multiple packets and see if all of them reach their destination
+     */
+    @Test
+    public void testMultiplePacketsSimulation_simultaneous() throws NoSuchFieldException, IllegalAccessException {
+        //all packets will be created at once - packet creation delay is set to 0
+        PowerMock.mockStatic(DelayHelper.class);
+        EasyMock.expect(DelayHelper.calculatePacketCreationDelay(EasyMock.anyObject(NetworkNode.class), EasyMock.anyInt(), EasyMock.anyObject(PacketTypeEnum.class))).andReturn(0.0).times(10);
+        EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(10);
+        EasyMock.expect(DelayHelper.calculateProcessingDelay(EasyMock.anyObject(NetworkNode.class))).andReturn(1.0).times(10);
+        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Edge.class),EasyMock.anyInt())).andReturn(0.2).times(10);
+
+        PowerMock.replay(DelayHelper.class);
+
+
+        //        System.out.println("Processing delay node2: " + DelayHelper.calculateProcessingDelay(node2));
+        //        System.out.println("Serialisation delay: " + DelayHelper.calculateSerialisationDelay(edge, 50));
+        //        System.out.println("Propagation delay: " + DelayHelper.calculatePropagationDelay(edge));
+        double sumTime = (DelayHelper.calculateProcessingDelay(node2) + 2 * DelayHelper.calculateSerialisationDelay(edge, 50) + DelayHelper.calculatePropagationDelay(edge));
+        //        System.out.println("Delay sum: " + sumTime);
+
+        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2));
+
+        simulationManager = new SimulationManager();
+        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, true, 0, 1, PacketTypeEnum.AUDIO_PACKET);
+        simulationManager.addSimulationRule(rule);
+
+        timer.startSimulationTimer(simulationManager);     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
+
+        timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);
