@@ -34,7 +34,7 @@ public class QueueingHelper {
      * @param packetSize    total packet size
      * @return size of a single fragment [bytes]
      */
-    public static int calculateFragmentSize(int fragmentIndex, int fragmentCount, int mtu, int packetSize) { //todo presunut do queuing helper ako static metodu
+    public static int calculateFragmentSize(int fragmentIndex, int fragmentCount, int mtu, int packetSize) {
         if (fragmentIndex > fragmentCount) {
             throw new IllegalArgumentException("fragmentIndex is bigger than fragmentCount");
         }

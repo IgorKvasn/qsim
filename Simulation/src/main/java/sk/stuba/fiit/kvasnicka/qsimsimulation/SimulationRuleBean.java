@@ -9,6 +9,9 @@ import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 
+import java.util.HashMap;
+import java.util.List;
+
 /**
  * this bean represents user definition of a simulation rule
  *
@@ -39,6 +42,14 @@ public class SimulationRuleBean {
      * manual (non-automatic) rules starts when user says so
      */
     private boolean automatic;
+    /**
+     * here is a "routing table" for this simulation rule
+     * this means, that multiple simulation rules may have contradictory routing,
+     * e.g: A-B-C-D and A-X-C-Y-D (the same source, destination and one network node in the middle)
+     * this also allows to create new simulation rules at runtime (e.g. "ping") without affecting other routing tables
+     */
+    private HashMap<String, NetworkNode> routes;//key=current network node name; value=next hop network node
+
 
     /**
      * creates new simulation rule
@@ -63,6 +74,7 @@ public class SimulationRuleBean {
         this.numberOfPackets = numberOfPackets;
         this.packetSize = packetSize;
         this.automatic = automatic;
+        routes = new HashMap<String, NetworkNode>();
     }
 
     /**
@@ -89,5 +101,46 @@ public class SimulationRuleBean {
 
     public boolean isFinished() {
         return repeat == 0 && numberOfPackets == 0;
+    }
+
+
+    /**
+     * clears the routing table however directly connected routes MUST be
+     * persisted
+     */
+    public void clearRoutingTable() {
+        routes.clear();
+    }
+
+    public boolean containsRoute(String nextHop) {
+        if (nextHop == null) {
+            throw new IllegalArgumentException("nextHop is NULL");
+        }
+        return routes.containsKey(nextHop);
+    }
+
+
+    /**
+     * adds new routing rule (new route) to routing table
+     * route must consist of at least 2 network nodes: source and destination
+     *
+     * @param route list of network nodes in which packet will be routed
+     */
+    public void addRoute(List<NetworkNode> route) {
+        if (route == null) throw new IllegalArgumentException("route is NULL");
+        if (route.size() < 2) {
+            throw new IllegalArgumentException("route must consist of at least 2 network nodes: source and destination; this route is long: " + route.size());
+        }
+
+        for (int i = 0; i < route.size() - 1; i++) {
+            routes.put(route.get(i).getName(), route.get(i + 1));
+        }
+    }
+
+    public NetworkNode getNextHopFromRoutingTable(NetworkNode currentNode) {
+        if (! routes.containsKey(currentNode.getName())) {
+            throw new IllegalStateException("cannto find route for destination: " + getDestination() + " from " + currentNode);
+        }
+        return routes.get(currentNode.getName());
     }
 }

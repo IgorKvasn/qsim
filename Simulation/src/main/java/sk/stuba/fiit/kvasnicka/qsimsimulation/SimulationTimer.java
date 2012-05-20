@@ -55,7 +55,7 @@ public class SimulationTimer implements ActionListener {
         }
         packetManager = new PacketManager(this);
         this.simulationManager = simulationManager;
-        packetGenerator = new PacketGenerator(simulationManager.getRulesUnmodifiable(), this, topologyManager.getEdgeList(), topologyManager.getNodeList());
+        packetGenerator = new PacketGenerator(simulationManager.getRulesUnmodifiable(), this);
 
         for (NetworkNode node : getTopologyManager().getNodeList()) {
             node.setTopologyManager(topologyManager);

@@ -11,14 +11,14 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
@@ -79,8 +79,8 @@ public class PacketManagerTest {
         node2.setTopologyManager(topologyManager);
 
 
-        node1.addRoute("node2", "node2");
-        node2.addRoute("node1", "node1");
+//        node1.addRoute("node2", "node2");
+//        node2.addRoute("node1", "node1");
 
         timer = EasyMock.createMock(SimulationTimer.class);
         EasyMock.expect(timer.getTopologyManager()).andReturn(topologyManager).times(100);
@@ -93,8 +93,10 @@ public class PacketManagerTest {
     public void testInitPackets() throws Exception {
         //--------prepare
 
-        Packet p1 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, simulationTime);
-        Packet p2 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, simulationTime);
+        Packet p1 = new Packet(10, node2, node1, packetManager, null, simulationTime);
+        Packet p2 = new Packet(10, node2, node1, packetManager, null, simulationTime);
+
+        initRoute(p1, p2);
 
         //------run
         packetManager.initPackets(node1, Arrays.asList(p1, p2), simulationTime);
@@ -104,5 +106,23 @@ public class PacketManagerTest {
         assertNotNull(node1.getTxInterfaces().get(node2));
         int fragments = node1.getTxInterfaces().get(node2).getFragmentsCount();
         assertEquals(2, fragments);
+    }
+
+    private void initRoute(Packet... packets) {
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean(node1, node2, 1, 1, true, 10, 0, PacketTypeEnum.AUDIO_PACKET);
+        simulationRuleBean.addRoute(Arrays.asList(node1, node2));
+
+        for (Packet p : packets) {
+            Field f = null;
+            try {
+                f = Packet.class.getDeclaredField("simulationRule");
+                f.setAccessible(true);
+                f.set(p, simulationRuleBean);
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

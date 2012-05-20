@@ -1,9 +1,7 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation;
 
 import org.apache.log4j.Logger;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
@@ -20,13 +18,11 @@ public class PacketGenerator {
     private static final Logger logg = Logger.getLogger(PacketGenerator.class);
 
     private List<SimulationRuleBean> simulationRules;
-    private SimulationTimer simulationTimer;
     private PacketManager packetManager;
 
 
-    public PacketGenerator(List<SimulationRuleBean> simulationRules, SimulationTimer simulationTimer, List<Edge> edgeList, List<NetworkNode> nodeList) {
+    public PacketGenerator(List<SimulationRuleBean> simulationRules, SimulationTimer simulationTimer) {
         this.simulationRules = simulationRules;
-        this.simulationTimer = simulationTimer;
         packetManager = simulationTimer.getPacketManager();
     }
 
@@ -37,7 +33,6 @@ public class PacketGenerator {
      * @param timeQuantum    time quantum - this is used when creating new packets to not create all packets at once, but as many as time quantum allows
      */
     public void generatePackets(double simulationTime, double timeQuantum) {
-        //todo paralelize me - ExecutorService
         for (SimulationRuleBean rule : simulationRules) {
             if (rule.isFinished()) continue; //I don't care about finished simulation rules
             if (rule.isActive()) {//rule has been activated and it is not finished yet
@@ -89,7 +84,7 @@ public class PacketGenerator {
         while (timeSpent <= creationTime && rule.getNumberOfPackets() > 0) {
             double creationDelay = DelayHelper.calculatePacketCreationDelay(rule.getSource(), rule.getPacketSize(), rule.getPacketTypeEnum());
             if (timeSpent + creationDelay > timeQuantum) break; //no time left to spent
-            packets.add(createPacket(rule.getPacketSize(), rule.getDestination(), rule.getSource(), rule.getPacketTypeEnum(), rule.getActivationTime() + timeSpent));
+            packets.add(createPacket(rule.getPacketSize(), rule.getDestination(), rule.getSource(), rule, rule.getActivationTime() + timeSpent));
             timeSpent += creationDelay;//I have spent some time
             rule.decreaseNumberOfPackets();
         }
@@ -100,14 +95,14 @@ public class PacketGenerator {
     /**
      * creates one packet
      *
-     * @param packetSize
-     * @param destination
-     * @param source
-     * @param packetTypeEnum
-     * @param creationTime
-     * @return
+     * @param packetSize   size of packet in bytes
+     * @param destination  final destination of this packet
+     * @param source       source that initially created this packet
+     * @param rule         simulation rule that is associated with this packet
+     * @param creationTime simulation time, when this packet was created
+     * @return a new packet
      */
-    private Packet createPacket(int packetSize, NetworkNode destination, NetworkNode source, PacketTypeEnum packetTypeEnum, double creationTime) {
-        return new Packet(packetSize, destination, source, packetManager, packetTypeEnum, creationTime);
+    private Packet createPacket(int packetSize, NetworkNode destination, NetworkNode source, SimulationRuleBean rule, double creationTime) {
+        return new Packet(packetSize, destination, source, packetManager, rule, creationTime);
     }
 }
