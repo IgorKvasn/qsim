@@ -95,8 +95,8 @@ public class NetworkNodeTest {
         node2.setTopologyManager(topologyManager);
 
 
-        node1.addRoute("node2", "node2");
-        node2.addRoute("node1", "node1");
+//        node1.addRoute("node2", "node2");
+//        node2.addRoute("node1", "node1");
 
         timer = EasyMock.createMock(SimulationTimer.class);
         EasyMock.expect(timer.getTopologyManager()).andReturn(topologyManager).times(100);
@@ -112,9 +112,10 @@ public class NetworkNodeTest {
      */
     @Test
     public void testAddToTxBuffer() throws Exception {
-        Packet p1 = new Packet(64, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
-        Packet p2 = new Packet(64, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p1 = new Packet(64, node2, node1, packetManager, null, 10);
+        Packet p2 = new Packet(64, node2, node1, packetManager, null, 30);
 
+        initRoute(p1, p2);
 
         node1.addToTxBuffer(p1, 100);
         node1.addToTxBuffer(p2, 100);
@@ -134,8 +135,9 @@ public class NetworkNodeTest {
      */
     @Test
     public void testAddToTxBuffer_multifragment() throws Exception {
-        Packet p1 = new Packet(150, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
+        Packet p1 = new Packet(150, node2, node1, packetManager, null, 10);
 
+        initRoute(p1);
 
         node1.addToTxBuffer(p1, 100);
 
@@ -156,7 +158,9 @@ public class NetworkNodeTest {
      */
     @Test
     public void testAddToTxBuffer_multifragment_2() throws Exception {
-        Packet p1 = new Packet(200, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
+        Packet p1 = new Packet(200, node2, node1, packetManager, null, 10);
+
+        initRoute(p1);
 
         node1.addToTxBuffer(p1, 100);
 
@@ -188,12 +192,14 @@ public class NetworkNodeTest {
         node2.setTopologyManager(topologyManager);
 
 
-        node1.addRoute("node2", "node2");
-        node2.addRoute("node1", "node1");
+//        node1.addRoute("node2", "node2");
+//        node2.addRoute("node1", "node1");
 
         //create packets
-        Packet p1 = new Packet(200, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
-        Packet p2 = new Packet(101, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p1 = new Packet(200, node2, node1, packetManager, null, 10);
+        Packet p2 = new Packet(101, node2, node1, packetManager, null, 30);
+
+        initRoute(p1, p2);
 
         //adds them into TX
         node1.addToTxBuffer(p1, 100);
@@ -216,8 +222,10 @@ public class NetworkNodeTest {
     @Test
     public void testMoveFromProcessingToOutputQueue() {
         //create packets
-        Packet p1 = new Packet(19000, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
-        Packet p2 = new Packet(1000, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p1 = new Packet(19000, node2, node1, packetManager, null, 10);
+        Packet p2 = new Packet(1000, node2, node1, packetManager, null, 30);
+
+        initRoute(p1, p2);
 
         PowerMock.mockStatic(DelayHelper.class);
         EasyMock.expect(DelayHelper.calculateProcessingDelay(node1)).andReturn(0.0).times(2); //there will be no processing delay
@@ -245,8 +253,10 @@ public class NetworkNodeTest {
     @Test
     public void testMoveFromProcessingToOutputQueue_overflow() {
         //create packets
-        Packet p1 = new Packet(19000, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
-        Packet p2 = new Packet(1001, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p1 = new Packet(19000, node2, node1, packetManager, null, 10);
+        Packet p2 = new Packet(1001, node2, node1, packetManager, null, 30);
+
+        initRoute(p1, p2);
 
         PowerMock.mockStatic(DelayHelper.class);
         EasyMock.expect(DelayHelper.calculateProcessingDelay(node1)).andReturn(0.0).times(2); //there will be no processing delay
@@ -283,8 +293,10 @@ public class NetworkNodeTest {
         PowerMock.replay(DelayHelper.class);
 
         //create packets
-        Packet p1 = new Packet(100, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
-        Packet p2 = new Packet(200, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p1 = new Packet(100, node2, node1, packetManager, null, 10);
+        Packet p2 = new Packet(200, node2, node1, packetManager, null, 30);
+
+        initRoute(p1, p2);
 
         //add to processing
         node1.addPacketToProcessing(p1);
@@ -310,8 +322,10 @@ public class NetworkNodeTest {
         PowerMock.replay(DelayHelper.class);
 
         //create packets
-        Packet p1 = new Packet(100, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
-        Packet p2 = new Packet(200, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p1 = new Packet(100, node2, node1, packetManager, null, 10);
+        Packet p2 = new Packet(200, node2, node1, packetManager, null, 30);
+
+        initRoute(p1, p2);
 
         //add to processing
         node1.addPacketToProcessing(p1);
@@ -329,8 +343,10 @@ public class NetworkNodeTest {
     @Test
     public void testMoveFromOutputQueueToTxBuffer() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         //preparation
-        Packet p1 = new Packet(MTU, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);//note that every packet is one 1 fragment big
-        Packet p2 = new Packet(MTU, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p1 = new Packet(MTU, node2, node1, packetManager, null, 10);//note that every packet is one 1 fragment big
+        Packet p2 = new Packet(MTU, node2, node1, packetManager, null, 30);
+
+        initRoute(p1, p2);
 
         p1.setQosQueue(qosMechanism.classifyAndMarkPacket(p1));
         p2.setQosQueue(qosMechanism.classifyAndMarkPacket(p2));
@@ -366,9 +382,11 @@ public class NetworkNodeTest {
     @Test
     public void testMoveFromOutputQueueToTxBuffer_overflow() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         //preparation
-        Packet p1 = new Packet(MTU, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);//note that every packet is one 1 fragment big
-        Packet p2 = new Packet(MTU, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
-        Packet p3 = new Packet(MTU * (MAX_TX_SIZE - 1), node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);//this packet is very big - it will be put into TX
+        Packet p1 = new Packet(MTU, node2, node1, packetManager, null, 10);//note that every packet is one 1 fragment big
+        Packet p2 = new Packet(MTU, node2, node1, packetManager, null, 30);
+        Packet p3 = new Packet(MTU * (MAX_TX_SIZE - 1), node2, node1, packetManager, null, 30);//this packet is very big - it will be put into TX
+
+        initRoute(p1, p2, p3);
 
         p1.setQosQueue(qosMechanism.classifyAndMarkPacket(p1));
         p2.setQosQueue(qosMechanism.classifyAndMarkPacket(p2));
@@ -417,8 +435,10 @@ public class NetworkNodeTest {
     @Test
     public void testAddNewPacketsToOutputQueue() {
         //preparation
-        Packet p1 = new Packet(MTU, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
-        Packet p2 = new Packet(MTU, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p1 = new Packet(MTU, node2, node1, packetManager, null, 10);
+        Packet p2 = new Packet(MTU, node2, node1, packetManager, null, 30);
+
+        initRoute(p1, p2);
 
         //test method
         node1.addNewPacketsToOutputQueue(p1, 10);
@@ -441,8 +461,10 @@ public class NetworkNodeTest {
     @Test
     public void testAddNewPacketsToOutputQueue_overflow() {
         //preparation
-        Packet p1 = new Packet(MTU * (MAX_TX_SIZE - 1), node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
-        Packet p2 = new Packet(MTU * 2, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p1 = new Packet(MTU * (MAX_TX_SIZE - 1), node2, node1, packetManager, null, 10);
+        Packet p2 = new Packet(MTU * 2, node2, node1, packetManager, null, 30);
+
+        initRoute(p1, p2);
 
         //test method
         node1.addNewPacketsToOutputQueue(p1, 10);
@@ -464,8 +486,8 @@ public class NetworkNodeTest {
     @Test
     public void testMoveFromInputQueueToProcessing() throws NoSuchFieldException, IllegalAccessException {
         //prepare some packets into input queue
-        Packet p1 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
-        Packet p2 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p1 = new Packet(10, node2, node1, packetManager, null, 10);
+        Packet p2 = new Packet(10, node2, node1, packetManager, null, 30);
 
         List<Packet> list = new LinkedList<Packet>(Arrays.asList(p1, p2));
 
@@ -491,11 +513,11 @@ public class NetworkNodeTest {
     @Test
     public void testMoveFromInputQueueToProcessing_overflow() throws NoSuchFieldException, IllegalAccessException {
         //prepare some packets into input queue
-        Packet p1 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
-        Packet p2 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
-        Packet p3 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
-        Packet p4 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
-        Packet p5 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p1 = new Packet(10, node2, node1, packetManager, null, 10);
+        Packet p2 = new Packet(10, node2, node1, packetManager, null, 30);
+        Packet p3 = new Packet(10, node2, node1, packetManager, null, 30);
+        Packet p4 = new Packet(10, node2, node1, packetManager, null, 30);
+        Packet p5 = new Packet(10, node2, node1, packetManager, null, 30);
 
         List<Packet> list = new LinkedList<Packet>(Arrays.asList(p1, p2, p3, p4, p5));
 
@@ -518,8 +540,8 @@ public class NetworkNodeTest {
      */
     @Test
     public void testAddToOutputQueue() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Packet p1 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
-        Packet p2 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p1 = new Packet(10, node2, node1, packetManager, null, 10);
+        Packet p2 = new Packet(10, node2, node1, packetManager, null, 30);
 
         p1.setQosQueue(qosMechanism.classifyAndMarkPacket(p1));
         p2.setQosQueue(qosMechanism.classifyAndMarkPacket(p2));
@@ -543,9 +565,9 @@ public class NetworkNodeTest {
      */
     @Test
     public void testAddToOutputQueue_overflow() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Packet p1 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
-        Packet p2 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
-        Packet p3 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 30);
+        Packet p1 = new Packet(10, node2, node1, packetManager, null, 10);
+        Packet p2 = new Packet(10, node2, node1, packetManager, null, 30);
+        Packet p3 = new Packet(10, node2, node1, packetManager, null, 30);
 
 
         p1.setQosQueue(1);
@@ -587,7 +609,9 @@ public class NetworkNodeTest {
         EasyMock.expect(DelayHelper.calculatePacketCreationDelay(EasyMock.anyObject(NetworkNode.class), EasyMock.anyInt(), EasyMock.anyObject(PacketTypeEnum.class))).andReturn(SimulationTimer.TIME_QUANTUM / 2).times(2);
         PowerMock.replayAll();
 
-        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, true, 0, 3, PacketTypeEnum.AUDIO_PACKET);
+        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, true, 0, 3, null);
+        rule.addRoute(Arrays.asList(node1, node2));
+
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2));
 
         SimulationManager simulationManager = new SimulationManager();
@@ -623,5 +647,23 @@ public class NetworkNodeTest {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private void initRoute(Packet... packets) {
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean(node1, node2, 1, 1, true, 10, 0, PacketTypeEnum.AUDIO_PACKET);
+        simulationRuleBean.addRoute(Arrays.asList(node1, node2));
+
+        for (Packet p : packets) {
+            Field f = null;
+            try {
+                f = Packet.class.getDeclaredField("simulationRule");
+                f.setAccessible(true);
+                f.set(p, simulationRuleBean);
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

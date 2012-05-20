@@ -8,7 +8,6 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
@@ -126,8 +125,8 @@ public class QueueingHelperTest {
         node1.setTopologyManager(topologyManager);
         node2.setTopologyManager(topologyManager);
 
-        node1.addRoute("node2", "node2");
-        node2.addRoute("node1", "node1");
+//        node1.addRoute("node2", "node2");
+//        node2.addRoute("node1", "node1");
 
         SimulationTimer timer = EasyMock.createMock(SimulationTimer.class);
         EasyMock.expect(timer.getTopologyManager()).andReturn(topologyManager).times(100);
@@ -135,7 +134,7 @@ public class QueueingHelperTest {
 
         PacketManager packetManager = new PacketManager(timer);
 
-        Packet p1 = new Packet(10, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10);
+        Packet p1 = new Packet(10, node2, node1, packetManager, null, 10);
 
         //test method... finally ... and test it on multiple test cases
 

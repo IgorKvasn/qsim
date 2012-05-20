@@ -20,8 +20,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -51,7 +49,7 @@ public abstract class NetworkNode implements Serializable {
     @Getter
     @Setter
     private String name;
-    private HashMap<String, String> routes;//key=destination network node name; value=next hop network node name    
+
     /**
      * defines rules for forbidden neigbours key= neigbour NetworkNode object
      * (Router, Computer,..) as class value = maximum connections (links) are
@@ -106,7 +104,6 @@ public abstract class NetworkNode implements Serializable {
      * this constructor is used only during deserialisation process
      */
     public NetworkNode() {
-        routes = new HashMap<String, String>();
         routingRules = new HashMap<Class, Integer>();
         fillForbiddenRoutingRules(routingRules);
         processingPackets = new LinkedList<Packet>();
@@ -182,7 +179,7 @@ public abstract class NetworkNode implements Serializable {
         //classify and mark packet first
         packet.setQosQueue(qosMechanism.classifyAndMarkPacket(packet)); //todo toto ma bt este pred processingom, po prijati paketu, aby som zistil, ci to ma byt fast switching
         //add as much packets (fragments) as possible to TX buffer - packet can be put into TX only if there is enough space for ALL its fragments
-        int mtu = topologyManager.findEdge(getName(), getNextHopNetworkNode(packet).getName()).getMtu();
+        int mtu = topologyManager.findEdge(getName(), packet.getNextHopNetworkNode(this).getName()).getMtu();
         try {
             addToTxBuffer(packet, mtu);
         } catch (NotEnoughBufferSpaceException e) {
@@ -273,25 +270,6 @@ public abstract class NetworkNode implements Serializable {
         }
     }
 
-    /**
-     * key=destination network node </p> value=next hop network node </p> to
-     * add/remove routes use appropriate methods use this method only to
-     * retrieve routing table
-     *
-     * @return <b>read-only</b> Map of routes
-     * @see #addRoute(java.lang.String, String) addRoute
-     * @see #removeRoute(NetworkNode)
-     *      removeRoute
-     * @see #clearRoutingTable() clearRoutingTable
-     * @see #containsRoute(String)
-     *      containsRoute
-     * @see #getAllDestinations() getAllDestinations
-     * @see #getNextHopFromRoutingTable(String)
-     *      getNextHopFromRoutingTable
-     */
-    public Map<String, String> getRoutes() {
-        return Collections.unmodifiableMap(routes);
-    }
 
     /**
      * returns forbidden routes </p> key = type of NetworkNode that is forbidden
@@ -301,68 +279,6 @@ public abstract class NetworkNode implements Serializable {
      */
     public Map<Class, Integer> getRoutingRules() {
         return routingRules;
-    }
-
-    public boolean removeRoute(NetworkNode destination) {
-        if (destination == null) {
-            throw new IllegalArgumentException("destination is NULL");
-        }
-        if (! routes.containsKey(destination.getName())) {
-            return false;
-        }
-        routes.remove(destination.getName());
-        return true;
-    }
-
-    /**
-     * read-only collection of destinations
-     *
-     * @return
-     */
-    public Collection<String> getAllDestinations() {
-        return getRoutes().values();
-    }
-
-    /**
-     * clears the routing table however directly connected routes MUST be
-     * persisted
-     */
-    public void clearRoutingTable() {
-        List<String> toDelete = new LinkedList<String>();
-
-        for (String destination : routes.keySet()) {
-            if (! destination.equals(routes.get(destination))) {
-                toDelete.add(destination);
-            }
-        }
-
-        for (String deleteMe : toDelete) {
-            routes.remove(deleteMe);
-        }
-    }
-
-    public boolean containsRoute(String destination) {
-        if (destination == null) {
-            throw new IllegalArgumentException("destination is NULL");
-        }
-        return routes.containsKey(destination);
-    }
-
-    public String getNextHopFromRoutingTable(String destination) {
-        if (destination == null) {
-            throw new IllegalArgumentException("destination is NULL");
-        }
-        return routes.get(destination);
-    }
-
-    /**
-     * adds new routing rule (new route) to routing table
-     *
-     * @param destination destination (final) vertex
-     * @param nextHop     vertex of next hop
-     */
-    public void addRoute(String destination, String nextHop) {
-        routes.put(destination, nextHop);
     }
 
     @Override
@@ -375,7 +291,7 @@ public abstract class NetworkNode implements Serializable {
         List<Packet> eligiblePackets = getPacketsInOutputQueue(time);
         List<Packet> packetsToSend = qosMechanism.decitePacketsToMoveFromOutputQueue(eligiblePackets, swQueues);
         for (Packet p : packetsToSend) {
-            int mtu = topologyManager.findEdge(getName(), getNextHopNetworkNode(p).getName()).getMtu();
+            int mtu = topologyManager.findEdge(getName(), p.getNextHopNetworkNode(this).getName()).getMtu();
             try {
                 addToTxBuffer(p, mtu); //add packet to TX buffer
                 outputQueue.remove(p); //remove packet from output queue
@@ -411,7 +327,9 @@ public abstract class NetworkNode implements Serializable {
      * @throws NotEnoughBufferSpaceException if there is not enough space in TX for all fragments of specified packet
      */
     public void addToTxBuffer(Packet packet, int mtu) throws NotEnoughBufferSpaceException {
-        NetworkNode nextHop = getNextHopNetworkNode(packet);
+        NetworkNode nextHop = packet.getNextHopNetworkNode(this);
+
+        if (nextHop == null) throw new IllegalStateException("nextHop network node is NULL");
 
         //create fragments
         Fragment[] fragments = QueueingHelper.createFragments(packet, mtu, this, nextHop);
@@ -488,15 +406,6 @@ public abstract class NetworkNode implements Serializable {
      */
     private boolean isProcessingAvailable() {
         return processingPackets.size() != maxProcessingPackets;
-    }
-
-
-    public NetworkNode getNextHopNetworkNode(Packet packet) {
-        if (! containsRoute(packet.getDestination().getName())) {
-            throw new IllegalStateException("Invalid routing rule - unable to route packet to destination: " + packet.getDestination().getName() + " from node: " + this.getName());
-        }
-        String nextHop = getRoutes().get(packet.getDestination().getName());
-        return topologyManager.findNetworkNode(nextHop);
     }
 
 

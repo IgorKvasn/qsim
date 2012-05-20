@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 
@@ -30,7 +31,6 @@ public class Packet {
     private int qosQueue;
 
     private PacketManager packetManager;
-    private PacketTypeEnum packetType;
     /**
      * simulation time when this packets changes its state
      */
@@ -41,6 +41,7 @@ public class Packet {
 
 
     private final double creationTime;
+    private final SimulationRuleBean simulationRule;
 
 
     /**
@@ -50,18 +51,17 @@ public class Packet {
      * @param destination   where is this packet headed to
      * @param source        NetworkNode that created this packet
      * @param packetManager reference to packet manager class
-     * @param packetType    type of the packet depending on packet rule configuration (user's choice)
      * @param creationTime  simulation time, when this packet changes its state
      */
-    public Packet(int size, NetworkNode destination, NetworkNode source, PacketManager packetManager, PacketTypeEnum packetType, double creationTime) {
+    public Packet(int size, NetworkNode destination, NetworkNode source, PacketManager packetManager, SimulationRuleBean simulationRule, double creationTime) {
         this.packetSize = size;
         this.destination = destination;
         this.source = source;
         this.packetManager = packetManager;
-        this.packetType = packetType;
+        this.simulationRule = simulationRule;
         this.simulationTime = creationTime;
 
-        this.qosQueue = - 1;// source.getQosMechanism().classifyAndMarkPacket(this);
+        this.qosQueue = - 1;
         this.creationTime = creationTime;
     }
 
@@ -70,6 +70,15 @@ public class Packet {
             throw new IllegalStateException("new packet simulation time is lower then current simulation time: " + this.simulationTime + ">" + simulationTime);
         }
         this.simulationTime = simulationTime;
+    }
+
+    /**
+     * returns a type of packet - audio, video, data, ...
+     *
+     * @return type of packet
+     */
+    public PacketTypeEnum getPacketType() {
+        return simulationRule.getPacketTypeEnum();
     }
 
     /**
@@ -84,5 +93,13 @@ public class Packet {
             return true;
         }
         return false;
+    }
+
+
+    public NetworkNode getNextHopNetworkNode(NetworkNode currentNode) {
+        if (simulationRule == null) {
+            throw new IllegalStateException("simulaiton rule for this packet is NULL - it has not been properly initialised");
+        }
+        return simulationRule.getNextHopFromRoutingTable(currentNode);
     }
 }

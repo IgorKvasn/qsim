@@ -10,7 +10,6 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.InputInterface;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.QueueingHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
@@ -81,9 +80,9 @@ public class InputInterfaceTest {
         node1.setTopologyManager(topologyManager);
         node2.setTopologyManager(topologyManager);
 
-
-        node1.addRoute("node2", "node2");
-        node2.addRoute("node1", "node1");
+//
+//        node1.addRoute("node2", "node2");
+//        node2.addRoute("node1", "node1");
 
         timer = EasyMock.createMock(SimulationTimer.class);
         EasyMock.expect(timer.getTopologyManager()).andReturn(topologyManager).times(100);
@@ -101,7 +100,7 @@ public class InputInterfaceTest {
     public void testFragmentReceived() throws NotEnoughBufferSpaceException {
         //prepare
         InputInterface inputInterface = new InputInterface(node1, 10);//I do not care about max RX size
-        Packet p1 = new Packet(14, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10); //3 fragments will be created
+        Packet p1 = new Packet(14, node2, node1, packetManager, null, 10); //3 fragments will be created
 
         //test method
         Fragment[] fragments = QueueingHelper.createFragments(p1, 5, node2, node1); //MTU = 5
@@ -124,8 +123,8 @@ public class InputInterfaceTest {
     public void testFragmentReceived_multipacket() throws NotEnoughBufferSpaceException {
         //prepare
         InputInterface inputInterface = new InputInterface(node1, 10);//I do not care about max RX size
-        Packet p1 = new Packet(14, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10); //3 fragments will be created
-        Packet p2 = new Packet(16, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10); //4 fragments will be created
+        Packet p1 = new Packet(14, node2, node1, packetManager, null, 10); //3 fragments will be created
+        Packet p2 = new Packet(16, node2, node1, packetManager, null, 10); //4 fragments will be created
 
 
         //test method
@@ -158,7 +157,7 @@ public class InputInterfaceTest {
     public void testFragmentReceived_packet_created() throws NotEnoughBufferSpaceException {
         //prepare
         InputInterface inputInterface = new InputInterface(node1, 10);//I do not care about max RX size
-        Packet p1 = new Packet(14, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10); //3 fragments will be created
+        Packet p1 = new Packet(14, node2, node1, packetManager, null, 10); //3 fragments will be created
 
         //test method
         Fragment[] fragments = QueueingHelper.createFragments(p1, 5, node2, node1); //MTU = 5
@@ -192,7 +191,7 @@ public class InputInterfaceTest {
     public void testFragmentReceived_packet_created__simulation_time() throws NotEnoughBufferSpaceException {
         //prepare
         InputInterface inputInterface = new InputInterface(node1, 10);//I do not care about max RX size
-        Packet p1 = new Packet(14, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10); //3 fragments will be created
+        Packet p1 = new Packet(14, node2, node1, packetManager, null, 10); //3 fragments will be created
 
         //test method
         Fragment[] fragments = QueueingHelper.createFragments(p1, 5, node2, node1); //MTU = 5
@@ -229,8 +228,8 @@ public class InputInterfaceTest {
     public void testFragmentReceived_packet_created__multiple_packets() throws NotEnoughBufferSpaceException {
         //prepare
         InputInterface inputInterface = new InputInterface(node1, 10);//I do not care about max RX size
-        Packet p1 = new Packet(14, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10); //3 fragments will be created
-        Packet p2 = new Packet(9, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10); //2 fragments will be created
+        Packet p1 = new Packet(14, node2, node1, packetManager, null, 10); //3 fragments will be created
+        Packet p2 = new Packet(9, node2, node1, packetManager, null, 10); //2 fragments will be created
 
         //test method
         Fragment[] fragments1 = QueueingHelper.createFragments(p1, 5, node2, node1); //MTU = 5
@@ -271,7 +270,7 @@ public class InputInterfaceTest {
         //prepare
         int MAX_RX_SIZE = 2;
         InputInterface inputInterface = new InputInterface(node1, MAX_RX_SIZE);//max 2 fragments in RX
-        Packet p1 = new Packet(14, node2, node1, packetManager, PacketTypeEnum.AUDIO_PACKET, 10); //3 fragments will be created
+        Packet p1 = new Packet(14, node2, node1, packetManager, null, 10); //3 fragments will be created
 
         //test method
         Fragment[] fragments = QueueingHelper.createFragments(p1, 5, node2, node1); //MTU = 5
