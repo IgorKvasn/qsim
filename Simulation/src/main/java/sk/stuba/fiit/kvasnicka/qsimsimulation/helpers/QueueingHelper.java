@@ -2,8 +2,6 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.helpers;
 
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
@@ -14,15 +12,9 @@ import java.util.UUID;
  *
  * @author Igor Kvasnicka
  */
-public class QueueingHelper {
+public abstract class QueueingHelper {
     private final static Logger logg = Logger.getLogger(QueueingHelper.class);
-    private PacketManager packetManager;
-    private TopologyManager topologyManager;
 
-    public QueueingHelper(PacketManager packetManager, TopologyManager topologyManager) {
-        this.packetManager = packetManager;
-        this.topologyManager = topologyManager;
-    }
 
 
     /**
