@@ -150,7 +150,7 @@ public abstract class NetworkNode implements Serializable {
      * @param simulationTime current simulation time
      */
 
-    public void moveFromProcessingToOutputQueue(double simulationTime) {
+    public void movePacketsFromProcessingToOutputQueue(double simulationTime) {
         List<Packet> processedPackets;
         //iterate through packets in processing state and put processed packets to output queue
         while ((processedPackets = getProcessingFinishedPacket(simulationTime)) != null) {
@@ -231,7 +231,6 @@ public abstract class NetworkNode implements Serializable {
      */
     private void packetIsDelivered(Packet packet) {
         logg.debug("packet has been delivered to destination " + packet.getDestination() + " - it took " + (packet.getSimulationTime() - packet.getCreationTime()) + "msec");
-        packet = null;
     }
 
 

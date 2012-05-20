@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.QueueingHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
 import java.util.List;
@@ -19,12 +18,9 @@ public class PacketManager {
      */
 
     private SimulationTimer simulationTimer;//I need this to obtain current delay = time quantum
-    private QueueingHelper queueingHelper;
 
     public PacketManager(SimulationTimer simulationTimer) {
         this.simulationTimer = simulationTimer;
-
-        queueingHelper = new QueueingHelper(this, simulationTimer.getTopologyManager());
     }
 
 

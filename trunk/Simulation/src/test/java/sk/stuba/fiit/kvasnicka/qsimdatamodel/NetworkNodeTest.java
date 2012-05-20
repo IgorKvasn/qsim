@@ -236,7 +236,7 @@ public class NetworkNodeTest {
         node1.addPacketToProcessing(p2);
 
         //now here comes method I want to test
-        node1.moveFromProcessingToOutputQueue(100);
+        node1.movePacketsFromProcessingToOutputQueue(100);
 
         //both packets should be moved to TX buffer (because there IS enough space in TX - no output queue is needed)
         assertNotNull(node1.getTxInterfaces());
@@ -267,7 +267,7 @@ public class NetworkNodeTest {
         node1.addPacketToProcessing(p2);
 
         //now here comes method I want to test
-        node1.moveFromProcessingToOutputQueue(100);
+        node1.movePacketsFromProcessingToOutputQueue(100);
 
         //only the first packet should be moved to TX buffer
         assertNotNull(node1.getTxInterfaces());
