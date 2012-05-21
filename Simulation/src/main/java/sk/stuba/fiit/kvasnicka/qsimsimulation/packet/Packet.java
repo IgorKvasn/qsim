@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationRuleBean;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 
@@ -29,6 +30,8 @@ public class Packet {
      */
     @Setter
     private int qosQueue;
+    @Getter
+    private Layer4TypeEnum layer4;
 
     private PacketManager packetManager;
     /**
@@ -50,13 +53,15 @@ public class Packet {
      * @param size          size in Bytes
      * @param destination   where is this packet headed to
      * @param source        NetworkNode that created this packet
+     * @param layer4        TCP/IP layer 4 protocol
      * @param packetManager reference to packet manager class
      * @param creationTime  simulation time, when this packet changes its state
      */
-    public Packet(int size, NetworkNode destination, NetworkNode source, PacketManager packetManager, SimulationRuleBean simulationRule, double creationTime) {
+    public Packet(int size, NetworkNode destination, NetworkNode source, Layer4TypeEnum layer4, PacketManager packetManager, SimulationRuleBean simulationRule, double creationTime) {
         this.packetSize = size;
         this.destination = destination;
         this.source = source;
+        this.layer4 = layer4;
         this.packetManager = packetManager;
         this.simulationRule = simulationRule;
         this.simulationTime = creationTime;

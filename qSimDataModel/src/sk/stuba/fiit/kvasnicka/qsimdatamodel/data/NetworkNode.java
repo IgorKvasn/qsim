@@ -8,6 +8,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.InputInterface;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.OutputInterface;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.PacketCrcErrorException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.QueueingHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
@@ -98,6 +99,7 @@ public abstract class NetworkNode implements Serializable {
      * maximum number of simultaneously processed packets
      */
     private int maxProcessingPackets;
+    private double tcpDelay;
 
 
     /**
@@ -113,7 +115,7 @@ public abstract class NetworkNode implements Serializable {
         outputQueue = new LinkedList<Packet>();
     }
 
-    protected NetworkNode(String name, QosMechanism qosMechanism, SwQueues swQueues, int maxTxBufferSize, int maxIntputQueueSize, int maxProcessingPackets) {
+    protected NetworkNode(String name, QosMechanism qosMechanism, SwQueues swQueues, int maxTxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay) {
         this();
         this.name = name;
         this.swQueues = swQueues;
@@ -121,6 +123,7 @@ public abstract class NetworkNode implements Serializable {
         this.maxTxBufferSize = maxTxBufferSize;
         this.maxIntputQueueSize = maxIntputQueueSize;
         this.maxProcessingPackets = maxProcessingPackets;
+        this.tcpDelay = tcpDelay;
     }
 
     /**
@@ -162,7 +165,7 @@ public abstract class NetworkNode implements Serializable {
                     iterator.remove();
                     continue;
                 }
-                moveFromProcessingToOutputQueue(p, p.getSimulationTime());
+                moveFromProcessingToOutputQueue(p);
             }
         }
     }
@@ -173,9 +176,8 @@ public abstract class NetworkNode implements Serializable {
      * this is done automatically when moving from processing
      *
      * @param packet packet to be added
-     * @param time   time, when this happens
      */
-    private void moveFromProcessingToOutputQueue(Packet packet, double time) {
+    private void moveFromProcessingToOutputQueue(Packet packet) {
         //classify and mark packet first
         packet.setQosQueue(qosMechanism.classifyAndMarkPacket(packet)); //todo toto ma bt este pred processingom, po prijati paketu, aby som zistil, ci to ma byt fast switching
         //add as much packets (fragments) as possible to TX buffer - packet can be put into TX only if there is enough space for ALL its fragments
@@ -184,19 +186,22 @@ public abstract class NetworkNode implements Serializable {
             addToTxBuffer(packet, mtu);
         } catch (NotEnoughBufferSpaceException e) {
             try {
-                addToOutputQueue(packet, time);
+                addToOutputQueue(packet);
             } catch (NotEnoughBufferSpaceException e1) {
-                logg.debug("no space left in output queue -> packet dropped");     //todo retransmisia: tu pridat paket do nejakej fronty v predoslom network node, aby znovu poslal paket - ale iba, ak je to TCP
+                logg.debug("no space left in output queue -> packet dropped");
+                if (packet.getLayer4().isRetransmissionEnabled()) {
+                    //todo retransmisia: tu pridat paket do nejakej fronty v predoslom network node, aby znovu poslal paket - ale iba, ak je to TCP
+                }
             }
         }
     }
 
-    private void addToOutputQueue(Packet packet, double time) throws NotEnoughBufferSpaceException {
+    private void addToOutputQueue(Packet packet) throws NotEnoughBufferSpaceException {
         //add packet to output queue
         if (! isOutputQueueAvailable(packet.getQosQueue())) {        //first check if there is enough space in output queue
             throw new NotEnoughBufferSpaceException("There is not enough space in output queue for packet with QoS queue: " + packet.getQosQueue());
         }
-        packet.setTimeWhenCameToQueue(time);
+        packet.setTimeWhenCameToQueue(packet.getSimulationTime());
         outputQueue.add(packet);
     }
 
@@ -217,10 +222,9 @@ public abstract class NetworkNode implements Serializable {
      * adds newly created packets to output queue
      *
      * @param packet packet to be added
-     * @param time   time when this happens
      */
-    public void addNewPacketsToOutputQueue(Packet packet, double time) {
-        moveFromProcessingToOutputQueue(packet, time);
+    public void addNewPacketsToOutputQueue(Packet packet) {
+        moveFromProcessingToOutputQueue(packet);
     }
 
 
@@ -364,13 +368,26 @@ public abstract class NetworkNode implements Serializable {
      */
     public void addToRxBuffer(Fragment fragment) {
         if (! rxInterfaces.containsKey(fragment.getFrom())) {
-            rxInterfaces.put(fragment.getFrom(), new InputInterface(fragment.getFrom(), maxTxBufferSize));
+            Edge edge = topologyManager.findEdge(this.getName(), fragment.getFrom().getName());
+            rxInterfaces.put(fragment.getFrom(), new InputInterface(edge, maxTxBufferSize));
         }
         Packet packet = null;
         try {
             packet = rxInterfaces.get(fragment.getFrom()).fragmentReceived(fragment);
         } catch (NotEnoughBufferSpaceException e) {
-            logg.debug("no space left in TX buffer -> packet dropped"); //todo retransmisia
+            logg.debug("no space left in TX buffer -> packet dropped");
+
+            rxInterfaces.get(fragment.getFrom()).removeFragments(fragment.getFragmentID());
+            if (fragment.getOriginalPacket().getLayer4().isRetransmissionEnabled()) {
+                //todo retransmisia
+            }
+            return;
+        } catch (PacketCrcErrorException e) {
+            logg.debug("packet has wrong CRC");
+
+            if (fragment.getOriginalPacket().getLayer4().isRetransmissionEnabled()) {
+                //todo retransmisia
+            }
             return;
         }
         if (packet != null) {//this was the last fragment to complete a whole packet - now I can place this packet into input queue
@@ -398,6 +415,17 @@ public abstract class NetworkNode implements Serializable {
                 }
             }
         }
+    }
+
+    /**
+     * packet should be transmitted again
+     * packet will be send in time: packet.getSimulationTime() + current network node TCP timeout
+     *
+     * @param packet packet to send
+     */
+    public void retransmittPacket(Packet packet) {
+        packet.setSimulationTime(packet.getSimulationTime() + tcpDelay);
+        moveFromProcessingToOutputQueue(packet);
     }
 
     /**

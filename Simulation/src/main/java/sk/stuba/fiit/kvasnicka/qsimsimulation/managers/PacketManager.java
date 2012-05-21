@@ -57,11 +57,10 @@ public class PacketManager {
      *
      * @param source       source network node
      * @param packets      packet list to init
-     * @param creationTime time when packets were created
      */
-    public void initPackets(NetworkNode source, List<Packet> packets, double creationTime) {
+    public void initPackets(NetworkNode source, List<Packet> packets) {
         for (Packet p : packets) {
-            source.addNewPacketsToOutputQueue(p, creationTime);
+            source.addNewPacketsToOutputQueue(p);
         }
     }
 

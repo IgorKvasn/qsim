@@ -8,6 +8,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
@@ -114,11 +115,11 @@ public class QueueingHelperTest {
         EasyMock.replay(qosMechanism);
 
 
-        NetworkNode node1 = new Router("node1", qosMechanism, 2, swQueues, 10, 10, 10, 10);
-        NetworkNode node2 = new Router("node2", qosMechanism, 2, swQueues2, 10, 10, 10, 10);
+        NetworkNode node1 = new Router("node1", qosMechanism, 2, swQueues, 10, 10, 10, 10,100);
+        NetworkNode node2 = new Router("node2", qosMechanism, 2, swQueues2, 10, 10, 10, 10,100);
 
 
-        Edge edge = new Edge(100, node1, node2, 10);
+        Edge edge = new Edge(100, node1, node2, 10,0.0);
         edge.setLength(2);
 
         TopologyManager topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(node1, node2));
@@ -134,7 +135,7 @@ public class QueueingHelperTest {
 
         PacketManager packetManager = new PacketManager(timer);
 
-        Packet p1 = new Packet(10, node2, node1, packetManager, null, 10);
+        Packet p1 = new Packet(10, node2, node1, Layer4TypeEnum.UDP, packetManager, null, 10);
 
         //test method... finally ... and test it on multiple test cases
 

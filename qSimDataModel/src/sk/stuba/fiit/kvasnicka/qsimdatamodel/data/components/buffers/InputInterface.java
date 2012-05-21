@@ -1,8 +1,9 @@
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers;
 
 import org.apache.log4j.Logger;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.PacketCrcErrorException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
@@ -15,8 +16,10 @@ import java.util.Map;
 public class InputInterface {
     private static final Logger logg = Logger.getLogger(InputInterface.class);
 
-    //what newtork node is on the other end of the wire
-    private NetworkNode networkNodeFrom;
+    /**
+     * edge that is connected to this intput interface
+     */
+    private Edge edge;
     private int maxTxSize;
     /**
      * key = fragmentID
@@ -24,14 +27,14 @@ public class InputInterface {
      */
     private Map<String, Integer> fragmentMap;
 
-    public InputInterface(NetworkNode networkNodeFrom, int maxTxSize) {
+    public InputInterface(Edge edge, int maxTxSize) {
         if (maxTxSize == - 1) {
             this.maxTxSize = - 1;
         } else {
             this.maxTxSize = maxTxSize;
         }
-        this.networkNodeFrom = networkNodeFrom;
 
+        this.edge = edge;
         fragmentMap = new HashMap<String, Integer>();
     }
 
@@ -41,7 +44,7 @@ public class InputInterface {
      * @param fragment received fragment
      * @return reference to Packet objekt when all fragments are received; null if there are some fragments to be received
      */
-    public Packet fragmentReceived(Fragment fragment) throws NotEnoughBufferSpaceException {
+    public Packet fragmentReceived(Fragment fragment) throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         if (! fragmentMap.containsKey(fragment.getFragmentID())) {//this is the first fragment I received
 
             if (fragment.getFragmentCountTotal() == 1) {//there is only one fragment
@@ -61,11 +64,22 @@ public class InputInterface {
         if (recievedFragments + 1 == fragment.getFragmentCountTotal()) { //fragment I've just received is the last one - the packet is compete
             fragmentMap.remove(fragment.getFragmentID());
             fragment.getOriginalPacket().setSimulationTime(fragment.getReceivedTime());
+            if (! isPacketCrcOK()) {
+                throw new PacketCrcErrorException(fragment.getOriginalPacket());
+            }
+
             return fragment.getOriginalPacket();
         }
 
         fragmentMap.put(fragment.getFragmentID(), recievedFragments + 1);
         return null;
+    }
+
+    private boolean isPacketCrcOK() {
+        if (Math.random() <= edge.getPacketErrorRate()) {
+            return false;
+        }
+        return true;
     }
 
     public int getNumberOfFragments() {
@@ -82,5 +96,17 @@ public class InputInterface {
 
     public boolean isEmpty() {
         return fragmentMap.isEmpty();
+    }
+
+    /**
+     * removes all fragments with the same fragmentID
+     *
+     * @param fragmentID fragment's ID
+     */
+    public void removeFragments(String fragmentID) {
+        if (! fragmentMap.containsKey(fragmentID)) {//this should not happen
+            return;
+        }
+        fragmentMap.remove(fragmentID);
     }
 }

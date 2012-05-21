@@ -17,10 +17,6 @@ import java.util.List;
 /**
  * Simulation timer that awakes and do all the simulation stuff.
  * Simple javax.swing.Timer is used.
- * what does timer do? (order is important)
- * 1. generates new packets for all simulation rules
- * 2. checks all network nodes and processes all packets that are in "on the wire" state
- * 3. changes network node statistics
  *
  * @author Igor Kvasnicka
  */

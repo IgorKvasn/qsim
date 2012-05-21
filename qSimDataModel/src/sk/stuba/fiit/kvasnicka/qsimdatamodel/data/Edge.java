@@ -22,6 +22,12 @@ public class Edge {
      * all fragments that are on the wire
      */
     private List<Fragment> fragments = new LinkedList<Fragment>();
+    /**
+     * probability that packet will be erroneous
+     * its value is from 0 (included) to 1 (included)
+     * 0 means that all packets are OK; 1 means that all packets are CRC wrong
+     */
+    private double packetErrorRate;
 
     /**
      * creates new instance of Edge object with speed parameter defined do not
@@ -30,9 +36,10 @@ public class Edge {
      * @param speed bitrate [bit/s]
      * @param mtu   maximum transfer unit
      */
-    public Edge(long speed, NetworkNode node1, NetworkNode node2, int mtu) {//fixme mozno mtu nebude ako argument, ale podobne ako speed a length sa bude nastavovat neskor
+    public Edge(long speed, NetworkNode node1, NetworkNode node2, int mtu, double packetErrorRate) {//fixme mozno mtu a packetErrorRate nebude ako argument, ale podobne ako speed a length sa bude nastavovat neskor
         this.speed = speed;
         this.mtu = mtu;
+        this.packetErrorRate = packetErrorRate;
         length = - 1;
         this.node1 = node1;
         this.node2 = node2;
@@ -42,12 +49,21 @@ public class Edge {
      * used when in time of creating new instance, speed and length parameters
      * are not known yet
      */
-    public Edge(NetworkNode node1, NetworkNode node2, int mtu) { //fixme ako v tom druhom konstruktore
+    public Edge(NetworkNode node1, NetworkNode node2, int mtu, double packetErrorRate) { //fixme ako v tom druhom konstruktore
         this.mtu = mtu;
+        this.packetErrorRate = packetErrorRate;
         speed = - 1;
         length = - 1;
         this.node1 = node1;
         this.node2 = node2;
+    }
+
+    public void setPacketErrorRate(double packetErrorRate) {
+        this.packetErrorRate = packetErrorRate;
+    }
+
+    public double getPacketErrorRate() {
+        return packetErrorRate;
     }
 
 

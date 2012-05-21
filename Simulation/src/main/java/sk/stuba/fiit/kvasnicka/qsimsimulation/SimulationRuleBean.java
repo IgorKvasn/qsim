@@ -7,6 +7,7 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation;
 import lombok.Getter;
 import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 
 import java.util.HashMap;
@@ -49,6 +50,7 @@ public class SimulationRuleBean {
      * this also allows to create new simulation rules at runtime (e.g. "ping") without affecting other routing tables
      */
     private HashMap<String, NetworkNode> routes;//key=current network node name; value=next hop network node
+    private Layer4TypeEnum layer4Type;
 
 
     /**
@@ -64,10 +66,11 @@ public class SimulationRuleBean {
      * @param repeat          -1 if infinity
      * @param packetTypeEnum
      */
-    public SimulationRuleBean(NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, boolean automatic, double activeDelay, int repeat, PacketTypeEnum packetTypeEnum) {
+    public SimulationRuleBean(NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, boolean automatic, double activeDelay, int repeat, PacketTypeEnum packetTypeEnum, Layer4TypeEnum layer4Type) {
         this.activationTime = activeDelay;
         this.repeat = repeat;
         this.packetTypeEnum = packetTypeEnum;
+        this.layer4Type = layer4Type;
         this.active = false;
         this.source = source;
         this.destination = destination;

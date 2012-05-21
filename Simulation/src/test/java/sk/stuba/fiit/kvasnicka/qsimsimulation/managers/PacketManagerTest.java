@@ -13,6 +13,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
@@ -67,11 +68,11 @@ public class PacketManagerTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, 2, swQueues, 200, 10, 10, 10);
-        node2 = new Router("node2", qosMechanism, 2, swQueues2, 200, 10, 10, 10);
+        node1 = new Router("node1", qosMechanism, 2, swQueues, 200, 10, 10, 10, 100);
+        node2 = new Router("node2", qosMechanism, 2, swQueues2, 200, 10, 10, 10, 100);
 
 
-        edge = new Edge(100, node1, node2, 100);
+        edge = new Edge(100, node1, node2, 100, 0.0);
         edge.setLength(2);
 
         topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(node1, node2));
@@ -93,13 +94,13 @@ public class PacketManagerTest {
     public void testInitPackets() throws Exception {
         //--------prepare
 
-        Packet p1 = new Packet(10, node2, node1, packetManager, null, simulationTime);
-        Packet p2 = new Packet(10, node2, node1, packetManager, null, simulationTime);
+        Packet p1 = new Packet(10, node2, node1, Layer4TypeEnum.UDP, packetManager, null, simulationTime);
+        Packet p2 = new Packet(10, node2, node1, Layer4TypeEnum.UDP, packetManager, null, simulationTime);
 
         initRoute(p1, p2);
 
         //------run
-        packetManager.initPackets(node1, Arrays.asList(p1, p2), simulationTime);
+        packetManager.initPackets(node1, Arrays.asList(p1, p2));
 
         //-------assert
         assertNotNull(node1.getTxInterfaces());
@@ -109,7 +110,7 @@ public class PacketManagerTest {
     }
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean(node1, node2, 1, 1, true, 10, 0, PacketTypeEnum.AUDIO_PACKET);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean(node1, node2, 1, 1, true, 10, 0, PacketTypeEnum.AUDIO_PACKET,Layer4TypeEnum.UDP);
         simulationRuleBean.addRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {
