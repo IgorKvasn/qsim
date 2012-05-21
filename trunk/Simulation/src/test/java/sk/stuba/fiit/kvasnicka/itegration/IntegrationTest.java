@@ -14,6 +14,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
@@ -65,15 +66,15 @@ public class IntegrationTest {
         }).times(100);
         EasyMock.replay(qosMechanism);
 
-        node1 = new Router("node1", qosMechanism, 2, swQueues, 10, 10, 10, 10);
-        node2 = new Router("node2", qosMechanism, 2, swQueues2, 10, 10, 10, 10);
-        node3 = new Router("node3", qosMechanism, 2, swQueues2, 10, 10, 10, 10);
+        node1 = new Router("node1", qosMechanism, 2, swQueues, 10, 10, 10, 10, 100);
+        node2 = new Router("node2", qosMechanism, 2, swQueues2, 10, 10, 10, 10, 100);
+        node3 = new Router("node3", qosMechanism, 2, swQueues2, 10, 10, 10, 10, 100);
 
 
-        edge1 = new Edge(100, node1, node2, 100);
+        edge1 = new Edge(100, node1, node2, 100, 0.0);
         edge1.setLength(2);
 
-        edge2 = new Edge(100, node2, node3, 100);
+        edge2 = new Edge(100, node2, node3, 100, 0.0);
         edge2.setLength(3);
 //
 //        topologyManager = new TopologyManager(Arrays.asList(edge1, edge2), Arrays.asList(node1, node2, node3));
@@ -117,7 +118,7 @@ public class IntegrationTest {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, true, 0, 1, PacketTypeEnum.AUDIO_PACKET);
+        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, true, 0, 1, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
         rule.addRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
@@ -149,7 +150,7 @@ public class IntegrationTest {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, true, 0, 1, PacketTypeEnum.AUDIO_PACKET);
+        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, true, 0, 1, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
         rule.addRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
@@ -189,7 +190,7 @@ public class IntegrationTest {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, true, 0, 1, PacketTypeEnum.AUDIO_PACKET);
+        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, true, 0, 1, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
         rule.addRoute(Arrays.asList(node1, node2));
         simulationManager.addSimulationRule(rule);
 
@@ -219,7 +220,7 @@ public class IntegrationTest {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, true, 2, 1, PacketTypeEnum.AUDIO_PACKET);
+        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, true, 2, 1, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
         rule.addRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
@@ -256,7 +257,7 @@ public class IntegrationTest {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, true, 0, 3, PacketTypeEnum.AUDIO_PACKET);
+        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, true, 0, 3, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
         rule.addRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
@@ -281,7 +282,7 @@ public class IntegrationTest {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1, edge2), Arrays.asList(node1, node2, node3));
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean(node1, node3, 1, 50, true, 0, 1, PacketTypeEnum.AUDIO_PACKET);
+        SimulationRuleBean rule = new SimulationRuleBean(node1, node3, 1, 50, true, 0, 1, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
         rule.addRoute(Arrays.asList(node1, node2, node3));
 
         simulationManager.addSimulationRule(rule);

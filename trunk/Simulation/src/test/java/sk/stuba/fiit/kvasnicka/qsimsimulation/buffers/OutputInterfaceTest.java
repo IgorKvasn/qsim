@@ -15,6 +15,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.OutputInterface;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
@@ -46,6 +47,7 @@ public class OutputInterfaceTest {
     SwQueues swQueues, swQueues2;
     private final int MAX_TX_SIZE = 200;
     private final int MTU = 100;
+    private final Layer4TypeEnum layer4 = Layer4TypeEnum.UDP;
 
     @Before
     public void before() {
@@ -72,11 +74,11 @@ public class OutputInterfaceTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, 2, swQueues, MAX_TX_SIZE, 10, 10, 10);
-        node2 = new Router("node2", qosMechanism, 2, swQueues2, MAX_TX_SIZE, 10, 10, 10);
+        node1 = new Router("node1", qosMechanism, 2, swQueues, MAX_TX_SIZE, 10, 10, 10, 100);
+        node2 = new Router("node2", qosMechanism, 2, swQueues2, MAX_TX_SIZE, 10, 10, 10, 100);
 
 
-        edge = new Edge(100, node1, node2, MTU);
+        edge = new Edge(100, node1, node2, MTU, 0.0);
         edge.setLength(2);
 
         topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(node1, node2));
@@ -107,8 +109,8 @@ public class OutputInterfaceTest {
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(2);
         PowerMock.replay(DelayHelper.class);
 
-        Packet p1 = new Packet(64, node2, node1, packetManager, null, 10);
-        Packet p2 = new Packet(64, node2, node1, packetManager, null, 30);
+        Packet p1 = new Packet(64, node2, node1, layer4, packetManager, null, 10);
+        Packet p2 = new Packet(64, node2, node1, layer4, packetManager, null, 30);
 
         initRoute(p1, p2);
 
@@ -142,9 +144,9 @@ public class OutputInterfaceTest {
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(2);
         PowerMock.replay(DelayHelper.class);
 
-        Packet p1 = new Packet(MTU / 2, node2, node1, packetManager, null, 10);//OK
-        Packet p2 = new Packet(MTU / 2, node2, node1, packetManager, null, 12); //OK;packet will be ready to serialise after previous serialisation ends
-        Packet p3 = new Packet(MTU / 2, node2, node1, packetManager, null, 50); //packet will be ready to serialise some after simulation time
+        Packet p1 = new Packet(MTU / 2, node2, node1, layer4, packetManager, null, 10);//OK
+        Packet p2 = new Packet(MTU / 2, node2, node1, layer4, packetManager, null, 12); //OK;packet will be ready to serialise after previous serialisation ends
+        Packet p3 = new Packet(MTU / 2, node2, node1, layer4, packetManager, null, 50); //packet will be ready to serialise some after simulation time
 
         initRoute(p1, p2, p3);
 
@@ -179,8 +181,8 @@ public class OutputInterfaceTest {
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(2);
         PowerMock.replay(DelayHelper.class);
 
-        Packet p1 = new Packet(MTU / 2, node2, node1, packetManager, null, 10);
-        Packet p2 = new Packet(MTU / 2, node2, node1, packetManager, null, 12);
+        Packet p1 = new Packet(MTU / 2, node2, node1, layer4, packetManager, null, 10);
+        Packet p2 = new Packet(MTU / 2, node2, node1, layer4, packetManager, null, 12);
 
         initRoute(p1, p2);
 
@@ -220,9 +222,9 @@ public class OutputInterfaceTest {
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(3);
         PowerMock.replay(DelayHelper.class);
 
-        Packet p1 = new Packet(MTU / 2, node2, node1, packetManager, null, 10);
-        Packet p2 = new Packet(MTU / 2, node2, node1, packetManager, null, 9);
-        Packet p3 = new Packet(MTU / 2, node2, node1, packetManager, null, 25);
+        Packet p1 = new Packet(MTU / 2, node2, node1, layer4, packetManager, null, 10);
+        Packet p2 = new Packet(MTU / 2, node2, node1, layer4, packetManager, null, 9);
+        Packet p3 = new Packet(MTU / 2, node2, node1, layer4, packetManager, null, 25);
 
         initRoute(p1, p2, p3);
 
@@ -258,9 +260,9 @@ public class OutputInterfaceTest {
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(3);
         PowerMock.replay(DelayHelper.class);
 
-        Packet p1 = new Packet(MTU / 2, node2, node1, packetManager, null, 10);
-        Packet p2 = new Packet(MTU / 2, node2, node1, packetManager, null, 9);
-        Packet p3 = new Packet(MTU / 2, node2, node1, packetManager, null, 25);
+        Packet p1 = new Packet(MTU / 2, node2, node1, layer4, packetManager, null, 10);
+        Packet p2 = new Packet(MTU / 2, node2, node1, layer4, packetManager, null, 9);
+        Packet p3 = new Packet(MTU / 2, node2, node1, layer4, packetManager, null, 25);
 
         initRoute(p1, p2, p3);
 
@@ -298,9 +300,9 @@ public class OutputInterfaceTest {
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(3);
         PowerMock.replay(DelayHelper.class);
 
-        Packet p1 = new Packet(MTU / 2, node2, node1, packetManager, null, 10);
-        Packet p2 = new Packet(MTU / 2, node2, node1, packetManager, null, 9);
-        Packet p3 = new Packet(MTU / 2, node2, node1, packetManager, null, 25);
+        Packet p1 = new Packet(MTU / 2, node2, node1, layer4, packetManager, null, 10);
+        Packet p2 = new Packet(MTU / 2, node2, node1, layer4, packetManager, null, 9);
+        Packet p3 = new Packet(MTU / 2, node2, node1, layer4, packetManager, null, 25);
 
         initRoute(p1, p2, p3);
 
@@ -324,7 +326,7 @@ public class OutputInterfaceTest {
     }
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean(node1, node2, 1, 1, true, 10, 0, PacketTypeEnum.AUDIO_PACKET);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean(node1, node2, 1, 1, true, 10, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
         simulationRuleBean.addRoute(Arrays.asList(node1, node2));
         for (Packet p : packets) {
             Field f = null;

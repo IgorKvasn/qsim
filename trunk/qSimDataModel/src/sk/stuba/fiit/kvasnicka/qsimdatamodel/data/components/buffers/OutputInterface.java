@@ -72,13 +72,14 @@ public class OutputInterface {
         for (Iterator<Fragment> iterator = fragments.iterator(); iterator.hasNext(); ) {   //iterate through all the fragments in TX
             Fragment fragment = iterator.next();
 
-            if (serialisationEndTime >= fragment.getReceivedTime() ) {//this fragment will be ready to send after previous serialisation ends
-                fragment.setReceivedTime(serialisationEndTime);//new fragment can be serialised after the previous one is finished
-            }
-
             if (fragment.getReceivedTime() > simulationTime) {//this fragment is not ready to serialise, yet
                 continue;
             }
+
+            if (serialisationEndTime >= fragment.getReceivedTime()) {//this fragment will be ready to send after previous serialisation ends
+                fragment.setReceivedTime(serialisationEndTime);//new fragment can be serialised after the previous one is finished
+            }
+
 
             if (simulationTime > serialisationEndTime) {//all fragments are serialised until given simulation time
                 serialisationEndTime = 0;
