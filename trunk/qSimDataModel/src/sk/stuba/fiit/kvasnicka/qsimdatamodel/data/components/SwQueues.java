@@ -21,7 +21,8 @@ public class SwQueues {
     private QueueDefinition[] queues;
 
     public SwQueues(QueueDefinition[] queues) {
-        this.queues = queues;
+        this.queues = new QueueDefinition[queues.length];
+        System.arraycopy(queues, 0, this.queues, 0, queues.length); //http://pmd.sourceforge.net/rules/sunsecure.html
     }
 
     public int getQueueCount() {

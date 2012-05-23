@@ -68,8 +68,8 @@ public class PacketManagerTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, 2, swQueues, 200, 10, 10, 10, 100);
-        node2 = new Router("node2", qosMechanism, 2, swQueues2, 200, 10, 10, 10, 100);
+        node1 = new Router("node1", qosMechanism, swQueues, 200, 10, 10, 100);
+        node2 = new Router("node2", qosMechanism, swQueues2, 200, 10, 10, 100);
 
 
         edge = new Edge(100, node1, node2, 100, 0.0);

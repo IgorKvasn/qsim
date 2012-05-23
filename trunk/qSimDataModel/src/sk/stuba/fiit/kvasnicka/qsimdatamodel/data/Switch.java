@@ -16,13 +16,14 @@ import java.util.Map;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Switch extends NetworkNode {
+    private static final long serialVersionUID = 1L;
 
     /**
      * creates new Switch instance
      *
      * @param name default name of the switch
      */
-    public Switch(String name, QosMechanism qosMechanism, int queueCount, SwQueues queues, int maxTxBufferSize, int maxIntputQueueSize, int maxOutputQueueSize, int maxProcessingPackets, double tcpDelay) {
+    public Switch(String name, QosMechanism qosMechanism, SwQueues queues, int maxTxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay) {
         super(name, qosMechanism, queues, maxTxBufferSize, maxIntputQueueSize, maxProcessingPackets, tcpDelay);
     }
 

@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * @author Igor Kvasnicka
  */
-public class Edge {
+public class Edge {       //todo preco edge nie je serialisable ale vsetky network nody (computer, router, switch) su?
 
     private static final Logger logg = Logger.getLogger(Edge.class);
     private long speed;

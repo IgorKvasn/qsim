@@ -66,9 +66,9 @@ public class IntegrationTest {
         }).times(100);
         EasyMock.replay(qosMechanism);
 
-        node1 = new Router("node1", qosMechanism, 2, swQueues, 10, 10, 10, 10, 100);
-        node2 = new Router("node2", qosMechanism, 2, swQueues2, 10, 10, 10, 10, 100);
-        node3 = new Router("node3", qosMechanism, 2, swQueues2, 10, 10, 10, 10, 100);
+        node1 = new Router("node1", qosMechanism, swQueues, 10, 10, 10, 100);
+        node2 = new Router("node2", qosMechanism, swQueues2, 10, 10, 10, 100);
+        node3 = new Router("node3", qosMechanism, swQueues2, 10, 10, 10, 100);
 
 
         edge1 = new Edge(100, node1, node2, 100, 0.0);

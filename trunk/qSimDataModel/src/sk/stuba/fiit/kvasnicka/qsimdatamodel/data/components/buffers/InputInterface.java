@@ -48,6 +48,9 @@ public class InputInterface {
         if (! fragmentMap.containsKey(fragment.getFragmentID())) {//this is the first fragment I received
 
             if (fragment.getFragmentCountTotal() == 1) {//there is only one fragment
+                if (! isPacketCrcOK()) {
+                    throw new PacketCrcErrorException(fragment.getOriginalPacket());
+                }
                 fragment.getOriginalPacket().setSimulationTime(fragment.getReceivedTime());
                 return fragment.getOriginalPacket();
             }
@@ -77,6 +80,7 @@ public class InputInterface {
 
     private boolean isPacketCrcOK() {
         if (Math.random() <= edge.getPacketErrorRate()) {
+            logg.debug("packet is CRC wrong");
             return false;
         }
         return true;

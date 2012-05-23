@@ -133,9 +133,9 @@ public class SimulationTimer implements ActionListener {
                 logg.debug("there is nothing left to simulate");
                 timer.stop();
             }
-        } catch (Throwable throwable) {
+        } catch (Exception e) {
             //just to make it fail-safe catch all possible problems
-            logg.error("Error during timer execution", throwable);
+            logg.error("Error during timer execution", e);
         }
     }
 

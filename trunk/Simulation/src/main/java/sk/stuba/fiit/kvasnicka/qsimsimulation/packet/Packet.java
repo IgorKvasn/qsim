@@ -103,8 +103,15 @@ public class Packet {
 
     public NetworkNode getNextHopNetworkNode(NetworkNode currentNode) {
         if (simulationRule == null) {
-            throw new IllegalStateException("simulaiton rule for this packet is NULL - it has not been properly initialised");
+            throw new IllegalStateException("simulation rule for this packet is NULL - it has not been properly initialised");
         }
         return simulationRule.getNextHopFromRoutingTable(currentNode);
+    }
+
+    public NetworkNode getPreviousHopNetworkNode(NetworkNode currentNode) {
+        if (simulationRule == null) {
+            throw new IllegalStateException("simulation rule for this packet is NULL - it has not been properly initialised");
+        }
+        return simulationRule.getPreviousHopFromRoutingTable(currentNode);
     }
 }
