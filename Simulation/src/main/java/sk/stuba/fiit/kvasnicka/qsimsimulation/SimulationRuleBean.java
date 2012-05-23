@@ -12,6 +12,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * this bean represents user definition of a simulation rule
@@ -49,9 +50,37 @@ public class SimulationRuleBean {
      * e.g: A-B-C-D and A-X-C-Y-D (the same source, destination and one network node in the middle)
      * this also allows to create new simulation rules at runtime (e.g. "ping") without affecting other routing tables
      */
-    private HashMap<String, NetworkNode> routes;//key=current network node name; value=next hop network node
+    private Map<NetworkNode, NetworkNode> routes;//key=current network node; value=next hop network node
     private Layer4TypeEnum layer4Type;
+    private boolean ping;
 
+    /**
+     * creates new simulation rule
+     * all arguments are self-explained
+     *
+     * @param source
+     * @param destination
+     * @param numberOfPackets
+     * @param packetSize
+     * @param automatic
+     * @param activeDelay
+     * @param repeat          -1 if infinity
+     * @param packetTypeEnum
+     */
+    public SimulationRuleBean(NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, boolean automatic, double activeDelay, int repeat, PacketTypeEnum packetTypeEnum, Layer4TypeEnum layer4Type, boolean ping) {
+        this.activationTime = activeDelay;
+        this.repeat = repeat;
+        this.packetTypeEnum = packetTypeEnum;
+        this.layer4Type = layer4Type;
+        this.ping = ping;
+        this.active = false;
+        this.source = source;
+        this.destination = destination;
+        this.numberOfPackets = numberOfPackets;
+        this.packetSize = packetSize;
+        this.automatic = automatic;
+        routes = new HashMap<NetworkNode, NetworkNode>();
+    }
 
     /**
      * creates new simulation rule
@@ -71,13 +100,14 @@ public class SimulationRuleBean {
         this.repeat = repeat;
         this.packetTypeEnum = packetTypeEnum;
         this.layer4Type = layer4Type;
+        this.ping = false;
         this.active = false;
         this.source = source;
         this.destination = destination;
         this.numberOfPackets = numberOfPackets;
         this.packetSize = packetSize;
         this.automatic = automatic;
-        routes = new HashMap<String, NetworkNode>();
+        routes = new HashMap<NetworkNode, NetworkNode>();
     }
 
     /**
@@ -115,13 +145,6 @@ public class SimulationRuleBean {
         routes.clear();
     }
 
-    public boolean containsRoute(String nextHop) {
-        if (nextHop == null) {
-            throw new IllegalArgumentException("nextHop is NULL");
-        }
-        return routes.containsKey(nextHop);
-    }
-
 
     /**
      * adds new routing rule (new route) to routing table
@@ -136,14 +159,32 @@ public class SimulationRuleBean {
         }
 
         for (int i = 0; i < route.size() - 1; i++) {
-            routes.put(route.get(i).getName(), route.get(i + 1));
+            routes.put(route.get(i), route.get(i + 1));
         }
     }
 
     public NetworkNode getNextHopFromRoutingTable(NetworkNode currentNode) {
-        if (! routes.containsKey(currentNode.getName())) {
-            throw new IllegalStateException("cannto find route for destination: " + getDestination() + " from " + currentNode);
+        if (! routes.containsKey(currentNode)) {
+            throw new IllegalStateException("cannot find route for destination: " + getDestination() + " from " + currentNode);
         }
-        return routes.get(currentNode.getName());
+        return routes.get(currentNode);
+    }
+
+    /**
+     * finds network node that was previous hop
+     *
+     * @param currentNode network node, where packet is currently placed
+     * @return previous network node
+     */
+    public NetworkNode getPreviousHopFromRoutingTable(NetworkNode currentNode) {
+        if (! routes.containsValue(currentNode)) {
+            throw new IllegalStateException("cannot find previous network node for: " + currentNode);
+        }
+        for (NetworkNode node : routes.keySet()) {
+            if (routes.get(node).equals(currentNode)) {//this is the route I came here
+                return node;
+            }
+        }
+        throw new IllegalStateException("node I am looking for is in the routing table, but I cannot find it: " + currentNode);
     }
 }

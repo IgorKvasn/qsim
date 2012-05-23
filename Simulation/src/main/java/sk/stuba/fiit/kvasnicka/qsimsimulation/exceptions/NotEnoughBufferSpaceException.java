@@ -5,5 +5,6 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions;
  */
 public class NotEnoughBufferSpaceException extends Exception {
     public NotEnoughBufferSpaceException(String s) {
+        super(s);
     }
 }

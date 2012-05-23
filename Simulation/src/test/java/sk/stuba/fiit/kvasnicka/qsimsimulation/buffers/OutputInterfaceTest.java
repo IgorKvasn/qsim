@@ -74,8 +74,8 @@ public class OutputInterfaceTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, 2, swQueues, MAX_TX_SIZE, 10, 10, 10, 100);
-        node2 = new Router("node2", qosMechanism, 2, swQueues2, MAX_TX_SIZE, 10, 10, 10, 100);
+        node1 = new Router("node1", qosMechanism, swQueues, MAX_TX_SIZE, 10, 10, 100);
+        node2 = new Router("node2", qosMechanism, swQueues2, MAX_TX_SIZE, 10, 10, 100);
 
 
         edge = new Edge(100, node1, node2, MTU, 0.0);

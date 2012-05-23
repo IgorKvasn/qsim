@@ -11,13 +11,14 @@ import javax.xml.bind.annotation.XmlAccessorType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Router extends NetworkNode {
+    private static final long serialVersionUID = 1L;
 
     /**
      * creates new Router instance
      *
      * @param name default name of the router
      */
-    public Router(String name, QosMechanism qosMechanism, int queueCount, SwQueues queues, int maxTxBufferSize, int maxIntputQueueSize, int maxOutputQueueSize, int maxProcessingPackets, double tcpDelay) {
+    public Router(String name, QosMechanism qosMechanism, SwQueues queues, int maxTxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay) {
         super(name, qosMechanism, queues, maxTxBufferSize, maxIntputQueueSize, maxProcessingPackets, tcpDelay);
     }
 

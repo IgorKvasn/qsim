@@ -104,7 +104,7 @@ public class TopologyManager {
     }
 
 
-    private static class CacheKey {
+    private static final class CacheKey {
         private String node1, node2;
 
         private CacheKey(String node1, String node2) {

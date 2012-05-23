@@ -14,6 +14,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.QueueingHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.PingPacket;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -59,7 +60,7 @@ public abstract class NetworkNode implements Serializable {
     @XmlTransient
     protected Map<Class, Integer> routingRules;
     @Getter
-    public QosMechanism qosMechanism;
+    private QosMechanism qosMechanism;
 
 
     @XmlTransient
@@ -91,7 +92,6 @@ public abstract class NetworkNode implements Serializable {
      */
     private List<Packet> outputQueue;
 
-
     @Setter
     @Getter
     private TopologyManager topologyManager;
@@ -99,6 +99,7 @@ public abstract class NetworkNode implements Serializable {
      * maximum number of simultaneously processed packets
      */
     private int maxProcessingPackets;
+    @Getter
     private double tcpDelay;
 
 
@@ -235,6 +236,13 @@ public abstract class NetworkNode implements Serializable {
      */
     private void packetIsDelivered(Packet packet) {
         logg.debug("packet has been delivered to destination " + packet.getDestination() + " - it took " + (packet.getSimulationTime() - packet.getCreationTime()) + "msec");
+        if (packet instanceof PingPacket) {
+            ((PingPacket) packet).setRoundTriptime(packet.getSimulationTime());
+            if (packet.getSimulationRule().isPing()) {
+                //todo tu otocit source a destination a znovu inicializovat paket - v sim, rule musi byt flag, v akom stadiu som - ci som to uz poslal z A-B alebo este nie
+                //todo pripadne urobit SimulationRulePingBean extends SimulationRuleBean
+            }
+        }
     }
 
 
@@ -384,9 +392,8 @@ public abstract class NetworkNode implements Serializable {
             return;
         } catch (PacketCrcErrorException e) {
             logg.debug("packet has wrong CRC");
-
-            if (fragment.getOriginalPacket().getLayer4().isRetransmissionEnabled()) {
-                //todo retransmisia
+            if (e.getPacket().getLayer4().isRetransmissionEnabled()) {
+                retransmittPacket(e.getPacket());
             }
             return;
         }
@@ -424,8 +431,10 @@ public abstract class NetworkNode implements Serializable {
      * @param packet packet to send
      */
     public void retransmittPacket(Packet packet) {
-        packet.setSimulationTime(packet.getSimulationTime() + tcpDelay);
-        moveFromProcessingToOutputQueue(packet);
+        NetworkNode nodePrevious = packet.getPreviousHopNetworkNode(this);
+        logg.debug("packet retransmission from node: " + nodePrevious);
+        packet.setSimulationTime(packet.getSimulationTime() + nodePrevious.getTcpDelay());
+        nodePrevious.moveFromProcessingToOutputQueue(packet);
     }
 
     /**

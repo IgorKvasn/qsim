@@ -1,6 +1,5 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation.helpers;
 
-import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
@@ -13,9 +12,6 @@ import java.util.UUID;
  * @author Igor Kvasnicka
  */
 public abstract class QueueingHelper {
-    private final static Logger logg = Logger.getLogger(QueueingHelper.class);
-
-
 
     /**
      * calculates, how big [bytes] is a fragment - most fragments are as big as MTU, but the last one is smaller (in most cases)
