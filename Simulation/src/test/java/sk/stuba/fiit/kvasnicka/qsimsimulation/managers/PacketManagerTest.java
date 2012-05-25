@@ -94,8 +94,8 @@ public class PacketManagerTest {
     public void testInitPackets() throws Exception {
         //--------prepare
 
-        Packet p1 = new Packet(10, node2, node1, Layer4TypeEnum.UDP, packetManager, null, simulationTime);
-        Packet p2 = new Packet(10, node2, node1, Layer4TypeEnum.UDP, packetManager, null, simulationTime);
+        Packet p1 = new Packet(10, Layer4TypeEnum.UDP, packetManager, null, simulationTime);
+        Packet p2 = new Packet(10, Layer4TypeEnum.UDP, packetManager, null, simulationTime);
 
         initRoute(p1, p2);
 
@@ -110,7 +110,7 @@ public class PacketManagerTest {
     }
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean(node1, node2, 1, 1, true, 10, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean(node1, node2, 1, 1, 10, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
         simulationRuleBean.addRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {

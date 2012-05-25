@@ -38,7 +38,7 @@ public class PingManager implements PingPacketDeliveredListener {
      */
     private SimulationRuleBean createBackPingSimulationRule(SimulationRuleBean simulationRule) {
         //just switch source and destination nodes
-        SimulationRuleBean rule = new SimulationRuleBean(simulationRule.getDestination(), simulationRule.getSource(), simulationRule.getNumberOfPackets(), simulationRule.getPacketSize(), true, 0, simulationRule.getPacketTypeEnum(), simulationRule.getLayer4Type(), true);
+        SimulationRuleBean rule = new SimulationRuleBean(simulationRule.getDestination(), simulationRule.getSource(), simulationRule.getNumberOfPackets(), simulationRule.getPacketSize(), 0, simulationRule.getPacketTypeEnum(), simulationRule.getLayer4Type(), true);
         List<NetworkNode> newRoute = new LinkedList<NetworkNode>(simulationRule.getRoute());
         Collections.reverse(newRoute);//also switch route
         rule.addRoute(newRoute);
@@ -75,7 +75,7 @@ public class PingManager implements PingPacketDeliveredListener {
         return def.originalSimRule;
     }
 
-    private static class PingDefinition {
+    private static final class PingDefinition {
         private int repetitions; //-1 if infinity
         private SimulationRuleBean backSimRule;
         private SimulationRuleBean originalSimRule;
@@ -90,6 +90,7 @@ public class PingManager implements PingPacketDeliveredListener {
 
         private void decreaseRepetitions() {
             if (repetitions == - 1) { //infinite repetitions
+                return;
             }
             repetitions--;
         }

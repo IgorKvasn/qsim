@@ -90,6 +90,7 @@ public class IntegrationTest {
      */
     @Test
     public void testNosimulationRules() {
+
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
 
         simulationManager = new SimulationManager();
@@ -106,17 +107,10 @@ public class IntegrationTest {
      */
     @Test
     public void testSinglePacketSimulation() throws NoSuchFieldException, IllegalAccessException {
-
-//        System.out.println("Processing delay node2: " + DelayHelper.calculateProcessingDelay(node2));
-//        System.out.println("Serialisation delay: " + DelayHelper.calculateSerialisationDelay(edge1, 50));
-//        System.out.println("Propagation delay: " + DelayHelper.calculatePropagationDelay(edge1));
-//        double sumTime = (DelayHelper.calculateProcessingDelay(node2) + 2 * DelayHelper.calculateSerialisationDelay(edge1, 50) + DelayHelper.calculatePropagationDelay(edge1));
-//        System.out.println("Delay sum: " + sumTime);
-
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, true, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
+        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
         rule.addRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
@@ -138,17 +132,10 @@ public class IntegrationTest {
      */
     @Test
     public void testMultiplePacketsSimulation() throws NoSuchFieldException, IllegalAccessException {
-
-        //        System.out.println("Processing delay node2: " + DelayHelper.calculateProcessingDelay(node2));
-        //        System.out.println("Serialisation delay: " + DelayHelper.calculateSerialisationDelay(edge1, 50));
-        //        System.out.println("Propagation delay: " + DelayHelper.calculatePropagationDelay(edge1));
-        double sumTime = (DelayHelper.calculateProcessingDelay(node2) + 2 * DelayHelper.calculateSerialisationDelay(edge1, 50) + DelayHelper.calculatePropagationDelay(edge1));
-        //        System.out.println("Delay sum: " + sumTime);
-
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, true, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
+        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
         rule.addRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
@@ -178,17 +165,10 @@ public class IntegrationTest {
 
         PowerMock.replay(DelayHelper.class);
 
-
-        //        System.out.println("Processing delay node2: " + DelayHelper.calculateProcessingDelay(node2));
-        //        System.out.println("Serialisation delay: " + DelayHelper.calculateSerialisationDelay(edge1, 50));
-        //        System.out.println("Propagation delay: " + DelayHelper.calculatePropagationDelay(edge1));
-        double sumTime = (DelayHelper.calculateProcessingDelay(node2) + 2 * DelayHelper.calculateSerialisationDelay(edge1, 50) + DelayHelper.calculatePropagationDelay(edge1));
-        //        System.out.println("Delay sum: " + sumTime);
-
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, true, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
+        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
         rule.addRoute(Arrays.asList(node1, node2));
         simulationManager.addSimulationRule(rule);
 
@@ -208,17 +188,10 @@ public class IntegrationTest {
      */
     @Test
     public void testSimulationRuleActivationDelay() throws NoSuchFieldException, IllegalAccessException {
-
-        //        System.out.println("Processing delay node2: " + DelayHelper.calculateProcessingDelay(node2));
-        //        System.out.println("Serialisation delay: " + DelayHelper.calculateSerialisationDelay(edge1, 50));
-        //        System.out.println("Propagation delay: " + DelayHelper.calculatePropagationDelay(edge1));
-        double sumTime = (DelayHelper.calculateProcessingDelay(node2) + 2 * DelayHelper.calculateSerialisationDelay(edge1, 50) + DelayHelper.calculatePropagationDelay(edge1));
-        //        System.out.println("Delay sum: " + sumTime);
-
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, true, 2, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
+        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 2, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
         rule.addRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
@@ -250,12 +223,10 @@ public class IntegrationTest {
      */
     @Test
     public void testStopAndClearTimer() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
-
-
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, true, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
+        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
         rule.addRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
@@ -280,7 +251,7 @@ public class IntegrationTest {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1, edge2), Arrays.asList(node1, node2, node3));
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean(node1, node3, 1, 50, true, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
+        SimulationRuleBean rule = new SimulationRuleBean(node1, node3, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
         rule.addRoute(Arrays.asList(node1, node2, node3));
 
         simulationManager.addSimulationRule(rule);
@@ -293,6 +264,46 @@ public class IntegrationTest {
 
 
         assertFalse(timer.isRunning());
+
+        checkNoPacketsInTopology(timer);
+    }
+
+    /**
+     * starts simulation timer with one simulation rule
+     * after a few timer ticks, new rule will be added
+     * <p/>
+     * new rule should be activated, too
+     */
+    @Test
+    public void testSimulRuleAdd() throws NoSuchFieldException, IllegalAccessException {
+        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
+        simulationManager = new SimulationManager();
+
+        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
+        rule.addRoute(Arrays.asList(node1, node2));
+        simulationManager.addSimulationRule(rule);
+
+
+        timer.startSimulationTimer(simulationManager);     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
+
+        //perform 2 timer ticks
+        timer.actionPerformed(null);
+
+
+        //now create and add new simulation rule
+        SimulationRuleBean rule2 = new SimulationRuleBean(node1, node2, 1, 50, 1, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
+        rule2.addRoute(Arrays.asList(node1, node2));
+        simulationManager.addSimulationRule(rule2);
+        timer.actionPerformed(null);
+
+        //continue
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+
+
+        assertFalse("Simulation timer is still running", timer.isRunning());
 
         checkNoPacketsInTopology(timer);
     }

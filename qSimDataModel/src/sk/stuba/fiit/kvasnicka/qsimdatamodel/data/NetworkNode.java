@@ -46,7 +46,7 @@ import java.util.Map;
 @XmlSeeAlso({Router.class, Switch.class, Computer.class})
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class NetworkNode implements Serializable {
-    private static final Logger logg = Logger.getLogger(NetworkNode.class);
+    private static Logger logg = Logger.getLogger(NetworkNode.class);
 
 
     @Getter
@@ -239,7 +239,6 @@ public abstract class NetworkNode implements Serializable {
         logg.debug("packet has been delivered to destination " + packet.getDestination() + " - it took " + (packet.getSimulationTime() - packet.getCreationTime()) + "msec");
         if (packet.getSimulationRule().isPing()) {
             packet.getSimulationRule().firePingPacketDeliveredEvent(new PingPacketDeliveredEvent(this, packet));
-            //todo
         } else {
             packet.getSimulationRule().firePacketDeliveredEvent(new PacketDeliveredEvent(this, packet));
         }

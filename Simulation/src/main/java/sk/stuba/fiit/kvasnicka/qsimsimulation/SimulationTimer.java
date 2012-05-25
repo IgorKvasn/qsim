@@ -22,8 +22,8 @@ import java.util.List;
  * @author Igor Kvasnicka
  */
 public class SimulationTimer implements ActionListener {
-    private Logger logg = Logger.getLogger(SimulationTimer.class);
-    public static final double TIME_QUANTUM = DelayHelper.MIN_PROCESSING_DELAY + 1; //or also known as "timer delay" :) [msec]
+    private static Logger logg = Logger.getLogger(SimulationTimer.class);
+    public static final double TIME_QUANTUM = DelayHelper.MIN_PROCESSING_DELAY + .1; //or also known as "timer delay" :) [msec]
     private Timer timer;
     @Getter
     private PacketGenerator packetGenerator;
@@ -49,6 +49,9 @@ public class SimulationTimer implements ActionListener {
      * @param simulationManager reference to SimulationManager object
      */
     public void startSimulationTimer(SimulationManager simulationManager) {
+        if (timer != null && timer.isRunning()) {
+            throw new IllegalStateException("Simulation timer is already running.");
+        }
         if (packetManager != null) { //simulation has been started some time before
             packetManager.clearAllPackets();//clean-up all packets
         }
@@ -71,13 +74,18 @@ public class SimulationTimer implements ActionListener {
         pingManager.addPing(rule, repetitions);
     }
 
+    public void addSimulationrule(SimulationRuleBean rule) {
+        simulationManager.addSimulationRule(rule);
+    }
+
+
     /**
      * cancels simulation timer
      *
      * @see #clearSimulationData()
      */
     public void stopTimer() {
-        if (timer == null) throw new IllegalStateException("timer is NULL");
+        if (timer == null) throw new IllegalStateException("stopping timer: timer is NULL");
         logg.debug("stopping simulation timer");
         timer.stop();
         for (SimulationRuleBean rule : simulationManager.getRulesUnmodifiable()) {
@@ -86,11 +94,26 @@ public class SimulationTimer implements ActionListener {
     }
 
     /**
+     * pauses simulation timer
+     */
+    public void pauseTimer() {
+        if (timer == null) throw new IllegalStateException("pause timer: timer is NULL");
+        logg.debug("pause simulation timer");
+        timer.stop();
+    }
+
+    public void resumeTimer() {
+        if (timer == null) throw new IllegalStateException("resume timer: timer is NULL");
+        logg.debug("resuming simulation timer");
+        timer.start();
+    }
+
+    /**
      * clears all data left after the simulation process
      * use this method only when timer is stopped
      */
     public void clearSimulationData() {
-        if (timer == null) throw new IllegalStateException("timer is NULL");
+        if (timer == null) throw new IllegalStateException("clear simulation data: timer is NULL");
         if (timer.isRunning()) {
             throw new IllegalStateException("cannot clear simulation data - simulation timer is running");
         }
@@ -134,10 +157,6 @@ public class SimulationTimer implements ActionListener {
             for (NetworkNode node : packetManager.getNetworknodeList()) {
                 node.movePacketsToTheWire(simulationTime);
             }
-
-            //---------now calculate statistic data
-            //todo vypocitaj vyuzitie output queues
-
 
             //check if there is nothing more to simulate
             if (isEndOfSimulation()) {

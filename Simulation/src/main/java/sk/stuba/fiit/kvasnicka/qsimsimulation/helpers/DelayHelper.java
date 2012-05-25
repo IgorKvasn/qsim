@@ -1,6 +1,5 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation.helpers;
 
-import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
@@ -11,8 +10,6 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
  * @author Igor Kvasnicka
  */
 public abstract class DelayHelper {
-
-    private static final Logger logg = Logger.getLogger(DelayHelper.class);
 
     public static final double MIN_PROCESSING_DELAY = 0.5; //msec
 

@@ -135,7 +135,7 @@ public class QueueingHelperTest {
 
         PacketManager packetManager = new PacketManager(timer);
 
-        Packet p1 = new Packet(10, node2, node1, Layer4TypeEnum.UDP, packetManager, null, 10);
+        Packet p1 = new Packet(10, Layer4TypeEnum.UDP, packetManager, null, 10);
 
         //test method... finally ... and test it on multiple test cases
 

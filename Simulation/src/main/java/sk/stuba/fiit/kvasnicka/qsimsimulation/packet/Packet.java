@@ -17,8 +17,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 public class Packet {
 
     private int packetSize;
-    protected NetworkNode source;    //todo pouziva sa niekde tento source a destination? vsak sa to da vytiahnut zo simulationRule
-    protected NetworkNode destination;
+
     /**
      * number of queue where this packet belongs
      * this number is calculated during "marking" phase
@@ -51,16 +50,12 @@ public class Packet {
      * creates new Packet object
      *
      * @param size          size in Bytes
-     * @param destination   where is this packet headed to
-     * @param source        NetworkNode that created this packet
      * @param layer4        TCP/IP layer 4 protocol
      * @param packetManager reference to packet manager class
      * @param creationTime  simulation time, when this packet changes its state
      */
-    public Packet(int size, NetworkNode destination, NetworkNode source, Layer4TypeEnum layer4, PacketManager packetManager, SimulationRuleBean simulationRule, double creationTime) {
+    public Packet(int size, Layer4TypeEnum layer4, PacketManager packetManager, SimulationRuleBean simulationRule, double creationTime) {
         this.packetSize = size;
-        this.destination = destination;
-        this.source = source;
         this.layer4 = layer4;
         this.packetManager = packetManager;
         this.simulationRule = simulationRule;
@@ -84,6 +79,10 @@ public class Packet {
      */
     public PacketTypeEnum getPacketType() {
         return simulationRule.getPacketTypeEnum();
+    }
+
+    public NetworkNode getDestination() {
+        return simulationRule.getDestination();
     }
 
     /**

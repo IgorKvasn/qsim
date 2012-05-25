@@ -12,7 +12,7 @@ import java.util.List;
  * @author Igor Kvasnicka
  */
 public class PacketManager {
-    private static final Logger logg = Logger.getLogger(PacketManager.class);
+    private static Logger logg = Logger.getLogger(PacketManager.class);
     /**
      * here are all packets in states PROCESSING
      */

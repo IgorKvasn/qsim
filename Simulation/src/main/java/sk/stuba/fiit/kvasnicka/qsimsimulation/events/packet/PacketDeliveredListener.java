@@ -11,7 +11,7 @@ public interface PacketDeliveredListener extends EventListener {
      *
      * @param evt event that occured
      */
-    public void packetDeliveredOccurred(PacketDeliveredEvent evt);
+    void packetDeliveredOccurred(PacketDeliveredEvent evt);
 }
 
 

@@ -18,7 +18,7 @@ import java.util.List;
  * @author Igor Kvasnicka
  */
 public class PacketGenerator {
-    private static final Logger logg = Logger.getLogger(PacketGenerator.class);
+    private static Logger logg = Logger.getLogger(PacketGenerator.class);
 
     private List<SimulationRuleBean> simulationRules;
     private PacketManager packetManager;
@@ -41,11 +41,11 @@ public class PacketGenerator {
         for (SimulationRuleBean rule : simulationRules) {
             if (rule.isFinished()) continue; //I don't care about finished simulation rules
             if (rule.isActive()) {//rule has been activated and it is not finished yet
-                addPacketsToNetworkNode(timeQuantum, rule);
+                addPacketsToNetworkNode(timeQuantum, rule, simulationTime);
             } else {//check if the time came to activate this rule
                 if (checkRuleActivate(rule, simulationTime)) {//yes, I should activate it
                     rule.setActive(true);
-                    addPacketsToNetworkNode(timeQuantum, rule);
+                    addPacketsToNetworkNode(timeQuantum, rule, simulationTime);
                     rule.increaseActivationTime(timeQuantum);
                 }
             }
@@ -53,8 +53,8 @@ public class PacketGenerator {
     }
 
 
-    private void addPacketsToNetworkNode(double timeQuantum, SimulationRuleBean rule) {
-        List<Packet> packets = generatePacketsFromSimulRule(rule, timeQuantum);
+    private void addPacketsToNetworkNode(double timeQuantum, SimulationRuleBean rule, double simulationTime) {
+        List<Packet> packets = generatePacketsFromSimulRule(rule, timeQuantum, simulationTime);
         packetManager.initPackets(rule.getSource(), packets);
     }
 
@@ -80,14 +80,14 @@ public class PacketGenerator {
      * @param timeQuantum
      * @return
      */
-    private List<Packet> generatePacketsFromSimulRule(SimulationRuleBean rule, double timeQuantum) {
+    private List<Packet> generatePacketsFromSimulRule(SimulationRuleBean rule, double timeQuantum, double simulationTime) {
         List<Packet> packets = new LinkedList<Packet>();
         double timeSpent = 0;
-        double creationTime = rule.getActivationTime() % timeQuantum; //critical toto je co za blbost !!!!!!; potom pripadne zmen z PingManageri setActive na false
+        double creationTime = rule.getActivationTime() % timeQuantum;
         while (timeSpent <= creationTime && rule.getNumberOfPackets() > 0) {
             double creationDelay = DelayHelper.calculatePacketCreationDelay(rule.getSource(), rule.getPacketSize(), rule.getPacketTypeEnum());
             if (timeSpent + creationDelay > timeQuantum) break; //no time left to spent
-            packets.add(createPacket(rule.getPacketSize(), rule.getDestination(), rule.getSource(), rule, rule.getLayer4Type(), rule.getActivationTime() + timeSpent));
+            packets.add(createPacket(rule.getPacketSize(), rule.getDestination(), rule.getSource(), rule, rule.getLayer4Type(), rule.getActivationTime() + timeSpent + simulationTime));
             timeSpent += creationDelay;//I have spent some time
             rule.decreaseNumberOfPackets();
         }
@@ -107,8 +107,8 @@ public class PacketGenerator {
      */
     private Packet createPacket(int packetSize, NetworkNode destination, NetworkNode source, SimulationRuleBean rule, Layer4TypeEnum layer4, double creationTime) {
         if (rule.isPing()) {
-            return new PingPacket(pingManager, packetSize, destination, source, layer4, packetManager, rule, creationTime);
+            return new PingPacket(pingManager, packetSize, layer4, packetManager, rule, creationTime);
         }
-        return new Packet(packetSize, destination, source, layer4, packetManager, rule, creationTime);
+        return new Packet(packetSize, layer4, packetManager, rule, creationTime);
     }
 }
