@@ -119,6 +119,8 @@ public class IntegrationTest {
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
 
 
         assertFalse(timer.isRunning());
@@ -145,6 +147,10 @@ public class IntegrationTest {
         timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+
 
         assertFalse(timer.isRunning());
         checkNoPacketsInTopology(timer);
@@ -178,6 +184,14 @@ public class IntegrationTest {
         timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+
 
         assertFalse(timer.isRunning());
         checkNoPacketsInTopology(timer);
@@ -198,6 +212,15 @@ public class IntegrationTest {
 
         timer.startSimulationTimer(simulationManager);     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
 
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);
@@ -258,6 +281,8 @@ public class IntegrationTest {
 
         timer.startSimulationTimer(simulationManager);     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
 
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);

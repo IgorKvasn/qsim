@@ -91,6 +91,10 @@ public class PingTest {
         timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
 
 
         assertFalse(timer.isRunning());
@@ -121,6 +125,15 @@ public class PingTest {
         timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+
 
         assertFalse(timer.isRunning());
     }
@@ -147,6 +160,8 @@ public class PingTest {
         timer.startSimulationTimer(simulationManager);
         timer.addPingSimulationRule(rule, - 1); //notice this -1
 
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);
