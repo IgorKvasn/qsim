@@ -4,32 +4,44 @@
  */
 package sk.stuba.fiit.kvasnicka.qsimsimulation;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredEvent;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredListener;
 
+import javax.swing.event.EventListenerList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * this bean represents user definition of a simulation rule
+ * this bean has got equals/hash code properly overridden, so it can be a key in hash map/set
  *
  * @author Igor Kvasnicka
  */
 @Getter
+@EqualsAndHashCode(of = "uniqueID")
 public class SimulationRuleBean {
+
+    private final String uniqueID = UUID.randomUUID().toString();
+
     @Setter
     private boolean active;
-    private int repeat;//-1 if infinity;
     private PacketTypeEnum packetTypeEnum;
     private NetworkNode source;
     private NetworkNode destination;
     /**
      * simulation time when this rule became active
      */
+    @Setter
     private double activationTime; //(msec)
     /**
      * number of packets yet to create - this field changes
@@ -52,7 +64,14 @@ public class SimulationRuleBean {
      */
     private Map<NetworkNode, NetworkNode> routes;//key=current network node; value=next hop network node
     private Layer4TypeEnum layer4Type;
-    private boolean ping;
+    protected boolean ping;
+    @Getter
+    private List<NetworkNode> route;
+    /**
+     * list of all who wants to be notified, when packet is delivered
+     * especially useful when waiting for a ping to be delivered
+     */
+    private transient javax.swing.event.EventListenerList listenerList = new javax.swing.event.EventListenerList();
 
     /**
      * creates new simulation rule
@@ -64,12 +83,10 @@ public class SimulationRuleBean {
      * @param packetSize
      * @param automatic
      * @param activeDelay
-     * @param repeat          -1 if infinity
      * @param packetTypeEnum
      */
-    public SimulationRuleBean(NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, boolean automatic, double activeDelay, int repeat, PacketTypeEnum packetTypeEnum, Layer4TypeEnum layer4Type, boolean ping) {
+    public SimulationRuleBean(NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, boolean automatic, double activeDelay, PacketTypeEnum packetTypeEnum, Layer4TypeEnum layer4Type, boolean ping) {
         this.activationTime = activeDelay;
-        this.repeat = repeat;
         this.packetTypeEnum = packetTypeEnum;
         this.layer4Type = layer4Type;
         this.ping = ping;
@@ -82,42 +99,6 @@ public class SimulationRuleBean {
         routes = new HashMap<NetworkNode, NetworkNode>();
     }
 
-    /**
-     * creates new simulation rule
-     * all arguments are self-explained
-     *
-     * @param source
-     * @param destination
-     * @param numberOfPackets
-     * @param packetSize
-     * @param automatic
-     * @param activeDelay
-     * @param repeat          -1 if infinity
-     * @param packetTypeEnum
-     */
-    public SimulationRuleBean(NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, boolean automatic, double activeDelay, int repeat, PacketTypeEnum packetTypeEnum, Layer4TypeEnum layer4Type) {
-        this.activationTime = activeDelay;
-        this.repeat = repeat;
-        this.packetTypeEnum = packetTypeEnum;
-        this.layer4Type = layer4Type;
-        this.ping = false;
-        this.active = false;
-        this.source = source;
-        this.destination = destination;
-        this.numberOfPackets = numberOfPackets;
-        this.packetSize = packetSize;
-        this.automatic = automatic;
-        routes = new HashMap<NetworkNode, NetworkNode>();
-    }
-
-    /**
-     * each rule has set number of repetitions. this method assures that rule is used exact number of times
-     * it decreases repeat number of repeat count - when it reaches 0 simulation rule is set to "finished"
-     */
-    public void decreaseRuleRepetition() {
-        if (repeat <= 0) return;//so when rule is finished (repeat=0) or if it is set to infinity (repeat=-1)
-        repeat--;
-    }
 
     public void decreaseNumberOfPackets() {
         numberOfPackets--;
@@ -133,7 +114,11 @@ public class SimulationRuleBean {
     }
 
     public boolean isFinished() {
-        return repeat == 0 && numberOfPackets == 0;
+        return numberOfPackets == 0;
+    }
+
+    public void resetNumberOfPacketsToOne() {
+        numberOfPackets = 1;
     }
 
 
@@ -157,7 +142,9 @@ public class SimulationRuleBean {
         if (route.size() < 2) {
             throw new IllegalArgumentException("route must consist of at least 2 network nodes: source and destination; this route is long: " + route.size());
         }
+        this.route = route;
 
+        //routes from node1 to node2....
         for (int i = 0; i < route.size() - 1; i++) {
             routes.put(route.get(i), route.get(i + 1));
         }
@@ -186,5 +173,47 @@ public class SimulationRuleBean {
             }
         }
         throw new IllegalStateException("node I am looking for is in the routing table, but I cannot find it: " + currentNode);
+    }
+
+    public void addPingPacketDeliveredListener(PingPacketDeliveredListener listener) {
+        listenerList.add(PingPacketDeliveredListener.class, listener);
+    }
+
+    public void removePingPacketDeliveredListener(PingPacketDeliveredListener listener) {
+        listenerList.remove(PingPacketDeliveredListener.class, listener);
+    }
+
+    public void firePingPacketDeliveredEvent(PingPacketDeliveredEvent evt) {
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = 0; i < listeners.length; i += 2) {
+            if (listeners[i].equals(PingPacketDeliveredListener.class)) {
+                ((PingPacketDeliveredListener) listeners[i + 1]).packetDeliveredOccurred(evt);
+            }
+        }
+    }
+
+    public void addPacketDeliveredListener(PacketDeliveredListener listener) {
+        listenerList.add(PacketDeliveredListener.class, listener);
+    }
+
+    public void removePacketDeliveredListener(PacketDeliveredListener listener) {
+        listenerList.remove(PacketDeliveredListener.class, listener);
+    }
+
+    public void firePacketDeliveredEvent(PacketDeliveredEvent evt) {
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = 0; i < listeners.length; i += 2) {
+            if (listeners[i].equals(PacketDeliveredListener.class)) {
+                ((PacketDeliveredListener) listeners[i + 1]).packetDeliveredOccurred(evt);
+            }
+        }
+    }
+
+
+    /**
+     * removes all delivery listeners
+     */
+    public void removeAllDeliveryListeners() {
+        listenerList = new EventListenerList(); //listenerList cannot remove all listeners, so I simply create a new object instead...
     }
 }

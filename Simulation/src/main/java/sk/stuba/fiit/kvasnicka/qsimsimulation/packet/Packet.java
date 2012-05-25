@@ -17,8 +17,8 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 public class Packet {
 
     private int packetSize;
-    private NetworkNode source;
-    private NetworkNode destination;
+    protected NetworkNode source;    //todo pouziva sa niekde tento source a destination? vsak sa to da vytiahnut zo simulationRule
+    protected NetworkNode destination;
     /**
      * number of queue where this packet belongs
      * this number is calculated during "marking" phase
@@ -44,7 +44,7 @@ public class Packet {
 
 
     private final double creationTime;
-    private final SimulationRuleBean simulationRule;
+    protected SimulationRuleBean simulationRule;
 
 
     /**

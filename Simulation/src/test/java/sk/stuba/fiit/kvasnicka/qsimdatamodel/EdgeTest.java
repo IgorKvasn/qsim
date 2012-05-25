@@ -183,7 +183,7 @@ public class EdgeTest {
     }
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean(node1, node2, 1, 1, true, 10, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean(node1, node2, 1, 1, true, 10, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
         simulationRuleBean.addRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {

@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.InputInterface;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.OutputInterface;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.PacketCrcErrorException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
@@ -14,7 +16,6 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.QueueingHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.PingPacket;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -191,7 +192,7 @@ public abstract class NetworkNode implements Serializable {
             } catch (NotEnoughBufferSpaceException e1) {
                 logg.debug("no space left in output queue -> packet dropped");
                 if (packet.getLayer4().isRetransmissionEnabled()) {
-                    //todo retransmisia: tu pridat paket do nejakej fronty v predoslom network node, aby znovu poslal paket - ale iba, ak je to TCP
+                    retransmittPacket(packet);
                 }
             }
         }
@@ -236,12 +237,11 @@ public abstract class NetworkNode implements Serializable {
      */
     private void packetIsDelivered(Packet packet) {
         logg.debug("packet has been delivered to destination " + packet.getDestination() + " - it took " + (packet.getSimulationTime() - packet.getCreationTime()) + "msec");
-        if (packet instanceof PingPacket) {
-            ((PingPacket) packet).setRoundTriptime(packet.getSimulationTime());
-            if (packet.getSimulationRule().isPing()) {
-                //todo tu otocit source a destination a znovu inicializovat paket - v sim, rule musi byt flag, v akom stadiu som - ci som to uz poslal z A-B alebo este nie
-                //todo pripadne urobit SimulationRulePingBean extends SimulationRuleBean
-            }
+        if (packet.getSimulationRule().isPing()) {
+            packet.getSimulationRule().firePingPacketDeliveredEvent(new PingPacketDeliveredEvent(this, packet));
+            //todo
+        } else {
+            packet.getSimulationRule().firePacketDeliveredEvent(new PacketDeliveredEvent(this, packet));
         }
     }
 
@@ -387,7 +387,7 @@ public abstract class NetworkNode implements Serializable {
 
             rxInterfaces.get(fragment.getFrom()).removeFragments(fragment.getFragmentID());
             if (fragment.getOriginalPacket().getLayer4().isRetransmissionEnabled()) {
-                //todo retransmisia
+                retransmittPacket(fragment.getOriginalPacket());
             }
             return;
         } catch (PacketCrcErrorException e) {
