@@ -15,19 +15,16 @@ public abstract class DelayHelper {
 
 
     public static double calculateSerialisationDelay(Edge edge, int packetSize) {
-//        logg.debug("serialisable delay");
         if (edge == null) throw new IllegalArgumentException("edge is NULL");
         return (double) packetSize / edge.getSpeed();
     }
 
     public static double calculatePropagationDelay(Edge edge) {
-//        logg.debug("propagation delay");
         if (edge == null) throw new IllegalArgumentException("edge is NULL");
         return edge.getLength() / (2.1 * Math.pow(10, 8));
     }
 
     public static double calculateProcessingDelay(NetworkNode networkNode) {
-//        logg.debug("processing delay");
         return 0.018;
     }
 
@@ -41,7 +38,6 @@ public abstract class DelayHelper {
      * @return
      */
     public static double calculatePacketCreationDelay(NetworkNode node, int packetSize, PacketTypeEnum packetTypeEnum) {
-//        logg.debug("packet creation");
         return 0.1;
     }
 }

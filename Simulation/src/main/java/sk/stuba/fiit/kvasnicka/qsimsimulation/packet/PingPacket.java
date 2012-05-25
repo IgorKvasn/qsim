@@ -30,13 +30,17 @@ public class PingPacket extends Packet {
      * this happens when ping packet is send from A-B and then this packet should be send back to A
      */
     private void switchSourceDestination() {
-        logg.debug("switching source <-> destination");
+        if (logg.isDebugEnabled()) {
+            logg.debug("switching source <-> destination");
+        }
         //assign new simulation rule
         simulationRule = pingManager.createBackRule(getSimulationRule());
     }
 
     private void restoreSourceDestination() {
-        logg.debug("restoring source <-> destination");
+        if (logg.isDebugEnabled()) {
+            logg.debug("restoring source <-> destination");
+        }
         //assign original simulation rule
         simulationRule = pingManager.getOriginalRule(originalSimulRuleID);
     }

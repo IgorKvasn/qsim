@@ -91,7 +91,9 @@ public class PacketGenerator {
             timeSpent += creationDelay;//I have spent some time
             rule.decreaseNumberOfPackets();
         }
-        logg.debug("Packets created: " + packets.size());
+        if (logg.isDebugEnabled()) {
+            logg.debug("Packets created: " + packets.size());
+        }
         return packets;
     }
 

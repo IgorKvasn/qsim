@@ -190,7 +190,9 @@ public abstract class NetworkNode implements Serializable {
             try {
                 addToOutputQueue(packet);
             } catch (NotEnoughBufferSpaceException e1) {
-                logg.debug("no space left in output queue -> packet dropped");
+                if (logg.isDebugEnabled()) {
+                    logg.debug("no space left in output queue -> packet dropped");
+                }
                 if (packet.getLayer4().isRetransmissionEnabled()) {
                     retransmittPacket(packet);
                 }
@@ -236,7 +238,9 @@ public abstract class NetworkNode implements Serializable {
      * @param packet packet that has been delivered
      */
     private void packetIsDelivered(Packet packet) {
-        logg.debug("packet has been delivered to destination " + packet.getDestination() + " - it took " + (packet.getSimulationTime() - packet.getCreationTime()) + "msec");
+        if (logg.isDebugEnabled()) {
+            logg.debug("packet has been delivered to destination " + packet.getDestination() + " - it took " + (packet.getSimulationTime() - packet.getCreationTime()) + "msec");
+        }
         if (packet.getSimulationRule().isPing()) {
             packet.getSimulationRule().firePingPacketDeliveredEvent(new PingPacketDeliveredEvent(this, packet));
         } else {
@@ -382,7 +386,9 @@ public abstract class NetworkNode implements Serializable {
         try {
             packet = rxInterfaces.get(fragment.getFrom()).fragmentReceived(fragment);
         } catch (NotEnoughBufferSpaceException e) {
-            logg.debug("no space left in TX buffer -> packet dropped");
+            if (logg.isDebugEnabled()) {
+                logg.debug("no space left in TX buffer -> packet dropped");
+            }
 
             rxInterfaces.get(fragment.getFrom()).removeFragments(fragment.getFragmentID());
             if (fragment.getOriginalPacket().getLayer4().isRetransmissionEnabled()) {
@@ -390,7 +396,9 @@ public abstract class NetworkNode implements Serializable {
             }
             return;
         } catch (PacketCrcErrorException e) {
-            logg.debug("packet has wrong CRC");
+            if (logg.isDebugEnabled()) {
+                logg.debug("packet has wrong CRC");
+            }
             if (e.getPacket().getLayer4().isRetransmissionEnabled()) {
                 retransmittPacket(e.getPacket());
             }
@@ -431,7 +439,9 @@ public abstract class NetworkNode implements Serializable {
      */
     public void retransmittPacket(Packet packet) {
         NetworkNode nodePrevious = packet.getPreviousHopNetworkNode(this);
-        logg.debug("packet retransmission from node: " + nodePrevious);
+        if (logg.isDebugEnabled()) {
+            logg.debug("packet retransmission from node: " + nodePrevious);
+        }
         packet.setSimulationTime(packet.getSimulationTime() + nodePrevious.getTcpDelay());
         nodePrevious.moveFromProcessingToOutputQueue(packet);
     }
