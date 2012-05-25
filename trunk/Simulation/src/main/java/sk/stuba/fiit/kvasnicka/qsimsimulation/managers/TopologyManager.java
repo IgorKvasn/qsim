@@ -1,7 +1,7 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation.managers;
 
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 
@@ -16,7 +16,6 @@ import java.util.WeakHashMap;
  * @author Igor Kvasnicka
  */
 public class TopologyManager {
-    private static final Logger logg = Logger.getLogger(TopologyManager.class);
     private final List<Edge> edgeList;
     private final List<NetworkNode> nodeList;
     private WeakHashMap<CacheKey, Edge> edgeCache;
@@ -103,33 +102,13 @@ public class TopologyManager {
         return nodeList;
     }
 
-
+    @EqualsAndHashCode(of = {"node1", "node2"})
     private static final class CacheKey {
         private String node1, node2;
 
         private CacheKey(String node1, String node2) {
             this.node1 = node1;
             this.node2 = node2;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            CacheKey cacheKey = (CacheKey) o;
-
-            if (! node1.equals(cacheKey.node1)) return false;
-            if (! node2.equals(cacheKey.node2)) return false;
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = node1.hashCode();
-            result = 31 * result + node2.hashCode();
-            return result;
         }
     }
 }

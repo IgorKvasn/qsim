@@ -11,7 +11,7 @@ public interface PingPacketDeliveredListener extends EventListener {
      *
      * @param evt event that occured
      */
-    public void packetDeliveredOccurred(PingPacketDeliveredEvent evt);
+    void packetDeliveredOccurred(PingPacketDeliveredEvent evt);
 }
 
 

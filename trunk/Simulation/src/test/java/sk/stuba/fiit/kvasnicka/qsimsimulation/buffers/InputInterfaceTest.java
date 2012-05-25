@@ -103,7 +103,7 @@ public class InputInterfaceTest {
     public void testFragmentReceived() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
         InputInterface inputInterface = new InputInterface(edge, 10);//I do not care about max RX size
-        Packet p1 = new Packet(14, node2, node1, layer4, packetManager, null, 10); //3 fragments will be created
+        Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
 
         //test method
         Fragment[] fragments = QueueingHelper.createFragments(p1, 5, node2, node1); //MTU = 5
@@ -126,8 +126,8 @@ public class InputInterfaceTest {
     public void testFragmentReceived_multipacket() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
         InputInterface inputInterface = new InputInterface(edge, 10);//I do not care about max RX size
-        Packet p1 = new Packet(14, node2, node1, layer4, packetManager, null, 10); //3 fragments will be created
-        Packet p2 = new Packet(16, node2, node1, layer4, packetManager, null, 10); //4 fragments will be created
+        Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
+        Packet p2 = new Packet(16, layer4, packetManager, null, 10); //4 fragments will be created
 
 
         //test method
@@ -160,7 +160,7 @@ public class InputInterfaceTest {
     public void testFragmentReceived_packet_created() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
         InputInterface inputInterface = new InputInterface(edge, 10);//I do not care about max RX size
-        Packet p1 = new Packet(14, node2, node1, layer4, packetManager, null, 10); //3 fragments will be created
+        Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
 
         //test method
         Fragment[] fragments = QueueingHelper.createFragments(p1, 5, node2, node1); //MTU = 5
@@ -194,7 +194,7 @@ public class InputInterfaceTest {
     public void testFragmentReceived_packet_created__simulation_time() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
         InputInterface inputInterface = new InputInterface(edge, 10);//I do not care about max RX size
-        Packet p1 = new Packet(14, node2, node1, layer4, packetManager, null, 10); //3 fragments will be created
+        Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
 
         //test method
         Fragment[] fragments = QueueingHelper.createFragments(p1, 5, node2, node1); //MTU = 5
@@ -231,8 +231,8 @@ public class InputInterfaceTest {
     public void testFragmentReceived_packet_created__multiple_packets() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
         InputInterface inputInterface = new InputInterface(edge, 10);//I do not care about max RX size
-        Packet p1 = new Packet(14, node2, node1, layer4, packetManager, null, 10); //3 fragments will be created
-        Packet p2 = new Packet(9, node2, node1, layer4, packetManager, null, 10); //2 fragments will be created
+        Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
+        Packet p2 = new Packet(9, layer4, packetManager, null, 10); //2 fragments will be created
 
         //test method
         Fragment[] fragments1 = QueueingHelper.createFragments(p1, 5, node2, node1); //MTU = 5
@@ -273,7 +273,7 @@ public class InputInterfaceTest {
         //prepare
         int MAX_RX_SIZE = 2;
         InputInterface inputInterface = new InputInterface(edge, MAX_RX_SIZE);//max 2 fragments in RX
-        Packet p1 = new Packet(14, node2, node1, layer4, packetManager, null, 10); //3 fragments will be created
+        Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
 
         //test method
         Fragment[] fragments = QueueingHelper.createFragments(p1, 5, node2, node1); //MTU = 5

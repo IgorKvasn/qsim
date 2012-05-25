@@ -14,7 +14,7 @@ import java.util.Map;
  * @author Igor Kvasnicka
  */
 public class InputInterface {
-    private static final Logger logg = Logger.getLogger(InputInterface.class);
+    private static Logger logg = Logger.getLogger(InputInterface.class);
 
     /**
      * edge that is connected to this intput interface

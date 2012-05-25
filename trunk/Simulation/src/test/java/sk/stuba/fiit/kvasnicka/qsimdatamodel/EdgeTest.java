@@ -107,8 +107,8 @@ public class EdgeTest {
     @Test
     public void testMoveFragmentsToNetworkNode() throws NotEnoughBufferSpaceException {
         //prepare - add two packets on the edge
-        Packet p1 = new Packet(64, node2, node1, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(64, node2, node1, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(64, layer4, packetManager, null, 10);
+        Packet p2 = new Packet(64, layer4, packetManager, null, 30);
 
         initRoute(p1, p2);
 
@@ -141,9 +141,9 @@ public class EdgeTest {
     @Test
     public void testMoveFragmentsToNetworkNode_multifragment() throws NotEnoughBufferSpaceException {
         //prepare - add two packets on the edge
-        Packet p1 = new Packet(64, node2, node1, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(64, node2, node1, layer4, packetManager, null, 30);
-        Packet p3 = new Packet(64, node2, node1, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(64, layer4, packetManager, null, 10);
+        Packet p2 = new Packet(64, layer4, packetManager, null, 30);
+        Packet p3 = new Packet(64, layer4, packetManager, null, 30);
 
         initRoute(p1, p2, p3);
 
@@ -183,7 +183,7 @@ public class EdgeTest {
     }
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean(node1, node2, 1, 1, true, 10, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean(node1, node2, 1, 1, 10, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
         simulationRuleBean.addRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {

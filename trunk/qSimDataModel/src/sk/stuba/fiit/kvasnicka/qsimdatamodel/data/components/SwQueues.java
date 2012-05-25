@@ -17,7 +17,6 @@ import java.util.List;
 
 public class SwQueues {
     @XmlTransient
-    @Getter
     private QueueDefinition[] queues;
 
     public SwQueues(QueueDefinition[] queues) {

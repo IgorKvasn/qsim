@@ -52,11 +52,6 @@ public class SimulationRuleBean {
     private int packetSize;
 
     /**
-     * true if this rule is automatic = it starts when simulation starts
-     * manual (non-automatic) rules starts when user says so
-     */
-    private boolean automatic;
-    /**
      * here is a "routing table" for this simulation rule
      * this means, that multiple simulation rules may have contradictory routing,
      * e.g: A-B-C-D and A-X-C-Y-D (the same source, destination and one network node in the middle)
@@ -64,7 +59,7 @@ public class SimulationRuleBean {
      */
     private Map<NetworkNode, NetworkNode> routes;//key=current network node; value=next hop network node
     private Layer4TypeEnum layer4Type;
-    protected boolean ping;
+    private boolean ping;
     @Getter
     private List<NetworkNode> route;
     /**
@@ -81,11 +76,10 @@ public class SimulationRuleBean {
      * @param destination
      * @param numberOfPackets
      * @param packetSize
-     * @param automatic
      * @param activeDelay
      * @param packetTypeEnum
      */
-    public SimulationRuleBean(NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, boolean automatic, double activeDelay, PacketTypeEnum packetTypeEnum, Layer4TypeEnum layer4Type, boolean ping) {
+    public SimulationRuleBean(NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, double activeDelay, PacketTypeEnum packetTypeEnum, Layer4TypeEnum layer4Type, boolean ping) {
         this.activationTime = activeDelay;
         this.packetTypeEnum = packetTypeEnum;
         this.layer4Type = layer4Type;
@@ -95,7 +89,6 @@ public class SimulationRuleBean {
         this.destination = destination;
         this.numberOfPackets = numberOfPackets;
         this.packetSize = packetSize;
-        this.automatic = automatic;
         routes = new HashMap<NetworkNode, NetworkNode>();
     }
 
