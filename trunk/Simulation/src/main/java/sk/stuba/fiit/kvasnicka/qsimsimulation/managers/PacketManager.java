@@ -55,8 +55,8 @@ public class PacketManager {
      * initializes newly created packets and adds them into proper DelayQueue
      * this method DOES NOT create packets
      *
-     * @param source       source network node
-     * @param packets      packet list to init
+     * @param source  source network node
+     * @param packets packet list to init
      */
     public void initPackets(NetworkNode source, List<Packet> packets) {
         for (Packet p : packets) {
@@ -69,8 +69,9 @@ public class PacketManager {
      * deletes all packets
      */
     public void clearAllPackets() {
-
-        logg.debug("clearing all simulation data");
+        if (logg.isDebugEnabled()) {
+            logg.debug("clearing all simulation data");
+        }
         for (NetworkNode node : simulationTimer.getTopologyManager().getNodeList()) {
             node.clearPackets();
         }

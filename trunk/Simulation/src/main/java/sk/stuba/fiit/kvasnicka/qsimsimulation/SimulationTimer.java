@@ -65,7 +65,9 @@ public class SimulationTimer implements ActionListener {
         }
 
         timer = new Timer(convertTime(1), this);
-        logg.debug("starting simulation timer");
+        if (logg.isDebugEnabled()) {
+            logg.debug("starting simulation timer");
+        }
         timer.start();
     }
 
@@ -86,7 +88,9 @@ public class SimulationTimer implements ActionListener {
      */
     public void stopTimer() {
         if (timer == null) throw new IllegalStateException("stopping timer: timer is NULL");
-        logg.debug("stopping simulation timer");
+        if (logg.isDebugEnabled()) {
+            logg.debug("stopping simulation timer");
+        }
         timer.stop();
         for (SimulationRuleBean rule : simulationManager.getRulesUnmodifiable()) {
             rule.removeAllDeliveryListeners();
@@ -98,13 +102,17 @@ public class SimulationTimer implements ActionListener {
      */
     public void pauseTimer() {
         if (timer == null) throw new IllegalStateException("pause timer: timer is NULL");
-        logg.debug("pause simulation timer");
+        if (logg.isDebugEnabled()) {
+            logg.debug("pause simulation timer");
+        }
         timer.stop();
     }
 
     public void resumeTimer() {
         if (timer == null) throw new IllegalStateException("resume timer: timer is NULL");
-        logg.debug("resuming simulation timer");
+        if (logg.isDebugEnabled()) {
+            logg.debug("resuming simulation timer");
+        }
         timer.start();
     }
 
@@ -160,7 +168,9 @@ public class SimulationTimer implements ActionListener {
 
             //check if there is nothing more to simulate
             if (isEndOfSimulation()) {
-                logg.debug("there is nothing left to simulate");
+                if (logg.isDebugEnabled()) {
+                    logg.debug("there is nothing left to simulate");
+                }
                 timer.stop();
             }
         } catch (Exception e) {
