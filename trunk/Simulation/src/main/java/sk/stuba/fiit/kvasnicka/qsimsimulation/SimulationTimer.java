@@ -8,6 +8,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.ping.PingManager;
 
 import javax.swing.Timer;
 import java.awt.event.ActionEvent;
@@ -26,6 +27,8 @@ public class SimulationTimer implements ActionListener {
     private Timer timer;
     @Getter
     private PacketGenerator packetGenerator;
+    @Getter
+    private PingManager pingManager;
     @Getter
     private double simulationTime;
     private SimulationManager simulationManager;
@@ -50,6 +53,7 @@ public class SimulationTimer implements ActionListener {
             packetManager.clearAllPackets();//clean-up all packets
         }
         packetManager = new PacketManager(this);
+        pingManager = new PingManager();
         this.simulationManager = simulationManager;
         packetGenerator = new PacketGenerator(simulationManager.getRulesUnmodifiable(), this);
 
@@ -62,6 +66,10 @@ public class SimulationTimer implements ActionListener {
         timer.start();
     }
 
+    public void addPingSimulationRule(SimulationRuleBean rule, int repetitions) {
+        simulationManager.addSimulationRule(rule);
+        pingManager.addPing(rule, repetitions);
+    }
 
     /**
      * cancels simulation timer
@@ -72,6 +80,9 @@ public class SimulationTimer implements ActionListener {
         if (timer == null) throw new IllegalStateException("timer is NULL");
         logg.debug("stopping simulation timer");
         timer.stop();
+        for (SimulationRuleBean rule : simulationManager.getRulesUnmodifiable()) {
+            rule.removeAllDeliveryListeners();
+        }
     }
 
     /**

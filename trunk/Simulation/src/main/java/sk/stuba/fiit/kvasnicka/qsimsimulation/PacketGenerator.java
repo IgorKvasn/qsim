@@ -6,6 +6,8 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.PingPacket;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.ping.PingManager;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -20,11 +22,13 @@ public class PacketGenerator {
 
     private List<SimulationRuleBean> simulationRules;
     private PacketManager packetManager;
+    private PingManager pingManager;
 
 
     public PacketGenerator(List<SimulationRuleBean> simulationRules, SimulationTimer simulationTimer) {
         this.simulationRules = simulationRules;
         packetManager = simulationTimer.getPacketManager();
+        pingManager = simulationTimer.getPingManager();
     }
 
     /**
@@ -33,27 +37,24 @@ public class PacketGenerator {
      * @param simulationTime current simulation time
      * @param timeQuantum    time quantum - this is used when creating new packets to not create all packets at once, but as many as time quantum allows
      */
-    public void generatePackets(double simulationTime,  double timeQuantum) {
+    public void generatePackets(double simulationTime, double timeQuantum) {
         for (SimulationRuleBean rule : simulationRules) {
             if (rule.isFinished()) continue; //I don't care about finished simulation rules
             if (rule.isActive()) {//rule has been activated and it is not finished yet
-                addPacketsToNetworkNode(timeQuantum, rule.getLayer4Type(), rule);
-
-                rule.decreaseRuleRepetition();
+                addPacketsToNetworkNode(timeQuantum, rule);
             } else {//check if the time came to activate this rule
                 if (checkRuleActivate(rule, simulationTime)) {//yes, I should activate it
                     rule.setActive(true);
-                    addPacketsToNetworkNode(timeQuantum, rule.getLayer4Type(), rule);
+                    addPacketsToNetworkNode(timeQuantum, rule);
                     rule.increaseActivationTime(timeQuantum);
-
-                    rule.decreaseRuleRepetition();
                 }
             }
         }
     }
 
-    private void addPacketsToNetworkNode(double timeQuantum, Layer4TypeEnum layer4, SimulationRuleBean rule) {
-        List<Packet> packets = generatePacketsFromSimulRule(rule, layer4, timeQuantum);
+
+    private void addPacketsToNetworkNode(double timeQuantum, SimulationRuleBean rule) {
+        List<Packet> packets = generatePacketsFromSimulRule(rule, timeQuantum);
         packetManager.initPackets(rule.getSource(), packets);
     }
 
@@ -68,6 +69,7 @@ public class PacketGenerator {
         return simulationTime >= rule.getActivationTime();
     }
 
+
     /**
      * creates new packets for one simulation rule
      * <p/>
@@ -78,14 +80,14 @@ public class PacketGenerator {
      * @param timeQuantum
      * @return
      */
-    private List<Packet> generatePacketsFromSimulRule(SimulationRuleBean rule, Layer4TypeEnum layer4, double timeQuantum) {
+    private List<Packet> generatePacketsFromSimulRule(SimulationRuleBean rule, double timeQuantum) {
         List<Packet> packets = new LinkedList<Packet>();
         double timeSpent = 0;
-        double creationTime = rule.getActivationTime() % timeQuantum;
+        double creationTime = rule.getActivationTime() % timeQuantum; //critical toto je co za blbost !!!!!!; potom pripadne zmen z PingManageri setActive na false
         while (timeSpent <= creationTime && rule.getNumberOfPackets() > 0) {
             double creationDelay = DelayHelper.calculatePacketCreationDelay(rule.getSource(), rule.getPacketSize(), rule.getPacketTypeEnum());
             if (timeSpent + creationDelay > timeQuantum) break; //no time left to spent
-            packets.add(createPacket(rule.getPacketSize(), rule.getDestination(), rule.getSource(), rule, layer4, rule.getActivationTime() + timeSpent));
+            packets.add(createPacket(rule.getPacketSize(), rule.getDestination(), rule.getSource(), rule, rule.getLayer4Type(), rule.getActivationTime() + timeSpent));
             timeSpent += creationDelay;//I have spent some time
             rule.decreaseNumberOfPackets();
         }
@@ -104,6 +106,9 @@ public class PacketGenerator {
      * @return a new packet
      */
     private Packet createPacket(int packetSize, NetworkNode destination, NetworkNode source, SimulationRuleBean rule, Layer4TypeEnum layer4, double creationTime) {
+        if (rule.isPing()) {
+            return new PingPacket(pingManager, packetSize, destination, source, layer4, packetManager, rule, creationTime);
+        }
         return new Packet(packetSize, destination, source, layer4, packetManager, rule, creationTime);
     }
 }
