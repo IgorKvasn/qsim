@@ -1,9 +1,28 @@
+/*******************************************************************************
+ * This file is part of qSim.
+ *
+ * qSim is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * qSim is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+
 package sk.stuba.fiit.kvasnicka.qsimsimulation;
 
 import lombok.Getter;
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.timer.SimulationTimerEvent;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.timer.SimulationTimerListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
@@ -38,6 +57,8 @@ public class SimulationTimer implements ActionListener {
     private TopologyManager topologyManager;
     private static final int MIN_TIMER_DELAY = 10; //[msec]
     private static final int MAX_TIMER_DELAY = 1000;//[msec]
+    private javax.swing.event.EventListenerList listenerList = new javax.swing.event.EventListenerList();
+
 
     public SimulationTimer(List<Edge> edgeList, List<NetworkNode> nodeList) {
         topologyManager = new TopologyManager(edgeList, nodeList);
@@ -173,6 +194,7 @@ public class SimulationTimer implements ActionListener {
                 }
                 timer.stop();
             }
+            fireSimulationTimerEvent(new SimulationTimerEvent(this));
         } catch (Exception e) {
             //just to make it fail-safe catch all possible problems
             logg.error("Error during timer execution", e);
@@ -221,5 +243,22 @@ public class SimulationTimer implements ActionListener {
         if (l > Integer.MAX_VALUE) return MAX_TIMER_DELAY;
 
         return (int) l;
+    }
+
+    public void addSimulationTimerListener(SimulationTimerListener listener) {
+        listenerList.add(SimulationTimerListener.class, listener);
+    }
+
+    public void removeSimulationTimerListener(SimulationTimerListener listener) {
+        listenerList.remove(SimulationTimerListener.class, listener);
+    }
+
+    private void fireSimulationTimerEvent(SimulationTimerEvent evt) {
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = 0; i < listeners.length; i += 2) {
+            if (listeners[i].equals(SimulationTimerListener.class)) {
+                ((SimulationTimerListener) listeners[i + 1]).simulationTimerOccurred(evt);
+            }
+        }
     }
 }

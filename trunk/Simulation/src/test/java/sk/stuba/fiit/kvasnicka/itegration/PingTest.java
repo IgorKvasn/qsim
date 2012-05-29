@@ -60,11 +60,15 @@ public class PingTest {
         node3 = new Router("node3", qosMechanism, swQueues2, 10, 10, 10, 100);
 
 
-        edge1 = new Edge(100000000, node1, node2, 100, 0.0);
+        edge1 = new Edge(100000000, node1, node2);
+        edge1.setMtu(100);
+        edge1.setPacketErrorRate(0.0);
         edge1.setLength(2000);
 
 
-        edge2 = new Edge(100, node2, node3, 100, 0.0);
+        edge2 = new Edge(100, node2, node3);
+        edge2.setMtu(100);
+        edge2.setPacketErrorRate(0.0);
         edge2.setLength(3);
     }
 

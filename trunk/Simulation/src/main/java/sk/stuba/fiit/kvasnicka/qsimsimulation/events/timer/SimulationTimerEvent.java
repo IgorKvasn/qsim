@@ -15,20 +15,21 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.events.timer;
 
-import java.util.EventListener;
+import java.util.EventObject;
 
 /**
  * @author Igor Kvasnicka
  */
-public interface PingPacketDeliveredListener extends EventListener {
+public class SimulationTimerEvent extends EventObject {
     /**
-     * ping packet has been delivered
+     * Constructs a prototypical Event.
      *
-     * @param evt event that occured
+     * @param source The object on which the Event initially occurred.
+     * @throws IllegalArgumentException if source is null.
      */
-    void packetDeliveredOccurred(PingPacketDeliveredEvent evt);
+    public SimulationTimerEvent(Object source) {
+        super(source);
+    }
 }
-
-
