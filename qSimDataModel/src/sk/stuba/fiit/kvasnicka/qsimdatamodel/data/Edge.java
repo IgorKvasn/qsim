@@ -1,3 +1,20 @@
+/*******************************************************************************
+ * This file is part of qSim.
+ *
+ * qSim is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * qSim is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data;
 
 import org.apache.log4j.Logger;
@@ -34,12 +51,9 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
      * forget to set length parameter later on
      *
      * @param speed bitrate [bit/s]
-     * @param mtu   maximum transfer unit
      */
-    public Edge(long speed, NetworkNode node1, NetworkNode node2, int mtu, double packetErrorRate) {//fixme mozno mtu a packetErrorRate nebude ako argument, ale podobne ako speed a length sa bude nastavovat neskor
+    public Edge(long speed, NetworkNode node1, NetworkNode node2) {//fixme mozno mtu a packetErrorRate nebude ako argument, ale podobne ako speed a length sa bude nastavovat neskor
         this.speed = speed;
-        this.mtu = mtu;
-        this.packetErrorRate = packetErrorRate;
         length = - 1;
         this.node1 = node1;
         this.node2 = node2;
@@ -49,9 +63,7 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
      * used when in time of creating new instance, speed and length parameters
      * are not known yet
      */
-    public Edge(NetworkNode node1, NetworkNode node2, int mtu, double packetErrorRate) { //fixme ako v tom druhom konstruktore
-        this.mtu = mtu;
-        this.packetErrorRate = packetErrorRate;
+    public Edge(NetworkNode node1, NetworkNode node2) { //fixme ako v tom druhom konstruktore
         speed = - 1;
         length = - 1;
         this.node1 = node1;

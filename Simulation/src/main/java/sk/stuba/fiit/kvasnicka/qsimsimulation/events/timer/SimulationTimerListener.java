@@ -15,20 +15,20 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.events.timer;
 
 import java.util.EventListener;
 
 /**
+ * listener for event when all simulation is done - within one timer tick
+ *
  * @author Igor Kvasnicka
  */
-public interface PingPacketDeliveredListener extends EventListener {
+public interface SimulationTimerListener extends EventListener {
     /**
-     * ping packet has been delivered
+     * simulation timer has became alive
      *
      * @param evt event that occured
      */
-    void packetDeliveredOccurred(PingPacketDeliveredEvent evt);
+    void simulationTimerOccurred(SimulationTimerEvent evt);
 }
-
-
