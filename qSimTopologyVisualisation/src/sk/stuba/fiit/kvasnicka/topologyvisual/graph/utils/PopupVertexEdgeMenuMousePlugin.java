@@ -4,7 +4,6 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils;
 
-import sk.stuba.fiit.kvasnicka.topologyvisual.routing.RoutingHelper;
 import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.AbstractPopupGraphMousePlugin;
@@ -19,12 +18,12 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
-import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.ConfirmDialogPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 
 /**
  *
@@ -34,7 +33,6 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
 
     private static Logger logg = Logger.getLogger(PopupVertexEdgeMenuMousePlugin.class);
     private JPopupMenu vertexPopup, edgePopup;
-    private RoutingHelper routingHelper;
     private TopologyVertex selectedVertex = null;
     private TopologyEdge selectedEdge = null;
     private Topology topology;
@@ -54,7 +52,6 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
      */
     public PopupVertexEdgeMenuMousePlugin(Topology topology, int modifiers) {
         super(modifiers);
-        routingHelper = new RoutingHelper();
         createVertexPopup();
         createEdgePopup();
         this.topology = topology;

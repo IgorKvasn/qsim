@@ -25,6 +25,15 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.modules.javahelp</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>2.24.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.modules.options.api</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -155,7 +164,7 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>sk.stuba.fiit.kvasnicka.qsimdatamodel</code-name-base>
+                    <code-name-base>sk.stuba.fiit.kvasnicka.qsimlibraries</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
@@ -163,7 +172,7 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>sk.stuba.fiit.kvasnicka.qsimlibraries</code-name-base>
+                    <code-name-base>sk.stuba.fiit.kvasnicka.qsimsimulation</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>

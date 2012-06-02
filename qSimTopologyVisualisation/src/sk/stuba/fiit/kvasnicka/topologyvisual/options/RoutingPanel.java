@@ -6,7 +6,6 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.options;
 
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
-import sk.stuba.fiit.kvasnicka.topologyvisual.routing.RoutingHelper;
 
 public final class RoutingPanel extends javax.swing.JPanel {
 
