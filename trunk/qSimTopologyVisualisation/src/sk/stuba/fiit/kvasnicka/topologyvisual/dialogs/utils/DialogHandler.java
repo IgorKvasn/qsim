@@ -1,12 +1,9 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.utils;
 
 import org.apache.log4j.Logger;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Computer;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Switch;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.VertexFactory;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.*;
+
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.VertexFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.topology.ComputerConfigurationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.topology.EdgeConfigurationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.topology.RouterConfigurationDialog;
@@ -22,19 +19,19 @@ public class DialogHandler {
     private VertexFactory vertexFactory;
 
     public DialogHandler() {
-         vertexFactory = new VertexFactory();
+        vertexFactory = new VertexFactory();
     }
 
     public DialogHandler(int routerCount, int switchCount, int computerCount) {
         vertexFactory = new VertexFactory(routerCount, switchCount, computerCount);
     }
-    
+
     /**
      * shows dialog with router configuration
      */
     public Router showRouterConfigurationDialog() {
-        Router router = vertexFactory.createRouter();
-        BlockingDialog bl = new RouterConfigurationDialog(router);
+        String routerName = vertexFactory.createRouterName();
+        BlockingDialog bl = new RouterConfigurationDialog(routerName);
         bl.showDialog();
         RouterConfigurationDialog.ResultObject resultObject = (RouterConfigurationDialog.ResultObject) bl.getUserInput();
         if (resultObject == null) {
@@ -42,8 +39,8 @@ public class DialogHandler {
             throw new IllegalStateException("user hit cancel");
         }
 
-        router.setName(resultObject.getName());
-
+        //Router router = new Router(resultObject.getName(),resultObject.getQosMechanism(),resultObject.getSwQueues(),resultObject.getMaxTxBufferSize(),resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay());
+        Router router = new Router();//todo use constructor above instead
         return router;
     }
 
@@ -52,8 +49,8 @@ public class DialogHandler {
      */
     public Computer showComputerConfigurationDialog() {
         logg.debug("showing computer configuration dialog");
-        Computer computer = vertexFactory.createComputer();
-        BlockingDialog bl = new ComputerConfigurationDialog(computer);
+        String computerName = vertexFactory.createComputerName();
+        BlockingDialog bl = new ComputerConfigurationDialog(computerName);
         bl.showDialog();
         ComputerConfigurationDialog.ResultObject obj = (ComputerConfigurationDialog.ResultObject) bl.getUserInput();
         if (obj == null) {
@@ -61,7 +58,8 @@ public class DialogHandler {
             throw new IllegalStateException("user hit cancel");
         }
 
-        computer.setName(obj.getName());
+        //Computer computer = new Computer(resultObject.getName(), resultObject.getQosMechanism(), resultObject.getSwQueues(), resultObject.getMaxTxBufferSize(), resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay());
+        Computer computer = new Computer();//todo use constructor above instead
 
         return computer;
     }
@@ -69,23 +67,26 @@ public class DialogHandler {
     /**
      * shows dialog with switch configuration
      */
-    public NetworkNode showSwitchConfigurationDialog() {
+    public Switch showSwitchConfigurationDialog() {
         logg.debug("showing switch configuration dialog");
-        Switch sw = vertexFactory.createSwitch();
-//        BlockingDialog bl = new SwitchConfigurationDialog(sw);
+        String switchName = vertexFactory.createSwitchName();
+//        BlockingDialog bl = new SwitchConfigurationDialog(switchName);
 //        bl.showDialog();
 //        Object obj = bl.getUserInput();
 //        if (obj == null) {
 //            VertexFactory.getInstance().decrementNumberOfRouters();
 //            throw new IllegalStateException("user hit cancel");
 //        }
+        //Switch sw = new Switch(resultObject.getName(), resultObject.getQosMechanism(), resultObject.getSwQueues(), resultObject.getMaxTxBufferSize(), resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay());
+        Switch sw = new Switch();//todo use constructor above instead
         return sw;
     }
 
     /**
      * shows dialog with router configuration
      *
-     * @param edge edge with default values depending on user choice (Ethernet/FastEthernet/GigabitEthernet/Custom)
+     * @param edge edge with default values depending on user choice
+     * (Ethernet/FastEthernet/GigabitEthernet/Custom)
      */
     public Edge showEdgeConfigurationDialog(Edge edge) {
         BlockingDialog bl = new EdgeConfigurationDialog(edge);

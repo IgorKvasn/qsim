@@ -7,6 +7,7 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels;
 import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import org.apache.log4j.Logger;
+import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
@@ -120,11 +121,16 @@ public class ContainerPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        if (panelIterator.isPanelLast()) {//finishing wizard
+            //todo add new rule to simulation rule manager and also to jList in Simulationtopcomponent
+        }
+
         panelIterator.nextPanel();
         jButton3.setEnabled(true);
         jButton4.setEnabled(true);
+        jButton4.setText(NbBundle.getMessage(ContainerPanel.class, "ContainerPanel.jButton4.text"));
         if (panelIterator.isPanelLast()) {
-            jButton4.setEnabled(false);
+            jButton4.setText(NbBundle.getMessage(ContainerPanel.class, "finish"));
         }
         if (panelIterator.isPanelFirst()) {
             jButton3.setEnabled(false);
@@ -158,7 +164,7 @@ public class ContainerPanel extends javax.swing.JPanel {
         topolVisual.retrieveVertexByClickCancel();
 
         panelIterator.cancelIterator();
-        
+
         AddSimulationTopComponent componentAdd = (AddSimulationTopComponent) WindowManager.getDefault().findTopComponent("AddSimulationTopComponent");
         if (componentAdd == null) {
             logg.error("Could not find component AddSimulationTopComponent");

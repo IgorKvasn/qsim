@@ -36,14 +36,6 @@ public class PreferenciesHelper {
         NbPreferences.forModule(PreferenciesHelper.class).putBoolean("isNeverShowVertexDeleteConfirmation", never);
     }
 
-    public static boolean isNeverShowDirectlyConnectedDeleteConfirmation() {
-        return NbPreferences.forModule(PreferenciesHelper.class).getBoolean("isNeverShowDirectlyConnectedDeleteConfirmation", false);
-    }
-
-    public static void setNeverShowDirectlyConnectedDeleteConfirmation(boolean neverShow) {
-        NbPreferences.forModule(PreferenciesHelper.class).putBoolean("isNeverShowDirectlyConnectedDeleteConfirmation", neverShow);
-    }
-
     public static boolean isShowNodeNamesInTopology() {
         return NbPreferences.forModule(PreferenciesHelper.class).getBoolean("isShowNodeNamesInTopology", true);
     }
@@ -59,7 +51,7 @@ public class PreferenciesHelper {
     public static void setNodeTooltipName(boolean show) {
         NbPreferences.forModule(PreferenciesHelper.class).putBoolean("isNodeTooltipName", show);
     }
-    
+
     public static boolean isNodeTooltipDescription() {
         return NbPreferences.forModule(PreferenciesHelper.class).getBoolean("isNodeTooltipDescription", false);
     }

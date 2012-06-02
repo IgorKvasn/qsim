@@ -105,4 +105,7 @@
             </file>
         </folder>
     </folder>
+    <folder name="Toolbars">
+        <file name="Topology_hidden"/>
+    </folder>
 </filesystem>

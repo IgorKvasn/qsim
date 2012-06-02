@@ -44,7 +44,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.MyVertexIconShapeTransformer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.VertexToIconTransformer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.TopologyPaletteTopComponent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.routing.RoutingHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.route.RoutingHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 
 /**
@@ -457,7 +457,6 @@ public class Topology implements VertexCreatedListener {
         topolElementTopComponent.addJungIntoFrame(vv);
 
     }
-
     /**
      * higlights edges from one vertex to other. to computer edges between these
      * two vertices will be used algorithm specified in file settings. This

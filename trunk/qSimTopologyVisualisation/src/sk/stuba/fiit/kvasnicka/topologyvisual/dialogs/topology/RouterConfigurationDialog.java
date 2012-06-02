@@ -18,6 +18,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.utils.BlockingDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.elements.RouterPanel;
 
 /**
  * provides dialog for initial configuration of router
@@ -27,8 +28,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 public class RouterConfigurationDialog extends BlockingDialog<RouterConfigurationDialog.ResultObject> {
 
     private static Logger logg = Logger.getLogger(RouterConfigurationDialog.class);
-    private Router router;
     private JXTextField txtName;
+    private final String routerName;
 
     /**
      * creates new instance of dialog
@@ -36,26 +37,24 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
      * @param router Router object that is being configured; this object is
      * read-only
      */
-    public RouterConfigurationDialog(Router router) {
+    public RouterConfigurationDialog(String routerName) {
         super(null);
         setTitle(NbBundle.getMessage(RouterConfigurationDialog.class, "create.new.router"));
-        this.router = router;
-
+        this.routerName = routerName;
+        
         initGui();
+
     }
 
     private void initGui() {
         setLayout(new BorderLayout());
 
+        
+        
         JPanel centerPanel = new JPanel();
         add(centerPanel, BorderLayout.CENTER);
-        txtName = new JXTextField();
-        txtName.setColumns(10);
-        txtName.setText(router.getName());
-        JXLabel lblName = new JXLabel(NbBundle.getMessage(RouterConfigurationDialog.class, "name"));
-        lblName.setLabelFor(txtName);
-        centerPanel.add(lblName);
-        centerPanel.add(txtName);
+     
+        centerPanel.add(new RouterPanel());
 
         JPanel bottomPanel = new JPanel();
         JButton btnOk = new JButton(NbBundle.getMessage(RouterConfigurationDialog.class, "ok"));

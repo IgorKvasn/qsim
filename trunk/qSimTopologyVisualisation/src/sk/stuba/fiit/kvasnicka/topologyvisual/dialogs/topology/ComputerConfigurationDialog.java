@@ -29,7 +29,7 @@ public class ComputerConfigurationDialog extends BlockingDialog<ComputerConfigur
     private JButton btnOk, btnCancel;
     private JTextField txtName;
 
-    public ComputerConfigurationDialog(Computer computer) {
+    public ComputerConfigurationDialog(String computerName) {
         super(null);
         setTitle(NbBundle.getMessage(ComputerConfigurationDialog.class, "create.new.computer"));
         compPanel = new ComputerPanel();
@@ -37,13 +37,13 @@ public class ComputerConfigurationDialog extends BlockingDialog<ComputerConfigur
         txtName = compPanel.txtName;
         btnCancel = compPanel.btnCancel;
 
-        initGui(computer);
+        initGui(computerName);
     }
 
-    private void initGui(Computer computer) {
+    private void initGui(String computerName) {
         add(compPanel);
 
-        txtName.setText(computer.getName());
+        txtName.setText(computerName);
 
         btnOk.addActionListener(new ActionListener() {
 
