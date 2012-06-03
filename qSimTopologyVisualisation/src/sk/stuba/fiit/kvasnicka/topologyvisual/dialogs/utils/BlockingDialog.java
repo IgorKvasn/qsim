@@ -24,13 +24,13 @@ public abstract class BlockingDialog<R> extends JDialog {
     protected BlockingDialog(JFrame owner) {
         super(owner, true);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        setLocationRelativeTo(owner);
     }
 
     /**
      * shows dialog - blocking operation
      */
     public void showDialog() {
+        setLocationRelativeTo(super.getOwner());
         setVisible(true);
     }
 
