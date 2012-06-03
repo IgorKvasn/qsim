@@ -48,8 +48,6 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
 
     private void initGui() {
         setLayout(new BorderLayout());
-
-        
         
         JPanel centerPanel = new JPanel();
         add(centerPanel, BorderLayout.CENTER);
