@@ -76,8 +76,8 @@ public class EdgeErrorTest {
         }).times(100);
         EasyMock.replay(qosMechanism);
 
-        node1 = new Router("node1", qosMechanism, swQueues, 10, 10, 10, 2.1);
-        node2 = new Router("node2", qosMechanism, swQueues2, 10, 10, 10, 2.1);
+        node1 = new Router("node1", qosMechanism, swQueues, 10, 10, 10, 10, 2.1, 0, 0);
+        node2 = new Router("node2", qosMechanism, swQueues2, 10, 10, 10, 10, 2.1, 0, 0);
 
 
 //        edge = new Edge(100, node1, node2, 100, 0.0);

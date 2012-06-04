@@ -42,6 +42,8 @@ public abstract class DelayHelper {
     }
 
     public static double calculateProcessingDelay(NetworkNode networkNode) {
+//        networkNode.getMinProcessingDelay()
+//        networkNode.getMaxProcessingDelay()
         return 0.018;
     }
 

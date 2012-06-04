@@ -70,6 +70,10 @@ public abstract class NetworkNode implements Serializable {
     @Setter
     private String name;
 
+    @Getter
+    @Setter
+    private String description;
+
     /**
      * defines rules for forbidden neigbours key= neigbour NetworkNode object
      * (Router, Computer,..) as class value = maximum connections (links) are
@@ -100,6 +104,7 @@ public abstract class NetworkNode implements Serializable {
     private Map<NetworkNode, InputInterface> rxInterfaces;
 
     private int maxTxBufferSize;
+    private int maxRxBufferSize;
     private int maxIntputQueueSize;
 
 
@@ -119,6 +124,10 @@ public abstract class NetworkNode implements Serializable {
     private int maxProcessingPackets;
     @Getter
     private double tcpDelay;
+    @Getter
+    private double minProcessingDelay;
+    @Getter
+    private double maxProcessingDelay;
 
 
     /**
@@ -134,12 +143,13 @@ public abstract class NetworkNode implements Serializable {
         outputQueue = new LinkedList<Packet>();
     }
 
-    protected NetworkNode(String name, QosMechanism qosMechanism, SwQueues swQueues, int maxTxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay) {
+    protected NetworkNode(String name, QosMechanism qosMechanism, SwQueues swQueues, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
         this();
         this.name = name;
         this.swQueues = swQueues;
         this.qosMechanism = qosMechanism;
         this.maxTxBufferSize = maxTxBufferSize;
+        this.maxRxBufferSize = maxRxBufferSize;
         this.maxIntputQueueSize = maxIntputQueueSize;
         this.maxProcessingPackets = maxProcessingPackets;
         this.tcpDelay = tcpDelay;
