@@ -40,8 +40,8 @@ public class Switch extends NetworkNode {
      *
      * @param name default name of the switch
      */
-    public Switch(String name, QosMechanism qosMechanism, SwQueues queues, int maxTxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay) {
-        super(name, qosMechanism, queues, maxTxBufferSize, maxIntputQueueSize, maxProcessingPackets, tcpDelay);
+    public Switch(String name, QosMechanism qosMechanism, SwQueues queues, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
+        super(name, qosMechanism, queues, maxTxBufferSize, maxRxBufferSize, maxIntputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay);
     }
 
     /**

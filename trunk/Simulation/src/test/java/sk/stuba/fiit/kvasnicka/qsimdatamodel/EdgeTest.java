@@ -87,8 +87,8 @@ public class EdgeTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, swQueues, MAX_TX_SIZE, 10, 2, 100);//max processing packets are set to 2
-        node2 = new Router("node2", qosMechanism, swQueues2, MAX_TX_SIZE, 10, 2, 100);
+        node1 = new Router("node1", qosMechanism, swQueues, MAX_TX_SIZE, 10, 10, 2, 100, 0, 0);//max processing packets are set to 2
+        node2 = new Router("node2", qosMechanism, swQueues2, MAX_TX_SIZE, 10, 10, 2, 100, 0, 0);
 
 
         edge = new Edge(100, node1, node2);

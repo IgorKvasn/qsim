@@ -44,11 +44,11 @@ public class InputInterface {
      */
     private Map<String, Integer> fragmentMap;
 
-    public InputInterface(Edge edge, int maxTxSize) {
-        if (maxTxSize == - 1) {
+    public InputInterface(Edge edge, int maxRxSize) {
+        if (maxRxSize == - 1) {
             this.maxTxSize = - 1;
         } else {
-            this.maxTxSize = maxTxSize;
+            this.maxTxSize = maxRxSize;
         }
 
         this.edge = edge;
