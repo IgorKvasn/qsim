@@ -17,18 +17,25 @@
 
 package sk.stuba.fiit.kvasnicka.qsimsimulation.helpers;
 
+import org.apache.commons.math.MathException;
+import org.apache.commons.math.analysis.UnivariateRealFunction;
+import org.apache.commons.math.analysis.interpolation.LinearInterpolator;
+import org.apache.commons.math.analysis.interpolation.UnivariateRealInterpolator;
+import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 
 /**
- * here all fixed delays are calculated
+ * here all delays are calculated
  *
  * @author Igor Kvasnicka
  */
 public abstract class DelayHelper {
+    private static UnivariateRealInterpolator interpolator = new LinearInterpolator();
 
-    public static final double MIN_PROCESSING_DELAY = 0.5; //msec
+    private static Logger logg = Logger.getLogger(DelayHelper.class);
+    public static final double MIN_PROCESSING_DELAY = 0.5; //msec     //todo change to 0.018 or possibly another value - 0.5 msec is simply too big
 
 
     public static double calculateSerialisationDelay(Edge edge, int packetSize) {
@@ -41,10 +48,25 @@ public abstract class DelayHelper {
         return edge.getLength() / (2.1 * Math.pow(10, 8));
     }
 
-    public static double calculateProcessingDelay(NetworkNode networkNode) {
-//        networkNode.getMinProcessingDelay()
-//        networkNode.getMaxProcessingDelay()
-        return 0.018;
+    /**
+     * processing delay is a variable delay calculated depending in number of packets being processed by CPU right now
+     * before simulation started, user entered minimum and maximum value for processing delay and maximum number of packets being simultaneously processed
+     * <p/>
+     * processing delay is interpolated according these values
+     *
+     * @param networkNode
+     * @return
+     */
+    public static double calculateProcessingDelay(NetworkNode networkNode) {  //todo cache all iterpolation objects so that they need not to be initialised over and over
+        UnivariateRealFunction function = null;
+        try {
+            function = interpolator.interpolate(new double[]{0.0, networkNode.getMaxProcessingPackets()}, new double[]{networkNode.getMinProcessingDelay(), networkNode.getMaxProcessingDelay()});
+            double interpolationX = networkNode.getPacketsInProcessing().size();
+            return function.value(interpolationX);
+        } catch (MathException e) {
+            logg.error(e);
+            return MIN_PROCESSING_DELAY;
+        }
     }
 
     /**

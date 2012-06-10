@@ -121,6 +121,7 @@ public abstract class NetworkNode implements Serializable {
     /**
      * maximum number of simultaneously processed packets
      */
+    @Getter
     private int maxProcessingPackets;
     @Getter
     private double tcpDelay;
@@ -153,6 +154,8 @@ public abstract class NetworkNode implements Serializable {
         this.maxIntputQueueSize = maxIntputQueueSize;
         this.maxProcessingPackets = maxProcessingPackets;
         this.tcpDelay = tcpDelay;
+        this.minProcessingDelay = minProcessingDelay;
+        this.maxProcessingDelay = maxProcessingDelay;
     }
 
     /**
