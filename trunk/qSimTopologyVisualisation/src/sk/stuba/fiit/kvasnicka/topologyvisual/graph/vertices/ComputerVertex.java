@@ -20,7 +20,7 @@ public class ComputerVertex extends TopologyVertex {
      * @param computer computer associated with this vertex
      */
     public ComputerVertex(NetworkNode computer) {
-        super(ImageType.TOPOLOGY_VERTEX_COMPUTER, computer.getName());
+        super(ImageType.TOPOLOGY_VERTEX_COMPUTER, computer.getName(),computer.getDescription());
         if (computer instanceof Computer) {
             this.computer = (Computer) computer;
         } else {

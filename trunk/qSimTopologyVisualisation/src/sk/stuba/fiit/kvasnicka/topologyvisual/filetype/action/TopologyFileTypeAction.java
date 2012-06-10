@@ -13,7 +13,7 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.WindowManager;
-import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.RoutingSettings;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.RoutingSettings;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
 
 @ActionID(category = "File",

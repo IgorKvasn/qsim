@@ -24,7 +24,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
-import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.utils.DialogHandler;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.DialogHandler;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.VertexSelectionManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;

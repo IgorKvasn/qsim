@@ -42,13 +42,14 @@ public abstract class TopologyVertex implements Serializable {
      *
      * @param imageType type of vertex
      */
-    protected TopologyVertex(ImageType imageType, String name) {
+    protected TopologyVertex(ImageType imageType, String name, String description) {
         this.imageType = imageType;
         this.name = name;
+        this.description = description;
         this.icon = ImageResourceHelper.loadImageVertex(imageType, false);
         if (icon == null) {
             throw new IllegalStateException("icon not loaded");
-        }
+        }        
     }
 
     /**
