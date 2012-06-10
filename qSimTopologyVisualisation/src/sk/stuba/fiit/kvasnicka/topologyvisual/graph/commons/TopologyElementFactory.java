@@ -2,7 +2,7 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.graph.commons;
 
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.topologyvisual.dialogs.utils.DialogHandler;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.DialogHandler;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.ComputerVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.RouterVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.SwitchVertex;

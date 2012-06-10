@@ -21,7 +21,7 @@ public class RouterVertex extends TopologyVertex {
      * @param router router associated with this vertex
      */
     public RouterVertex(NetworkNode router) {
-        super(ImageType.TOPOLOGY_VERTEX_ROUTER, router.getName());
+        super(ImageType.TOPOLOGY_VERTEX_ROUTER, router.getName(), router.getDescription());
         if (router instanceof Router) {
             this.router = (Router) router;
         } else {

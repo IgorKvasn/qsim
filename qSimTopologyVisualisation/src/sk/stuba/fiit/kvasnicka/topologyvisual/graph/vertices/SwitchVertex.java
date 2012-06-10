@@ -18,7 +18,7 @@ public class SwitchVertex extends TopologyVertex {
     private Switch sw;
 
     public SwitchVertex(NetworkNode sw) {
-        super(ImageType.TOPOLOGY_VERTEX_SWITCH, sw.getName());
+        super(ImageType.TOPOLOGY_VERTEX_SWITCH, sw.getName(), sw.getDescription());
         if (sw instanceof Switch) {
             this.sw = (Switch) sw;
         } else {
