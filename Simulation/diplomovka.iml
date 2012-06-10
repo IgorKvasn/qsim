@@ -5,6 +5,7 @@
     <output-test url="file://$USER_HOME$/dimplomovka/projekt/qsim-netbeans/QSim/Simulation/target/test-classes" />
     <content url="file://$USER_HOME$/dimplomovka/projekt/qsim-netbeans/QSim/Simulation">
       <sourceFolder url="file://$USER_HOME$/dimplomovka/projekt/qsim-netbeans/QSim/Simulation/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/dimplomovka/projekt/qsim-netbeans/QSim/Simulation/src/main/resources" isTestSource="false" />
       <sourceFolder url="file://$USER_HOME$/dimplomovka/projekt/qsim-netbeans/QSim/Simulation/src/test/java" isTestSource="true" />
       <excludeFolder url="file://$USER_HOME$/dimplomovka/projekt/qsim-netbeans/QSim/Simulation/target" />
     </content>
@@ -33,6 +34,7 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.javassist:javassist:3.15.0-GA" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.powermock:powermock-api-easymock:1.4.11" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.powermock:powermock-api-support:1.4.11" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-math:2.2" level="project" />
   </component>
   <component name="org.twodividedbyzero.idea.findbugs">
     <option name="_basePreferences">
