@@ -1,5 +1,7 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils;
 
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
@@ -10,20 +12,53 @@ import javax.swing.JFrame;
  * @author Igor Kvasnicka
  */
 public abstract class BlockingDialog<R> extends JDialog {
+
     /**
      * here is stored user input
      */
     private R userInput;
 
     /**
-     * creates new instance of JDialog
-     * this dialog cannot be closed by clicking on "close" button in upper bar - so do not forget to create your own Close/Cancel button
+     * creates new instance of JDialog this dialog cannot be closed by clicking
+     * on "close" button in upper bar - so do not forget to create your own
+     * Close/Cancel button
      *
      * @param owner owner of this dialog
      */
     protected BlockingDialog(JFrame owner) {
         super(owner, true);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowListener() {
+
+            @Override
+            public void windowOpened(WindowEvent e) {
+            }
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+                cancelDialog();
+            }
+
+            @Override
+            public void windowClosed(WindowEvent e) {
+            }
+
+            @Override
+            public void windowIconified(WindowEvent e) {
+            }
+
+            @Override
+            public void windowDeiconified(WindowEvent e) {
+            }
+
+            @Override
+            public void windowActivated(WindowEvent e) {
+            }
+
+            @Override
+            public void windowDeactivated(WindowEvent e) {
+            }
+        });
     }
 
     /**
@@ -33,7 +68,6 @@ public abstract class BlockingDialog<R> extends JDialog {
         setLocationRelativeTo(super.getOwner());
         setVisible(true);
     }
-
 
     /**
      * method that returns user input data
@@ -45,8 +79,8 @@ public abstract class BlockingDialog<R> extends JDialog {
     }
 
     /**
-     * sets userInput property
-     * this property will be returned as a result of this dialog
+     * sets userInput property this property will be returned as a result of
+     * this dialog
      *
      * @param userInput user input
      */
@@ -55,11 +89,19 @@ public abstract class BlockingDialog<R> extends JDialog {
     }
 
     /**
-     * closes dialog after
-     * <b>NOTE:</b> this method should be called after the <i>userInput</i> property is being set
+     * closes dialog after <b>NOTE:</b> this method should be called after the
+     * <i>userInput</i> property is being set
      */
     protected void closeDialog() {
         this.setVisible(false);
         this.dispose();
+    }
+
+    /**
+     * user presses cancel button
+     */
+    protected void cancelDialog() {
+        userInput = null;
+        closeDialog();
     }
 }

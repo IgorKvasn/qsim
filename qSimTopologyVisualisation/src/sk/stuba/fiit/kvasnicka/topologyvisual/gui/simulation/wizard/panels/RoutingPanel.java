@@ -96,7 +96,7 @@ public class RoutingPanel extends PanelInterface {
     private void showRoute(TopologyVertex[] vertices) {
         try {
             jLabel1.setVisible(false);
-            activeTopology.highlightEdgesFromTo(iterator.getSourceVertex(), iterator.getDestinationVertex(), vertices);
+            activeTopology.highlightEdgesFromTo(iterator.getStoredData().getSourceVertex(), iterator.getStoredData().getDestinationVertex(), vertices);
         } catch (RoutingException ex) {
             jLabel1.setText(ex.getMessage());
             jLabel1.setVisible(true);
@@ -197,7 +197,7 @@ public class RoutingPanel extends PanelInterface {
         }
         try {
             jLabel1.setVisible(false);
-            activeTopology.highlightEdgesFromTo(iterator.getSourceVertex(), iterator.getDestinationVertex());
+            activeTopology.highlightEdgesFromTo(iterator.getStoredData().getSourceVertex(), iterator.getStoredData().getDestinationVertex());
         } catch (RoutingException ex) {
             jLabel1.setText(ex.getMessage());
             jLabel1.setVisible(true);
@@ -208,12 +208,12 @@ public class RoutingPanel extends PanelInterface {
     @Override
     public boolean validateData() {
         //route must be selected
-        if (iterator.getRoute() == null || iterator.getRoute().isEmpty()) {
+        if (iterator.getStoredData().getRoute() == null || iterator.getStoredData().getRoute().isEmpty()) {
             return false;
         }
         //check for cycles
         try {
-            activeTopology.highlightEdgesFromTo(iterator.getSourceVertex(), iterator.getDestinationVertex());
+            activeTopology.highlightEdgesFromTo(iterator.getStoredData().getSourceVertex(), iterator.getStoredData().getDestinationVertex());
         } catch (RoutingException ex) {
             jLabel1.setText(ex.getMessage());
             jLabel1.setVisible(true);
