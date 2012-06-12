@@ -5,16 +5,15 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard;
 
 import java.util.List;
+import javax.swing.JPanel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.ContainerPanel;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.PacketSendingPanel;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.PanelInterface;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.RoutingPanel;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.VerticesSelectionPanel;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.*;
 
 /**
  *
@@ -29,13 +28,10 @@ public class SimulationRuleIterator {
     @Setter
     private ContainerPanel containerPanel;
     @Getter
-    @Setter
-    private TopologyVertex sourceVertex, destinationVertex;
-    @Getter
-    @Setter
-    private List<TopologyEdge> route;
+    private Data storedData;
 
     public SimulationRuleIterator() {
+        storedData = new Data();
     }
 
     /**
@@ -101,6 +97,16 @@ public class SimulationRuleIterator {
     }
 
     /**
+     * validates currently visible panel
+     */
+    public boolean isCurrentPanelValid() {
+        if (actualPanel < 0 || panels.length <= actualPanel) {
+            throw new IllegalStateException("illegal number of actual panel: " + actualPanel);
+        }
+        return panels[actualPanel].validateData();
+    }
+
+    /**
      * moves panel to he previous one and shows this panel
      */
     public void previousPanel() {
@@ -125,7 +131,27 @@ public class SimulationRuleIterator {
      * deletes all information stored during wizard life-cycle
      */
     public void cancelIterator() {
-        sourceVertex = null;
-        destinationVertex = null;
+        storedData = null;
+    }
+
+    public JPanel getCurrentPanel() {
+        if (actualPanel < 0 || panels.length <= actualPanel) {
+            throw new IllegalStateException("illegal number of actual panel: " + actualPanel);
+        }
+        return panels[actualPanel];
+    }
+
+    @Getter
+    @Setter
+    public static class Data {
+
+        private TopologyVertex sourceVertex, destinationVertex;
+        private List<TopologyEdge> route;//todo toto sa nikde neuklada
+        private Layer4TypeEnum layer4protocol;
+        private int packetSize;
+        private int packetCount;
+        private PacketTypeEnum packetType;
+        private int activationDelay;
+        private boolean ping;
     }
 }

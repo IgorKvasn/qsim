@@ -537,8 +537,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
         //cancel button
-        setUserInput(null);
-        closeDialog();
+        cancelDialog();
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed

@@ -29,6 +29,7 @@ persistenceType = TopComponent.PERSISTENCE_NEVER)
 @ActionReference(path = "Menu/Window" /*
  * , position = 333
  */)
+
 //workaround for bug: http://netbeans.org/bugzilla/show_bug.cgi?id=208059
 //@TopComponent.OpenActionRegistration(displayName = "#CTL_AddSimulationAction",
 //preferredID = "AddSimulationTopComponent")

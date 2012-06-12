@@ -121,8 +121,28 @@ public class ContainerPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        if (panelIterator.isPanelLast()) {//finishing wizard
-            //todo add new rule to simulation rule manager and also to jList in Simulationtopcomponent
+        if (panelIterator.isPanelLast()) {//finishing wizard            
+            if (panelIterator.isCurrentPanelValid()) {//check for last panel validity
+                //todo add new rule to simulation rule manager and also to jList in Simulationtopcomponent
+                
+                
+                //delete all used data
+                panelIterator.cancelIterator();
+
+                //close this top component
+                AddSimulationTopComponent componentAdd = (AddSimulationTopComponent) WindowManager.getDefault().findTopComponent("AddSimulationTopComponent");
+                if (componentAdd == null) {
+                    logg.error("Could not find component AddSimulationTopComponent");
+                    return;
+                }
+                componentAdd.close();
+            } else {
+                try {
+                    ((PacketSendingPanel) panelIterator.getCurrentPanel()).showErrorLabel(NbBundle.getMessage(ContainerPanel.class, "packetSendingPanel_not_valid"));
+                } catch (ClassCastException e) {
+                    throw new IllegalStateException("last panel is not PacketSendingPanel - this should not happen");
+                }
+            }
         }
 
         panelIterator.nextPanel();
