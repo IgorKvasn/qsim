@@ -14,6 +14,7 @@ import java.util.*;
 import org.apache.log4j.Logger;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
@@ -43,6 +44,45 @@ public class RoutingHelper {
 
     public RoutingHelper() {
         topologyFacade = findTopologyFacade();
+    }
+
+    /**
+     *
+     * route specified by consequent topology edges creates route specified as
+     * list of NetworkNodes
+     *
+     * @param route
+     * @return
+     */
+    public static List<NetworkNode> createRouteFromEdgeList(NetworkNode start, NetworkNode end, List<TopologyEdge> route) {
+        List<NetworkNode> routeNodes = new LinkedList<NetworkNode>();
+        NetworkNode previousNode = start;
+        routeNodes.add(start);
+
+        for (TopologyEdge edge : route) {
+            NetworkNode nextNode = getNextNetworkNode(previousNode, edge.getEdge());
+            routeNodes.add(nextNode);
+            previousNode = nextNode;
+        }
+
+        return routeNodes;
+    }
+
+    /**
+     * for a given edge returns the other end of the edge
+     *
+     * @param node1 first end of the edge
+     * @param edge the edge itself
+     * @return the second end of the edge
+     */
+    private static NetworkNode getNextNetworkNode(NetworkNode node1, Edge edge) {
+        if (edge.getNode1().getName().equals(node1.getName())) {
+            return edge.getNode2();
+        }
+        if (edge.getNode2().getName().equals(node1.getName())) {
+            return edge.getNode1();
+        }
+        throw new IllegalStateException("NetworkNode " + node1 + " is not part of the edge between nodes: " + edge.getNode1() + " <-> " + edge.getNode2());
     }
 
     private static List<NetworkNode> convertStringList2NetworkNodeList(Collection<String> col) {

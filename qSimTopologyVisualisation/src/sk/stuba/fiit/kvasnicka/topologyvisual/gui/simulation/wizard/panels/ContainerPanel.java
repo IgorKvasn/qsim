@@ -9,10 +9,13 @@ import javax.swing.JPanel;
 import org.apache.log4j.Logger;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.AddSimulationTopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.utils.SimulationRuleHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
+import sk.stuba.fiit.kvasnicka.topologyvisual.route.RoutingHelper;
 
 /**
  *
@@ -122,10 +125,11 @@ public class ContainerPanel extends javax.swing.JPanel {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         if (panelIterator.isPanelLast()) {//finishing wizard            
-            if (panelIterator.isCurrentPanelValid()) {//check for last panel validity
-                //todo add new rule to simulation rule manager and also to jList in Simulationtopcomponent
-                
-                
+            if (panelIterator.isCurrentPanelValid()) { //check for last panel validity
+
+                SimulationRuleBean newRule = SimulationRuleHelper.newSimulationRule(null, panelIterator.getStoredData()); //todo simulation facade 
+                //todo add new rule to jList in Simulationtopcomponent
+
                 //delete all used data
                 panelIterator.cancelIterator();
 
