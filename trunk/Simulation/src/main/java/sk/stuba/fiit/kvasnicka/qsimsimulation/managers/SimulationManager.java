@@ -21,7 +21,7 @@
  */
 package sk.stuba.fiit.kvasnicka.qsimsimulation.managers;
 
-import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationRuleBean;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.util.Collections;
 import java.util.LinkedList;

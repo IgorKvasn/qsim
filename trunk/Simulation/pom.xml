@@ -44,34 +44,34 @@
             </plugin>
 
             <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-jar-plugin</artifactId>
-               <version>2.2</version>
-               <!-- nothing here -->
-             </plugin>
-             <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-assembly-plugin</artifactId>
-               <version>2.3</version>
-               <configuration>
-                 <descriptorRefs>
-                   <descriptorRef>jar-with-dependencies</descriptorRef>
-                 </descriptorRefs>
-                 <archive>
-                   <manifest>
-                     <mainClass>org.sample.App</mainClass>
-                   </manifest>
-                 </archive>
-               </configuration>
-               <executions>
-                 <execution>
-                   <phase>package</phase>
-                   <goals>
-                     <goal>single</goal>
-                   </goals>
-                 </execution>
-               </executions>
-             </plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.2</version>
+                <!-- nothing here -->
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.sample.App</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
         </plugins>
     </build>
@@ -124,6 +124,20 @@
             <artifactId>commons-math</artifactId>
             <version>2.2</version>
         </dependency>
+
+        <!--JoSQL-->
+        <dependency>
+            <artifactId>josql</artifactId>
+            <groupId>org.josql</groupId>
+            <version>2.2</version>
+        </dependency>
+
+        <dependency>
+            <artifactId>gentlyweb-utils</artifactId>
+            <groupId>com.gentlyweb.utils</groupId>
+            <version>1.1</version>
+        </dependency>
+        <!--End of JoSQL-->
 
 
     </dependencies>

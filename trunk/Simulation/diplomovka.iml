@@ -35,6 +35,8 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.powermock:powermock-api-easymock:1.4.11" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.powermock:powermock-api-support:1.4.11" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-math:2.2" level="project" />
+    <orderEntry type="library" name="Maven: org.josql:josql:2.2" level="project" />
+    <orderEntry type="library" name="Maven: com.gentlyweb.utils:gentlyweb-utils:1.1" level="project" />
   </component>
   <component name="org.twodividedbyzero.idea.findbugs">
     <option name="_basePreferences">

@@ -19,7 +19,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package sk.stuba.fiit.kvasnicka.qsimsimulation;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.rule;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -127,6 +127,9 @@ public class SimulationRuleBean {
         return numberOfPackets == 0;
     }
 
+    /**
+     * forces simulation rule to send on 1 packet
+     */
     public void resetNumberOfPacketsToOne() {
         numberOfPackets = 1;
     }

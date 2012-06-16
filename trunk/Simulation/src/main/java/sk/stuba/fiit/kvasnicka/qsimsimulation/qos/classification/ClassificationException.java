@@ -15,34 +15,13 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package sk.stuba.fiit.kvasnicka.qsimsimulation.enums;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification;
 
 /**
  * @author Igor Kvasnicka
  */
-public enum PacketTypeEnum {
-    AUDIO_PACKET {
-        public String toString() {
-            return "AUDIO";
-        }
-    },
-    VIDEO_PACKET {
-        public String toString() {
-            return "VIDEO";
-        }
-    },
-    DATA_PACKET {
-        public String toString() {
-            return "DATA";
-        }
-    },
-    CUSTOM {
-        public String toString() {
-            return "CUSTOM";
-        }
+public class ClassificationException extends Exception {
+    public ClassificationException(String s) {
+        super(s);
     }
 }
