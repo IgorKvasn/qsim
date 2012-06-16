@@ -19,7 +19,7 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.facade;
 
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationRuleBean;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 
@@ -116,19 +116,13 @@ public class SimulationFacade {
      */
     public void addSimulationRule(SimulationRuleBean rule) {
         if (timer == null) throw new IllegalStateException("Adding simulation rule: timer has not been started");
-        timer.addSimulationrule(rule);
+        if (rule.isPing()) {
+            timer.addPingSimulationRule(rule);
+        } else {
+            timer.addSimulationrule(rule);
+        }
     }
 
-    /**
-     * adds new simulation rule for ping
-     *
-     * @param rule        simulation rule
-     * @param pingRepeats number of ping packets that will be sent; packets are send one after another - not all at once
-     */
-    public void addPingRule(SimulationRuleBean rule, int pingRepeats) {
-        if (timer == null) throw new IllegalStateException("Adding ping rule: timer has not been started");
-        timer.addPingSimulationRule(rule, pingRepeats);
-    }
 
     /**
      * detects if simulation timer is running

@@ -28,6 +28,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.ping.PingManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import javax.swing.Timer;
 import java.awt.event.ActionEvent;
@@ -92,7 +93,9 @@ public class SimulationTimer implements ActionListener {
         timer.start();
     }
 
-    public void addPingSimulationRule(SimulationRuleBean rule, int repetitions) {
+    public void addPingSimulationRule(SimulationRuleBean rule) {
+        int repetitions = rule.getNumberOfPackets();
+        rule.resetNumberOfPacketsToOne();
         simulationManager.addSimulationRule(rule);
         pingManager.addPing(rule, repetitions);
     }

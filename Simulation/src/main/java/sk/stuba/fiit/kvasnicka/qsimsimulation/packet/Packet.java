@@ -21,10 +21,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 /**
  * @author Igor Kvasnicka
@@ -91,9 +91,13 @@ public class Packet {
 
     /**
      * returns a type of packet - audio, video, data, ...
+     * <p/>
+     * this method is used by classification criteria to access getPacketType() method that is not accessible directly from Packet class,
+     * but indirectly using SimulationRule
      *
      * @return type of packet
      */
+
     public PacketTypeEnum getPacketType() {
         return simulationRule.getPacketTypeEnum();
     }
@@ -101,6 +105,27 @@ public class Packet {
     public NetworkNode getDestination() {
         return simulationRule.getDestination();
     }
+
+    /**
+     * this method is used by classification criteria to access getSource() method that is not accessible directly from Packet class,
+     * but indirectly using SimulationRule
+     *
+     * @return
+     */
+    public NetworkNode getSource() {
+        return simulationRule.getSource();
+    }
+
+    /**
+     * this method is used by classification criteria to access getPacketSize() method that is not accessible directly from Packet class,
+     * but indirectly using SimulationRule
+     *
+     * @return
+     */
+    public int getSize() {
+        return simulationRule.getPacketSize();
+    }
+
 
     /**
      * answers the question: Is this packet finally delivered to his destination?

@@ -20,13 +20,12 @@ package sk.stuba.fiit.kvasnicka.itegration;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationRuleBean;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
@@ -104,7 +103,7 @@ public class PingTest {
         rule.addRoute(Arrays.asList(node1, node2));
 
         timer.startSimulationTimer(simulationManager);
-        timer.addPingSimulationRule(rule, 2);
+        timer.addPingSimulationRule(rule);
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);
@@ -134,7 +133,7 @@ public class PingTest {
         rule.addRoute(Arrays.asList(node1, node2, node3));
 
         timer.startSimulationTimer(simulationManager);
-        timer.addPingSimulationRule(rule, 2);
+        timer.addPingSimulationRule(rule);
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);
@@ -167,7 +166,6 @@ public class PingTest {
      * @throws IllegalAccessException
      */
     @Test
-    @Ignore
     public void testSinglePacketSimulation_infinitePing() throws NoSuchFieldException, IllegalAccessException {
 
 
@@ -175,11 +173,11 @@ public class PingTest {
 
         simulationManager = new SimulationManager();
 
-        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
+        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, -1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);    //notice this -1
         rule.addRoute(Arrays.asList(node1, node2));
 
         timer.startSimulationTimer(simulationManager);
-        timer.addPingSimulationRule(rule, - 1); //notice this -1
+        timer.addPingSimulationRule(rule);
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);
