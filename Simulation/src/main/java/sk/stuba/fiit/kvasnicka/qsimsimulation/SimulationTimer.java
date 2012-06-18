@@ -100,7 +100,7 @@ public class SimulationTimer implements ActionListener {
         pingManager.addPing(rule, repetitions);
     }
 
-    public void addSimulationrule(SimulationRuleBean rule) {
+    public void addSimulationRule(SimulationRuleBean rule) {
         simulationManager.addSimulationRule(rule);
     }
 

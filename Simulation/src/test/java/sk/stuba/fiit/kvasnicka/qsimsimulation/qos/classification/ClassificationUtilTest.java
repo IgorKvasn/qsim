@@ -82,14 +82,14 @@ public class ClassificationUtilTest {
 
         Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
 
-        ClassificationUtil.isClassificationRuleApplied("NOT foo('aa')", packet);
-
-
-        boolean result = ClassificationUtil.isClassificationRuleApplied("NOT destination(['a','node2','c','d'])", packet);
+        boolean result = ClassificationUtil.isClassificationRuleApplied("notdestination(['a','node2','c','d'])", packet);
         assertFalse(result);
 
-        boolean result2 = ClassificationUtil.isClassificationRuleApplied("NOT destination(['a','b','c','d'])", packet);
+        boolean result2 = ClassificationUtil.isClassificationRuleApplied("notdestination(['a','b','c','d'])", packet);
         assertTrue(result2);
+
+        boolean result3 = ClassificationUtil.isClassificationRuleApplied("notdestination('a')", packet);
+        assertTrue(result3);
     }
 
     @Test
@@ -126,6 +126,27 @@ public class ClassificationUtilTest {
 
         boolean result2 = ClassificationUtil.isClassificationRuleApplied("source('a')", packet);
         assertFalse(result2);
+    }
+
+    @Test
+    public void testIsClassificationRuleApplied_source_negation() throws ClassificationException {
+
+        NetworkNode node1 = new Router("node1", null, null, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node2 = new Router("node2", null, null, 10, 10, 10, 10, 100, 0, 0);
+
+        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
+        rule.addRoute(Arrays.asList(node1, node2));
+
+        Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
+
+        boolean result = ClassificationUtil.isClassificationRuleApplied("notsource(['a','node1','c','d'])", packet);
+        assertFalse(result);
+
+        boolean result2 = ClassificationUtil.isClassificationRuleApplied("notsource ( ['a','b','c','d' ] ) ", packet);
+        assertTrue(result2);
+
+        boolean result3 = ClassificationUtil.isClassificationRuleApplied("notsource('a')", packet);
+        assertTrue(result3);
     }
 
     @Test

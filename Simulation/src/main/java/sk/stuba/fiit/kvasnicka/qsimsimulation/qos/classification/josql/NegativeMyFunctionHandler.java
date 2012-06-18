@@ -15,13 +15,27 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.josql;
+
+import java.util.List;
 
 /**
  * @author Igor Kvasnicka
  */
-public class ClassificationException extends Exception {
-    public ClassificationException(String msg, Exception cause) {
-        super(msg, cause);
+public class NegativeMyFunctionHandler extends MyFunctionHandler {
+    public Boolean notdestination(List<String> nodesToSearch) {
+        return ! super.destination(nodesToSearch);
+    }
+
+    public Boolean notdestination(String node) {
+        return ! super.destination(node);
+    }
+
+    public Boolean notsource(List<String> nodesToSearch) {
+        return ! super.source(nodesToSearch);
+    }
+
+    public Boolean notsource(String node) {
+        return ! super.source(node);
     }
 }
