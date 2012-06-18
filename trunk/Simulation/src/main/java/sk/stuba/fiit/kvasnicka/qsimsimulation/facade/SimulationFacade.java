@@ -119,7 +119,7 @@ public class SimulationFacade {
         if (rule.isPing()) {
             timer.addPingSimulationRule(rule);
         } else {
-            timer.addSimulationrule(rule);
+            timer.addSimulationRule(rule);
         }
     }
 

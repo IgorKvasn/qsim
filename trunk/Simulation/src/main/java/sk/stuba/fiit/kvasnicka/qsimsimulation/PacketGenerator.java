@@ -18,7 +18,6 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation;
 
 import org.apache.log4j.Logger;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
@@ -105,7 +104,7 @@ public class PacketGenerator {
         while (timeSpent <= creationTime && rule.getNumberOfPackets() > 0) {
             double creationDelay = DelayHelper.calculatePacketCreationDelay(rule.getSource(), rule.getPacketSize(), rule.getPacketTypeEnum());
             if (timeSpent + creationDelay > timeQuantum) break; //no time left to spent
-            packets.add(createPacket(rule.getPacketSize(), rule.getDestination(), rule.getSource(), rule, rule.getLayer4Type(), rule.getActivationTime() + timeSpent + simulationTime));
+            packets.add(createPacket(rule.getPacketSize(), rule, rule.getLayer4Type(), rule.getActivationTime() + timeSpent + simulationTime));
             timeSpent += creationDelay;//I have spent some time
             rule.decreaseNumberOfPackets();
         }
@@ -119,13 +118,11 @@ public class PacketGenerator {
      * creates one packet
      *
      * @param packetSize   size of packet in bytes
-     * @param destination  final destination of this packet
-     * @param source       source that initially created this packet
      * @param rule         simulation rule that is associated with this packet
      * @param creationTime simulation time, when this packet was created
      * @return a new packet
      */
-    private Packet createPacket(int packetSize, NetworkNode destination, NetworkNode source, SimulationRuleBean rule, Layer4TypeEnum layer4, double creationTime) {
+    private Packet createPacket(int packetSize, SimulationRuleBean rule, Layer4TypeEnum layer4, double creationTime) {
         if (rule.isPing()) {
             return new PingPacket(pingManager, packetSize, layer4, packetManager, rule, creationTime);
         }
