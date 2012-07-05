@@ -9,6 +9,7 @@ import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.AbstractGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
+import edu.uci.ics.jung.visualization.VisualizationViewer.GraphMouse;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
@@ -243,7 +244,7 @@ public class Topology implements VertexCreatedListener {
      *
      * @param mainFrame reference to MainFrame object
      */
-    private void initMouseControlTopologyCreation(TopologyVisualisation topolElementTopComponent) {
+    private void initMouseControlTopologyCreation(TopologyVisualisation topolElementTopComponent) {               
         graphMouse = new MyEditingModalGraphMouse(vv.getRenderContext(), vertexFactory, this);
         graphMouse.getMyEditingGraphMousePlugin().addVertexCreatedListener(this);
         graphMouse.getMyEditingGraphMousePlugin().addVertexCreatedListener(topolElementTopComponent);
@@ -274,28 +275,6 @@ public class Topology implements VertexCreatedListener {
      * inits plugins for routing mode
      */
     private void initTopologyRoutingMode() {
-    }
-
-    /**
-     * adds new vertex to the topology
-     *
-     * @param x x-coordinate of center of the vertex
-     * @param y y-coordinate of center of the vertex
-     * @param element what kind of element is about to add (router, PC,...)
-     */
-    public void addVertex(TopologyVertex element, int x, int y) {
-        addVertex(element, new Point(x, y));
-    }
-
-    /**
-     * adds new vertex to the topology
-     *
-     * @param position vertex position of the center
-     * @param element what kind of element is about to add (router, PC,...)
-     */
-    public void addVertex(TopologyVertex element, Point2D position) {
-        g.addVertex(element);
-        layout.setLocation(element, vv.getRenderContext().getMultiLayerTransformer().inverseTransform(position));
     }
 
     /**
@@ -457,6 +436,7 @@ public class Topology implements VertexCreatedListener {
         topolElementTopComponent.addJungIntoFrame(vv);
 
     }
+
     /**
      * higlights edges from one vertex to other. to computer edges between these
      * two vertices will be used algorithm specified in file settings. This
