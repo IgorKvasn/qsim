@@ -18,6 +18,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 /**
  * @author Igor Kvasnicka
  */
+@Deprecated
 public class MyEditingGraphMousePlugin extends EditingGraphMousePlugin<TopologyVertex, TopologyEdge> {
 
     /**

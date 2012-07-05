@@ -49,7 +49,7 @@ public abstract class TopologyVertex implements Serializable {
         this.icon = ImageResourceHelper.loadImageVertex(imageType, false);
         if (icon == null) {
             throw new IllegalStateException("icon not loaded");
-        }        
+        }
     }
 
     /**
@@ -103,6 +103,7 @@ public abstract class TopologyVertex implements Serializable {
         if (icon instanceof LayeredIcon) {
             ((LayeredIcon) icon).setImage(ImageResourceHelper.loadImageVertexAsImage(imageType, false));
         }
+        selected = false;
     }
 
     /**

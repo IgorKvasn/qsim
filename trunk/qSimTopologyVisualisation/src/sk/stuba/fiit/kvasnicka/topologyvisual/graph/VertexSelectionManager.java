@@ -20,14 +20,38 @@ public class VertexSelectionManager {
     @Getter
     private LinkedHashSet<TopologyVertex> selectedVertices = new LinkedHashSet<TopologyVertex>();
 
+    /**
+     * adds vertex to a list of all selected vertices <br>this method does not
+     * actually visually select a vertex
+     *
+     * @param v
+     */
     public void addSelectedVertex(TopologyVertex v) {
         selectedVertices.add(v);
         fireVertexCreatedEvent(new VertexSelectionChangedEvent(this));
     }
 
+    /**
+     * removes latest selected vertex from a list of all selected vertices
+     * <br>this method does not actually visually deselect a vertex
+     *
+     * @param v
+     */
     public void removeSelectedVertex(TopologyVertex v) {
         selectedVertices.remove(v);
         fireVertexCreatedEvent(new VertexSelectionChangedEvent(this));
+    }
+
+    /**
+     * removes all selected vertex from a list of all selected vertices <br>this
+     * method does not actually visually deselect a vertex
+     *
+     * @param v
+     */
+    public void deselectAll() {
+        selectedVertices.clear();
+        fireVertexCreatedEvent(new VertexSelectionChangedEvent(this));
+
     }
 
     /**
