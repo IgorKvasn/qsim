@@ -37,11 +37,7 @@ public class SimulationRuleHelper {
      */
     public static SimulationRuleBean newSimulationRule(SimulationFacade simulationFacade, SimulationRuleIterator.Data data) {
         SimulationRuleBean rule = createSimulationRule(data);
-        if (!rule.isPing()) {
-            simulationFacade.addSimulationRule(rule);
-        } else {
-            simulationFacade.addPingRule(rule, data.getPingRepeats());
-        }
+        simulationFacade.addSimulationRule(rule);
         return rule;
     }
 }

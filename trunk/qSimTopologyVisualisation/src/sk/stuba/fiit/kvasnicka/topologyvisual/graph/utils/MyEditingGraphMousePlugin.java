@@ -24,7 +24,7 @@ public class MyEditingGraphMousePlugin extends EditingGraphMousePlugin<TopologyV
      * creates instance of my implementation of EditingGraphMousePlugin
      *
      * @param vertexFactory vertex factory
-     * @param edgeFactory   edge factory
+     * @param edgeFactory edge factory
      */
     public MyEditingGraphMousePlugin(Factory<TopologyVertex> vertexFactory, Factory<TopologyEdge> edgeFactory) {
         super(vertexFactory, edgeFactory);
@@ -50,8 +50,8 @@ public class MyEditingGraphMousePlugin extends EditingGraphMousePlugin<TopologyV
                 if (newVertex == null) {
                     return;//user hit cancel button so he does not want to create vertex after all
                 }
-                Layout<TopologyVertex, TopologyEdge> layout = vv.getModel().getGraphLayout();
                 graph.addVertex(newVertex);
+                Layout<TopologyVertex, TopologyEdge> layout = vv.getModel().getGraphLayout();
                 layout.setLocation(newVertex, vv.getRenderContext().getMultiLayerTransformer().inverseTransform(e.getPoint()));
                 fireVertexCreatedEvent(new VertexCreatedEvent(this, newVertex));
             }

@@ -153,6 +153,5 @@ public class SimulationRuleIterator {
         private PacketTypeEnum packetType;
         private int activationDelay;
         private boolean ping;
-        private int pingRepeats;
     }
 }
