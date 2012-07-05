@@ -27,7 +27,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
  */
 public class VertexPickedSimulRulesListener implements GraphMouseListener<TopologyVertex> {
 
-    private static Logger logg = Logger.getLogger(VertexPickedTopolCreationListener.class);
+    private static Logger logg = Logger.getLogger(VertexPickedSimulRulesListener.class);
     private DefaultVertexIconTransformer<TopologyVertex> imager;
     private TopologyVisualisation topComponent;
     private PickedState<TopologyVertex> ps;

@@ -46,11 +46,23 @@ public class TopologyVertexFactory implements Factory<TopologyVertex> {
         this.topolElementTopComponent = topolElementTopComponent;
     }
 
+    /**
+     * true when user wants to create <b>some</b> vertex (I don't know what type
+     * of vertex, yet)
+     */
+    public boolean canCreateVertex() {
+        if (topolElementTopComponent.getSelectedAction() == null) {//no action is selected = no topology vertex should be created
+            return false;
+        }
+        return true;
+    }
+
     @Override
     public TopologyVertex create() {
         if (topolElementTopComponent == null) {
             throw new IllegalStateException("topolElementTopComponent is NULL");
         }
+
         try {
             NetworkNode node;
             switch (topolElementTopComponent.getSelectedAction()) {

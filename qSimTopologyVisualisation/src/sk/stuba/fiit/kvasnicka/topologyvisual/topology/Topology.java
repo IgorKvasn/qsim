@@ -9,11 +9,9 @@ import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.AbstractGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
+import edu.uci.ics.jung.visualization.LayeredIcon;
 import edu.uci.ics.jung.visualization.VisualizationViewer.GraphMouse;
-import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.GraphMouseListener;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.TranslatingGraphMousePlugin;
+import edu.uci.ics.jung.visualization.control.*;
 import edu.uci.ics.jung.visualization.decorators.DefaultVertexIconTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableVertexPaintTransformer;
@@ -23,9 +21,12 @@ import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.event.InputEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import lombok.Getter;
@@ -45,6 +46,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.MyVertexIconShapeTransformer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.VertexToIconTransformer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.TopologyPaletteTopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
 import sk.stuba.fiit.kvasnicka.topologyvisual.route.RoutingHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 
@@ -65,9 +68,10 @@ public class Topology implements VertexCreatedListener {
     private AbstractLayout<TopologyVertex, TopologyEdge> layout;
     private PopupVertexEdgeMenuMousePlugin popupVertexMenuMousePlugin;
     private MyVisualizationViewer vv;
-    private MyEditingModalGraphMouse graphMouse;
+    private MyGraphMouse graphMouse;
     private TopologyVertexFactory vertexFactory;
     private transient RoutingHelper routingHelper = new RoutingHelper();
+    @Getter
     private final TopologyVisualisation topolElementTopComponent;
     @Getter
     private TopologyModeEnum topologyMode = null;
@@ -81,6 +85,7 @@ public class Topology implements VertexCreatedListener {
      */
     public Topology(TopologyVisualisation topolElementTopComponent) {
         this.topolElementTopComponent = topolElementTopComponent;
+
     }
 
     public TopologyVertexFactory getVertexFactory() {
@@ -213,7 +218,10 @@ public class Topology implements VertexCreatedListener {
 
         //picking support, so that vertices can be selected
         vv.setPickSupport(new ShapePickSupport<TopologyVertex, TopologyEdge>(vv));
-        //vv.setPickedVertexState(new MultiPickedState<TopologyVertex>());
+
+        PickedState<TopologyVertex> pickedState = vv.getPickedVertexState();
+        pickedState.addItemListener(new VertexPickedTopolCreationListener(vertexIconFunction, topolElementTopComponent, pickedState));
+
 
     }
 
@@ -221,11 +229,7 @@ public class Topology implements VertexCreatedListener {
      * inits stuff related to Creation Mode
      */
     private void initTopologyCreateMode() {
-        vv.removeGraphMouseListener(vertexPickedListener);
-        PickedState<TopologyVertex> ps = vv.getPickedVertexState();
-        DefaultVertexIconTransformer<TopologyVertex> vertexIconTransformer = (DefaultVertexIconTransformer<TopologyVertex>) vv.getRenderContext().getVertexIconTransformer();
-        vertexPickedListener = new VertexPickedTopolCreationListener(vertexIconTransformer, topolElementTopComponent, ps);
-        vv.addGraphMouseListener(vertexPickedListener);
+
         //init mouse
         initMouseControlTopologyCreation(topolElementTopComponent);
 
@@ -244,17 +248,19 @@ public class Topology implements VertexCreatedListener {
      *
      * @param mainFrame reference to MainFrame object
      */
-    private void initMouseControlTopologyCreation(TopologyVisualisation topolElementTopComponent) {               
-        graphMouse = new MyEditingModalGraphMouse(vv.getRenderContext(), vertexFactory, this);
-        graphMouse.getMyEditingGraphMousePlugin().addVertexCreatedListener(this);
-        graphMouse.getMyEditingGraphMousePlugin().addVertexCreatedListener(topolElementTopComponent);
-        graphMouse.add(new TranslatingGraphMousePlugin(InputEvent.BUTTON3_MASK));
+    private void initMouseControlTopologyCreation(TopologyVisualisation topolElementTopComponent) {
+        if (graphMouse == null) {
+            graphMouse = new MyGraphMouse(vv.getRenderContext(), vertexFactory, this);
+            graphMouse.addVertexCreatedListener(this);
+            graphMouse.addVertexCreatedListener(topolElementTopComponent);
+            graphMouse.add(new TranslatingGraphMousePlugin(InputEvent.BUTTON3_MASK));
+
+            popupVertexMenuMousePlugin = new PopupVertexEdgeMenuMousePlugin(this);
+            graphMouse.add(popupVertexMenuMousePlugin);
+            graphMouse.setZoomAtMouse(true);
+        }
+
         graphMouse.setMode(ModalGraphMouse.Mode.PICKING);
-
-        popupVertexMenuMousePlugin = new PopupVertexEdgeMenuMousePlugin(this);
-        graphMouse.add(popupVertexMenuMousePlugin);
-        graphMouse.setZoomAtMouse(true);
-
         vv.setGraphMouse(graphMouse);
     }
 
@@ -357,16 +363,6 @@ public class Topology implements VertexCreatedListener {
      */
     public BasicVisualizationServer<TopologyVertex, TopologyEdge> getVv() {
         return vv;
-    }
-
-    /**
-     * sets JUNG's mode to EDITINNG, so that new vertices can be created
-     *
-     * @see #setTransformingMode()
-     * @see #setPickingMode()
-     */
-    public void setEditingMode() {
-        graphMouse.setMode(ModalGraphMouse.Mode.EDITING);
     }
 
     /**

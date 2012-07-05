@@ -178,16 +178,14 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     @Override
     public void paletteSelectedOccurred(PaletteSelectionEvent evt) {
         selectedAction = evt.getSelectedAction();
-        setStatusBarText(NbBundle.getMessage(TopologyVisualisation.class, "creating.new") + " " + selectedAction.getDisplayableName());
-        if (!PaletteActionEnum.isEdgeAction(selectedAction)) {//when creating new Vertex, editing mode is required
-            topology.setEditingMode();
-        }
+        setStatusBarText(NbBundle.getMessage(TopologyVisualisation.class, "creating.new") + " " + selectedAction.getDisplayableName());      
         topologyElementCreator.setAction(selectedAction);
     }
 
     @Override
     public void paletteDeselectedOccurred(PaletteSelectionEvent evt) {
         topologyElementCreator.cancelAction();
+        selectedAction = null;
     }
 
     public void paletteClearSelection() {
@@ -197,6 +195,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
             return;
         }
         component.clearSelection();
+        selectedAction = null;
     }
 
     private void openPaletteWindow() {
@@ -367,7 +366,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     void readProperties(java.util.Properties p) {
         String version = p.getProperty("version");
         active = Boolean.parseBoolean(p.getProperty("active"));
-        if (active){//make this topolvisual active and all other non-active
+        if (active) {//make this topolvisual active and all other non-active
             NetbeansWindowHelper.getInstance().activateWindow(this);
         }
         //  read your settings according to their version
