@@ -51,7 +51,7 @@ public class TopologyVertexFactory implements Factory<TopologyVertex> {
      * of vertex, yet)
      */
     public boolean canCreateVertex() {
-        if (topolElementTopComponent.getSelectedAction() == null) {//no action is selected = no topology vertex should be created
+        if (topolElementTopComponent.getSelectedAction() == null || topolElementTopComponent.getSelectedAction().isEdgeAction()) {//no action is selected = no topology vertex should be created
             return false;
         }
         return true;
@@ -75,7 +75,6 @@ public class TopologyVertexFactory implements Factory<TopologyVertex> {
                 case NEW_VERTEX_SWITCH:
                     node = topolElementTopComponent.getDialogHandler().showSwitchConfigurationDialog();
                     break;
-
                 default:
                     throw new IllegalStateException("undefined action for creating new vertex " + topolElementTopComponent.getSelectedAction());
             }

@@ -48,6 +48,7 @@ public class MyGraphMouse extends DefaultModalGraphMouse<TopologyVertex, Topolog
 
         }
         createVertex(e);
+        topology.getTopolElementTopComponent().deselectAction();
     }
 
     /**

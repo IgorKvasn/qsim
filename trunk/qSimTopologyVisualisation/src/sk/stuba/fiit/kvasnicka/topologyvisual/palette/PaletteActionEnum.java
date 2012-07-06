@@ -43,10 +43,7 @@ public enum PaletteActionEnum {
      * @param action action to be determined
      * @return true if new edge is being created
      */
-    public static boolean isEdgeAction(PaletteActionEnum action) {
-        if (action == null) {
-            return false;
-        }
-        return VertexPickActionEnum.CREATING_EDGE == action.getVertexPickActionEnum();
+    public boolean isEdgeAction() {
+        return VertexPickActionEnum.CREATING_EDGE == this.vertexPickActionEnum;
     }
 }

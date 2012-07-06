@@ -76,7 +76,6 @@ public class VertexPickedTopolCreationListener implements ItemListener {
             v.setSelected(false);
             ((LayeredIcon) icon).setImage(ImageResourceHelper.loadImageVertexAsImage(v.getImageType(), VerticesUtil.CHECKED_COLOR));
             topComponent.getTopologyElementCreator().vertexSelected(v);
-            ps.pick(v, false);
         } else {//not selected - edge not creating (this is a first time user clickes on the vertex - it is a edge start)
             v.setSelected(true);
             selectVertex(((LayeredIcon) icon), v.getImageType(), true);
