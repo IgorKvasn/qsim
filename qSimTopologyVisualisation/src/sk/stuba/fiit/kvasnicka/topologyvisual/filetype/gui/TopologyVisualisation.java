@@ -179,11 +179,16 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
         setStatusBarText(NbBundle.getMessage(TopologyVisualisation.class, "creating.new") + " " + selectedAction.getDisplayableName());      
         topologyElementCreator.setAction(selectedAction);
     }
+    /**
+     * no action selected in palette
+     */
+    public void deselectAction(){
+        selectedAction = null;
+    }
 
     @Override
     public void paletteDeselectedOccurred(PaletteSelectionEvent evt) {
         topologyElementCreator.cancelAction();
-        selectedAction = null;
     }
 
     public void paletteClearSelection() {
@@ -193,7 +198,6 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
             return;
         }
         component.clearSelection();
-        selectedAction = null;
     }
 
     private void openPaletteWindow() {
