@@ -66,9 +66,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     @Getter
     private TopologyFileTypeDataObject dataObject;
     private JToolBar toolBar = new JToolBar();
-    private MultiViewElementCallback callback;
-    @Getter
-    private VertexSelectionManager vertexSelectionManager = new VertexSelectionManager();
+    private MultiViewElementCallback callback;    
     @Getter
     @Setter
     private boolean active = false;

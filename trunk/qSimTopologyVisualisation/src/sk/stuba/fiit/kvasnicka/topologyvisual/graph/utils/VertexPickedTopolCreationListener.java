@@ -17,6 +17,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.AddSimulationTopCom
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.VerticesUtil;
 
 /**
  * Vertex Picked Listener used in Topology Creation mode
@@ -50,7 +51,6 @@ public class VertexPickedTopolCreationListener implements ItemListener {
                 vertexDeSelected(vertex);
             }
         }
-
     }
 
     /**
@@ -71,39 +71,18 @@ public class VertexPickedTopolCreationListener implements ItemListener {
     private void vertexSelected(TopologyVertex v) {
         Icon icon = imager.transform(v);
 
-
         //new edge is being created
         if (topComponent.getSelectedAction() != null && VertexPickActionEnum.CREATING_EDGE == topComponent.getSelectedAction().getVertexPickActionEnum()) {
             v.setSelected(false);
-            ((LayeredIcon) icon).setImage(ImageResourceHelper.loadCheckedImageVertexAsImage(v.getImageType()));
+            ((LayeredIcon) icon).setImage(ImageResourceHelper.loadImageVertexAsImage(v.getImageType(), VerticesUtil.CHECKED_COLOR));
             topComponent.getTopologyElementCreator().vertexSelected(v);
             ps.pick(v, false);
         } else {//not selected - edge not creating (this is a first time user clickes on the vertex - it is a edge start)
             v.setSelected(true);
             selectVertex(((LayeredIcon) icon), v.getImageType(), true);
-            topComponent.getVertexSelectionManager().addSelectedVertex(v);
         }
     }
 
-//    /**
-//     * well, this method really needs some refactoring...maybe next time :)
-//     */
-//    public void graphClicked(TopologyVertex v, MouseEvent me) {
-//        //this listener is active only when crating topology
-//        //this is a workaround for JUNG, because it do not provide removal of listeners... very odd, indeed
-//        if (Topology.TopologyModeEnum.CREATION != topComponent.getTopology().getTopologyMode()) {
-//            return;
-//        }
-//        logg.debug("vertex picked");
-//        Icon icon = imager.transform(v);
-//        if (icon != null && icon instanceof LayeredIcon) {
-//            logg.debug("som v ife - je to ikona");
-//            if (v.isSelected()) {
-//            } else {//not selected
-//            }
-//        }
-//
-//    }
     /**
      * de select vertex
      *
@@ -114,7 +93,6 @@ public class VertexPickedTopolCreationListener implements ItemListener {
         if (topComponent.getSelectedAction() == null || VertexPickActionEnum.CREATING_EDGE != topComponent.getSelectedAction().getVertexPickActionEnum()) {//edge not creating
             v.setSelected(false);
             selectVertex(((LayeredIcon) icon), v.getImageType(), false);
-            topComponent.getVertexSelectionManager().removeSelectedVertex(v);
         }
     }
 
@@ -127,6 +105,10 @@ public class VertexPickedTopolCreationListener implements ItemListener {
      * otherwise
      */
     private void selectVertex(LayeredIcon icon, ImageType imageType, boolean select) {
-        icon.setImage(ImageResourceHelper.loadImageVertexAsImage(imageType, select));
+        if (select) {
+            icon.setImage(ImageResourceHelper.loadImageVertexAsImage(imageType, VerticesUtil.SELECTED_COLOR));
+        } else {
+            icon.setImage(ImageResourceHelper.loadImageVertexAsImage(imageType, null));
+        }
     }
 }

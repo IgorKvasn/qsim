@@ -8,6 +8,6 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.lookuputils;
  *
  * @author Igor Kvasnicka
  */
+@Deprecated //todo delete me
 public class RouteChanged {
-    
 }

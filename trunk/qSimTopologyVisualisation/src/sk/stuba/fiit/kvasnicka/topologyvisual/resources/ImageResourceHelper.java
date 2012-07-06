@@ -1,13 +1,18 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.resources;
 
 import edu.uci.ics.jung.visualization.LayeredIcon;
+import java.awt.*;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.PixelGrabber;
 import java.net.URL;
 import java.util.HashMap;
+import lombok.EqualsAndHashCode;
 import org.openide.util.ImageUtilities;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.VerticesUtil;
 
 /**
  * images are cached, so that when image is to be loaded, previously loaded
@@ -31,40 +36,100 @@ public class ImageResourceHelper {
      *
      * @param imgType image to load
      * @return Image instance
+     * @param border color of a border to be applied; null if no border
      */
-    public static Icon loadImageVertex(ImageType imgType, boolean selected) {
-        return new LayeredIcon(loadImageVertexAsImage(imgType, selected));
+    public static Icon loadImageVertex(ImageType imgType, Color border) {
+        return new LayeredIcon(loadImageVertexAsImage(imgType, border));
     }
 
     /**
      * loads image and returns its representation as Image object
      *
      * @param imgType
+     * @param border color of the border; null if no border should be used
      * @return
      */
-    public static Image loadImageVertexAsImage(ImageType imgType, boolean selected) {
-        String imgPath = selected ? imgType.getSelectePath() : imgType.getResourcePath();
-        ImageKey imageKey = new ImageKey(imgPath, true, 0, 0);
+    public static Image loadImageVertexAsImage(ImageType imgType, Color border) {
+
+        String imgPath = imgType.getResourcePath();
+
+
+        ImageKey imageKey = new ImageKey(imgPath, true, border, 0, 0);
         if (!cache.containsKey(imageKey)) {
-            cache.put(imageKey, loadImage(imgPath));
+            cache.put(imageKey, new ImageIcon(VerticesUtil.changeColor(toBufferedImage(loadImage(imgType).getImage()), border)));
         }
         return cache.get(imageKey).getImage();
     }
 
-    /**
-     * loads image that represents Vertex checked state and returns its
-     * representation as Image object
-     *
-     * @param imgType
-     * @return
-     */
-    public static Image loadCheckedImageVertexAsImage(ImageType imgType) {
-        String imgPath = imgType.getCheckedPath();
-        ImageKey imageKey = new ImageKey(imgPath, true, 0, 0);
-        if (!cache.containsKey(imageKey)) {
-            cache.put(imageKey, loadImage(imgPath));
+    // This method returns a buffered image with the contents of an image
+    public static BufferedImage toBufferedImage(Image image) {
+        if (image instanceof BufferedImage) {
+            return (BufferedImage) image;
         }
-        return cache.get(imageKey).getImage();
+
+        // This code ensures that all the pixels in the image are loaded
+        image = new ImageIcon(image).getImage();
+
+        // Determine if the image has transparent pixels; for this method's
+        // implementation, see Determining If an Image Has Transparent Pixels
+        boolean hasAlpha = hasAlpha(image);
+
+        // Create a buffered image with a format that's compatible with the screen
+        BufferedImage bimage = null;
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        try {
+            // Determine the type of transparency of the new buffered image
+            int transparency = Transparency.OPAQUE;
+            if (hasAlpha) {
+                transparency = Transparency.BITMASK;
+            }
+
+            // Create the buffered image
+            GraphicsDevice gs = ge.getDefaultScreenDevice();
+            GraphicsConfiguration gc = gs.getDefaultConfiguration();
+            bimage = gc.createCompatibleImage(
+                    image.getWidth(null), image.getHeight(null), transparency);
+        } catch (HeadlessException e) {
+            // The system does not have a screen
+        }
+
+        if (bimage == null) {
+            // Create a buffered image using the default color model
+            int type = BufferedImage.TYPE_INT_RGB;
+            if (hasAlpha) {
+                type = BufferedImage.TYPE_INT_ARGB;
+            }
+            bimage = new BufferedImage(image.getWidth(null), image.getHeight(null), type);
+        }
+
+        // Copy image to buffered image
+        Graphics g = bimage.createGraphics();
+
+        // Paint the image onto the buffered image
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
+
+        return bimage;
+    }
+
+    public static boolean hasAlpha(Image image) {
+        // If buffered image, the color model is readily available
+        if (image instanceof BufferedImage) {
+            BufferedImage bimage = (BufferedImage) image;
+            return bimage.getColorModel().hasAlpha();
+        }
+
+        // Use a pixel grabber to retrieve the image's color model;
+        // grabbing a single pixel is usually sufficient
+        PixelGrabber pg = new PixelGrabber(image, 0, 0, 1, 1, false);
+        try {
+            pg.grabPixels();
+        } catch (InterruptedException e) {
+        }
+
+        // Get the image's color model
+        ColorModel cm = pg.getColorModel();
+        return cm.hasAlpha();
     }
 
     /**
@@ -122,54 +187,21 @@ public class ImageResourceHelper {
         return new ImageIcon(newimg);
     }
 
+    @EqualsAndHashCode
     private static class ImageKey {
 
         private boolean originalSize;
         private int width;
         private int height;
         private String resourcePath;
+        private Color border;
 
-        private ImageKey(String resourcePath, boolean originalSize, int width, int height) {
+        private ImageKey(String resourcePath, boolean originalSize, Color border, int width, int height) {
             this.originalSize = originalSize;
+            this.border = border;
             this.width = width;
             this.height = height;
             this.resourcePath = resourcePath;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            ImageKey imageKey = (ImageKey) o;
-
-            if (height != imageKey.height) {
-                return false;
-            }
-            if (originalSize != imageKey.originalSize) {
-                return false;
-            }
-            if (width != imageKey.width) {
-                return false;
-            }
-            if (!resourcePath.equals(imageKey.resourcePath)) {
-                return false;
-            }
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = (originalSize ? 1 : 0);
-            result = 31 * result + width;
-            result = 31 * result + height;
-            result = 31 * result + resourcePath.hashCode();
-            return result;
         }
     }
 }

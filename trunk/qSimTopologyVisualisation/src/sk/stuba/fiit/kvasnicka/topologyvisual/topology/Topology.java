@@ -9,8 +9,6 @@ import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.AbstractGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
-import edu.uci.ics.jung.visualization.LayeredIcon;
-import edu.uci.ics.jung.visualization.VisualizationViewer.GraphMouse;
 import edu.uci.ics.jung.visualization.control.*;
 import edu.uci.ics.jung.visualization.decorators.DefaultVertexIconTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
@@ -21,13 +19,10 @@ import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.awt.event.InputEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.geom.Point2D;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.Icon;
 import javax.swing.JComponent;
 import lombok.Getter;
 import org.apache.commons.collections15.Transformer;
@@ -46,8 +41,6 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.MyVertexIconShapeTransformer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.VertexToIconTransformer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.TopologyPaletteTopComponent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
-import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
 import sk.stuba.fiit.kvasnicka.topologyvisual.route.RoutingHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 
@@ -97,6 +90,15 @@ public class Topology implements VertexCreatedListener {
      */
     public void setDefaultMode() {
         setMode(DEFAULT_MODE);
+    }
+
+    /**
+     * retrieves all selected vertices
+     *
+     * @return
+     */
+    public Set<TopologyVertex> getSelectedVertices() {
+        return vv.getPickedVertexState().getPicked();
     }
 
     /**
@@ -291,6 +293,19 @@ public class Topology implements VertexCreatedListener {
     public void deleteVertex(TopologyVertex vertex) {
         vertexFactory.deleteVertex(vertex);
         g.removeVertex(vertex);
+        getVv().repaint();
+    }
+
+    /**
+     * deletes multiple vertices from JUNG topology
+     *
+     * @param vertex vertex to delete
+     */
+    public void deleteVertex(Set<TopologyVertex> verices) {
+        for (TopologyVertex vertex : verices) {
+            vertexFactory.deleteVertex(vertex);
+            g.removeVertex(vertex);
+        }
         getVv().repaint();
     }
 

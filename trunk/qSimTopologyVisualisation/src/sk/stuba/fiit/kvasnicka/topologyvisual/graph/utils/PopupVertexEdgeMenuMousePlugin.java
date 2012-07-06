@@ -24,6 +24,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.VerticesUtil;
 
 /**
  *
@@ -102,7 +103,7 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                     return;
                 }
                 if (!PreferenciesHelper.isNeverShowVertexDeleteConfirmation()) {
-                    ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "vertex_delete_question") + " " + selectedVertex.getName());
+                    ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "vertex_delete_question") + " " + VerticesUtil.getVerticesNames(topology.getSelectedVertices()));
                     NotifyDescriptor descriptor = new NotifyDescriptor(
                             panel, // instance of your panel
                             NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete_confirm_title"), // title of the dialog
@@ -117,7 +118,8 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                         PreferenciesHelper.setNeverShowVertexDeleteConfirmation(panel.isNeverShow());
                     }
                 }
-                topology.deleteVertex(selectedVertex);
+                topology.deleteVertex(topology.getSelectedVertices());
+
                 logg.debug("vertex: " + selectedVertex + " was deleted");
                 //passing information about route deletion to TopologyVisualisation                    
                 TopologyVisualisation topolComponent = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation();
