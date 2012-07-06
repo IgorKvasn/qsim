@@ -52,13 +52,13 @@ public class DialogHandler {
         String computerName = vertexFactory.createComputerName();
         BlockingDialog bl = new ComputerConfigurationDialog(computerName);
         bl.showDialog();
-        ComputerConfigurationDialog.ResultObject obj = (ComputerConfigurationDialog.ResultObject) bl.getUserInput();
-        if (obj == null) {
+        ComputerConfigurationDialog.ResultObject resultObject = (ComputerConfigurationDialog.ResultObject) bl.getUserInput();
+        if (resultObject == null) {
             vertexFactory.decrementNumberOfRouters();
             throw new IllegalStateException("user hit cancel");
         }
 
-        //Computer computer = new Computer(resultObject.getName(), resultObject.getQosMechanism(), resultObject.getSwQueues(), resultObject.getMaxTxBufferSize(), resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay());
+       // Computer computer = new Computer(resultObject.getName(), resultObject.getQosMechanism(), resultObject.getSwQueues(), resultObject.getMaxTxBufferSize(), resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay());
         Computer computer = new Computer();//todo use constructor above instead
 
         return computer;
@@ -68,6 +68,9 @@ public class DialogHandler {
      * shows dialog with switch configuration
      */
     public Switch showSwitchConfigurationDialog() {
+        if (true) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
         logg.debug("showing switch configuration dialog");
         String switchName = vertexFactory.createSwitchName();
 //        BlockingDialog bl = new SwitchConfigurationDialog(switchName);

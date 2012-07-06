@@ -25,6 +25,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
  *
  * @author Igor Kvasnicka
  */
+@Deprecated //todo a default JUNG's pick support is used; see VertexPickedTopolCreationListener class 
 public class VertexPickedSimulRulesListener implements GraphMouseListener<TopologyVertex> {
 
     private static Logger logg = Logger.getLogger(VertexPickedSimulRulesListener.class);
@@ -60,24 +61,9 @@ public class VertexPickedSimulRulesListener implements GraphMouseListener<Topolo
         }
     }
 
-    /**
-     * vertex is selected
-     *
-     * @param v
-     * @param icon
-     */
-    private void vertexSelected(TopologyVertex v, Icon icon) {
-        //is selected
-        if (VertexPickActionEnum.CREATING_EDGE != topComponent.getSelectedAction().getVertexPickActionEnum()) {//edge not creating
-            v.setSelected(false);
-            selectVertex(((LayeredIcon) icon), v.getImageType(), false);
-            topComponent.getVertexSelectionManager().removeSelectedVertex(v);
-        }
-    }
-
-    private void selectVertex(LayeredIcon icon, ImageType imageType, boolean select) {
-        icon.setImage(ImageResourceHelper.loadImageVertexAsImage(imageType, select));
-    }
+//    private void selectVertex(LayeredIcon icon, ImageType imageType, boolean select) {
+//        icon.setImage(ImageResourceHelper.loadImageVertexAsImage(imageType, select));
+//    }
 
     @Override
     public void graphPressed(TopologyVertex v, MouseEvent me) {

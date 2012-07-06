@@ -5,6 +5,7 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.graph;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexSelectionChangedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexSelectionChangedListener;
@@ -15,7 +16,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
  *
  * @author Igor Kvasnicka
  */
-public class VertexSelectionManager {
+@Deprecated
+public class VertexSelectionManager { //todo this class is obsolete - now a default JUNG's pick behaviour is used to handle vertex selection
 
     @Getter
     private LinkedHashSet<TopologyVertex> selectedVertices = new LinkedHashSet<TopologyVertex>();
@@ -40,18 +42,6 @@ public class VertexSelectionManager {
     public void removeSelectedVertex(TopologyVertex v) {
         selectedVertices.remove(v);
         fireVertexCreatedEvent(new VertexSelectionChangedEvent(this));
-    }
-
-    /**
-     * removes all selected vertex from a list of all selected vertices <br>this
-     * method does not actually visually deselect a vertex
-     *
-     * @param v
-     */
-    public void deselectAll() {
-        selectedVertices.clear();
-        fireVertexCreatedEvent(new VertexSelectionChangedEvent(this));
-
     }
 
     /**

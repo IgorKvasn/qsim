@@ -169,6 +169,14 @@ public class TopologyVertexFactory implements Factory<TopologyVertex> {
         return true;
     }
 
+    /**
+     * creates topology vertex according to its data model representation <br/>
+     * this comes handy when loading topology vertices from file
+     *
+     * @param imageType
+     * @param dataModel
+     * @return
+     */
     public TopologyVertex createVertex(ImageType imageType, NetworkNode dataModel) {
         TopologyVertex v;
         switch (imageType) {
