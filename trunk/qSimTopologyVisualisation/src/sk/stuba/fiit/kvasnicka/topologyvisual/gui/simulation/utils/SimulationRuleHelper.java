@@ -24,7 +24,7 @@ public class SimulationRuleHelper {
      */
     private static SimulationRuleBean createSimulationRule(SimulationRuleIterator.Data data) {
         SimulationRuleBean rule = new SimulationRuleBean(data.getSourceVertex().getDataModel(), data.getDestinationVertex().getDataModel(), data.getPacketCount(), data.getPacketSize(), data.getActivationDelay(), data.getPacketType(), data.getLayer4protocol(), data.isPing());
-        List<NetworkNode> route = RoutingHelper.createRouteFromEdgeList(data.getSourceVertex().getDataModel(), data.getDestinationVertex().getDataModel(), data.getRoute());
+        List<NetworkNode> route = RoutingHelper.createVerticesDataModelList(data.getRoute());
 
         rule.addRoute(route);
         return rule;
@@ -36,6 +36,14 @@ public class SimulationRuleHelper {
      * @param data
      */
     public static SimulationRuleBean newSimulationRule(SimulationFacade simulationFacade, SimulationRuleIterator.Data data) {
+        if (simulationFacade == null) {
+            throw new IllegalArgumentException("simulation facade is NULL");
+        }
+
+        if (data == null) {
+            throw new IllegalArgumentException("simulation rule data is NULL");
+        }
+
         SimulationRuleBean rule = createSimulationRule(data);
         simulationFacade.addSimulationRule(rule);
         return rule;

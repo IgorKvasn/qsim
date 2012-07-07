@@ -31,7 +31,6 @@ public class SimulationRuleIterator {
     private Data storedData;
 
     public SimulationRuleIterator() {
-        storedData = new Data();
     }
 
     /**
@@ -65,6 +64,8 @@ public class SimulationRuleIterator {
      * shows the first panel
      */
     public void initDefaultPanel() {
+        storedData = new Data();
+        
         initPanels();
         actualPanel = 0;
         panels[actualPanel].init(this);
@@ -146,7 +147,7 @@ public class SimulationRuleIterator {
     public static class Data {
 
         private TopologyVertex sourceVertex, destinationVertex;
-        private List<TopologyEdge> route;//todo toto sa nikde neuklada
+        private List<TopologyVertex> route ;
         private Layer4TypeEnum layer4protocol;
         private int packetSize;
         private int packetCount;

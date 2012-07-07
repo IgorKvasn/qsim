@@ -82,4 +82,26 @@ public class RoutingHelperTest {
         }
 
     }
+
+    @Test
+    public void testCreateVerticesDataModelList() {
+        NetworkNode n1 = new Router("node1", null, null, 0, 0, 0, 0, 0, 0, 0);
+        NetworkNode n2 = new Router("node2", null, null, 0, 0, 0, 0, 0, 0, 0);
+        NetworkNode n3 = new Router("node3", null, null, 0, 0, 0, 0, 0, 0, 0);
+        NetworkNode n4 = new Router("node4", null, null, 0, 0, 0, 0, 0, 0, 0);
+
+        TopologyVertex v1 = new RouterVertex(n1);
+        TopologyVertex v2 = new RouterVertex(n2);
+        TopologyVertex v3 = new RouterVertex(n3);
+        TopologyVertex v4 = new RouterVertex(n4);
+
+        List<NetworkNode> result = RoutingHelper.createVerticesDataModelList(Arrays.asList(v1, v2, v3, v4));
+
+        Assert.assertEquals(4, result.size());
+        Assert.assertTrue(result.get(0).getName().equals("node1"));
+        Assert.assertTrue(result.get(1).getName().equals("node2"));
+        Assert.assertTrue(result.get(2).getName().equals("node3"));
+        Assert.assertTrue(result.get(3).getName().equals("node4"));
+
+    }
 }
