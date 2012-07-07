@@ -40,6 +40,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.*;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.MyVertexIconShapeTransformer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.VertexToIconTransformer;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.TopologyPaletteTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.route.RoutingHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
@@ -482,6 +483,19 @@ public class Topology implements VertexCreatedListener {
         });
         vv.repaint();
         //and do not forget to highlight source and destination vertices, too
+    }
+
+    public void deselectVertices() {
+        if (NetbeansWindowHelper.getInstance().getActiveTopology() == null) {
+            return;
+        }
+
+        vv.getPickedVertexState().clear();
+
+        for (TopologyVertex vertex : NetbeansWindowHelper.getInstance().getActiveTopology().getVertexFactory().getAllVertices()) {
+            vertex.deSelectVertex();
+            vertex.deCheckVertex();
+        }
     }
 
     /**
