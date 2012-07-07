@@ -124,6 +124,7 @@ public class ContainerPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        logg.debug("next panel");
         if (panelIterator.isPanelLast()) {//finishing wizard            
             if (panelIterator.isCurrentPanelValid()) { //check for last panel validity
 

@@ -63,6 +63,7 @@ public class Topology implements VertexCreatedListener {
     private PopupVertexEdgeMenuMousePlugin popupVertexMenuMousePlugin;
     private MyVisualizationViewer vv;
     private MyGraphMouse graphMouse;
+    @Getter
     private TopologyVertexFactory vertexFactory;
     private transient RoutingHelper routingHelper = new RoutingHelper();
     @Getter
@@ -80,10 +81,6 @@ public class Topology implements VertexCreatedListener {
     public Topology(TopologyVisualisation topolElementTopComponent) {
         this.topolElementTopComponent = topolElementTopComponent;
 
-    }
-
-    public TopologyVertexFactory getVertexFactory() {
-        return vertexFactory;
     }
 
     /**

@@ -47,6 +47,24 @@ public class RoutingHelper {
     }
 
     /**
+     * extracts data model from all TopologyVertex objects
+     *
+     * @param route
+     * @return
+     */
+    public static List<NetworkNode> createVerticesDataModelList(List<TopologyVertex> route) {
+        if (route == null) {
+            throw new IllegalArgumentException("vertices list is null");
+        }
+
+        List<NetworkNode> list = new LinkedList<NetworkNode>();
+        for (TopologyVertex v : route) {
+            list.add(v.getDataModel());
+        }
+        return list;
+    }
+
+    /**
      *
      * route specified by consequent topology edges creates route specified as
      * list of NetworkNodes
