@@ -30,10 +30,6 @@ public abstract class TopologyVertex implements Serializable {
     protected final Icon icon;
     @Getter
     @Setter
-    @XmlTransient
-    private boolean selected = false;
-    @Getter
-    @Setter
     protected String description = "NA";
     protected String name;
 
@@ -103,7 +99,6 @@ public abstract class TopologyVertex implements Serializable {
         if (icon instanceof LayeredIcon) {
             ((LayeredIcon) icon).setImage(ImageResourceHelper.loadImageVertexAsImage(imageType, null));
         }
-        selected = false;
     }
 
     /**

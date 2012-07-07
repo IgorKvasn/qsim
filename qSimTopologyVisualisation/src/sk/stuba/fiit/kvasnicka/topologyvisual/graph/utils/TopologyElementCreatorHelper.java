@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.StatusDisplayer;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
@@ -44,19 +45,10 @@ public class TopologyElementCreatorHelper {
         action = null;
         topology.setPickingMode();
         edgeStart = null;
-        deselectVertices();
+        topology.deselectVertices();
+        topolElementTopComponent.deselectAction();
         topolElementTopComponent.paletteClearSelection();
         StatusDisplayer.getDefault().setStatusText("");
-    }
-
-    private void deselectVertices() {
-        if (NetbeansWindowHelper.getInstance().getActiveTopology() == null) {
-            return;
-        }
-        for (TopologyVertex vertex : NetbeansWindowHelper.getInstance().getActiveTopology().getVertexFactory().getAllVertices()) {
-            vertex.deSelectVertex();
-            vertex.deCheckVertex();
-        }
     }
 
     /**
@@ -98,6 +90,8 @@ public class TopologyElementCreatorHelper {
                             NotifyDescriptor.ERROR_MESSAGE);
 
                     DialogDisplayer.getDefault().notify(d);
+                    cancelAction();
+                    topology.deselectVertices();
                     return false;
                 }
 
@@ -110,7 +104,7 @@ public class TopologyElementCreatorHelper {
                 //simply do not create new edge
             } finally {        //if edge is created or user cancelles edge creation
                 cancelAction();
-                deselectVertices();
+                topology.deselectVertices();
             }
             return true;
         }

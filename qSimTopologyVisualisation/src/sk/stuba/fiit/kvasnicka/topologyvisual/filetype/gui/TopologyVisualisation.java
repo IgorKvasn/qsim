@@ -66,7 +66,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     @Getter
     private TopologyFileTypeDataObject dataObject;
     private JToolBar toolBar = new JToolBar();
-    private MultiViewElementCallback callback;    
+    private MultiViewElementCallback callback;
     @Getter
     @Setter
     private boolean active = false;
@@ -176,19 +176,22 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     @Override
     public void paletteSelectedOccurred(PaletteSelectionEvent evt) {
         selectedAction = evt.getSelectedAction();
-        setStatusBarText(NbBundle.getMessage(TopologyVisualisation.class, "creating.new") + " " + selectedAction.getDisplayableName());      
+        setStatusBarText(NbBundle.getMessage(TopologyVisualisation.class, "creating.new") + " " + selectedAction.getDisplayableName());
         topologyElementCreator.setAction(selectedAction);
     }
+
     /**
      * no action selected in palette
      */
-    public void deselectAction(){
+    public void deselectAction() {
         selectedAction = null;
     }
 
     @Override
     public void paletteDeselectedOccurred(PaletteSelectionEvent evt) {
         topologyElementCreator.cancelAction();
+        topology.deselectVertices();
+
     }
 
     public void paletteClearSelection() {

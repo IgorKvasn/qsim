@@ -73,11 +73,9 @@ public class VertexPickedTopolCreationListener implements ItemListener {
 
         //new edge is being created
         if (topComponent.getSelectedAction() != null && VertexPickActionEnum.CREATING_EDGE == topComponent.getSelectedAction().getVertexPickActionEnum()) {
-            v.setSelected(false);
             ((LayeredIcon) icon).setImage(ImageResourceHelper.loadImageVertexAsImage(v.getImageType(), VerticesUtil.CHECKED_COLOR));
             topComponent.getTopologyElementCreator().vertexSelected(v);
         } else {//not selected - edge not creating (this is a first time user clickes on the vertex - it is a edge start)
-            v.setSelected(true);
             selectVertex(((LayeredIcon) icon), v.getImageType(), true);
         }
     }
@@ -90,7 +88,6 @@ public class VertexPickedTopolCreationListener implements ItemListener {
      */
     private void vertexDeSelected(TopologyVertex v, Icon icon) {
         if (topComponent.getSelectedAction() == null || VertexPickActionEnum.CREATING_EDGE != topComponent.getSelectedAction().getVertexPickActionEnum()) {//edge not creating
-            v.setSelected(false);
             selectVertex(((LayeredIcon) icon), v.getImageType(), false);
         }
     }
