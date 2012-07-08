@@ -5,7 +5,7 @@
 
 I divided the whole project into smaller, (more or less) independent stages:
   # creating topology (*done*)
-  # routing (*implemented but postponed until _sending packets_ is done*)
+  # routing (*done*)
   # sending packets (*done*)
   # QoS mechanisms
 
