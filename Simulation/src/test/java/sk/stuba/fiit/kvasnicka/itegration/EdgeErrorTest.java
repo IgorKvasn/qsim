@@ -110,7 +110,7 @@ public class EdgeErrorTest {
 
         simulationManager.addSimulationRule(rule);
 
-        timer.startSimulationTimer(simulationManager);     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
+        timer.startSimulationTimer();     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);

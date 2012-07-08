@@ -19,9 +19,8 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.facade;
 
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.util.List;
 
@@ -35,35 +34,49 @@ public class SimulationFacade {
     private SimulationTimer timer;
 
     /**
-     * creates and starts new simulation timer
-     * default timer delay will be used
-     *
+     * initialises simulation timer
      * @param edgeList          list of all edges
-     * @param nodeList          list of all vertices (network nodes)
-     * @param simulationManager simulation timer associated with this simulation
-     * @throws IllegalStateException when timer is already running
+     *
+     * @param nodeList list of all vertices (network nodes)
      */
-    public void startTimer(List<Edge> edgeList, List<NetworkNode> nodeList, SimulationManager simulationManager) {
+    public void initTimer(List<Edge> edgeList, List<NetworkNode> nodeList) {
         if (timer != null && timer.isRunning()) {
             throw new IllegalStateException("Starting timer: simulation timer is already running.");
         }
         timer = new SimulationTimer(edgeList, nodeList);
-        timer.startSimulationTimer(simulationManager);
+    }
+
+    /**
+     * creates and starts new simulation timer
+     * default timer delay will be used
+     *
+     * @throws IllegalStateException when timer is already running
+     */
+    public void startTimer() {
+        if (timer == null) {
+            throw new IllegalStateException("Starting timer: simulation timer has not been initialised.");
+        }
+        if (timer.isRunning()) {
+            throw new IllegalStateException("Starting timer: simulation timeris already running.");
+        }
+        timer.startSimulationTimer();
     }
 
     /**
      * creates and starts new simulation timer
      *
-     * @param edgeList          list of all edges
-     * @param nodeList          list of all vertices (network nodes)
-     * @param simulationManager simulation timer associated with this simulation
-     * @param initialSpeedUp    timer delay speed up (permitted values: no less than 1)
+     * @param initialSpeedUp timer delay speed up (permitted values: no less than 1)
      * @throws IllegalStateException when timer is already running
      */
-    public void startTimer(List<Edge> edgeList, List<NetworkNode> nodeList, SimulationManager simulationManager, double initialSpeedUp) {
-        timer = new SimulationTimer(edgeList, nodeList);
+    public void startTimer(double initialSpeedUp) {
+        if (timer == null) {
+            throw new IllegalStateException("Starting timer: simulation timer has not been initialised.");
+        }
+        if (timer.isRunning()) {
+            throw new IllegalStateException("Starting timer: simulation timeris already running.");
+        }
         timer.setTimerDelay(initialSpeedUp);
-        timer.startSimulationTimer(simulationManager);
+        startTimer();
     }
 
     /**

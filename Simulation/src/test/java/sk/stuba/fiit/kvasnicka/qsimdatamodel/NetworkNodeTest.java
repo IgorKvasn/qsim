@@ -34,7 +34,6 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.PacketGenerator;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
@@ -45,6 +44,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -639,7 +639,10 @@ public class NetworkNodeTest {
 
         SimulationManager simulationManager = new SimulationManager();
         simulationManager.addSimulationRule(rule);
-        timer.startSimulationTimer(simulationManager); //need to init all the stuff
+
+        setWithoutSetter(SimulationTimer.class, timer, "simulationManager", simulationManager);
+
+        timer.startSimulationTimer(); //need to init all the stuff
 
 
         Field privateStringField = SimulationTimer.class.getDeclaredField("packetGenerator");
@@ -670,6 +673,19 @@ public class NetworkNodeTest {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private void setWithoutSetter(Class c, Object o, String field, Object value) {
+        Field f = null;
+        try {
+            f = c.getDeclaredField(field);
+            f.setAccessible(true);
+            f.set(o, value);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     private void initRoute(Packet... packets) {

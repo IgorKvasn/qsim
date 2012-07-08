@@ -102,7 +102,7 @@ public class PingTest {
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
         rule.addRoute(Arrays.asList(node1, node2));
 
-        timer.startSimulationTimer(simulationManager);
+        timer.startSimulationTimer();
         timer.addPingSimulationRule(rule);
 
         timer.actionPerformed(null);
@@ -132,7 +132,7 @@ public class PingTest {
         SimulationRuleBean rule = new SimulationRuleBean(node1, node3, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
         rule.addRoute(Arrays.asList(node1, node2, node3));
 
-        timer.startSimulationTimer(simulationManager);
+        timer.startSimulationTimer();
         timer.addPingSimulationRule(rule);
 
         timer.actionPerformed(null);
@@ -176,7 +176,7 @@ public class PingTest {
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, -1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);    //notice this -1
         rule.addRoute(Arrays.asList(node1, node2));
 
-        timer.startSimulationTimer(simulationManager);
+        timer.startSimulationTimer();
         timer.addPingSimulationRule(rule);
 
         timer.actionPerformed(null);

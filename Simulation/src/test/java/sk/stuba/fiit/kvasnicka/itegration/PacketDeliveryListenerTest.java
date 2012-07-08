@@ -26,7 +26,6 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
@@ -37,7 +36,9 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredLis
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
@@ -110,7 +111,7 @@ public class PacketDeliveryListenerTest {
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
         rule.addRoute(Arrays.asList(node1, node2));
 
-        timer.startSimulationTimer(simulationManager);
+        timer.startSimulationTimer();
         timer.addPingSimulationRule(rule);
 
         TestListenerClass testListenerClass = new TestListenerClass();
@@ -152,7 +153,8 @@ public class PacketDeliveryListenerTest {
 
         simulationManager.addSimulationRule(rule);
 
-        timer.startSimulationTimer(simulationManager);
+        setWithoutSetter(SimulationTimer.class, timer, "simulationManager", simulationManager);
+        timer.startSimulationTimer();
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);
@@ -166,6 +168,20 @@ public class PacketDeliveryListenerTest {
         assertEquals(0, deliveredPingPackets);
     }
 
+
+    private void setWithoutSetter(Class c, Object o, String field, Object value) {
+
+        Field f = null;
+        try {
+            f = c.getDeclaredField(field);
+            f.setAccessible(true);
+            f.set(o, value);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
 
     private class TestListenerClass implements PingPacketDeliveredListener, PacketDeliveredListener {
 
