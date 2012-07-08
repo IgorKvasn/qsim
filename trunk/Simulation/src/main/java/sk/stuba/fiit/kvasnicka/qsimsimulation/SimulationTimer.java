@@ -63,14 +63,13 @@ public class SimulationTimer implements ActionListener {
 
     public SimulationTimer(List<Edge> edgeList, List<NetworkNode> nodeList) {
         topologyManager = new TopologyManager(edgeList, nodeList);
+        simulationManager = new SimulationManager();
     }
 
     /**
      * starts the timer
-     *
-     * @param simulationManager reference to SimulationManager object
      */
-    public void startSimulationTimer(SimulationManager simulationManager) {
+    public void startSimulationTimer() {
         if (timer != null && timer.isRunning()) {
             throw new IllegalStateException("Simulation timer is already running.");
         }
@@ -79,7 +78,6 @@ public class SimulationTimer implements ActionListener {
         }
         packetManager = new PacketManager(this);
         pingManager = new PingManager();
-        this.simulationManager = simulationManager;
         packetGenerator = new PacketGenerator(simulationManager.getRulesUnmodifiable(), this);
 
         for (NetworkNode node : getTopologyManager().getNodeList()) {
