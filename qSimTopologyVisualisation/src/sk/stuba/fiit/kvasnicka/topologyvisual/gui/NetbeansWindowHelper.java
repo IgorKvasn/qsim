@@ -115,6 +115,7 @@ public class NetbeansWindowHelper {
                 }
             }
         }
+        logg.warn("No active TopologyVisualisation found");
         return null;
     }
 

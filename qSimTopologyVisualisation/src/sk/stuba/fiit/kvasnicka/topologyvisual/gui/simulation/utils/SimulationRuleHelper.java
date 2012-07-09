@@ -6,8 +6,8 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.utils;
 
 import java.util.List;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
 import sk.stuba.fiit.kvasnicka.topologyvisual.route.RoutingHelper;
 
@@ -31,7 +31,7 @@ public class SimulationRuleHelper {
     }
 
     /**
-     * creates new simulation rule and adds it to simulation rule manager
+     * creates new simulation rule
      *
      * @param data
      */
@@ -45,7 +45,6 @@ public class SimulationRuleHelper {
         }
 
         SimulationRuleBean rule = createSimulationRule(data);
-        simulationFacade.addSimulationRule(rule);
         return rule;
     }
 }

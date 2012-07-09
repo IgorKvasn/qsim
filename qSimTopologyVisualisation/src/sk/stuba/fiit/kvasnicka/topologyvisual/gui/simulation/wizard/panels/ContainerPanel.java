@@ -8,11 +8,15 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import org.apache.log4j.Logger;
 import org.openide.util.NbBundle;
+import org.openide.windows.Mode;
+import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationRuleBean;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.AddSimulationTopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.SimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.utils.SimulationRuleHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
 import sk.stuba.fiit.kvasnicka.topologyvisual.route.RoutingHelper;
@@ -45,6 +49,25 @@ public class ContainerPanel extends javax.swing.JPanel {
         jPanel1.add(actualPanel, BorderLayout.CENTER);
         jPanel1.validate();
         validate();
+    }
+
+    private void cancelAddSimulRule() {
+        TopologyVisualisation topolVisual = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation();
+        topolVisual.retrieveVertexByClickCancel();
+
+        panelIterator.cancelIterator();
+
+        AddSimulationTopComponent componentAdd = (AddSimulationTopComponent) WindowManager.getDefault().findTopComponent("AddSimulationTopComponent");
+        if (componentAdd == null) {
+            logg.error("Could not find component AddSimulationTopComponent");
+            return;
+        }
+        componentAdd.close();
+    }
+
+    private void reloadSimulationRules() {
+        SimulationTopComponent myTC = (SimulationTopComponent) WindowManager.getDefault().findTopComponent("SimulationTopComponent");
+        myTC.loadSimulationandPingRules();
     }
 
     /**
@@ -97,7 +120,7 @@ public class ContainerPanel extends javax.swing.JPanel {
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 274, Short.MAX_VALUE)
+                        .addGap(0, 511, Short.MAX_VALUE)
                         .addComponent(jButton3)
                         .addGap(18, 18, 18)
                         .addComponent(jButton4)
@@ -111,7 +134,7 @@ public class ContainerPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE)
                         .addGap(56, 56, 56))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
@@ -128,8 +151,16 @@ public class ContainerPanel extends javax.swing.JPanel {
         if (panelIterator.isPanelLast()) {//finishing wizard            
             if (panelIterator.isCurrentPanelValid()) { //check for last panel validity
 
-                SimulationRuleBean newRule = SimulationRuleHelper.newSimulationRule(null, panelIterator.getStoredData()); //todo simulation facade 
-                //todo add new rule to jList in Simulationtopcomponent
+                if (NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation() == null) {
+                    throw new IllegalStateException("active topology visualisation is NULL");
+                }
+                SimulationFacade simulationFacade = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().getSimulationFacade();
+                SimulationRuleBean newRule = SimulationRuleHelper.newSimulationRule(simulationFacade, panelIterator.getStoredData());
+                // add new rule to simulation facade
+                simulationFacade.addSimulationRule(newRule);
+
+                //reloads all simulation rules displayed
+                reloadSimulationRules();
 
                 //delete all used data
                 panelIterator.cancelIterator();
@@ -183,18 +214,4 @@ public class ContainerPanel extends javax.swing.JPanel {
     private javax.swing.JButton jButton4;
     private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
-
-    private void cancelAddSimulRule() {
-        TopologyVisualisation topolVisual = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation();
-        topolVisual.retrieveVertexByClickCancel();
-
-        panelIterator.cancelIterator();
-
-        AddSimulationTopComponent componentAdd = (AddSimulationTopComponent) WindowManager.getDefault().findTopComponent("AddSimulationTopComponent");
-        if (componentAdd == null) {
-            logg.error("Could not find component AddSimulationTopComponent");
-            return;
-        }
-        componentAdd.close();
-    }
 }
