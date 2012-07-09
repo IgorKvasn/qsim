@@ -22,8 +22,8 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.pingrule.PingRuleListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.simulationrule.SimulationRuleListener;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.util.List;
@@ -163,6 +163,16 @@ public class SimulationFacade {
         if (isTimerRunning()) return simulationManager.getRulesUnmodifiable();
 
         return simulationManager.getRulesModifiable();
+    }
+
+    /**
+     * returns list of all defined ping simulation rules
+     *
+     * @return
+     */
+    public List<SimulationRuleBean> getPingSimulationRules() {
+        if (pingManager == null) throw new IllegalStateException("pingManager is NULL");
+        return pingManager.getPingSimulationRules();
     }
 
     /**

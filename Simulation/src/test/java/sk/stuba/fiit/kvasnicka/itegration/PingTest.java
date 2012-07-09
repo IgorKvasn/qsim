@@ -95,10 +95,6 @@ public class PingTest {
      */
     @Test
     public void testSinglePacketSimulation() throws NoSuchFieldException, IllegalAccessException {
-
-
-        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
-
         simulationManager = new SimulationManager();
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
@@ -106,7 +102,9 @@ public class PingTest {
 
         SimulationFacade simulationFacade = new SimulationFacade();
         simulationFacade.addSimulationRule(rule);
-        simulationFacade.initTimer(Arrays.asList(edge1, edge2), Arrays.asList(node1, node2, node3));
+        simulationFacade.initTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
+        SimulationTimer timer = (SimulationTimer) getPropertyWithoutGetter(SimulationFacade.class, simulationFacade, "timer");
+
         simulationFacade.startTimer();
 
 
@@ -115,12 +113,6 @@ public class PingTest {
         timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-
 
         assertFalse(timer.isRunning());
     }
@@ -130,8 +122,6 @@ public class PingTest {
      */
     @Test
     public void testSinglePacket_3Nodes() throws NoSuchFieldException, IllegalAccessException {
-        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1, edge2), Arrays.asList(node1, node2, node3));
-
         simulationManager = new SimulationManager();
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node3, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
@@ -140,6 +130,8 @@ public class PingTest {
         SimulationFacade simulationFacade = new SimulationFacade();
         simulationFacade.addSimulationRule(rule);
         simulationFacade.initTimer(Arrays.asList(edge1, edge2), Arrays.asList(node1, node2, node3));
+        SimulationTimer timer = (SimulationTimer) getPropertyWithoutGetter(SimulationFacade.class, simulationFacade, "timer");
+
         simulationFacade.startTimer();
 
         timer.actionPerformed(null);
@@ -148,19 +140,6 @@ public class PingTest {
         timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-
 
         assertFalse(timer.isRunning());
     }
@@ -185,45 +164,28 @@ public class PingTest {
         simulationFacade.initTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
         simulationFacade.startTimer();
 
-        SimulationTimer timer = (SimulationTimer) getPropertyWithoutGetter(SimulationFacade.class,simulationFacade,"timer");
+        SimulationTimer timer = (SimulationTimer) getPropertyWithoutGetter(SimulationFacade.class, simulationFacade, "timer");
 
-
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
-        timer.actionPerformed(null);
+        //simulate many timer ticks
+        for (int i = 0; i < 15; i++) {
+            timer.actionPerformed(null);
+        }
 
 
         assertTrue(timer.isRunning());    //timer has not yet finished
     }
 
     private Object getPropertyWithoutGetter(Class klass, Object bean, String field) {
-           Field f = null;
-           try {
-               f = klass.getDeclaredField(field);
-               f.setAccessible(true);
-               return f.get(bean);
-           } catch (NoSuchFieldException e) {
-               e.printStackTrace();
-           } catch (IllegalAccessException e) {
-               e.printStackTrace();
-           }
-           return null;
-       }
+        Field f = null;
+        try {
+            f = klass.getDeclaredField(field);
+            f.setAccessible(true);
+            return f.get(bean);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
