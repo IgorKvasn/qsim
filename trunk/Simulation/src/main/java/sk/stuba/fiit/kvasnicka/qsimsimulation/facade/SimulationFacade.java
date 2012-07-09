@@ -20,6 +20,8 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.facade;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.ping.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.util.List;
@@ -32,11 +34,13 @@ import java.util.List;
 public class SimulationFacade {
 
     private SimulationTimer timer;
+    private SimulationManager simulationManager = new SimulationManager();
+    private PingManager pingManager = new PingManager();
 
     /**
      * initialises simulation timer
-     * @param edgeList          list of all edges
      *
+     * @param edgeList list of all edges
      * @param nodeList list of all vertices (network nodes)
      */
     public void initTimer(List<Edge> edgeList, List<NetworkNode> nodeList) {
@@ -59,7 +63,7 @@ public class SimulationFacade {
         if (timer.isRunning()) {
             throw new IllegalStateException("Starting timer: simulation timeris already running.");
         }
-        timer.startSimulationTimer();
+        timer.startSimulationTimer(simulationManager, pingManager);
     }
 
     /**
@@ -128,14 +132,36 @@ public class SimulationFacade {
      * @param rule simulation rule to be added
      */
     public void addSimulationRule(SimulationRuleBean rule) {
-        if (timer == null) throw new IllegalStateException("Adding simulation rule: timer has not been started");
         if (rule.isPing()) {
-            timer.addPingSimulationRule(rule);
+            addPingSimulationRule(rule);
         } else {
-            timer.addSimulationRule(rule);
+            addSimulationRule(rule);
         }
     }
 
+    private void addPingSimulationRule(SimulationRuleBean rule) {
+        int repetitions = rule.getNumberOfPackets();
+        rule.resetNumberOfPacketsToOne();
+        simulationManager.addSimulationRule(rule);
+        pingManager.addPing(rule, repetitions);
+    }
+
+    private void addCommonSimulationRule(SimulationRuleBean rule) {
+        simulationManager.addSimulationRule(rule);
+    }
+
+    /**
+     * returns list of all defined simulation rules
+     * if timer is started, read-only (unmodifiable) list will be returned
+     *
+     * @return
+     */
+    public List<SimulationRuleBean> getSimulationRules() {
+        if (simulationManager == null) throw new IllegalStateException("simulationManager is NULL");
+        if (isTimerRunning()) return simulationManager.getRulesUnmodifiable();
+
+        return simulationManager.getRulesModifiable();
+    }
 
     /**
      * detects if simulation timer is running

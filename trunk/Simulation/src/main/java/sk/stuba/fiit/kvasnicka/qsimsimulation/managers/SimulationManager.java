@@ -45,11 +45,20 @@ public class SimulationManager {
     }
 
     /**
-     * returns list of simulation rules that cannot by modified (rad-only)
+     * returns list of simulation rules that cannot by modified (read-only)
      *
      * @return
      */
     public List<SimulationRuleBean> getRulesUnmodifiable() {
         return Collections.unmodifiableList(rules);
+    }
+
+    /**
+     * returns list of simulation rules
+     *
+     * @return
+     */
+    public List<SimulationRuleBean> getRulesModifiable() {
+        return rules;
     }
 }
