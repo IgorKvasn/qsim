@@ -33,8 +33,10 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.ping.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
@@ -103,21 +105,21 @@ public class PacketDeliveryListenerTest {
     public void testPingDeliveryListener() throws NoSuchFieldException, IllegalAccessException {
         deliveredPackets = 0;
         deliveredPingPackets = 0;
-        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
-
-        simulationManager = new SimulationManager();
-
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
         rule.addRoute(Arrays.asList(node1, node2));
 
-        timer.startSimulationTimer();
-        timer.addPingSimulationRule(rule);
+        SimulationFacade simulationFacade = new SimulationFacade();
+        simulationFacade.addSimulationRule(rule);
+        simulationFacade.initTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
+        simulationFacade.startTimer();
 
         TestListenerClass testListenerClass = new TestListenerClass();
 
         rule.addPingPacketDeliveredListener(testListenerClass);
         rule.addPacketDeliveredListener(testListenerClass);
+
+        SimulationTimer timer = (SimulationTimer) getPropertyWithoutGetter(SimulationFacade.class,simulationFacade,"timer");
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);
@@ -154,7 +156,7 @@ public class PacketDeliveryListenerTest {
         simulationManager.addSimulationRule(rule);
 
         setWithoutSetter(SimulationTimer.class, timer, "simulationManager", simulationManager);
-        timer.startSimulationTimer();
+        timer.startSimulationTimer(simulationManager, new PingManager());
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);
@@ -194,5 +196,19 @@ public class PacketDeliveryListenerTest {
         public void packetDeliveredOccurred(PingPacketDeliveredEvent evt) {
             deliveredPingPackets++;
         }
+    }
+
+    private Object getPropertyWithoutGetter(Class klass, Object bean, String field) {
+        Field f = null;
+        try {
+            f = klass.getDeclaredField(field);
+            f.setAccessible(true);
+            return f.get(bean);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

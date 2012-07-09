@@ -51,6 +51,7 @@ public class SimulationTimer implements ActionListener {
     private PingManager pingManager;
     @Getter
     private double simulationTime;
+    @Getter
     private SimulationManager simulationManager;
     @Getter
     private PacketManager packetManager;
@@ -63,21 +64,29 @@ public class SimulationTimer implements ActionListener {
 
     public SimulationTimer(List<Edge> edgeList, List<NetworkNode> nodeList) {
         topologyManager = new TopologyManager(edgeList, nodeList);
-        simulationManager = new SimulationManager();
     }
 
     /**
      * starts the timer
      */
-    public void startSimulationTimer() {
+    public void startSimulationTimer(SimulationManager simulationManager, PingManager pingManager) {
+        if (simulationManager == null) {
+            throw new IllegalStateException("simulation manager is NULL");
+        }
+
         if (timer != null && timer.isRunning()) {
             throw new IllegalStateException("Simulation timer is already running.");
         }
+
         if (packetManager != null) { //simulation has been started some time before
             packetManager.clearAllPackets();//clean-up all packets
         }
+
+        this.simulationManager = simulationManager;
+        this.pingManager = pingManager;
+
         packetManager = new PacketManager(this);
-        pingManager = new PingManager();
+
         packetGenerator = new PacketGenerator(simulationManager.getRulesUnmodifiable(), this);
 
         for (NetworkNode node : getTopologyManager().getNodeList()) {
@@ -89,17 +98,6 @@ public class SimulationTimer implements ActionListener {
             logg.debug("starting simulation timer");
         }
         timer.start();
-    }
-
-    public void addPingSimulationRule(SimulationRuleBean rule) {
-        int repetitions = rule.getNumberOfPackets();
-        rule.resetNumberOfPacketsToOne();
-        simulationManager.addSimulationRule(rule);
-        pingManager.addPing(rule, repetitions);
-    }
-
-    public void addSimulationRule(SimulationRuleBean rule) {
-        simulationManager.addSimulationRule(rule);
     }
 
 
@@ -204,6 +202,7 @@ public class SimulationTimer implements ActionListener {
 
 
     public boolean isRunning() {
+        if (timer == null) return false;
         return timer.isRunning();
     }
 

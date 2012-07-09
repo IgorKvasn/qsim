@@ -43,6 +43,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.ping.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
@@ -642,7 +643,7 @@ public class NetworkNodeTest {
 
         setWithoutSetter(SimulationTimer.class, timer, "simulationManager", simulationManager);
 
-        timer.startSimulationTimer(); //need to init all the stuff
+        timer.startSimulationTimer(simulationManager, new PingManager()); //need to init all the stuff
 
 
         Field privateStringField = SimulationTimer.class.getDeclaredField("packetGenerator");
