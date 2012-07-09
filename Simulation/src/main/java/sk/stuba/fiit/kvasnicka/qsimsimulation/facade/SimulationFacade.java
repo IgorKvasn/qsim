@@ -20,8 +20,10 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.facade;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.pingrule.PingRuleListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.simulationrule.SimulationRuleListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.ping.PingManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.util.List;
@@ -135,7 +137,7 @@ public class SimulationFacade {
         if (rule.isPing()) {
             addPingSimulationRule(rule);
         } else {
-            addSimulationRule(rule);
+            addCommonSimulationRule(rule);
         }
     }
 
@@ -171,5 +173,21 @@ public class SimulationFacade {
     public boolean isTimerRunning() {
         if (timer == null) return false;
         return timer.isRunning();
+    }
+
+    public void addSimulationRuleListener(SimulationRuleListener listener) {
+        simulationManager.addSimulationRuleListener(listener);
+    }
+
+    public void removeSimulationRuleListener(SimulationRuleListener listener) {
+        simulationManager.removeSimulationRuleListener(listener);
+    }
+
+    public void addPingRuleListener(PingRuleListener listener) {
+        pingManager.addPingRuleListener(listener);
+    }
+
+    public void removePingRuleListener(PingRuleListener listener) {
+        pingManager.removePingRuleListener(listener);
     }
 }

@@ -15,12 +15,16 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.qsimsimulation.ping;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.managers;
 
+import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.pingrule.PingRuleEvent;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.pingrule.PingRuleListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.simulationrule.SimulationRuleListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,7 +37,11 @@ import java.util.Map;
  */
 public class PingManager implements PingPacketDeliveredListener {
 
+    private static Logger logg = Logger.getLogger(PingManager.class);
+
     private Map<String, PingDefinition> pingDefinitions = new HashMap<String, PingDefinition>();
+    private transient javax.swing.event.EventListenerList listenerList = new javax.swing.event.EventListenerList();
+    private List<SimulationRuleBean> rules = new LinkedList<SimulationRuleBean>();
 
     public PingManager() {
     }
@@ -44,6 +52,27 @@ public class PingManager implements PingPacketDeliveredListener {
         SimulationRuleBean backSimRule = createBackPingSimulationRule(rule);
         PingDefinition def = new PingDefinition(repetitions, backSimRule, rule);
         pingDefinitions.put(rule.getUniqueID(), def);
+
+        rules.add(rule);
+
+        firePingRuleAddedEvent(new PingRuleEvent(this, rule));
+    }
+
+    public void removePing(SimulationRuleBean rule) {
+        if (pingDefinitions.remove(rule.getUniqueID()) != null | ! rules.remove(rule)) {
+            firePingRuleRemovedEvent(new PingRuleEvent(this, rule));
+        } else {
+            logg.warn("no matching ping simulation rule found to be deleted");
+        }
+    }
+
+    /**
+     * returns list of all defined ping simulation beans
+     *
+     * @return
+     */
+    public List<SimulationRuleBean> getPingSimulationRules() {
+        return rules;
     }
 
     /**
@@ -77,6 +106,32 @@ public class PingManager implements PingPacketDeliveredListener {
             rule.setActivationTime(evt.getPacket().getSimulationTime()); //when the last ping packet came, new is created
             rule.resetNumberOfPacketsToOne();
             rule.setActive(true);
+        }
+    }
+
+    public void addPingRuleListener(PingRuleListener listener) {
+        listenerList.add(PingRuleListener.class, listener);
+    }
+
+    public void removePingRuleListener(PingRuleListener listener) {
+        listenerList.remove(PingRuleListener.class, listener);
+    }
+
+    private void firePingRuleAddedEvent(PingRuleEvent evt) {
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = 0; i < listeners.length; i += 2) {
+            if (listeners[i].equals(SimulationRuleListener.class)) {
+                ((PingRuleListener) listeners[i + 1]).pingRuleAdded(evt);
+            }
+        }
+    }
+
+    private void firePingRuleRemovedEvent(PingRuleEvent evt) {
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = 0; i < listeners.length; i += 2) {
+            if (listeners[i].equals(SimulationRuleListener.class)) {
+                ((PingRuleListener) listeners[i + 1]).pingRuleRemoved(evt);
+            }
         }
     }
 

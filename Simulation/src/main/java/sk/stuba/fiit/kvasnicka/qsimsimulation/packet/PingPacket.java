@@ -22,7 +22,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.ping.PingManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 
 /**
  * @author Igor Kvasnicka
