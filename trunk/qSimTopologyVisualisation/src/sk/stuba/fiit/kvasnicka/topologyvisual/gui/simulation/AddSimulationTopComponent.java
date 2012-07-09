@@ -26,9 +26,9 @@ autostore = false)
 persistenceType = TopComponent.PERSISTENCE_NEVER)
 @TopComponent.Registration(mode = "output", openAtStartup = false)
 @ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.AddSimulationTopComponent")
-@ActionReference(path = "Menu/Window" /*
- * , position = 333
- */)
+//@ActionReference(path = "Menu/Window" /*
+// * , position = 333
+// */)
 
 //workaround for bug: http://netbeans.org/bugzilla/show_bug.cgi?id=208059
 //@TopComponent.OpenActionRegistration(displayName = "#CTL_AddSimulationAction",
@@ -55,6 +55,7 @@ public final class AddSimulationTopComponent extends TopComponent {
         setLayout(new BorderLayout());
         add(containerPanel, BorderLayout.CENTER);
         validate();
+        setSize(containerPanel.getSize());
     }
 
     /**

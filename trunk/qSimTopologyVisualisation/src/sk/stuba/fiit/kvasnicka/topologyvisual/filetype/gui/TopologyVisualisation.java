@@ -24,6 +24,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.DialogHandler;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.VertexSelectionManager;
@@ -71,6 +72,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     @Setter
     private boolean active = false;
     private VerticesSelectionPanel verticesSelectionPanel = null;//used as callback object when user is selecting vertex during simulation rules definition
+    private SimulationFacade simulationFacade; //todo serialise - SimulationManager and PingManager
 
     public TopologyVisualisation(TopologyFileTypeDataObject dataObject) {
         this.dataObject = dataObject;
@@ -85,7 +87,14 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
         topology = new Topology(this);
         initTopology();
         initPalette();
-        initToolbar();
+        initToolbar();        
+    }
+
+    public SimulationFacade getSimulationFacade() {
+        if (simulationFacade == null) {
+            simulationFacade = new SimulationFacade();
+        }
+        return simulationFacade;
     }
 
     /**
