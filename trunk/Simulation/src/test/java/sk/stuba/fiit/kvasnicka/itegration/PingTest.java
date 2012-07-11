@@ -19,6 +19,7 @@ package sk.stuba.fiit.kvasnicka.itegration;
 
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
@@ -28,8 +29,10 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogEvent;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtil;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
@@ -38,20 +41,26 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Igor Kvasnicka
  */
 public class PingTest {
+    int packetsDelivered;
     QosMechanism qosMechanism;
     NetworkNode node1, node2, node3;
     Edge edge1, edge2;
-    SimulationManager simulationManager;
+    ListenerClass listener;
 
     @Before
     public void before() {
+
+        listener = new ListenerClass();
+        packetsDelivered = 0;
 
 
         SwQueues.QueueDefinition[] q = new SwQueues.QueueDefinition[1];
@@ -90,12 +99,16 @@ public class PingTest {
         edge2.setLength(3);
     }
 
+    @After
+    public void after() {
+        SimulationLogUtil.getInstance().removeSimulationLogListener(listener);
+    }
+
     /**
      * simulate one packet
      */
     @Test
     public void testSinglePacketSimulation() throws NoSuchFieldException, IllegalAccessException {
-        simulationManager = new SimulationManager();
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
         rule.addRoute(Arrays.asList(node1, node2));
@@ -104,6 +117,7 @@ public class PingTest {
         simulationFacade.addSimulationRule(rule);
         simulationFacade.initTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
         SimulationTimer timer = (SimulationTimer) getPropertyWithoutGetter(SimulationFacade.class, simulationFacade, "timer");
+        simulationFacade.addSimulationLogListener(listener);
 
         simulationFacade.startTimer();
 
@@ -115,6 +129,7 @@ public class PingTest {
         timer.actionPerformed(null);
 
         assertFalse(timer.isRunning());
+        assertEquals(1, packetsDelivered);
     }
 
     /**
@@ -122,7 +137,6 @@ public class PingTest {
      */
     @Test
     public void testSinglePacket_3Nodes() throws NoSuchFieldException, IllegalAccessException {
-        simulationManager = new SimulationManager();
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node3, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
         rule.addRoute(Arrays.asList(node1, node2, node3));
@@ -131,6 +145,7 @@ public class PingTest {
         simulationFacade.addSimulationRule(rule);
         simulationFacade.initTimer(Arrays.asList(edge1, edge2), Arrays.asList(node1, node2, node3));
         SimulationTimer timer = (SimulationTimer) getPropertyWithoutGetter(SimulationFacade.class, simulationFacade, "timer");
+        simulationFacade.addSimulationLogListener(listener);
 
         simulationFacade.startTimer();
 
@@ -142,6 +157,7 @@ public class PingTest {
         timer.actionPerformed(null);
 
         assertFalse(timer.isRunning());
+        assertEquals(1, packetsDelivered);
     }
 
 
@@ -153,9 +169,6 @@ public class PingTest {
      */
     @Test
     public void testSinglePacketSimulation_infinitePing() throws NoSuchFieldException, IllegalAccessException {
-
-        simulationManager = new SimulationManager();
-
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, - 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);    //notice this -1
         rule.addRoute(Arrays.asList(node1, node2));
 
@@ -187,5 +200,20 @@ public class PingTest {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private class ListenerClass implements SimulationLogListener {
+
+        @Override
+        public void simulationLogOccurred(SimulationLogEvent evt) {
+            if (evt.getSimulationLog().getCause().equals("Starting simulation timer")) return;
+            if (evt.getSimulationLog().getCause().equals("Nothing to simulate - simulation stopped")) return;
+
+            if (evt.getSimulationLog().getCause().startsWith("Ping packet delivered in:")) {
+                packetsDelivered++;
+            } else {
+                fail("Bad simulation log message: " + evt.getSimulationLog().getCause());
+            }
+        }
     }
 }
