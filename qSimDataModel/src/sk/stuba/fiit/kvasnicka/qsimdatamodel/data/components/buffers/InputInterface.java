@@ -97,9 +97,6 @@ public class InputInterface {
 
     private boolean isPacketCrcOK() {
         if (Math.random() <= edge.getPacketErrorRate()) {
-            if (logg.isDebugEnabled()) {
-                logg.debug("packet is CRC wrong");
-            }
             return false;
         }
         return true;

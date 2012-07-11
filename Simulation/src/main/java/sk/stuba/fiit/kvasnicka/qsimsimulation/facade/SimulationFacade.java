@@ -20,8 +20,10 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.facade;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.pingrule.PingRuleListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.simulationrule.SimulationRuleListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtil;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
@@ -148,9 +150,23 @@ public class SimulationFacade {
         pingManager.addPing(rule, repetitions);
     }
 
+    /**
+     * removes simulation rules
+     *
+     * @param rule
+     */
+    public void removeSimulationRule(SimulationRuleBean rule) {
+        if (rule.isPing()) {
+            pingManager.removePing(rule);
+        } else {
+            simulationManager.removeSimulationRule(rule);
+        }
+    }
+
     private void addCommonSimulationRule(SimulationRuleBean rule) {
         simulationManager.addSimulationRule(rule);
     }
+
 
     /**
      * returns list of all defined simulation rules
@@ -200,4 +216,16 @@ public class SimulationFacade {
     public void removePingRuleListener(PingRuleListener listener) {
         pingManager.removePingRuleListener(listener);
     }
+
+    /**
+     * register for simulation logs, e.g. packet delivery, topology errors/informations, etc.
+     */
+    public void addSimulationLogListener(SimulationLogListener l) {
+        SimulationLogUtil.getInstance().addSimulationLogListener(l);
+    }
+
+    public void removeSimulationLogListener(SimulationLogListener l) {
+        SimulationLogUtil.getInstance().removeSimulationLogListener(l);
+    }
 }
+

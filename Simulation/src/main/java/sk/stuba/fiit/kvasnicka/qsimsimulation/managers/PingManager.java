@@ -59,7 +59,14 @@ public class PingManager implements PingPacketDeliveredListener {
     }
 
     public void removePing(SimulationRuleBean rule) {
-        if (pingDefinitions.remove(rule.getUniqueID()) != null | ! rules.remove(rule)) {
+
+        if (pingDefinitions.remove(rule.getUniqueID()) != null) {
+            firePingRuleRemovedEvent(new PingRuleEvent(this, rule));
+        } else {
+            logg.warn("no matching ping simulation rule found to be deleted");
+        }
+
+        if (rules.remove(rule)) {
             firePingRuleRemovedEvent(new PingRuleEvent(this, rule));
         } else {
             logg.warn("no matching ping simulation rule found to be deleted");
@@ -100,6 +107,7 @@ public class PingManager implements PingPacketDeliveredListener {
             def.decreaseRepetitions();
             if (def.repetitions == 0) {//this was the last packet in ping definition
                 pingDefinitions.remove(rule.getUniqueID());
+                rule.removePingPacketDeliveredListener(this);
                 return; //no more ping
             }
             //reset simulation rule
