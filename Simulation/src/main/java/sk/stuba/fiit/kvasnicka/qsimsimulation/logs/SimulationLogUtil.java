@@ -25,8 +25,10 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
  *
  * @author Igor Kvasnicka
  */
-public class SimulationLogUtil {
-    private static SimulationLogUtil INSTANCE = new SimulationLogUtil();
+public final class SimulationLogUtil {
+    private static final SimulationLogUtil INSTANCE = new SimulationLogUtil();
+    public static final String SOURCE_GENERAL = "<GENERAL>";
+    public static final String SOURCE_UNKNOWN = "<UNKNOWN>";
 
     private transient javax.swing.event.EventListenerList listenerList = new javax.swing.event.EventListenerList();
 
