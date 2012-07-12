@@ -88,6 +88,9 @@ public class SimulationRuleBean {
     /**
      * creates new simulation rule
      * all arguments are self-explained
+     * <p/>
+     * do not forget to set route
+     * <p/>
      *
      * @param source
      * @param destination
@@ -95,6 +98,7 @@ public class SimulationRuleBean {
      * @param packetSize
      * @param activeDelay
      * @param packetTypeEnum
+     * @see #setRoute(java.util.List)
      */
     public SimulationRuleBean(NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, double activeDelay, PacketTypeEnum packetTypeEnum, Layer4TypeEnum layer4Type, boolean ping) {
         this.activationTime = activeDelay;
@@ -150,7 +154,7 @@ public class SimulationRuleBean {
      *
      * @param route list of network nodes in which packet will be routed
      */
-    public void addRoute(List<NetworkNode> route) {
+    public void setRoute(List<NetworkNode> route) {
         if (route == null) throw new IllegalArgumentException("route is NULL");
         if (route.size() < 2) {
             throw new IllegalArgumentException("route must consist of at least 2 network nodes: source and destination; this route is long: " + route.size());

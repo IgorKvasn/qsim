@@ -27,7 +27,7 @@ import java.util.EventObject;
  */
 public class PacketDeliveredEvent extends EventObject {
     @Getter
-    private Packet packet;
+    private transient Packet packet;
 
     /**
      * Constructs a prototypical Event.

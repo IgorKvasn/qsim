@@ -117,8 +117,8 @@ public class NetworkNodeTest {
         node2.setTopologyManager(topologyManager);
 
 
-//        node1.addRoute("node2", "node2");
-//        node2.addRoute("node1", "node1");
+//        node1.setRoute("node2", "node2");
+//        node2.setRoute("node1", "node1");
 
         timer = EasyMock.createMock(SimulationTimer.class);
         EasyMock.expect(timer.getTopologyManager()).andReturn(topologyManager).times(100);
@@ -216,8 +216,8 @@ public class NetworkNodeTest {
         node2.setTopologyManager(topologyManager);
 
 
-//        node1.addRoute("node2", "node2");
-//        node2.addRoute("node1", "node1");
+//        node1.setRoute("node2", "node2");
+//        node2.setRoute("node1", "node1");
 
         //create packets
         Packet p1 = new Packet(200, layer4, packetManager, null, 10);
@@ -634,7 +634,7 @@ public class NetworkNodeTest {
         PowerMock.replayAll();
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, 0, null, Layer4TypeEnum.UDP, false);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
 
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2));
 
@@ -691,7 +691,7 @@ public class NetworkNodeTest {
 
     private void initRoute(Packet... packets) {
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean(node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        simulationRuleBean.addRoute(Arrays.asList(node1, node2));
+        simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {
             Field f = null;

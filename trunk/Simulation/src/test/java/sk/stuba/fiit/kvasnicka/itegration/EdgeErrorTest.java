@@ -107,7 +107,7 @@ public class EdgeErrorTest {
 
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP, false);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
 

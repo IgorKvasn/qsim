@@ -27,7 +27,7 @@ import java.util.EventObject;
  */
 public class SimulationRuleEvent extends EventObject {
     @Getter
-    private SimulationRuleBean rule;
+    private transient SimulationRuleBean rule;
 
     public SimulationRuleEvent(Object source, SimulationRuleBean rule) {
         super(source);

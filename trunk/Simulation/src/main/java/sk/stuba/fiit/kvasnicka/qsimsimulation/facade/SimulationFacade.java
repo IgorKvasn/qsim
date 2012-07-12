@@ -28,6 +28,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -201,6 +202,38 @@ public class SimulationFacade {
         return timer.isRunning();
     }
 
+    /**
+     * returns list of all simulation or ping rules that contains specified NetworkNode in their route
+     *
+     * @param node NetworkNode to search for
+     * @return
+     */
+    public List<SimulationRuleBean> getSimulRulesThatContainsNode(NetworkNode node) {
+        List<SimulationRuleBean> simulRules = getRulesThatContainsNode(simulationManager.getRulesUnmodifiable(), node);
+        List<SimulationRuleBean> pingRules = getRulesThatContainsNode(pingManager.getPingSimulationRules(), node);
+
+        simulRules.addAll(pingRules);
+
+        return simulRules;
+    }
+
+    private List<SimulationRuleBean> getRulesThatContainsNode(List<SimulationRuleBean> rules, NetworkNode node) {
+        if (node == null || rules == null) return new LinkedList<SimulationRuleBean>();
+        List<SimulationRuleBean> result = new LinkedList<SimulationRuleBean>();
+        for (SimulationRuleBean rule : rules) {
+            if (rule.getRoute().contains(node)) {
+                result.add(rule);
+            }
+        }
+        return result;
+    }
+
+
+    /**
+     * register for adding or removing new simulation rule
+     *
+     * @param listener
+     */
     public void addSimulationRuleListener(SimulationRuleListener listener) {
         simulationManager.addSimulationRuleListener(listener);
     }
@@ -209,6 +242,11 @@ public class SimulationFacade {
         simulationManager.removeSimulationRuleListener(listener);
     }
 
+    /**
+     * register for adding or removing new ping simulation rule
+     *
+     * @param listener
+     */
     public void addPingRuleListener(PingRuleListener listener) {
         pingManager.addPingRuleListener(listener);
     }
@@ -224,6 +262,9 @@ public class SimulationFacade {
         SimulationLogUtil.getInstance().addSimulationLogListener(l);
     }
 
+    /**
+     * removes listener for simulation logs, e.g. packet delivery, topology errors/informations, etc.
+     */
     public void removeSimulationLogListener(SimulationLogListener l) {
         SimulationLogUtil.getInstance().removeSimulationLogListener(l);
     }

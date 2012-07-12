@@ -44,7 +44,7 @@ import java.util.EventObject;
  */
 public class SimulationLogEvent extends EventObject {
     @Getter
-    private SimulationLog simulationLog;
+    private transient SimulationLog simulationLog;
 
     /**
      * Constructs a prototypical Event.

@@ -44,7 +44,7 @@ import java.util.EventObject;
  */
 public class PingRuleEvent extends EventObject {
     @Getter
-    private SimulationRuleBean rule;
+    private transient SimulationRuleBean rule;
 
     public PingRuleEvent(Object source, SimulationRuleBean rule) {
         super(source);

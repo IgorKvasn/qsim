@@ -88,6 +88,7 @@
     <properties>
         <powermock.version>1.4.11</powermock.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.mod4j.org.apache.commons</groupId>
