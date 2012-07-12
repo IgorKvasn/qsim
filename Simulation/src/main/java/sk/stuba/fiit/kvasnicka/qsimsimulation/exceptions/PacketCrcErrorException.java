@@ -27,7 +27,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
  */
 public class PacketCrcErrorException extends Exception {
     @Getter
-    private Packet packet;
+    private transient Packet packet;
 
     /**
      * creates new exception of this type

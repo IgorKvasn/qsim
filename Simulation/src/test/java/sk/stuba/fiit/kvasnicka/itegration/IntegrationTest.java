@@ -103,8 +103,8 @@ public class IntegrationTest {
 //        node3.setTopologyManager(topologyManager);
 
 
-//        node1.addRoute("node2", "node2");
-//        node2.addRoute("node1", "node1");
+//        node1.setRoute("node2", "node2");
+//        node2.setRoute("node1", "node1");
     }
 
     /**
@@ -133,7 +133,7 @@ public class IntegrationTest {
 
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
 
@@ -160,7 +160,7 @@ public class IntegrationTest {
 
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
 
@@ -197,7 +197,7 @@ public class IntegrationTest {
 
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
         simulationManager.addSimulationRule(rule);
 
         timer.startSimulationTimer(simulationManager, new PingManager());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
@@ -228,7 +228,7 @@ public class IntegrationTest {
 
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 2, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
 
@@ -272,7 +272,7 @@ public class IntegrationTest {
 
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 2, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
 
@@ -297,7 +297,7 @@ public class IntegrationTest {
 
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean(node1, node3, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        rule.addRoute(Arrays.asList(node1, node2, node3));
+        rule.setRoute(Arrays.asList(node1, node2, node3));
 
         simulationManager.addSimulationRule(rule);
 
@@ -327,7 +327,7 @@ public class IntegrationTest {
         simulationManager = new SimulationManager();
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
         simulationManager.addSimulationRule(rule);
 
 
@@ -339,7 +339,7 @@ public class IntegrationTest {
 
         //now create and add new simulation rule
         SimulationRuleBean rule2 = new SimulationRuleBean(node1, node2, 1, 50, 1, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        rule2.addRoute(Arrays.asList(node1, node2));
+        rule2.setRoute(Arrays.asList(node1, node2));
         simulationManager.addSimulationRule(rule2);
         timer.actionPerformed(null);
 

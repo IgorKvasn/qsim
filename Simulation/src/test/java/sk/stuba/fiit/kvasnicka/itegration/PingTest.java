@@ -111,7 +111,7 @@ public class PingTest {
     public void testSinglePacketSimulation() throws NoSuchFieldException, IllegalAccessException {
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
 
         SimulationFacade simulationFacade = new SimulationFacade();
         simulationFacade.addSimulationRule(rule);
@@ -139,7 +139,7 @@ public class PingTest {
     public void testSinglePacket_3Nodes() throws NoSuchFieldException, IllegalAccessException {
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node3, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
-        rule.addRoute(Arrays.asList(node1, node2, node3));
+        rule.setRoute(Arrays.asList(node1, node2, node3));
 
         SimulationFacade simulationFacade = new SimulationFacade();
         simulationFacade.addSimulationRule(rule);
@@ -170,7 +170,7 @@ public class PingTest {
     @Test
     public void testSinglePacketSimulation_infinitePing() throws NoSuchFieldException, IllegalAccessException {
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, - 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);    //notice this -1
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
 
         SimulationFacade simulationFacade = new SimulationFacade();
         simulationFacade.addSimulationRule(rule);

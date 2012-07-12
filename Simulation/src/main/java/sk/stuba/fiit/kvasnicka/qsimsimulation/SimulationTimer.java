@@ -48,6 +48,7 @@ import java.util.List;
 public class SimulationTimer implements ActionListener {
     private static Logger logg = Logger.getLogger(SimulationTimer.class);
     public static final double TIME_QUANTUM = DelayHelper.MIN_PROCESSING_DELAY + .1; //or also known as "timer delay" :) [msec]
+    public static final int MILIS_IN_SECOND = 1000;
     private Timer timer;
     @Getter
     private PacketGenerator packetGenerator;
@@ -255,7 +256,7 @@ public class SimulationTimer implements ActionListener {
     }
 
     private int convertTime(double speedUp) {
-        long l = Math.round((TIME_QUANTUM * 1000) * speedUp);
+        long l = Math.round((TIME_QUANTUM * MILIS_IN_SECOND) * speedUp);
 
         if (l < MIN_TIMER_DELAY) return MIN_TIMER_DELAY;
         if (l > Integer.MAX_VALUE) return MAX_TIMER_DELAY;

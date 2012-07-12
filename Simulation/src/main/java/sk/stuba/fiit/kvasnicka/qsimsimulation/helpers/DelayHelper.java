@@ -40,6 +40,7 @@ public abstract class DelayHelper {
 
     private static Logger logg = Logger.getLogger(DelayHelper.class);
     public static final double MIN_PROCESSING_DELAY = 0.5; //msec     //todo change to 0.018 or possibly another value - 0.5 msec is simply too big
+    public static final double PACKET_CREATION_DELAY = 0.1;
 
 
     public static double calculateSerialisationDelay(Edge edge, int packetSize) {
@@ -84,6 +85,6 @@ public abstract class DelayHelper {
      * @return
      */
     public static double calculatePacketCreationDelay(NetworkNode node, int packetSize, PacketTypeEnum packetTypeEnum) {
-        return 0.1;
+        return PACKET_CREATION_DELAY;
     }
 }

@@ -94,7 +94,7 @@ public class PingManager implements PingPacketDeliveredListener {
         SimulationRuleBean rule = new SimulationRuleBean(simulationRule.getDestination(), simulationRule.getSource(), simulationRule.getNumberOfPackets(), simulationRule.getPacketSize(), 0, simulationRule.getPacketTypeEnum(), simulationRule.getLayer4Type(), true);
         List<NetworkNode> newRoute = new LinkedList<NetworkNode>(simulationRule.getRoute());
         Collections.reverse(newRoute);//also switch route
-        rule.addRoute(newRoute);
+        rule.setRoute(newRoute);
         return rule;
     }
 

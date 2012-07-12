@@ -42,7 +42,7 @@ public class ClassificationUtilTest {
         NetworkNode node2 = new Router("node2", null, null, 10, 10, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
 
         Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
 
@@ -60,7 +60,7 @@ public class ClassificationUtilTest {
         NetworkNode node2 = new Router("node2", null, null, 10, 10, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
 
         Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
 
@@ -78,7 +78,7 @@ public class ClassificationUtilTest {
         NetworkNode node2 = new Router("node2", null, null, 10, 10, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
 
         Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
 
@@ -99,7 +99,7 @@ public class ClassificationUtilTest {
         NetworkNode node2 = new Router("node2", null, null, 10, 10, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
 
         Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
 
@@ -117,7 +117,7 @@ public class ClassificationUtilTest {
         NetworkNode node2 = new Router("node2", null, null, 10, 10, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
 
         Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
 
@@ -135,7 +135,7 @@ public class ClassificationUtilTest {
         NetworkNode node2 = new Router("node2", null, null, 10, 10, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
 
         Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
 
@@ -156,7 +156,7 @@ public class ClassificationUtilTest {
         NetworkNode node2 = new Router("node2", null, null, 10, 10, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
 
         Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
 
@@ -174,7 +174,7 @@ public class ClassificationUtilTest {
         NetworkNode node2 = new Router("node2", null, null, 10, 10, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
 
         Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
 
@@ -192,7 +192,7 @@ public class ClassificationUtilTest {
         NetworkNode node2 = new Router("node2", null, null, 10, 10, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
-        rule.addRoute(Arrays.asList(node1, node2));
+        rule.setRoute(Arrays.asList(node1, node2));
 
         Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
 
