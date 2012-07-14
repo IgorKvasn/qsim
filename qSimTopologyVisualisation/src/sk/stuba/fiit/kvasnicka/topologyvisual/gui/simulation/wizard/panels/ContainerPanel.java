@@ -154,10 +154,9 @@ public class ContainerPanel extends javax.swing.JPanel {
                 if (NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation() == null) {
                     throw new IllegalStateException("active topology visualisation is NULL");
                 }
-                SimulationFacade simulationFacade = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().getSimulationFacade();
-                SimulationRuleBean newRule = SimulationRuleHelper.newSimulationRule(simulationFacade, panelIterator.getStoredData());
-                // add new rule to simulation facade
-                simulationFacade.addSimulationRule(newRule);
+                
+                // add new rule to storage of all simulation rules
+                NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().getSimulationData().addSimulationData(panelIterator.getStoredData());
 
                 //reloads all simulation rules displayed
                 reloadSimulationRules();

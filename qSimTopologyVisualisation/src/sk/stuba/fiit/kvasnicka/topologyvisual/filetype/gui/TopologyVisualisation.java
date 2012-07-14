@@ -9,6 +9,8 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.event.*;
 import lombok.Getter;
@@ -19,12 +21,16 @@ import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.StatusDisplayer;
 import org.openide.awt.UndoRedo;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
+import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.DialogHandler;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.VertexSelectionManager;
@@ -43,8 +49,10 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.Verti
 import sk.stuba.fiit.kvasnicka.topologyvisual.lookuputils.RouteChanged;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.route.RoutingHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
 
 /**
  * Top component which displays something.
@@ -73,6 +81,8 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     private boolean active = false;
     private VerticesSelectionPanel verticesSelectionPanel = null;//used as callback object when user is selecting vertex during simulation rules definition
     private SimulationFacade simulationFacade; //todo serialise - SimulationManager and PingManager
+    @Getter
+    private transient SimulationData simulationData; //do NOT serialise
 
     public TopologyVisualisation(TopologyFileTypeDataObject dataObject) {
         this.dataObject = dataObject;
@@ -83,11 +93,12 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
         initComponents();
 
         content = new InstanceContent();
-
         topology = new Topology(this);
+        simulationData = new SimulationData(dataObject, topology);
+
         initTopology();
         initPalette();
-        initToolbar();        
+        initToolbar();
     }
 
     public SimulationFacade getSimulationFacade() {
@@ -126,12 +137,24 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                throw new UnsupportedOperationException("Not supported yet.");
+                playSimulation();
             }
         });
         toolBar.add(Box.createHorizontalStrut(30));
         toolBar.add(btnSimulRules);
         toolBar.add(btnPlay);
+    }
+
+    private void playSimulation() {
+        //finalise simulation rules = init routing
+        List<SimulationRuleBean> simulationRules = simulationData.getSimulationRulesFinalised(); //very important method !!
+        //add simulation rules into simulation facade
+        for (SimulationRuleBean rule : simulationRules) {
+            simulationFacade.addSimulationRule(rule);
+        }
+
+
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**

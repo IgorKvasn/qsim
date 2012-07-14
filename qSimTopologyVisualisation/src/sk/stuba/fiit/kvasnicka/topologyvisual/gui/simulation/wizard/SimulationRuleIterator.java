@@ -14,6 +14,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.*;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 
 /**
  *
@@ -142,17 +143,5 @@ public class SimulationRuleIterator {
         return panels[actualPanel];
     }
 
-    @Getter
-    @Setter
-    public static class Data {
-
-        private TopologyVertex sourceVertex, destinationVertex;
-        private List<TopologyVertex> route ;
-        private Layer4TypeEnum layer4protocol;
-        private int packetSize;
-        private int packetCount;
-        private PacketTypeEnum packetType;
-        private int activationDelay;
-        private boolean ping;
-    }
+ 
 }

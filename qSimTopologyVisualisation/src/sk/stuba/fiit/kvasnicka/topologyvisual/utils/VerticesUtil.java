@@ -8,6 +8,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 
 /**
@@ -29,6 +32,23 @@ public abstract class VerticesUtil {
     private static final int TRANSPARENT = 0;
     private static final Color COLOR_TO_REPLACE = new Color(178, 186, 157);
     private static final Color TRANSPARENT_COLOR = new Color(178, 186, 157, 0);
+
+    /**
+     * converts collection of TopologyVertex objects to a list of NetworkNodes
+     *
+     * @param col
+     * @return
+     */
+    public static List<NetworkNode> convertTopologyVertexList2NetworkNodeList(Collection<TopologyVertex> col) {
+        List<NetworkNode> list = new LinkedList<NetworkNode>();
+        if (col == null) {
+            return list;
+        }
+        for (TopologyVertex v : col) {
+            list.add(v.getDataModel());
+        }
+        return list;
+    }
 
     /**
      * retrieves names of all selected vertices

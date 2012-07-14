@@ -11,18 +11,22 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.util.*;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import org.apache.log4j.Logger;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.ConfirmDialogPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.deletion.VertexDeletionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.VerticesUtil;
 
@@ -102,28 +106,49 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                 if (NetbeansWindowHelper.getInstance().getActiveTopology() == null) {
                     return;
                 }
-                if (!PreferenciesHelper.isNeverShowVertexDeleteConfirmation()) {
-                    ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "vertex_delete_question") + " " + VerticesUtil.getVerticesNames(topology.getSelectedVertices()));
-                    NotifyDescriptor descriptor = new NotifyDescriptor(
-                            panel, // instance of your panel
-                            NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete_confirm_title"), // title of the dialog
-                            NotifyDescriptor.YES_NO_OPTION, NotifyDescriptor.QUESTION_MESSAGE, null,
-                            NotifyDescriptor.YES_OPTION // default option is "Yes"
-                            );
 
-                    if (DialogDisplayer.getDefault().notify(descriptor) != NotifyDescriptor.YES_OPTION) {
+                Map<TopologyVertex, List<SimulationRuleBean>> affectedSimrules = getAffectedSimrules(topology.getSelectedVertices());
+
+                if (affectedSimrules.isEmpty()) {//there are no affected simulation rules
+                    if (!PreferenciesHelper.isNeverShowVertexDeleteConfirmation()) {
+                        ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "vertex_delete_question") + " " + VerticesUtil.getVerticesNames(topology.getSelectedVertices()));
+                        NotifyDescriptor descriptor = new NotifyDescriptor(
+                                panel, // instance of your panel
+                                NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete_confirm_title"), // title of the dialog
+                                NotifyDescriptor.YES_NO_OPTION, NotifyDescriptor.QUESTION_MESSAGE, null,
+                                NotifyDescriptor.YES_OPTION // default option is "Yes"
+                                );
+
+                        if (DialogDisplayer.getDefault().notify(descriptor) != NotifyDescriptor.YES_OPTION) {
+                            return;
+                        }
+                        if (panel.isNeverShow()) {
+                            PreferenciesHelper.setNeverShowVertexDeleteConfirmation(panel.isNeverShow());
+                        }
+                    }
+                } else {//some simulation rules depend on this vertex
+
+                    VertexDeletionDialog dialog = new VertexDeletionDialog(topology.getSelectedVertices(), affectedSimrules, topology.getTopolElementTopComponent().getSimulationFacade());
+                    dialog.setVisible(true);
+
+                    if (dialog.getReturnCode() == VertexDeletionDialog.ReturnCode.CANCEL) {
                         return;
                     }
-                    if (panel.isNeverShow()) {
-                        PreferenciesHelper.setNeverShowVertexDeleteConfirmation(panel.isNeverShow());
-                    }
                 }
+
+
                 topology.deleteVertex(topology.getSelectedVertices());
 
-                logg.debug("vertex: " + selectedVertex + " was deleted");
-                //passing information about route deletion to TopologyVisualisation                    
-                TopologyVisualisation topolComponent = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation();
-                topolComponent.routesChanged();
+                logg.debug("vertex deletion: " + VerticesUtil.getVerticesNames(topology.getSelectedVertices()));
+            }
+
+            private Map<TopologyVertex, List<SimulationRuleBean>> getAffectedSimrules(Set<TopologyVertex> selectedVertices) {
+                Map<TopologyVertex, List<SimulationRuleBean>> affectedRules = new HashMap<TopologyVertex, List<SimulationRuleBean>>();
+                for (TopologyVertex v : selectedVertices) {
+                    List<SimulationRuleBean> simulRulesThatContainsNode = topology.getTopolElementTopComponent().getSimulationFacade().getSimulRulesThatContainsNode(v.getDataModel());
+                    affectedRules.put(v, simulRulesThatContainsNode);
+                }
+                return affectedRules;
             }
         });
         vertexPopup.add(menuItemDelete);

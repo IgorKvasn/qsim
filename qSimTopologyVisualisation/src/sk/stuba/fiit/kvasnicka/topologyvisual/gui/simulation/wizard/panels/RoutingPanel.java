@@ -51,7 +51,7 @@ public class RoutingPanel extends PanelInterface {
             @Override
             public void actionPerformed(ActionEvent e) {
                 List<TopologyVertex> vertices = getFixedVertices();
-                showRoute(vertices.toArray(new TopologyVertex[vertices.size()]));
+                showRoute(vertices);
             }
         });
 
@@ -92,7 +92,7 @@ public class RoutingPanel extends PanelInterface {
         return list;
     }
 
-    private void showRoute(TopologyVertex[] vertices) {
+    private void showRoute(List<TopologyVertex> vertices) {
         try {
             jLabel1.setVisible(false);
             activeTopology.highlightEdgesFromTo(iterator.getStoredData().getSourceVertex(), iterator.getStoredData().getDestinationVertex(), vertices);
@@ -205,7 +205,7 @@ public class RoutingPanel extends PanelInterface {
         }
         try {
             jLabel1.setVisible(false);
-            activeTopology.highlightEdgesFromTo(iterator.getStoredData().getSourceVertex(), iterator.getStoredData().getDestinationVertex());
+            activeTopology.highlightEdgesFromTo(iterator.getStoredData().getSourceVertex(), iterator.getStoredData().getDestinationVertex(),new LinkedList<TopologyVertex>());
         } catch (RoutingException ex) {
             jLabel1.setText(ex.getMessage());
             jLabel1.setVisible(true);
@@ -219,8 +219,7 @@ public class RoutingPanel extends PanelInterface {
 
         //check for cycles
         try {
-
-            activeTopology.highlightEdgesFromTo(iterator.getStoredData().getSourceVertex(), iterator.getStoredData().getDestinationVertex(), fixedVertices.toArray(new TopologyVertex[fixedVertices.size()]));
+            activeTopology.highlightEdgesFromTo(iterator.getStoredData().getSourceVertex(), iterator.getStoredData().getDestinationVertex(), fixedVertices);
         } catch (RoutingException ex) {
             jLabel1.setText(ex.getMessage());
             jLabel1.setVisible(true);
@@ -230,7 +229,7 @@ public class RoutingPanel extends PanelInterface {
         //store data
         fixedVertices.add(0, iterator.getStoredData().getSourceVertex());
         fixedVertices.add(iterator.getStoredData().getDestinationVertex());
-        iterator.getStoredData().setRoute(fixedVertices);
+        iterator.getStoredData().setFixedVertices(fixedVertices);
 
         return true;
     }

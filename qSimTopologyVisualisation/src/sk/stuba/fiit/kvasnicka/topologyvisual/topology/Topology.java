@@ -18,6 +18,7 @@ import edu.uci.ics.jung.visualization.picking.ShapePickSupport;
 import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
+import java.util.List;
 import java.awt.event.InputEvent;
 import java.util.Collection;
 import java.util.Collections;
@@ -455,13 +456,13 @@ public class Topology implements VertexCreatedListener {
      * @param destinationVertex
      * @param vertices between them
      */
-    public void highlightEdgesFromTo(TopologyVertex source, TopologyVertex destination, TopologyVertex... fixedVertices) throws RoutingException {
+    public void highlightEdgesFromTo(TopologyVertex source, TopologyVertex destination, List<TopologyVertex> fixedVertices) throws RoutingException {
         if (TopologyModeEnum.ROUTING != topologyMode) {
             return;
         }
         //first retirieve edges between these two vertices
         boolean distanceVector = topolElementTopComponent.getDataObject().getLoadSettings().isDistanceVectorRouting();
-        final Collection<TopologyEdge> edges = routingHelper.retrieveEdges(getG(), source, destination, distanceVector, fixedVertices);
+        final Collection<TopologyEdge> edges = RoutingHelper.retrieveEdges(getG(), source, destination, distanceVector, fixedVertices);
         if (!routingHelper.checkRouteForCycle(edges)) {
             throw new RoutingException(NbBundle.getMessage(Topology.class, "cycle_exception"));
         }
