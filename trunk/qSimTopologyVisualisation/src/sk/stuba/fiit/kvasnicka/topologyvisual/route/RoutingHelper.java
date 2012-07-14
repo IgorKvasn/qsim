@@ -185,7 +185,7 @@ public class RoutingHelper {
      * @param fixedPoints other vertices that must be included in the way (order
      * is important; the last vertex is "destination")
      */
-    public Collection<TopologyEdge> retrieveEdges(AbstractGraph<TopologyVertex, TopologyEdge> graph, TopologyVertex source, TopologyVertex destination, boolean distanceVector, TopologyVertex[] fixedVertices) throws RoutingException {
+    public static List<TopologyEdge> retrieveEdges(AbstractGraph<TopologyVertex, TopologyEdge> graph, TopologyVertex source, TopologyVertex destination, boolean distanceVector, List<TopologyVertex> fixedVertices) throws RoutingException {
         if (graph == null) {
             throw new IllegalArgumentException("graph is NULL");
         }
@@ -199,11 +199,10 @@ public class RoutingHelper {
             throw new IllegalStateException(NbBundle.getMessage(RoutingHelper.class, "routers.exception" + " " + source.getName()));
         }
         if (fixedVertices == null) {
-            fixedVertices = new TopologyVertex[0];
+            fixedVertices = new LinkedList<TopologyVertex>();
         }
 
         //check if source or destination is not fixed
-
         for (TopologyVertex v : fixedVertices) {
             if (source.equals(v)) {
                 throw new RoutingException(NbBundle.getMessage(RoutingHelper.class, "fixed_vertixes"));
@@ -218,7 +217,7 @@ public class RoutingHelper {
 
         //lets go
         List<TopologyEdge> path = new LinkedList<TopologyEdge>();
-        List<TopologyVertex> fixed = new ArrayList(Arrays.asList(fixedVertices)); //Arrays.asList() returns read-only List
+        List<TopologyVertex> fixed = new ArrayList(fixedVertices); //make a copy
         fixed.add(0, source);
         fixed.add(destination);
 

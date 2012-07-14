@@ -29,6 +29,8 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 
 /**
  * Top component which displays something.
@@ -37,7 +39,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 autostore = false)
 @TopComponent.Description(preferredID = "SimulationTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
-persistenceType = TopComponent.PERSISTENCE_ALWAYS)
+persistenceType = TopComponent.PERSISTENCE_NEVER)
 @TopComponent.Registration(mode = "output", openAtStartup = false)
 @ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.gui.SimulationTopComponent")
 @ActionReference(path = "Menu/Window" /*
@@ -58,18 +60,15 @@ public final class SimulationTopComponent extends TopComponent {
     private RowFilter<TableModel, Object> destinationFilter = null;
     private List<RowFilter<TableModel, Object>> filters = new LinkedList<RowFilter<TableModel, Object>>();
     private RowFilter<TableModel, Object> compoundRowFilter = null;
-    private RowFilter<TableModel, Object> pingFilter;
-    private TableRowSorter<TableModel> sorterSimRules, sorterPingRules;
-    private DefaultTableModel simulRulesTableModel, pingRulesTableModel;
+    private TableRowSorter<TableModel> sorterSimRules;
+    private DefaultTableModel simulRulesTableModel;
 
     public SimulationTopComponent() {
         initComponents();
         setName(Bundle.CTL_SimulationTopComponent());
         setToolTipText(Bundle.HINT_SimulationTopComponent());
         simulRulesTableModel = ((DefaultTableModel) jXTable1.getModel());
-        pingRulesTableModel = ((DefaultTableModel) jXTable2.getModel());
         sorterSimRules = new TableRowSorter<TableModel>(jXTable1.getModel());
-        sorterPingRules = new TableRowSorter<TableModel>(jXTable2.getModel());
     }
 
     /**
@@ -110,30 +109,29 @@ public final class SimulationTopComponent extends TopComponent {
         }
 
         compoundRowFilter = RowFilter.andFilter(filters); //it is also possible to use OR filter: RowFilter.orFilter
-        sorterPingRules.setRowFilter(compoundRowFilter);
+
         sorterSimRules.setRowFilter(compoundRowFilter);
+        jXTable1.setRowSorter(sorterSimRules);
     }
 
     /**
      * loads and shows simulation and ping rules
      */
     public void loadSimulationandPingRules() {
-        SimulationFacade simulationFacade = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().getSimulationFacade();
-
-        loadRules(simulRulesTableModel, simulationFacade.getSimulationRules(), simulationFacade);
-        loadRules(pingRulesTableModel, simulationFacade.getPingSimulationRules(), simulationFacade);
+        List<Data> simulationData = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().getSimulationData().getSimulationData();
+        loadRules(simulRulesTableModel, simulationData);
 
     }
 
-    private void loadRules(DefaultTableModel model, List<SimulationRuleBean> rules, SimulationFacade simulationFacade) {
+    private void loadRules(DefaultTableModel model, List<Data> dataList) {
         //delete all old simulation rules
         while (model.getRowCount() != 0) {
             model.removeRow(0);
         }
 
         //add new simulation rules
-        for (SimulationRuleBean rule : rules) {
-            model.addRow(new Object[]{rule.getSource().getName(), rule.getDestination().getName()});
+        for (Data rule : dataList) {
+            model.addRow(new Object[]{rule.getSourceVertex().getName(), rule.getDestinationVertex().getName()});
         }
     }
 
@@ -153,11 +151,8 @@ public final class SimulationTopComponent extends TopComponent {
         txtSource = new javax.swing.JTextField();
         txtDest = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        jTabbedPane1 = new javax.swing.JTabbedPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         jXTable1 = new org.jdesktop.swingx.JXTable();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jXTable2 = new org.jdesktop.swingx.JXTable();
 
         btnAdd.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/add.png"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(btnAdd, org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.btnAdd.text")); // NOI18N
@@ -214,19 +209,19 @@ public final class SimulationTopComponent extends TopComponent {
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtDest, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(176, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(txtSource, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel2)
-                        .addComponent(txtDest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(txtDest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel1)
+                        .addComponent(txtSource, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 12, Short.MAX_VALUE))
         );
 
         jXTable1.setModel(new javax.swing.table.DefaultTableModel(
@@ -253,67 +248,37 @@ public final class SimulationTopComponent extends TopComponent {
         jXTable1.getColumnModel().getColumn(0).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jXTable1.columnModel.title0")); // NOI18N
         jXTable1.getColumnModel().getColumn(1).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jXTable1.columnModel.title1")); // NOI18N
 
-        jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jScrollPane2.TabConstraints.tabTitle"), jScrollPane2); // NOI18N
-
-        jXTable2.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Source", "Destination"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
-        jXTable2.setColumnSelectionAllowed(true);
-        jXTable2.getTableHeader().setReorderingAllowed(false);
-        jScrollPane1.setViewportView(jXTable2);
-        jXTable2.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        jXTable2.getColumnModel().getColumn(0).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jXTable2.columnModel.title0")); // NOI18N
-        jXTable2.getColumnModel().getColumn(1).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jXTable2.columnModel.title1")); // NOI18N
-
-        jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jScrollPane1.TabConstraints.tabTitle"), jScrollPane1); // NOI18N
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 648, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 643, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(23, 23, 23)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnAdd)
                     .addComponent(jButton1)
                     .addComponent(jButton2))
                 .addContainerGap(162, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
+                        .addGap(9, 9, 9)
                         .addComponent(btnAdd)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton2)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -357,11 +322,8 @@ public final class SimulationTopComponent extends TopComponent {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTabbedPane jTabbedPane1;
     private org.jdesktop.swingx.JXTable jXTable1;
-    private org.jdesktop.swingx.JXTable jXTable2;
     private javax.swing.JTextField txtDest;
     private javax.swing.JTextField txtSource;
     // End of variables declaration//GEN-END:variables
