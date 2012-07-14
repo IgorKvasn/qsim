@@ -15,6 +15,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.ContainerPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 
 /**
  * Top component which displays something.
@@ -29,7 +30,6 @@ persistenceType = TopComponent.PERSISTENCE_NEVER)
 //@ActionReference(path = "Menu/Window" /*
 // * , position = 333
 // */)
-
 //workaround for bug: http://netbeans.org/bugzilla/show_bug.cgi?id=208059
 //@TopComponent.OpenActionRegistration(displayName = "#CTL_AddSimulationAction",
 //preferredID = "AddSimulationTopComponent")
@@ -43,6 +43,8 @@ public final class AddSimulationTopComponent extends TopComponent {
     private final static Logger logg = Logger.getLogger(AddSimulationTopComponent.class);
     private ContainerPanel containerPanel;
     private SimulationRuleIterator panelIterator;
+    private Data modifyData = null; //simulation data to be modified; null if new data should be created
+    private int panelToShow = 0;
 
     public AddSimulationTopComponent() {
         initComponents();
@@ -56,6 +58,17 @@ public final class AddSimulationTopComponent extends TopComponent {
         add(containerPanel, BorderLayout.CENTER);
         validate();
         setSize(containerPanel.getSize());
+    }
+
+    /**
+     * modify existing simulation rule data
+     *
+     * @param data
+     * @param defaultPanel
+     */
+    public void modifySimulationRule(Data data, int defaultPanel) {
+        modifyData = data;
+        panelToShow = defaultPanel;
     }
 
     /**
@@ -87,7 +100,13 @@ public final class AddSimulationTopComponent extends TopComponent {
 
     @Override
     public void componentOpened() {
-        panelIterator.initDefaultPanel();
+        if (modifyData != null) {
+            panelIterator.initDefaultPanel(modifyData, panelToShow);
+        } else {
+            panelIterator.initDefaultPanel(new Data(), panelToShow);
+        }
+        modifyData = null;
+        panelToShow = 0;
     }
 
     @Override

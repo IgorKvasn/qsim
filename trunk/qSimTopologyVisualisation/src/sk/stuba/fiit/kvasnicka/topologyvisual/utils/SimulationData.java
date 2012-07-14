@@ -4,8 +4,11 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.utils;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
@@ -97,10 +100,43 @@ public class SimulationData {
         return dataRules;
     }
 
+    /**
+     * removes simulation rule data depending on its ID
+     *
+     * @param dataID
+     */
+    public void removeSimulationData(String dataID) {
+        for (Iterator<Data> it = dataRules.iterator(); it.hasNext();) {
+            Data data = it.next();
+            if (data.getId().equals(dataID)) {
+                it.remove();
+                return;
+            }
+        }
+
+    }
+
+    /**
+     * finds simulation rule data depending on its ID
+     *
+     * @param dataID
+     * @return
+     */
+    public Data findSimulationData(String dataID) {
+        for (Data d : dataRules) {
+            if (d.getId().equals(dataID)) {
+                return d;
+            }
+        }
+        throw new IllegalStateException("no Data object found for ID: " + dataID);
+    }
+
     @Getter
     @Setter
+    @EqualsAndHashCode(of = "id")
     public static class Data {
 
+        private final String id = UUID.randomUUID().toString();
         private TopologyVertex sourceVertex, destinationVertex;
         private List<TopologyVertex> fixedVertices;
         private Layer4TypeEnum layer4protocol;

@@ -29,6 +29,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 
@@ -61,14 +62,20 @@ public final class SimulationTopComponent extends TopComponent {
     private List<RowFilter<TableModel, Object>> filters = new LinkedList<RowFilter<TableModel, Object>>();
     private RowFilter<TableModel, Object> compoundRowFilter = null;
     private TableRowSorter<TableModel> sorterSimRules;
-    private DefaultTableModel simulRulesTableModel;
+    private DefaultTableModel tableModel;
 
     public SimulationTopComponent() {
         initComponents();
         setName(Bundle.CTL_SimulationTopComponent());
         setToolTipText(Bundle.HINT_SimulationTopComponent());
-        simulRulesTableModel = ((DefaultTableModel) jXTable1.getModel());
+        tableModel = ((DefaultTableModel) jXTable1.getModel());
         sorterSimRules = new TableRowSorter<TableModel>(jXTable1.getModel());
+        /**
+         * the first column (index=0) is a hidden column containing ID of a Data
+         * object
+         */
+        jXTable1.removeColumn(jXTable1.getColumnModel().getColumn(0));
+
     }
 
     /**
@@ -92,7 +99,7 @@ public final class SimulationTopComponent extends TopComponent {
 
         if (!StringUtils.isEmpty(txtSource.getText())) {
             try {
-                sourceFilter = RowFilter.regexFilter(txtSource.getText(), 0);
+                sourceFilter = RowFilter.regexFilter(txtSource.getText(), 1);
                 filters.add(sourceFilter);
             } catch (java.util.regex.PatternSyntaxException e) {
                 return;
@@ -101,7 +108,7 @@ public final class SimulationTopComponent extends TopComponent {
 
         if (!StringUtils.isEmpty(txtDest.getText())) {
             try {
-                destinationFilter = RowFilter.regexFilter(txtDest.getText(), 1);
+                destinationFilter = RowFilter.regexFilter(txtDest.getText(), 2);
                 filters.add(destinationFilter);
             } catch (java.util.regex.PatternSyntaxException e) {
                 return;
@@ -117,10 +124,9 @@ public final class SimulationTopComponent extends TopComponent {
     /**
      * loads and shows simulation and ping rules
      */
-    public void loadSimulationandPingRules() {
+    public void loadSimulationRules() {
         List<Data> simulationData = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().getSimulationData().getSimulationData();
-        loadRules(simulRulesTableModel, simulationData);
-
+        loadRules(tableModel, simulationData);
     }
 
     private void loadRules(DefaultTableModel model, List<Data> dataList) {
@@ -131,7 +137,7 @@ public final class SimulationTopComponent extends TopComponent {
 
         //add new simulation rules
         for (Data rule : dataList) {
-            model.addRow(new Object[]{rule.getSourceVertex().getName(), rule.getDestinationVertex().getName()});
+            model.addRow(new Object[]{rule.getId(), rule.getSourceVertex().getName(), rule.getDestinationVertex().getName()});
         }
     }
 
@@ -295,7 +301,9 @@ public final class SimulationTopComponent extends TopComponent {
             return;
         }
         int rowToRemove = jXTable1.convertRowIndexToModel(jXTable1.getSelectedRow());
-        throw new UnsupportedOperationException("not yet implemented");
+        String dataID = (String) tableModel.getValueAt(rowToRemove, 0);
+        NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().getSimulationData().removeSimulationData(dataID);
+        loadSimulationRules();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -306,6 +314,19 @@ public final class SimulationTopComponent extends TopComponent {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
+
+        int rowToModify = jXTable1.convertRowIndexToModel(jXTable1.getSelectedRow());
+        String dataID = (String) tableModel.getValueAt(rowToModify, 0);
+        Data data = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().getSimulationData().findSimulationData(dataID);
+
+        TopComponent myTC = WindowManager.getDefault().findTopComponent("AddSimulationTopComponent");
+        if (myTC == null) {
+            logg.error("Could not ind window: AddSimulationTopComponent");
+            return;
+        }
+        ((AddSimulationTopComponent) myTC).modifySimulationRule(data, SimulationRuleIterator.ROUTING_PANEL);
+        addSimulation();
+
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void txtSourceKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSourceKeyReleased
@@ -338,7 +359,7 @@ public final class SimulationTopComponent extends TopComponent {
         if (simulationRules == null) {
             throw new IllegalStateException("Simulation rules are NULL"); //this really should not happen
         }
-        loadSimulationandPingRules();
+        loadSimulationRules();
     }
 
     @Override
