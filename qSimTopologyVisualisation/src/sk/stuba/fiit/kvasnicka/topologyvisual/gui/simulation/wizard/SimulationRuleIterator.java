@@ -4,15 +4,10 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard;
 
-import java.util.List;
 import javax.swing.JPanel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.*;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 
@@ -23,6 +18,18 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 public class SimulationRuleIterator {
 
     private final static Logger logg = Logger.getLogger(SimulationRuleIterator.class);
+    /**
+     * defining source and destination of a simulation rule
+     */
+    public static final int SOURCE_DEST_PANEL = 0;
+    /**
+     * defining route
+     */
+    public static final int ROUTING_PANEL = 1;
+    /**
+     * defining simulation rule - number of packets, type of packets, ...
+     */
+    public static final int PACKET_RULES_PANEL = 2;
     private final int NUMBER_OF_PANELS = 3;
     private PanelInterface[] panels = new PanelInterface[NUMBER_OF_PANELS];
     private int actualPanel = -1;
@@ -64,11 +71,11 @@ public class SimulationRuleIterator {
     /**
      * shows the first panel
      */
-    public void initDefaultPanel() {
-        storedData = new Data();
-        
+    public void initDefaultPanel(Data data, int panelToShow) {
+        storedData = data;
+
         initPanels();
-        actualPanel = 0;
+        actualPanel = panelToShow;
         panels[actualPanel].init(this);
         containerPanel.setPanel(panels[actualPanel]);
     }
@@ -142,6 +149,4 @@ public class SimulationRuleIterator {
         }
         return panels[actualPanel];
     }
-
- 
 }
