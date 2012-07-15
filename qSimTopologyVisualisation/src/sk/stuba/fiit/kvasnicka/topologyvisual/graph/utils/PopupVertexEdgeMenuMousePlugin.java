@@ -28,6 +28,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.deletion.VertexDeletionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.VerticesUtil;
 
 /**
@@ -107,7 +109,12 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                     return;
                 }
 
-                Map<TopologyVertex, List<SimulationRuleBean>> affectedSimrules = getAffectedSimrules(topology.getSelectedVertices());
+                Map<TopologyVertex, List<SimulationData.Data>> affectedSimrules;
+                if (topology.getSelectedVertices().isEmpty()) {//there may be some selected vertices or user just right-clicks on the vertex
+                    affectedSimrules = getAffectedSimrules(Arrays.asList(selectedVertex));
+                } else {
+                    affectedSimrules = getAffectedSimrules(topology.getSelectedVertices());
+                }
 
                 if (affectedSimrules.isEmpty()) {//there are no affected simulation rules
                     if (!PreferenciesHelper.isNeverShowVertexDeleteConfirmation()) {
@@ -128,7 +135,7 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                     }
                 } else {//some simulation rules depend on this vertex
 
-                    VertexDeletionDialog dialog = new VertexDeletionDialog(topology.getSelectedVertices(), affectedSimrules, topology.getTopolElementTopComponent().getSimulationFacade());
+                    VertexDeletionDialog dialog = new VertexDeletionDialog(affectedSimrules);
                     dialog.setVisible(true);
 
                     if (dialog.getReturnCode() == VertexDeletionDialog.ReturnCode.CANCEL) {
@@ -136,16 +143,19 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                     }
                 }
 
-
-                topology.deleteVertex(topology.getSelectedVertices());
+                if (topology.getSelectedVertices().isEmpty()) {//user right clicks on the vertex - this does not selects vertex
+                    topology.deleteVertex(selectedVertex);
+                } else {
+                    topology.deleteVertex(topology.getSelectedVertices());
+                }
 
                 logg.debug("vertex deletion: " + VerticesUtil.getVerticesNames(topology.getSelectedVertices()));
             }
 
-            private Map<TopologyVertex, List<SimulationRuleBean>> getAffectedSimrules(Set<TopologyVertex> selectedVertices) {
-                Map<TopologyVertex, List<SimulationRuleBean>> affectedRules = new HashMap<TopologyVertex, List<SimulationRuleBean>>();
+            private Map<TopologyVertex, List<SimulationData.Data>> getAffectedSimrules(Collection<TopologyVertex> selectedVertices) {
+                Map<TopologyVertex, List<SimulationData.Data>> affectedRules = new HashMap<TopologyVertex, List<SimulationData.Data>>();
                 for (TopologyVertex v : selectedVertices) {
-                    List<SimulationRuleBean> simulRulesThatContainsNode = topology.getTopolElementTopComponent().getSimulationFacade().getSimulRulesThatContainsNode(v.getDataModel());
+                    List<Data> simulRulesThatContainsNode = topology.getTopolElementTopComponent().getSimulationData().getSimulationDataContainingVertex(v);
                     affectedRules.put(v, simulRulesThatContainsNode);
                 }
                 return affectedRules;
