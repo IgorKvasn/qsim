@@ -18,8 +18,8 @@ import org.apache.log4j.Logger;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.ConfirmDialogPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
@@ -27,6 +27,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.deletion.VertexDeletionDialog;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.SimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
@@ -137,6 +138,20 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
 
                     VertexDeletionDialog dialog = new VertexDeletionDialog(affectedSimrules);
                     dialog.setVisible(true);
+
+                    for (TopologyVertex v : affectedSimrules.keySet()) {
+                        for (SimulationData.Data data : affectedSimrules.get(v)) {
+                            if (VerticesUtil.isVertexSourceOrDestination(v, data)) {//topology vertex marked for removal is source or destination in some simulation rule
+                                topology.getTopolElementTopComponent().getSimulationData().removeSimulationData(data.getId());
+                            }
+                        }
+                    }
+
+                    //reload simulation rules shown in SimulationTopComponent
+                    SimulationTopComponent myTC = (SimulationTopComponent) WindowManager.getDefault().findTopComponent("SimulationTopComponent");
+                    if (myTC.isOpened()) {//only if it is opened (note: opened is not the same as visible - it may be opened, but covered by some other TopComponent)
+                        myTC.loadSimulationRules();
+                    }
 
                     if (dialog.getReturnCode() == VertexDeletionDialog.ReturnCode.CANCEL) {
                         return;
