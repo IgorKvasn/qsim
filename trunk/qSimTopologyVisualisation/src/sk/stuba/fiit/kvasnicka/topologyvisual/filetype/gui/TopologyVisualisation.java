@@ -146,15 +146,22 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     }
 
     private void playSimulation() {
-        //finalise simulation rules = init routing
-        List<SimulationRuleBean> simulationRules = simulationData.getSimulationRulesFinalised(); //very important method !!
-        //add simulation rules into simulation facade
-        for (SimulationRuleBean rule : simulationRules) {
-            simulationFacade.addSimulationRule(rule);
+        try {
+            //finalise simulation rules = init routing
+            List<SimulationRuleBean> simulationRules = simulationData.getSimulationRulesFinalised(); //very important method !!
+            //add simulation rules into simulation facade
+            for (SimulationRuleBean rule : simulationRules) {
+                simulationFacade.addSimulationRule(rule);
+            }
+
+
+            throw new UnsupportedOperationException("Not supported yet.");
+        } catch (RoutingException ex) {
+            JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),
+                     NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_part1") + "\n" + ex.getMessage() + "\n" + NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_part2"),
+                    NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_title"),
+                    JOptionPane.ERROR_MESSAGE);
         }
-
-
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**

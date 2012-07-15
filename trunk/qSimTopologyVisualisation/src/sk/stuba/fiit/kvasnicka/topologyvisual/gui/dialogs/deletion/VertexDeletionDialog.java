@@ -12,25 +12,21 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
 import javax.swing.table.DefaultTableModel;
 import lombok.Getter;
+import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
 
 /**
- *
- * this panel will be shown, when user is about to delete a vertex (vertices)
- * that are a part of some simulation (or ping) rule
  *
  * @author Igor Kvasnicka
  */
 public class VertexDeletionDialog extends javax.swing.JDialog {
 
     @Getter
-    private ReturnCode returnCode;
-    private final Set<TopologyVertex> vertices;
-    private final Map<TopologyVertex, List<SimulationRuleBean>> rulesMap;
-    private final SimulationFacade facade;
-    private DefaultComboBoxModel comboboxModel;
+    private VertexDeletionDialog.ReturnCode returnCode;
+    private Map<TopologyVertex, List<SimulationData.Data>> rulesMap;
     private DefaultTableModel tableModel;
 
     public static enum ReturnCode {
@@ -41,57 +37,21 @@ public class VertexDeletionDialog extends javax.swing.JDialog {
     /**
      * Creates new form VertexDeletionDialog
      */
-    public VertexDeletionDialog(Set<TopologyVertex> vertices, Map<TopologyVertex, List<SimulationRuleBean>> rulesMap, SimulationFacade facade) {
-        super((JFrame) null, true);
+    public VertexDeletionDialog(Map<TopologyVertex, List<SimulationData.Data>> rulesMap) {
+        super(WindowManager.getDefault().getMainWindow(), true);
         initComponents();
-        this.vertices = vertices;
+
         this.rulesMap = rulesMap;
-        this.facade = facade;
-        comboboxModel = new DefaultComboBoxModel();
         tableModel = new DefaultTableModel();
 
-        jComboBox1.setModel(comboboxModel);
         jTable1.setModel(tableModel);
 
-        init();
-    }
-
-    /**
-     * removes all affected simulation rules
-     */
-    private void removeAllAffectedRules() {
-        for (TopologyVertex v : rulesMap.keySet()) {
-            for (Iterator<SimulationRuleBean> it = rulesMap.get(v).iterator(); it.hasNext();) {
-                SimulationRuleBean rule = it.next();
-                if (rule == null) {
-                    throw new IllegalStateException("simulation rule is NULL");
-                }
-                facade.removeSimulationRule(rule);
-                it.remove();
-            }
-        }
-    }
-
-    private void init() {
-        reloadUnresolvedCount();
         initAffectedVerticesComboBox();
     }
 
-    private void reloadUnresolvedCount() {
-        lblUnresolvedCount.setText(getNumberOfUnresolvedRules() + "");
-    }
-
-    private int getNumberOfUnresolvedRules() {
-        int result = 0;
-        for (TopologyVertex v : rulesMap.keySet()) {
-            result += rulesMap.get(v).size();
-        }
-        return result;
-    }
-
     private void initAffectedVerticesComboBox() {
-        for (TopologyVertex v : vertices) {
-            comboboxModel.addElement(v);
+        for (TopologyVertex v : rulesMap.keySet()) {
+            jComboBox1.addItem(v);
         }
     }
 
@@ -104,19 +64,21 @@ public class VertexDeletionDialog extends javax.swing.JDialog {
             throw new IllegalStateException("vertex is NULL");
         }
 
-        List<SimulationRuleBean> rules = rulesMap.get(v);
-        if (rules == null) {
+        List<SimulationData.Data> dataList = rulesMap.get(v);
+        if (dataList == null) {
             throw new IllegalStateException("no affected simulation rules found");
         }
         //delete table first
-        comboboxModel.removeAllElements();
+        while (jTable1.getRowCount() != 0) {
+            tableModel.removeRow(0);
+        }
 
-        if (rules.isEmpty()) {//no rules to show - all rules has been resolved
+        if (dataList.isEmpty()) {//no rules to show - all rules has been resolved
             return;
         }
 
-        for (SimulationRuleBean rule : rules) {
-            tableModel.addRow(new Object[]{rule.getSource(), rule.getDestination()});
+        for (SimulationData.Data data : dataList) {
+            tableModel.addRow(new Object[]{data.getSourceVertex().getName(), data.getDestinationVertex().getName(), data.isPing()});
         }
     }
 
@@ -130,23 +92,17 @@ public class VertexDeletionDialog extends javax.swing.JDialog {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jLabel4 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jLabel5 = new javax.swing.JLabel();
-        lblUnresolvedCount = new javax.swing.JLabel();
+        btnOK = new javax.swing.JButton();
+        btnCancel = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jLabel1.text")); // NOI18N
-
-        jLabel2.setText(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jLabel2.text")); // NOI18N
 
         jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -175,28 +131,14 @@ public class VertexDeletionDialog extends javax.swing.JDialog {
         });
         jTable1.setColumnSelectionAllowed(true);
         jScrollPane1.setViewportView(jTable1);
-        jTable1.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        jTable1.getColumnModel().getColumn(0).setHeaderValue(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jTable1.columnModel.title0")); // NOI18N
-        jTable1.getColumnModel().getColumn(1).setHeaderValue(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jTable1.columnModel.title1")); // NOI18N
-        jTable1.getColumnModel().getColumn(2).setMinWidth(50);
-        jTable1.getColumnModel().getColumn(2).setPreferredWidth(70);
-        jTable1.getColumnModel().getColumn(2).setMaxWidth(100);
-        jTable1.getColumnModel().getColumn(2).setHeaderValue(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jTable1.columnModel.title2")); // NOI18N
 
         jLabel4.setText(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jLabel4.text")); // NOI18N
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         jComboBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBox1ActionPerformed(evt);
             }
         });
-
-        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/remove.png"))); // NOI18N
-        jButton1.setText(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jButton1.text")); // NOI18N
-
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/edit.png"))); // NOI18N
-        jButton2.setText(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jButton2.text")); // NOI18N
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -208,15 +150,9 @@ public class VertexDeletionDialog extends javax.swing.JDialog {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 372, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 51, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton1)
-                            .addComponent(jButton2))))
-                .addContainerGap())
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 372, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(17, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -226,70 +162,38 @@ public class VertexDeletionDialog extends javax.swing.JDialog {
                     .addComponent(jLabel4)
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton2))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jButton3.setText(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jButton3.text")); // NOI18N
-        jButton3.setEnabled(false);
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        btnOK.setText(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.btnOK.text")); // NOI18N
+        btnOK.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                btnOKActionPerformed(evt);
             }
         });
 
-        jButton5.setText(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jButton5.text")); // NOI18N
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
+        btnCancel.setText(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.btnCancel.text")); // NOI18N
+        btnCancel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
+                btnCancelActionPerformed(evt);
             }
         });
 
-        jButton4.setText(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jButton4.text")); // NOI18N
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
-            }
-        });
-
-        jLabel5.setText(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jLabel5.text")); // NOI18N
-
-        lblUnresolvedCount.setText(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.lblUnresolvedCount.text")); // NOI18N
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(63, 63, 63)
-                .addComponent(jButton3)
-                .addGap(18, 18, 18)
-                .addComponent(jButton5)
-                .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addGap(18, 18, 18)
-                                .addComponent(lblUnresolvedCount)
-                                .addGap(65, 65, 65)
-                                .addComponent(jButton4))
-                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel5))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(54, 54, 54)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(101, 101, 101)
+                .addComponent(btnOK, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(36, 36, 36)
+                .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -297,55 +201,40 @@ public class VertexDeletionDialog extends javax.swing.JDialog {
                 .addGap(21, 21, 21)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(25, 25, 25)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(jButton4)
-                    .addComponent(lblUnresolvedCount))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
-                .addComponent(jLabel5)
-                .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton3)
-                    .addComponent(jButton5))
-                .addGap(20, 20, 20))
+                    .addComponent(btnOK)
+                    .addComponent(btnCancel))
+                .addContainerGap(13, Short.MAX_VALUE))
         );
+
+        pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
         changeRulesTable((TopologyVertex) jComboBox1.getSelectedItem());
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void btnOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOKActionPerformed
         returnCode = ReturnCode.OK;
         this.setVisible(false);
         this.dispose();
-    }//GEN-LAST:event_jButton3ActionPerformed
+    }//GEN-LAST:event_btnOKActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+    private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         returnCode = ReturnCode.CANCEL;
         this.setVisible(false);
-        this.dispose();    }//GEN-LAST:event_jButton5ActionPerformed
-
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        removeAllAffectedRules();
-        reloadUnresolvedCount();
-    }//GEN-LAST:event_jButton4ActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_btnCancelActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
+    private javax.swing.JButton btnCancel;
+    private javax.swing.JButton btnOK;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JLabel lblUnresolvedCount;
     // End of variables declaration//GEN-END:variables
 }

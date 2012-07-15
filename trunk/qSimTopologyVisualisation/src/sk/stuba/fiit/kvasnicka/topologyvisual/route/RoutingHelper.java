@@ -84,7 +84,7 @@ public class RoutingHelper {
         }
 
         //check if last NetworkNode is the same as "end" parameter
-        if (!routeNodes.get(route.size() - 1).getName().equals(end.getName())) {
+        if (!routeNodes.get(routeNodes.size() - 1).getName().equals(end.getName())) {
             throw new IllegalStateException("creating route: last network node should be " + end + ", but it is " + routeNodes.get(route.size() - 1));
         }
 

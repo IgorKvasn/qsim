@@ -46,13 +46,44 @@ public class SimulationData {
     }
 
     /**
+     * returns all simulation datas that contains certain TopologyVertex in
+     * route
+     *
+     * @param vertex
+     * @return
+     */
+    public List<SimulationData.Data> getSimulationDataContainingVertex(TopologyVertex vertex) {
+        List<SimulationData.Data> list = new LinkedList<Data>();
+        for (Data data : dataRules) {
+
+            if (data.getSourceVertex().getName().equals(vertex.getName())) {
+                list.add(data);
+                continue;
+            }
+            if (data.getDestinationVertex().getName().equals(vertex.getName())) {
+                list.add(data);
+                continue;
+            }
+
+            for (TopologyVertex v : data.getFixedVertices()) {//checkcing all vertices in this simulation rule
+                if (v.getName().equals(vertex.getName())) {
+                    list.add(data);
+                    break;
+                }
+            }
+
+        }
+        return list;
+    }
+
+    /**
      * return all simulation rules that are temporary stored here <br>
      * <b>WARNING</b> <br> make sure, finalizeSimulationRules() method has been
      * called - otherwise routing will not be set
      *
      * @see #finalizeSimulationRules()
      */
-    public List<SimulationRuleBean> getSimulationRulesFinalised() {
+    public List<SimulationRuleBean> getSimulationRulesFinalised() throws RoutingException {
         List<SimulationRuleBean> list = new LinkedList<SimulationRuleBean>();
         SimulationFacade simulationFacade = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().getSimulationFacade();
 
@@ -80,17 +111,15 @@ public class SimulationData {
      *
      * @return
      */
-    private void finalizeSimulationRuleBean(SimulationRuleBean rule, Data data) {
+    private void finalizeSimulationRuleBean(SimulationRuleBean rule, Data data) throws RoutingException {
         boolean distanceVector = dataObject.getLoadSettings().isDistanceVectorRouting();
-        try {
-            //1. calculate route using TopologyFacade or anythong else (see route highlighting)
-            List<TopologyEdge> edges = RoutingHelper.retrieveEdges(topology.getG(), data.getSourceVertex(), data.getDestinationVertex(), distanceVector, data.getFixedVertices());
-            //2. set the route
-            List<NetworkNode> route = RoutingHelper.createRouteFromEdgeList(data.getSourceVertex().getDataModel(), data.getDestinationVertex().getDataModel(), edges);
-            rule.setRoute(route);
-        } catch (RoutingException ex) {
-            throw new IllegalStateException("unable to calculate route - this should not happen, because route was calculated before and no error ocured");
-        }
+
+        //1. calculate route using TopologyFacade or anythong else (see route highlighting)
+        List<TopologyEdge> edges = RoutingHelper.retrieveEdges(topology.getG(), data.getSourceVertex(), data.getDestinationVertex(), distanceVector, data.getFixedVertices());
+        //2. set the route
+        List<NetworkNode> route = RoutingHelper.createRouteFromEdgeList(data.getSourceVertex().getDataModel(), data.getDestinationVertex().getDataModel(), edges);
+        rule.setRoute(route);
+
     }
 
     /**

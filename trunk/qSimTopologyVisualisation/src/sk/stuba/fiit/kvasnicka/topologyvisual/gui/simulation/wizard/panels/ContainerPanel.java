@@ -33,6 +33,7 @@ public class ContainerPanel extends javax.swing.JPanel {
         this.panelIterator = panelIterator;
         jButton3.setEnabled(false);
         jButton4.setEnabled(!panelIterator.isPanelLast());
+        this.setSize(831, 317);
     }
 
     public void setPanel(JPanel panel) {
@@ -148,7 +149,7 @@ public class ContainerPanel extends javax.swing.JPanel {
                 if (NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation() == null) {
                     throw new IllegalStateException("active topology visualisation is NULL");
                 }
-                
+
                 // add new rule to storage of all simulation rules
                 NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().getSimulationData().addSimulationData(panelIterator.getStoredData());
 
