@@ -51,6 +51,24 @@ public abstract class VerticesUtil {
     }
 
     /**
+     * returns true if source or destination is the vertex I am looking for
+     *
+     * @param vertex vertex I look for
+     * @param data simulation rule data
+     * @return
+     */
+    public static boolean isVertexSourceOrDestination(TopologyVertex vertex, SimulationData.Data data) {
+        if (data.getSourceVertex().getName().equals(vertex.getName())) {
+            return true;
+        }
+        if (data.getDestinationVertex().getName().equals(vertex.getName())) {
+            return true;
+        }
+        return false;
+
+    }
+
+    /**
      * retrieves names of all selected vertices
      *
      * @return
