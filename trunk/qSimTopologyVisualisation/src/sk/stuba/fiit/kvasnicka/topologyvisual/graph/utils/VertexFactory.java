@@ -2,9 +2,6 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils;
 
 import org.apache.log4j.Logger;
 import org.openide.util.NbBundle;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Computer;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Switch;
 
 /**
  * @author Igor Kvasnicka

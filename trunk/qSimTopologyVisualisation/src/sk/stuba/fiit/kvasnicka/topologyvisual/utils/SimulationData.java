@@ -4,6 +4,7 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.utils;
 
+import edu.uci.ics.jung.graph.AbstractGraph;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,12 +12,15 @@ import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.log4j.Logger;
+import org.openide.util.Exceptions;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
+import sk.stuba.fiit.kvasnicka.topologyvisual.facade.TopologyFacade;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
@@ -35,6 +39,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
  */
 public class SimulationData {
 
+    private static Logger logg = Logger.getLogger(SimulationData.class);
     private final TopologyFileTypeDataObject dataObject;
     private final Topology topology;
     private List<Data> dataRules;
@@ -65,7 +70,7 @@ public class SimulationData {
                 continue;
             }
 
-            for (TopologyVertex v : data.getFixedVertices()) {//checkcing all vertices in this simulation rule
+            for (TopologyVertex v : data.getFixedVertices()) {//checking all vertices in this simulation rule
                 if (v.getName().equals(vertex.getName())) {
                     list.add(data);
                     break;
@@ -73,6 +78,62 @@ public class SimulationData {
             }
 
         }
+        return list;
+    }
+
+    public List<Data> getSimulationDataContainingEdge(TopologyEdge e) {
+        List<SimulationData.Data> list = new LinkedList<Data>();
+
+        boolean distanceVector = dataObject.getLoadSettings().isDistanceVectorRouting();
+        //find edge within these route edges
+        for (Data data : dataRules) {
+            try {
+                //calculate route using TopologyFacade or anythong else (see route highlighting)
+                List<TopologyEdge> edges = RoutingHelper.retrieveEdges(topology.getG(), data.getSourceVertex(), data.getDestinationVertex(), distanceVector, data.getFixedVertices());
+                for (TopologyEdge edge : edges) {
+                    if (EdgeUtils.isEdgesEqual(edge, e)) {
+                        list.add(data);
+                        break;
+                    }
+                }
+            } catch (RoutingException ex) {
+                //unable to find route
+                //this should not happen
+                logg.fatal("unable to find route", ex);
+            }
+
+        }
+
+        return list;
+    }
+
+    /**
+     * tries to calculate new simulation rules without specified edge <br/>
+     * returns list of simulation rules that are unable to work without this
+     * edge
+     *
+     * @param e
+     * @return
+     */
+    public List<Data> calculateNewRoutesWithoutEdge(TopologyEdge e) {
+        List<SimulationData.Data> list = new LinkedList<Data>();
+        topology.getG().removeEdge(e);     //temporary remove the edge, so that new route can be calculated
+
+        boolean distanceVector = dataObject.getLoadSettings().isDistanceVectorRouting();
+        //find edge within these route edges
+        for (Data data : dataRules) {
+            try {
+                //calculate route using TopologyFacade or anythong else (see route highlighting)
+                RoutingHelper.retrieveEdges(topology.getG(), data.getSourceVertex(), data.getDestinationVertex(), distanceVector, data.getFixedVertices());
+            } catch (RoutingException ex) {
+                //unable to find new route
+                Exceptions.printStackTrace(ex);
+                list.add(data);
+            }
+
+        }
+        topology.getG().addEdge(e, e.getVertex1(), e.getVertex2()); //add edge back to the topology
+
         return list;
     }
 

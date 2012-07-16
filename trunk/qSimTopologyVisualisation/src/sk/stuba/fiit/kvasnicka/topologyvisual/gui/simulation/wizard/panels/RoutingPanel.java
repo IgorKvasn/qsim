@@ -227,8 +227,8 @@ public class RoutingPanel extends PanelInterface {
         }
         
         //store data
-        fixedVertices.add(0, iterator.getStoredData().getSourceVertex());
-        fixedVertices.add(iterator.getStoredData().getDestinationVertex());
+//        fixedVertices.add(0, iterator.getStoredData().getSourceVertex());
+//        fixedVertices.add(iterator.getStoredData().getDestinationVertex());
         iterator.getStoredData().setFixedVertices(fixedVertices);
 
         return true;

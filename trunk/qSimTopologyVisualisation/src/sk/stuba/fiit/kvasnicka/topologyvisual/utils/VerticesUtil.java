@@ -58,6 +58,12 @@ public abstract class VerticesUtil {
      * @return
      */
     public static boolean isVertexSourceOrDestination(TopologyVertex vertex, SimulationData.Data data) {
+        if (data == null) {
+            throw new IllegalStateException("simulation data is NULL");
+        }
+        if (vertex == null) {
+            throw new IllegalStateException("vertex is NULL");
+        }
         if (data.getSourceVertex().getName().equals(vertex.getName())) {
             return true;
         }
