@@ -21,7 +21,6 @@ import java.awt.*;
 import java.util.List;
 import java.awt.event.InputEvent;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
@@ -98,6 +97,15 @@ public class Topology implements VertexCreatedListener {
      */
     public Set<TopologyVertex> getSelectedVertices() {
         return vv.getPickedVertexState().getPicked();
+    }
+
+    /**
+     * retrieves all selected edges
+     *
+     * @return
+     */
+    public Set<TopologyEdge> getSelectedEdges() {
+        return vv.getPickedEdgeState().getPicked();
     }
 
     /**
@@ -293,6 +301,7 @@ public class Topology implements VertexCreatedListener {
         vertexFactory.deleteVertex(vertex);
         g.removeVertex(vertex);
         getVv().repaint();
+        topolElementTopComponent.topologyModified();
     }
 
     /**
@@ -306,6 +315,7 @@ public class Topology implements VertexCreatedListener {
             g.removeVertex(vertex);
         }
         getVv().repaint();
+        topolElementTopComponent.topologyModified();
     }
 
     /**
@@ -368,6 +378,22 @@ public class Topology implements VertexCreatedListener {
         g.removeEdge(edge);
         getVv().repaint();
         topolElementTopComponent.paletteClearSelection();
+        topolElementTopComponent.topologyModified();
+    }
+
+    /**
+     * deletes edge from JUNG topology
+     *
+     * @param edge edge to delete
+     */
+    public void deleteEdge(Collection<TopologyEdge> edges) {
+        for (TopologyEdge edge : edges) {
+            g.removeEdge(edge);
+        }
+        getVv().repaint();
+        topolElementTopComponent.paletteClearSelection();
+        topolElementTopComponent.topologyModified();
+
     }
 
     /**

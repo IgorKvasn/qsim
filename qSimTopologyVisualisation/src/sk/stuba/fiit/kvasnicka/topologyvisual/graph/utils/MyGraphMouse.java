@@ -3,19 +3,12 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils;
 /**
  * @author Igor Kvasnicka
  */
-import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.*;
-import edu.uci.ics.jung.visualization.picking.MultiPickedState;
-import edu.uci.ics.jung.visualization.picking.ShapePickSupport;
-import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
-import org.apache.commons.collections15.Factory;
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexCreatedEvent;
