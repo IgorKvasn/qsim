@@ -13,6 +13,8 @@ import org.netbeans.core.api.multiview.MultiViewPerspective;
 import org.netbeans.core.api.multiview.MultiViews;
 import org.openide.util.*;
 import org.openide.windows.TopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.events.multiview.MultiviewChangedEvent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.events.multiview.MultiviewChangedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.descriptors.TopologyVisualisationDescription;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
@@ -25,6 +27,7 @@ public class NetbeansWindowHelper {
 
     private final static NetbeansWindowHelper INSTANCE = new NetbeansWindowHelper();
     private static Logger logg = Logger.getLogger(NetbeansWindowHelper.class);
+    private transient javax.swing.event.EventListenerList listenerList = new javax.swing.event.EventListenerList();
 
     public static NetbeansWindowHelper getInstance() {
         return INSTANCE;
@@ -140,5 +143,22 @@ public class NetbeansWindowHelper {
             Exceptions.printStackTrace(ex);
         }
         throw new IllegalStateException("could not retrieve active TopologyVisualisation");
+    }
+
+    public void addMultiviewChangedListener(MultiviewChangedListener listener) {
+        listenerList.add(MultiviewChangedListener.class, listener);
+    }
+
+    public void removeMultiviewChangedListener(MultiviewChangedListener listener) {
+        listenerList.remove(MultiviewChangedListener.class, listener);
+    }
+
+    private void fireSimulationRuleAddedEvent(MultiviewChangedEvent evt) {
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = 0; i < listeners.length; i += 2) {
+            if (listeners[i].equals(MultiviewChangedListener.class)) {
+                ((MultiviewChangedListener) listeners[i + 1]).multiviewChangedOccurred(evt);
+            }
+        }
     }
 }
