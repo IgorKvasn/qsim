@@ -53,9 +53,7 @@ public final class RunSimulationAction extends AbstractAction implements Present
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // TODO implement action body
-        System.out.println("stlacil som play " + (NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation() != null));
-
+        NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().runSimulation();
     }
 
     @Override

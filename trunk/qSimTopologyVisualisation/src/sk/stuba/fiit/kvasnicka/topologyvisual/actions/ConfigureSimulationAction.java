@@ -48,9 +48,7 @@ public final class ConfigureSimulationAction extends AbstractAction implements P
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // TODO implement action body
-        System.out.println("stlacil som configure " + (NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation() != null));
-
+        NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().configureSimulation();
     }
 
     @Override

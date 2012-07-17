@@ -46,9 +46,9 @@ public final class PauseSimulationAction extends AbstractAction implements Prese
         return INSTANCE;
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println("stlacil som pause " + (NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation() != null));
-
+        NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().pauseSimulation();
     }
 
     @Override
