@@ -9,6 +9,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.event.*;
@@ -22,11 +23,16 @@ import org.openide.awt.StatusDisplayer;
 import org.openide.awt.UndoRedo;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
+import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
+import sk.stuba.fiit.kvasnicka.topologyvisual.actions.ConfigureSimulationAction;
+import sk.stuba.fiit.kvasnicka.topologyvisual.actions.PauseSimulationAction;
+import sk.stuba.fiit.kvasnicka.topologyvisual.actions.RunSimulationAction;
+import sk.stuba.fiit.kvasnicka.topologyvisual.actions.StopSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.DialogHandler;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
@@ -45,6 +51,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.Verti
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.SimulationStateEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
 
@@ -77,6 +84,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     private SimulationFacade simulationFacade; //todo serialise - SimulationManager and PingManager
     @Getter
     private transient SimulationData simulationData; //do NOT serialise
+    private transient SimulationStateEnum simulationState;
 
     public TopologyVisualisation(TopologyFileTypeDataObject dataObject) {
         this.dataObject = dataObject;
@@ -89,6 +97,8 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
         content = new InstanceContent();
         topology = new Topology(this);
         simulationData = new SimulationData(dataObject, topology);
+
+        setSimulationState(SimulationStateEnum.NOTHING);
 
         initTopology();
         initPalette();
@@ -131,7 +141,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                playSimulation();
+                runSimulation();
             }
         });
         toolBar.add(Box.createHorizontalStrut(30));
@@ -139,7 +149,12 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
         toolBar.add(btnPlay);
     }
 
-    private void playSimulation() {
+    /**
+     * starts the simulation
+     */
+    public void runSimulation() {
+        //todo check if simulation is already running, but beware that simulation may be paused - playing paused simulation means resume
+
         try {
             //finalise simulation rules = init routing
             List<SimulationRuleBean> simulationRules = simulationData.getSimulationRulesFinalised(); //very important method !!
@@ -148,13 +163,67 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
                 simulationFacade.addSimulationRule(rule);
             }
 
+            //change simulation state
+            setSimulationState(SimulationStateEnum.RUN);
 
-            throw new UnsupportedOperationException("Not supported yet.");
+            throw new UnsupportedOperationException("Not implemented yet.");
         } catch (RoutingException ex) {
             JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),
-                     NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_part1") + "\n" + ex.getMessage() + "\n" + NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_part2"),
+                    NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_part1") + "\n" + ex.getMessage() + "\n" + NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_part2"),
                     NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_title"),
                     JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * stops (cancels) the simulation
+     */
+    public void stopSimulation() {
+        //change simulation state
+        setSimulationState(SimulationStateEnum.NOTHING);
+    }
+
+    /**
+     * temporary pauses the simulation
+     */
+    public void pauseSimulation() {
+        //change simulation state
+        setSimulationState(SimulationStateEnum.PAUSED);
+    }
+
+    /**
+     * configure simulation rules
+     */
+    public void configureSimulation() {
+        throw new UnsupportedOperationException("Not implemented yet.");
+    }
+
+    private void setSimulationState(SimulationStateEnum state) {
+        simulationState = state;
+        updateToolbarButtons(false);
+    }
+
+    /**
+     * updates toolbar buttons according to current simulation state
+     *
+     * @param disable true if toolbar buttons should be disabled no matter
+     * simulation state
+     */
+    private void updateToolbarButtons(boolean disable) {
+        if (active) {//only active TopolVisualisation can update toolbar buttons
+            logg.debug("-------" + simulationState);
+            if (disable) {//toolbar buttons should be disabled
+                RunSimulationAction.getInstance().updateState(null);
+                PauseSimulationAction.getInstance().updateState(null);
+                StopSimulationAction.getInstance().updateState(null);
+                ConfigureSimulationAction.getInstance().updateState(null);
+
+            } else {
+                RunSimulationAction.getInstance().updateState(simulationState);
+                PauseSimulationAction.getInstance().updateState(simulationState);
+                StopSimulationAction.getInstance().updateState(simulationState);
+                ConfigureSimulationAction.getInstance().updateState(simulationState);
+            }
         }
     }
 
@@ -416,7 +485,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
 
     @Override
     public void vertexCreatedOccurred(VertexCreatedEvent evt) {
-        content.add(evt.getNewVertex());
+        content.add(evt.getNewVertex());//todo this has PROBABLY no meaning
         topologyModified();
     }
 
@@ -464,13 +533,16 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     @Override
     public void componentOpened() {
         NetbeansWindowHelper.getInstance().activateWindow(this);
+        updateToolbarButtons(false);
     }
 
     @Override
     public void componentClosed() {
+        active = false;
         hideSimulationTopComponents();
         topologyElementCreator.cancelAction();
         selectedAction = null;
+        updateToolbarButtons(true);
     }
 
     @Override
@@ -490,10 +562,13 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     public void componentActivated() {
         openPaletteWindow();
         NetbeansWindowHelper.getInstance().activateWindow(this);
+        updateToolbarButtons(false);
+
     }
 
     @Override
     public void componentDeactivated() {
+        updateToolbarButtons(true);
     }
 
     @Override
