@@ -48,9 +48,7 @@ public final class StopSimulationAction extends AbstractAction implements Presen
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // TODO implement action body
-        System.out.println("stlacil som stop " + (NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation() != null));
-
+        NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().stopSimulation();
     }
 
     @Override

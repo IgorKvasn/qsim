@@ -171,7 +171,9 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                 Map<TopologyVertex, List<SimulationData.Data>> affectedRules = new HashMap<TopologyVertex, List<SimulationData.Data>>();
                 for (TopologyVertex v : selectedVertices) {
                     List<Data> simulRulesThatContainsNode = topology.getTopolElementTopComponent().getSimulationData().getSimulationDataContainingVertex(v);
-                    affectedRules.put(v, simulRulesThatContainsNode);
+                    if (!simulRulesThatContainsNode.isEmpty()) {
+                        affectedRules.put(v, simulRulesThatContainsNode);
+                    }
                 }
                 return affectedRules;
             }
@@ -241,7 +243,9 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                 Map<TopologyEdge, List<SimulationData.Data>> affectedRules = new HashMap<TopologyEdge, List<SimulationData.Data>>();
                 for (TopologyEdge e : edges) {
                     List<Data> simulRulesThatContainsNode = topology.getTopolElementTopComponent().getSimulationData().getSimulationDataContainingEdge(e);
-                    affectedRules.put(e, simulRulesThatContainsNode);
+                    if (!simulRulesThatContainsNode.isEmpty()) {
+                        affectedRules.put(e, simulRulesThatContainsNode);
+                    }
                 }
                 return affectedRules;
             }

@@ -15,7 +15,7 @@ public enum PaletteActionEnum {
     NEW_VERTEX_ROUTER("router", VertexPickActionEnum.NONE),
     NEW_VERTEX_PC("PC", VertexPickActionEnum.NONE),
     NEW_VERTEX_SWITCH("Switch", VertexPickActionEnum.NONE),
-    NEW_EDGE_ETHERNET("Ethernet", VertexPickActionEnum.NONE),
+    NEW_EDGE_ETHERNET("Ethernet", VertexPickActionEnum.CREATING_EDGE),
     NEW_EDGE_FAST_ETHERNET("Fast Ethernet", VertexPickActionEnum.CREATING_EDGE),
     NEW_EDGE_GIGA_ETHERNET("Giga Ethernet", VertexPickActionEnum.CREATING_EDGE),
     NEW_EDGE_CUSTOM("Custom link", VertexPickActionEnum.CREATING_EDGE);
