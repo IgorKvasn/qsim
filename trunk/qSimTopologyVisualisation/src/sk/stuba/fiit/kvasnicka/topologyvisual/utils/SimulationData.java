@@ -157,13 +157,28 @@ public class SimulationData {
     }
 
     /**
-     * adds new simulation rule data to the temporary list
+     * adds new (or modify existing) simulation rule data to the temporary list
      *
      * @param rule
      * @param data
      */
     public void addSimulationData(Data data) {
-        dataRules.add(data);
+        if (data.getId() == null) {//new data
+            data.setId();
+            dataRules.add(data);
+        } else {//data has been modified
+            //find where is old data positioned within the list
+            int simDataNumber;
+
+            for (simDataNumber = 0; simDataNumber < dataRules.size(); simDataNumber++) {
+                if (dataRules.get(simDataNumber).getId().equals(data.getId())) {
+                    break;
+                }
+            }
+
+            dataRules.remove(simDataNumber);
+            dataRules.add(simDataNumber, data);
+        }
     }
 
     /**
@@ -226,7 +241,7 @@ public class SimulationData {
     @EqualsAndHashCode(of = "id")
     public static class Data {
 
-        private final String id = UUID.randomUUID().toString();
+        private String id = null;
         private TopologyVertex sourceVertex, destinationVertex;
         private List<TopologyVertex> fixedVertices;
         private Layer4TypeEnum layer4protocol;
@@ -235,5 +250,12 @@ public class SimulationData {
         private PacketTypeEnum packetType;
         private int activationDelay;
         private boolean ping;
+
+        private void setId() {
+            if (id != null) {
+                throw new IllegalStateException("simulaiton data ID is already set");
+            }
+            id = UUID.randomUUID().toString();
+        }
     }
 }

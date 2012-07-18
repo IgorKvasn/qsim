@@ -23,6 +23,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 
 /**
  *
@@ -34,7 +35,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 public class RoutingPanel extends PanelInterface {
 
     private JComboBox tableComboBox;
-    private DefaultTableModel model;
+    private DefaultTableModel tableModel;
     private Topology activeTopology;
     private SimulationRuleIterator iterator;
 
@@ -56,7 +57,7 @@ public class RoutingPanel extends PanelInterface {
         });
 
         initComponents();
-        this.model = (DefaultTableModel) jTable1.getModel();
+        this.tableModel = (DefaultTableModel) jTable1.getModel();
         jLabel1.setVisible(false);
 
 
@@ -80,14 +81,14 @@ public class RoutingPanel extends PanelInterface {
      */
     private List<TopologyVertex> getFixedVertices() {
         List<TopologyVertex> list = new LinkedList<TopologyVertex>();
-        for (int i = 0; i < model.getRowCount(); i++) {
-            if ("".equals(model.getValueAt(i, 0))) {//this is an empty row - omit it
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            if ("".equals(tableModel.getValueAt(i, 0))) {//this is an empty row - omit it
                 continue;
             }
-            if (!(model.getValueAt(i, 0) instanceof TopologyVertex)) {//just a cast check to be sure
+            if (!(tableModel.getValueAt(i, 0) instanceof TopologyVertex)) {//just a cast check to be sure
                 continue;
             }
-            list.add((TopologyVertex) model.getValueAt(i, 0));
+            list.add((TopologyVertex) tableModel.getValueAt(i, 0));
         }
         return list;
     }
@@ -188,9 +189,9 @@ public class RoutingPanel extends PanelInterface {
 
     private void addRow(TopologyVertex v) {
         if (v == null) {
-            model.addRow(new Object[]{"", NbBundle.getMessage(RoutingPanel.class, "delete")});
+            tableModel.addRow(new Object[]{"", NbBundle.getMessage(RoutingPanel.class, "delete")});
         } else {
-            model.addRow(new Object[]{v, NbBundle.getMessage(RoutingPanel.class, "delete")});
+            tableModel.addRow(new Object[]{v, NbBundle.getMessage(RoutingPanel.class, "delete")});
         }
     }
 
@@ -200,12 +201,12 @@ public class RoutingPanel extends PanelInterface {
         activeTopology.setMode(Topology.TopologyModeEnum.ROUTING);
         initTableComboBox();
         //creates default routing
-        while (model.getRowCount() > 0) {
-            model.removeRow(0);
+        while (tableModel.getRowCount() > 0) {
+            tableModel.removeRow(0);
         }
         try {
             jLabel1.setVisible(false);
-            activeTopology.highlightEdgesFromTo(iterator.getStoredData().getSourceVertex(), iterator.getStoredData().getDestinationVertex(),new LinkedList<TopologyVertex>());
+            activeTopology.highlightEdgesFromTo(iterator.getStoredData().getSourceVertex(), iterator.getStoredData().getDestinationVertex(), new LinkedList<TopologyVertex>());
         } catch (RoutingException ex) {
             jLabel1.setText(ex.getMessage());
             jLabel1.setVisible(true);
@@ -225,13 +226,33 @@ public class RoutingPanel extends PanelInterface {
             jLabel1.setVisible(true);
             return false;
         }
-        
+
         //store data
 //        fixedVertices.add(0, iterator.getStoredData().getSourceVertex());
 //        fixedVertices.add(iterator.getStoredData().getDestinationVertex());
         iterator.getStoredData().setFixedVertices(fixedVertices);
 
         return true;
+    }
+
+    @Override
+    public void initValues(Data data) {
+
+
+        while (tableModel.getRowCount() != 0) {
+            tableModel.removeRow(0);
+        }
+
+        List<TopologyVertex> fixedVertices = data.getFixedVertices();
+        
+        if (fixedVertices == null) {
+            return;
+        }
+
+        for (TopologyVertex v : fixedVertices) {
+            addRow(v);
+        }
+
     }
 
     private void initTableComboBox() {
@@ -248,15 +269,15 @@ public class RoutingPanel extends PanelInterface {
         if (row == 0) {
             return;
         }
-        model.moveRow(row, row, row - 1);
+        tableModel.moveRow(row, row, row - 1);
     }
 
     private void moveRowDown(int row) {
 
-        if (row == model.getRowCount()) {
+        if (row == tableModel.getRowCount()) {
             return;
         }
-        model.moveRow(row, row, row + 1);
+        tableModel.moveRow(row, row, row + 1);
     }
 
     /**

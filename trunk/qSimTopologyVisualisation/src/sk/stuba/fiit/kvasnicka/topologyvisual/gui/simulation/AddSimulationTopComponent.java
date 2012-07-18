@@ -101,9 +101,9 @@ public final class AddSimulationTopComponent extends TopComponent {
     @Override
     public void componentOpened() {
         if (modifyData != null) {
-            panelIterator.initDefaultPanel(modifyData, panelToShow);
+            panelIterator.initDefaultPanel(modifyData, panelToShow, false);
         } else {
-            panelIterator.initDefaultPanel(new Data(), panelToShow);
+            panelIterator.initDefaultPanel(new Data(), panelToShow, true);
         }
         modifyData = null;
         panelToShow = 0;

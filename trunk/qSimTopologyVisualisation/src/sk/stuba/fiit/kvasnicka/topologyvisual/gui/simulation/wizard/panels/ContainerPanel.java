@@ -182,7 +182,7 @@ public class ContainerPanel extends javax.swing.JPanel {
         if (panelIterator.isPanelLast()) {
             jButton4.setText(NbBundle.getMessage(ContainerPanel.class, "finish"));
         }
-        if (panelIterator.isPanelFirst()) {
+        if (panelIterator.isPanelFirst() || panelIterator.isPreviousDisabled()) {
             jButton3.setEnabled(false);
         }
     }//GEN-LAST:event_jButton4ActionPerformed

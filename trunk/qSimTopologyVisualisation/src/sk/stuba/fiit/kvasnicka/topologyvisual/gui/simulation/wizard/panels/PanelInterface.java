@@ -6,6 +6,7 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels;
 
 import javax.swing.JPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
 
 /**
  * All wizard's panels must extends this interface
@@ -27,4 +28,13 @@ public abstract class PanelInterface extends JPanel {
      * @return false if there was a validation problem
      */
     public abstract boolean validateData();
+
+    /**
+     * initialises values of the panel according to Data object please note,
+     * that fields in the Data object may be null, but Data object itself is
+     * never null
+     *
+     * @param data
+     */
+    public abstract void initValues(SimulationData.Data data);
 }
