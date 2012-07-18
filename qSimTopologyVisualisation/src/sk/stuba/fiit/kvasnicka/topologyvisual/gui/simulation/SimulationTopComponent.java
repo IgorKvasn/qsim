@@ -4,17 +4,13 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import javax.swing.JButton;
-import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.RowFilter;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
+import javax.swing.*;
+import javax.swing.table.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -64,6 +60,7 @@ public final class SimulationTopComponent extends TopComponent {
 
     public SimulationTopComponent() {
         initComponents();
+
         setName(Bundle.CTL_SimulationTopComponent());
         setToolTipText(Bundle.HINT_SimulationTopComponent());
         tableModel = ((DefaultTableModel) jXTable1.getModel());
@@ -73,8 +70,16 @@ public final class SimulationTopComponent extends TopComponent {
          * object
          */
         jXTable1.removeColumn(jXTable1.getColumnModel().getColumn(0));
+        initTableRowHighlighter();
         this.setSize(831, 317);
+    }
 
+    private void initTableRowHighlighter() {
+        TableColumnModel colModel = jXTable1.getColumnModel();
+        for (Enumeration<TableColumn> colEnum = colModel.getColumns(); colEnum.hasMoreElements();) {
+            TableColumn c = colEnum.nextElement();
+            c.setCellRenderer(new RowHighlighterTableCellRender(JLabel.CENTER));
+        }
     }
 
     /**
@@ -136,7 +141,7 @@ public final class SimulationTopComponent extends TopComponent {
 
         //add new simulation rules
         for (Data rule : dataList) {
-            model.addRow(new Object[]{rule.getId(), rule.getSourceVertex().getName(), rule.getDestinationVertex().getName()});
+            model.addRow(new Object[]{rule.getId(), rule.getSourceVertex().getName(), rule.getDestinationVertex().getName(), rule.isPing()});
         }
     }
 
@@ -234,14 +239,14 @@ public final class SimulationTopComponent extends TopComponent {
 
             },
             new String [] {
-                "ID", "Source", "Destination"
+                "ID", "Source", "Destination", "Ping"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
             };
             boolean[] canEdit = new boolean [] {
-                false, true, true
+                false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -252,7 +257,6 @@ public final class SimulationTopComponent extends TopComponent {
                 return canEdit [columnIndex];
             }
         });
-        jXTable1.setColumnSelectionAllowed(true);
         jXTable1.setSortable(false);
         jXTable1.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(jXTable1);
@@ -261,6 +265,10 @@ public final class SimulationTopComponent extends TopComponent {
         jXTable1.getColumnModel().getColumn(0).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jXTable1.columnModel.title2")); // NOI18N
         jXTable1.getColumnModel().getColumn(1).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jXTable1.columnModel.title0")); // NOI18N
         jXTable1.getColumnModel().getColumn(2).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jXTable1.columnModel.title1")); // NOI18N
+        jXTable1.getColumnModel().getColumn(3).setMinWidth(50);
+        jXTable1.getColumnModel().getColumn(3).setPreferredWidth(70);
+        jXTable1.getColumnModel().getColumn(3).setMaxWidth(100);
+        jXTable1.getColumnModel().getColumn(3).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jXTable1.columnModel.title3")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -384,6 +392,9 @@ public final class SimulationTopComponent extends TopComponent {
         String version = p.getProperty("version");
     }
 
+    /**
+     * cell is rendered as button
+     */
     class ButtonRenderer implements TableCellRenderer {
 
         JButton button = new JButton();
@@ -399,6 +410,42 @@ public final class SimulationTopComponent extends TopComponent {
             }
             button.setText(value.toString());
             return button;
+        }
+    }
+
+    /**
+     * highlight particular row according to the cell's value
+     */
+    class RowHighlighterTableCellRender extends DefaultTableCellRenderer {
+
+        private final Color HIGHLIGHT_COLOR = Color.YELLOW;
+
+        public RowHighlighterTableCellRender(int alignment) {
+            setHorizontalAlignment(alignment);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            Component comp = super.getTableCellRendererComponent(table, value, isSelected,
+                    hasFocus, row, column);
+            boolean ping = (Boolean) table.getValueAt(row, 2);
+
+            if (column == 2) {
+                comp = new JCheckBox();
+            }
+
+            if (!isSelected) {
+                if (ping) {
+                    comp.setBackground(HIGHLIGHT_COLOR);
+                    comp.setForeground(Color.BLACK);
+                } else {
+
+                    comp.setBackground(Color.WHITE);
+                    comp.setForeground(Color.BLACK);
+                }
+            }
+            return comp;
         }
     }
 }

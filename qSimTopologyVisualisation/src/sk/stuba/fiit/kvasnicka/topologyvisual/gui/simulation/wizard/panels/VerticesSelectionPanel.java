@@ -15,6 +15,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.JComboBoxAutoCompletator;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 
 /**
  * In this panel user defines source and destination vertices
@@ -89,10 +90,16 @@ public class VerticesSelectionPanel extends PanelInterface {
             lblError.setVisible(true);
             return false;
         }
-           //data is valid - now it is a good time to store these data
+        //data is valid - now it is a good time to store these data
         iterator.getStoredData().setDestinationVertex((TopologyVertex) combDestination.getSelectedItem());
         iterator.getStoredData().setSourceVertex((TopologyVertex) combSource.getSelectedItem());
         return true;
+    }
+
+    @Override
+    public void initValues(Data data) {
+        combDestination.setSelectedItem(data.getDestinationVertex());
+        combSource.setSelectedItem(data.getSourceVertex());
     }
 
     /**
@@ -137,7 +144,8 @@ public class VerticesSelectionPanel extends PanelInterface {
         TopologyVisualisation topolVisual = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation();
         topolVisual.retrieveVertexByClick(this);
     }
-     /**
+
+    /**
      * cancels user decision to pick vertex from topology
      *
      * @param combo where to write user's choice
@@ -255,16 +263,16 @@ public class VerticesSelectionPanel extends PanelInterface {
     private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
         if (jToggleButton1.isSelected()) {
             pickVertexFromTopology(combSource);
-        }else{//cancel action
-             pickVertexFromTopologyCancel();
+        } else {//cancel action
+            pickVertexFromTopologyCancel();
         }
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
     private void jToggleButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton2ActionPerformed
-         if (jToggleButton2.isSelected()) {
+        if (jToggleButton2.isSelected()) {
             pickVertexFromTopology(combDestination);
-        }else{//cancel action
-             pickVertexFromTopologyCancel();
+        } else {//cancel action
+            pickVertexFromTopologyCancel();
         }
     }//GEN-LAST:event_jToggleButton2ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables

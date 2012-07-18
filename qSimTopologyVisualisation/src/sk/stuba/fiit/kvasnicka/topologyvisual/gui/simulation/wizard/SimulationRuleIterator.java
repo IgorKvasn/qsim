@@ -35,6 +35,8 @@ public class SimulationRuleIterator {
     private int actualPanel = -1;
     @Setter
     private ContainerPanel containerPanel;
+    private int defaulPanel;
+    private boolean allowPrevious;
     @Getter
     private Data storedData;
 
@@ -71,12 +73,14 @@ public class SimulationRuleIterator {
     /**
      * shows the first panel
      */
-    public void initDefaultPanel(Data data, int panelToShow) {
+    public void initDefaultPanel(Data data, int panelToShow, boolean allowPrevious) {
         storedData = data;
-
+        this.allowPrevious = allowPrevious;
+        defaulPanel = panelToShow;
         initPanels();
         actualPanel = panelToShow;
         panels[actualPanel].init(this);
+        panels[actualPanel].initValues(data);
         containerPanel.setPanel(panels[actualPanel]);
     }
 
@@ -96,6 +100,8 @@ public class SimulationRuleIterator {
         }
         actualPanel++;
         boolean initResult = panels[actualPanel].init(this);
+        panels[actualPanel].initValues(storedData);
+
         if (!initResult) {//panel did not init properly            
             logg.error("Error during panel initialisation - panel number: " + actualPanel);
             actualPanel--;
@@ -128,6 +134,8 @@ public class SimulationRuleIterator {
         actualPanel--;
 
         boolean initResult = panels[actualPanel].init(this);
+        panels[actualPanel].initValues(storedData);
+
         if (!initResult) {//panel did not init properly            
             logg.error("Error during panel initialisation - panel number: " + actualPanel);
             actualPanel++;
@@ -148,5 +156,16 @@ public class SimulationRuleIterator {
             throw new IllegalStateException("illegal number of actual panel: " + actualPanel);
         }
         return panels[actualPanel];
+    }
+
+    /**
+     * previous button is disabled, if allowPrevious is false and current panel
+     * number is "defaulPanel"
+     *
+     * @return
+     */
+    public boolean isPreviousDisabled() {
+        return !allowPrevious && actualPanel == defaulPanel;
+
     }
 }

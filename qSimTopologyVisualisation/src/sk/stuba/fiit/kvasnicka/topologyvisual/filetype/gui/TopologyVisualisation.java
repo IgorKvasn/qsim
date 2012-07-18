@@ -9,10 +9,12 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
@@ -23,7 +25,6 @@ import org.openide.awt.StatusDisplayer;
 import org.openide.awt.UndoRedo;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -34,7 +35,6 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.actions.PauseSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.RunSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.StopSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.DialogHandler;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexCreatedEvent;
@@ -42,6 +42,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexCreatedListener
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyElementCreatorHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.DialogHandler;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.TopologyPaletteTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectionEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectionListener;
@@ -166,6 +167,9 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
             //change simulation state
             setSimulationState(SimulationStateEnum.RUN);
 
+            closeAllSupportingWindows();
+            
+            
             throw new UnsupportedOperationException("Not implemented yet.");
         } catch (RoutingException ex) {
             JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),
@@ -225,6 +229,36 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
                 ConfigureSimulationAction.getInstance().updateState(simulationState);
             }
         }
+    }
+
+    /**
+     * closes these top components: <ol> <li>SimulationTopCopmponent</li>
+     * <li>AddSimulationTopComponent</li> <li>TopologyPaletteTopComponent</li>
+     * </ol>
+     *
+     */
+    private void closeAllSupportingWindows() {
+        TopologyPaletteTopComponent palette = (TopologyPaletteTopComponent) WindowManager.getDefault().findTopComponent("TopologyPaletteTopComponent");
+        if (palette == null) {
+            logg.error("Could not find component TopologyPaletteTopComponent");
+            return;
+        }
+        palette.close();
+
+        SimulationTopComponent simulationTopComp = (SimulationTopComponent) WindowManager.getDefault().findTopComponent("SimulationTopComponent");
+        if (simulationTopComp == null) {
+            logg.error("Could not find component SimulationTopComponent");
+            return;
+        }
+        simulationTopComp.close();
+
+        AddSimulationTopComponent addSimulRule = (AddSimulationTopComponent) WindowManager.getDefault().findTopComponent("AddSimulationTopComponent");
+        if (addSimulRule == null) {
+            logg.error("Could not find component AddSimulationTopComponent");
+            return;
+        }
+        addSimulRule.close();
+
     }
 
     /**
