@@ -49,8 +49,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.actions.StopSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexCreatedEvent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexCreatedListener;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedEvent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyElementCreatorHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
@@ -60,6 +60,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectio
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectionListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.AddSimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.SimulationTopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs.SimulationLogTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.VerticesSelectionPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
@@ -167,7 +168,6 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
      */
     public void runSimulation() {
         //todo check if simulation is already running, but beware that simulation may be paused - playing paused simulation means resume
-
         try {
             //finalise simulation rules = init routing
             List<SimulationRuleBean> simulationRules = simulationData.getSimulationRulesFinalised(); //very important method !!
@@ -179,10 +179,15 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
             //change simulation state
             setSimulationState(SimulationStateEnum.RUN);
 
+            //close palette, simulation top component, add simulation rule top component,... 
+            //everuthing that is no use for simulation
             closeAllSupportingWindows();
-            
-            
-            throw new UnsupportedOperationException("Not implemented yet.");
+
+            //open simulation log top component
+            openSimulationLogTopcomponent();
+
+
+            // throw new UnsupportedOperationException("Not implemented yet.");
         } catch (RoutingException ex) {
             JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),
                     NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_part1") + "\n" + ex.getMessage() + "\n" + NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_part2"),
@@ -211,7 +216,12 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
      * configure simulation rules
      */
     public void configureSimulation() {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        SimulationTopComponent component = (SimulationTopComponent) WindowManager.getDefault().findTopComponent("SimulationTopComponent");
+        if (component == null) {
+            logg.error("Could not find component SimulationTopComponent");
+            return;
+        }
+        component.open();
     }
 
     private void setSimulationState(SimulationStateEnum state) {
@@ -241,6 +251,15 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
                 ConfigureSimulationAction.getInstance().updateState(simulationState);
             }
         }
+    }
+
+    /**
+     * opens new simulation log top component associated with this topology
+     */
+    private void openSimulationLogTopcomponent() {
+        SimulationLogTopComponent logTopComponent = (SimulationLogTopComponent) WindowManager.getDefault().findTopComponent("SimulationLogTopComponent");
+        logTopComponent.setTopology(topology);
+        logTopComponent.open();
     }
 
     /**

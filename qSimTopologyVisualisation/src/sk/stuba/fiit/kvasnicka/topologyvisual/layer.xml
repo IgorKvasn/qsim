@@ -16,11 +16,17 @@ You should have received a copy of the GNU General Public License
 along with qSim.  If not, see &lt;http://www.gnu.org/licenses/>.
 
 -->
-
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
     <folder name="Actions">
         <folder name="Simulation">
+        </folder>
+        <folder name="Window">
+            <file name="sk-stuba-fiit-kvasnicka-topologyvisual-gui-simulation-logs-SimulationLogTopComponent.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+                <attr name="preferredID" stringvalue="SimulationLogTopComponent"/>
+            </file>
+            <file name="sk-stuba-fiit-kvasnicka-topologyvisual-gui-simulation-logs-SimulationLogTopComponent.instance_hidden"/>
         </folder>
     </folder>
     <folder name="Editors">

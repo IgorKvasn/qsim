@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
+import javax.swing.event.EventListenerList;
 import lombok.Getter;
 import org.apache.commons.collections15.Transformer;
 import org.apache.log4j.Logger;
@@ -46,8 +47,10 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.MyVisualizationViewer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexCreatedEvent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexCreatedListener;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedEvent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedListener;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexdeleted.VertexDeletedEvent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexdeleted.VertexDeletedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.*;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.utils.MyVertexIconShapeTransformer;
@@ -84,6 +87,7 @@ public class Topology implements VertexCreatedListener {
     private TopologyModeEnum topologyMode = null;
     private GraphMouseListener<TopologyVertex> vertexPickedListener;
     private DefaultModalGraphMouse defaultGm;
+    private EventListenerList listenerList = new EventListenerList();
 
     /**
      * creates new instance
@@ -314,6 +318,7 @@ public class Topology implements VertexCreatedListener {
         g.removeVertex(vertex);
         getVv().repaint();
         topolElementTopComponent.topologyModified();
+        fireVertexCreatedEvent(new VertexDeletedEvent(this, vertex));
     }
 
     /**
@@ -321,13 +326,14 @@ public class Topology implements VertexCreatedListener {
      *
      * @param vertex vertex to delete
      */
-    public void deleteVertex(Set<TopologyVertex> verices) {
-        for (TopologyVertex vertex : verices) {
+    public void deleteVertex(Set<TopologyVertex> vertices) {
+        for (TopologyVertex vertex : vertices) {
             vertexFactory.deleteVertex(vertex);
             g.removeVertex(vertex);
         }
         getVv().repaint();
         topolElementTopComponent.topologyModified();
+        fireVertexCreatedEvent(new VertexDeletedEvent(this, vertices));
     }
 
     /**
@@ -531,6 +537,33 @@ public class Topology implements VertexCreatedListener {
         for (TopologyVertex vertex : NetbeansWindowHelper.getInstance().getActiveTopology().getVertexFactory().getAllVertices()) {
             vertex.deSelectVertex();
             vertex.deCheckVertex();
+        }
+    }
+
+    public void addVertexCreatedListener(VertexCreatedListener listener) {
+        graphMouse.addVertexCreatedListener(listener);
+    }
+
+    public void removeVertexCreatedListener(VertexCreatedListener listener) {
+        graphMouse.removeVertexCreatedListener(listener);
+    }
+
+    public void addVertexDeletedListener(VertexDeletedListener listener) {
+        listenerList.add(VertexDeletedListener.class, listener);
+    }
+
+    public void removeVertexDeletedListener(VertexDeletedListener listener) {
+        listenerList.remove(VertexDeletedListener.class, listener);
+    }
+
+    private void fireVertexCreatedEvent(VertexDeletedEvent evt) {
+        Object[] listeners = listenerList.getListenerList();
+        // Each listener occupies two elements - the first is the listener class
+        // and the second is the listener instance
+        for (int i = 0; i < listeners.length; i += 2) {
+            if (listeners[i] == VertexDeletedListener.class) {
+                ((VertexDeletedListener) listeners[i + 1]).vertexDeletedOccurred(evt);
+            }
         }
     }
 

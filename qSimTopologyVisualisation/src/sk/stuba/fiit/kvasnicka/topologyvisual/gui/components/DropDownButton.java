@@ -23,12 +23,14 @@ import java.awt.font.FontRenderContext;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.JXSearchField;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 
 /**
  *
@@ -36,7 +38,6 @@ import org.jdesktop.swingx.JXSearchField;
  */
 public class DropDownButton extends JButton implements ActionListener {
 
-  
     private JPopupMenu popup = new JPopupMenu();
     private List<JCheckBox> checkBoxMenuItems = new LinkedList<JCheckBox>();
     private JXSearchField searchField;
@@ -47,7 +48,7 @@ public class DropDownButton extends JButton implements ActionListener {
     private boolean firstTime = true;
     private boolean isSelected = false;
     private GeneralPath arrow;
-    
+
     public DropDownButton() {
         init(true);
     }
@@ -89,9 +90,6 @@ public class DropDownButton extends JButton implements ActionListener {
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         popup.add(mainPanel);
 
-
-
-
     }
 
     private void addSearchField(JPanel northPanel) {
@@ -109,7 +107,12 @@ public class DropDownButton extends JButton implements ActionListener {
         northPanel.add(searchField, BorderLayout.LINE_START);
     }
 
-    private void selectAll(boolean select) {
+    /**
+     * selects all items
+     *
+     * @param select boolean value to select items to
+     */
+    public void selectAll(boolean select) {
         for (JCheckBox item : checkBoxMenuItems) {
             item.setSelected(select);
         }
@@ -172,11 +175,23 @@ public class DropDownButton extends JButton implements ActionListener {
      * adds new JCheckBoxMenuItem to the popup menu
      *
      * @param label
+     * @param selected should it be selected by default?
      */
-    public void addCheckBoxMenuItem(String label) {
+    public void addCheckBoxMenuItem(String label, boolean selected) {
         JCheckBox chbox = new JCheckBox(label);
+        chbox.setSelected(selected);
         checkPanel.add(chbox);
         checkBoxMenuItems.add(chbox);
+    }
+
+    public void removeCheckBoxMenuItem(TopologyVertex deletedVertex) {
+        for (JCheckBox check : checkBoxMenuItems) {
+            if (check.getText().equals(deletedVertex.getName())) {
+                checkPanel.remove(check);
+                return;
+            }
+        }
+        throw new IllegalStateException("unknown checkbox to delete: " + deletedVertex.getName());
     }
 
     @Override

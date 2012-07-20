@@ -14,25 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sk.stuba.fiit.kvasnicka.topologyvisual.graph.events;
+package sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexselection;
 
-import java.util.EventObject;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
+import java.util.EventListener;
 
 /**
  *
  * @author Igor Kvasnicka
  */
-public class VertexCreatedEvent extends EventObject {
+public interface VertexSelectionChangedListener extends EventListener {
 
-    private final TopologyVertex newVertex;
-
-    public VertexCreatedEvent(Object source, TopologyVertex newVertex) {
-        super(source);
-        this.newVertex = newVertex;
-    }
-
-    public TopologyVertex getNewVertex() {
-        return newVertex;
-    }
+    public void vertexSelectionChangedOccurred(VertexSelectionChangedEvent evt);
 }
+
