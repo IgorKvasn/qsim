@@ -26,11 +26,14 @@ import org.openide.windows.TopComponent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogCategory;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexdeleted.VertexDeletedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexdeleted.VertexDeletedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.dropdownevent.DropDownHiddenEvent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.dropdownevent.DropDownHiddenListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 
 /**
@@ -53,7 +56,7 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
     "CTL_SimulationLogTopComponent=SimulationLogTopComponent Window",
     "HINT_SimulationLogTopComponent=This is a SimulationLogTopComponent window"
 })
-public final class SimulationLogTopComponent extends TopComponent implements VertexCreatedListener, SimulationLogListener {
+public final class SimulationLogTopComponent extends TopComponent implements VertexCreatedListener, SimulationLogListener, DropDownHiddenListener {
 
     private static Logger logg = Logger.getLogger(SimulationLogTopComponent.class);
     private Topology topology;
@@ -65,6 +68,9 @@ public final class SimulationLogTopComponent extends TopComponent implements Ver
         putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
 
         initSeverityDropDown();
+
+        dropSeverity.addDropDownHiddenListener(this);
+        dropVertices.addDropDownHiddenListener(this);
     }
 
     /**
@@ -86,6 +92,12 @@ public final class SimulationLogTopComponent extends TopComponent implements Ver
             dropSeverity.addCheckBoxMenuItem(cat.name(), true);
         }
         dropVertices.selectAll(true);
+    }
+
+    private void updateTreeTable() {
+    }
+
+    private void addToTreeTable(SimulationLog simulationLog) {
     }
 
     /**
@@ -197,6 +209,11 @@ public final class SimulationLogTopComponent extends TopComponent implements Ver
 
     @Override
     public void simulationLogOccurred(SimulationLogEvent sle) {
-        logg.debug("Simulation log occured: " + sle.getSimulationLog().getCause());
+        addToTreeTable(sle.getSimulationLog());
+    }
+
+    @Override
+    public void dropDownHiddenOccurred(DropDownHiddenEvent evt) {
+        updateTreeTable();
     }
 }

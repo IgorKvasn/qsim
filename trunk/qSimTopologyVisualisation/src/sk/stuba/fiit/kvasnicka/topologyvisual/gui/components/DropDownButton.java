@@ -27,10 +27,16 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.JXSearchField;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexdeleted.VertexDeletedEvent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexdeleted.VertexDeletedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.dropdownevent.DropDownHiddenEvent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.dropdownevent.DropDownHiddenListener;
+import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
 
 /**
  *
@@ -59,6 +65,9 @@ public class DropDownButton extends JButton implements ActionListener {
 
     private void init(boolean searchFieldEnabled) {
 
+        setIcon(ImageResourceHelper.loadImage("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/arrow_down.gif"));
+        setHorizontalTextPosition(JButton.LEFT);
+        setFocusPainted(false);
         addActionListener(this);
         mainPanel.setLayout(new BorderLayout());
 
@@ -89,6 +98,22 @@ public class DropDownButton extends JButton implements ActionListener {
 
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         popup.add(mainPanel);
+
+        popup.addPopupMenuListener(new PopupMenuListener() {
+
+            @Override
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            }
+
+            @Override
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                fireDropDownHiddenEvent(new DropDownHiddenEvent(this));
+            }
+
+            @Override
+            public void popupMenuCanceled(PopupMenuEvent e) {
+            }
+        });
 
     }
 
@@ -207,47 +232,22 @@ public class DropDownButton extends JButton implements ActionListener {
         }
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        int h = getHeight();
-        Font font = UIManager.getFont("Button.font");
-        g2.setFont(font);
-        FontRenderContext frc = g2.getFontRenderContext();
-        Rectangle2D r = font.getStringBounds(super.getText(), frc);
-        float sx = 5f;
-        float sy = (float) ((h + r.getHeight()) / 2) - font.getLineMetrics(super.getText(), frc).getDescent();
-        g2.drawString(super.getText(), sx, sy);
-        double x = sx + r.getWidth() + sx;
-        if (isSelected) {
-            g2.setPaint(Color.gray);
-            g2.draw(new Line2D.Double(x, 0, x, h));
-            g2.setPaint(Color.white);
-            g2.draw(new Line2D.Double(x + 1, 0, x + 1, h));
-            g2.setPaint(Color.gray);
-            g2.draw(new Rectangle2D.Double(0, 0, getSize().width - 1, h - 1));
-        }
-        float ax = (float) (x + sx);
-        if (firstTime) {
-            createArrow(ax, h);
-        }
-        g2.setPaint(UIManager.getColor("Menu.foreground"));
-        g2.fill(arrow);
-        ax += 10f + sx;
-        if (firstTime) {
-            setSize((int) ax, h);         // initial sizing
-            setPreferredSize(getSize());
-            setMaximumSize(getSize());   // resizing behavior
-            firstTime = false;
-        }
+    public void addDropDownHiddenListener(DropDownHiddenListener listener) {
+        listenerList.add(DropDownHiddenListener.class, listener);
     }
 
-    private void createArrow(float x, int h) {
-        arrow = new GeneralPath();
-        arrow.moveTo(x - 4, h / 2.5f);
-        arrow.lineTo(x - 4 + 6f, h / 2.5f);
-        arrow.lineTo(x - 4 + 3f, h * 2 / 3f);
-        arrow.closePath();
+    public void removeDropDownHiddenListener(DropDownHiddenListener listener) {
+        listenerList.remove(DropDownHiddenListener.class, listener);
+    }
+
+    private void fireDropDownHiddenEvent(DropDownHiddenEvent evt) {
+        Object[] listeners = listenerList.getListenerList();
+        // Each listener occupies two elements - the first is the listener class
+        // and the second is the listener instance
+        for (int i = 0; i < listeners.length; i += 2) {
+            if (listeners[i] == DropDownHiddenListener.class) {
+                ((DropDownHiddenListener) listeners[i + 1]).dropDownHiddenOccurred(evt);
+            }
+        }
     }
 }
