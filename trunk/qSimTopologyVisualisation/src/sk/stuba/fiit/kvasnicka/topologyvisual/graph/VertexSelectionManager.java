@@ -19,8 +19,8 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.graph;
 import java.util.LinkedHashSet;
 import java.util.List;
 import lombok.Getter;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexSelectionChangedEvent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexSelectionChangedListener;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexselection.VertexSelectionChangedEvent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexselection.VertexSelectionChangedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.RouterVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 

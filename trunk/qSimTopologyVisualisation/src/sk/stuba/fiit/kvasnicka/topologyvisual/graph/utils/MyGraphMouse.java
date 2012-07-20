@@ -27,8 +27,8 @@ import edu.uci.ics.jung.visualization.control.*;
 import java.awt.event.MouseEvent;
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexCreatedEvent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.VertexCreatedListener;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedEvent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 

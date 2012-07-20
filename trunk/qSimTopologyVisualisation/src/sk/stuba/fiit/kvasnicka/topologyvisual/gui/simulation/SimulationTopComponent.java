@@ -76,7 +76,6 @@ public final class SimulationTopComponent extends TopComponent {
         setName(Bundle.CTL_SimulationTopComponent());
         setToolTipText(Bundle.HINT_SimulationTopComponent());
         putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
-        putClientProperty(TopComponent.PROP_SLIDING_DISABLED, Boolean.TRUE);
 
         tableModel = ((DefaultTableModel) jXTable1.getModel());
         sorterSimRules = new TableRowSorter<TableModel>(jXTable1.getModel());

@@ -16,40 +16,76 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs;
 
+import java.util.List;
+import org.apache.log4j.Logger;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import org.openide.windows.TopComponent;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogEvent;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogCategory;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedEvent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedListener;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexdeleted.VertexDeletedEvent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexdeleted.VertexDeletedListener;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 
 /**
  * Top component which displays something.
  */
 @ConvertAsProperties(dtd = "-//sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs//SimulationLogTopComponent//EN",
 autostore = false)
-@TopComponent.Description(preferredID = "SimulationLogTopComponentTopComponent",
+@TopComponent.Description(preferredID = "SimulationLogTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
 persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "output", openAtStartup = false)
-@ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs.SimulationLogTopComponentTopComponent")
+@ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs.SimulationLogTopComponent")
 @ActionReference(path = "Menu/Window" /*
  * , position = 333
  */)
-@TopComponent.OpenActionRegistration(displayName = "#CTL_SimulationLogTopComponentAction",
-preferredID = "SimulationLogTopComponentTopComponent")
+@TopComponent.OpenActionRegistration(displayName = "#CTL_SimulationLogTopComponentAction" //        , preferredID = "SimulationLogTopComponent"
+)
 @Messages({
     "CTL_SimulationLogTopComponentAction=SimulationLogTopComponent",
-    "CTL_SimulationLogTopComponentTopComponent=SimulationLogTopComponent Window",
-    "HINT_SimulationLogTopComponentTopComponent=This is a SimulationLogTopComponent window"
+    "CTL_SimulationLogTopComponent=SimulationLogTopComponent Window",
+    "HINT_SimulationLogTopComponent=This is a SimulationLogTopComponent window"
 })
-public final class SimulationLogTopComponentTopComponent extends TopComponent {
+public final class SimulationLogTopComponent extends TopComponent implements VertexCreatedListener, SimulationLogListener {
 
-    public SimulationLogTopComponentTopComponent() {
+    private static Logger logg = Logger.getLogger(SimulationLogTopComponent.class);
+    private Topology topology;
+
+    public SimulationLogTopComponent() {
         initComponents();
-        setName(Bundle.CTL_SimulationLogTopComponentTopComponent());
-        setToolTipText(Bundle.HINT_SimulationLogTopComponentTopComponent());
+        setName(Bundle.CTL_SimulationLogTopComponent());
+        setToolTipText(Bundle.HINT_SimulationLogTopComponent());
         putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
 
+        initSeverityDropDown();
+    }
+
+    /**
+     * sets Topology object that will be bind to this simulation log
+     *
+     * @param topology
+     */
+    public void setTopology(Topology topology) {
+        this.topology = topology;
+        List<TopologyVertex> allVertices = topology.getVertexFactory().getAllVertices();
+        for (TopologyVertex vertex : allVertices) {
+            dropVertices.addCheckBoxMenuItem(vertex.getName(), true);
+        }
+        dropVertices.selectAll(true);
+    }
+
+    private void initSeverityDropDown() {
+        for (LogCategory cat : LogCategory.values()) {
+            dropSeverity.addCheckBoxMenuItem(cat.name(), true);
+        }
+        dropVertices.selectAll(true);
     }
 
     /**
@@ -61,16 +97,16 @@ public final class SimulationLogTopComponentTopComponent extends TopComponent {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        dropDownButton1 = new sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton();
-        dropDownButton2 = new sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton(false);
+        dropVertices = new sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton();
+        dropSeverity = new sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton(false);
         jScrollPane1 = new javax.swing.JScrollPane();
         jXTreeTable1 = new org.jdesktop.swingx.JXTreeTable();
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(SimulationLogTopComponentTopComponent.class, "SimulationLogTopComponentTopComponent.jPanel1.border.title"))); // NOI18N
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(SimulationLogTopComponent.class, "SimulationLogTopComponent.jPanel1.border.title"))); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(dropDownButton1, org.openide.util.NbBundle.getMessage(SimulationLogTopComponentTopComponent.class, "SimulationLogTopComponentTopComponent.dropDownButton1.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(dropVertices, org.openide.util.NbBundle.getMessage(SimulationLogTopComponent.class, "SimulationLogTopComponent.dropVertices.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(dropDownButton2, org.openide.util.NbBundle.getMessage(SimulationLogTopComponentTopComponent.class, "SimulationLogTopComponentTopComponent.dropDownButton2.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(dropSeverity, org.openide.util.NbBundle.getMessage(SimulationLogTopComponent.class, "SimulationLogTopComponent.dropSeverity.text")); // NOI18N
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -79,16 +115,16 @@ public final class SimulationLogTopComponentTopComponent extends TopComponent {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(dropDownButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dropDownButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(dropVertices, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(dropSeverity, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(dropDownButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(dropVertices, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(dropDownButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(dropSeverity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         jScrollPane1.setViewportView(jXTreeTable1);
@@ -102,7 +138,7 @@ public final class SimulationLogTopComponentTopComponent extends TopComponent {
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 674, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(41, Short.MAX_VALUE))
+                .addContainerGap(51, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -118,33 +154,49 @@ public final class SimulationLogTopComponentTopComponent extends TopComponent {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton dropDownButton1;
-    private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton dropDownButton2;
+    private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton dropSeverity;
+    private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton dropVertices;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private org.jdesktop.swingx.JXTreeTable jXTreeTable1;
     // End of variables declaration//GEN-END:variables
+
     @Override
     public void componentOpened() {
-        // TODO add custom code on component opening
+        if (topology == null) {
+            throw new IllegalStateException("topology is NULL; setTopology() method must be called");
+        }
+        topology.addVertexCreatedListener(this);
+        topology.getTopolElementTopComponent().getSimulationFacade().addSimulationLogListener(this);
     }
 
     @Override
     public void componentClosed() {
-        // TODO add custom code on component closing
+        if (topology == null) {
+            throw new IllegalStateException("topology is NULL; setTopology() method must be called");
+        }
+        topology.removeVertexCreatedListener(this);
+        topology.getTopolElementTopComponent().getSimulationFacade().removeSimulationLogListener(this);
     }
 
     void writeProperties(java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
         p.setProperty("version", "1.0");
-        // TODO store your settings
     }
 
     void readProperties(java.util.Properties p) {
         String version = p.getProperty("version");
-        // TODO read your settings according to their version
+    }
+
+    @Override
+    public void vertexCreatedOccurred(VertexCreatedEvent evt) {
+        dropVertices.addCheckBoxMenuItem(evt.getNewVertex().getName(), true);
+    }
+
+    @Override
+    public void simulationLogOccurred(SimulationLogEvent sle) {
+        logg.debug("Simulation log occured: " + sle.getSimulationLog().getCause());
     }
 }
