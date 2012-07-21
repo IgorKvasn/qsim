@@ -16,6 +16,10 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.utils;
 
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 
 /**
@@ -49,5 +53,21 @@ public class EdgeUtils {
             }
         }
         return false;
+    }
+
+    /**
+     * creates list of data model Edge
+     *
+     * @return
+     */
+    public static List<Edge> convertTopologyEdgeListToEdgeList(Collection<TopologyEdge> edgeList) {
+        if (edgeList == null) {
+            throw new IllegalArgumentException("edgeList is NULL");
+        }
+        List<Edge> list = new LinkedList<Edge>();
+        for (TopologyEdge edge : edgeList) {
+            list.add(edge.getEdge());
+        }
+        return list;
     }
 }

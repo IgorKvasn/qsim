@@ -17,6 +17,8 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.dropdownevent;
 
 import java.util.EventObject;
+import java.util.List;
+import lombok.Getter;
 
 /**
  *
@@ -24,7 +26,11 @@ import java.util.EventObject;
  */
 public class DropDownHiddenEvent extends EventObject {
 
-    public DropDownHiddenEvent(Object source) {
+    @Getter
+    private final List<String> selectedCheckBoxes;
+
+    public DropDownHiddenEvent(Object source, List<String> selectedCheckBoxes) {
         super(source);
+        this.selectedCheckBoxes = selectedCheckBoxes;
     }
 }

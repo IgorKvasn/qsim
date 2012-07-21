@@ -107,7 +107,7 @@ public class DropDownButton extends JButton implements ActionListener {
 
             @Override
             public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                fireDropDownHiddenEvent(new DropDownHiddenEvent(this));
+                fireDropDownHiddenEvent(new DropDownHiddenEvent(this, getSelectedCheckBoxItems()));
             }
 
             @Override
