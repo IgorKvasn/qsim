@@ -67,7 +67,9 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.SimulationStateEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.EdgeUtils;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.VerticesUtil;
 
 /**
  * Top component which displays something.
@@ -168,6 +170,20 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
      */
     public void runSimulation() {
         //todo check if simulation is already running, but beware that simulation may be paused - playing paused simulation means resume
+        if (getSimulationFacade().isTimerRunning()) {
+            throw new IllegalStateException("simulation is already running");
+        }
+
+        //are there any simulation logs to simulate?
+        if (simulationData.getSimulationData().isEmpty()) {
+            JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),
+                    NbBundle.getMessage(TopologyVisualisation.class, "no_simulation_rules"),
+                    NbBundle.getMessage(TopologyVisualisation.class, "no_simulation_rules_title"),
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+
         try {
             //finalise simulation rules = init routing
             List<SimulationRuleBean> simulationRules = simulationData.getSimulationRulesFinalised(); //very important method !!
@@ -183,11 +199,14 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
             //everuthing that is no use for simulation
             closeAllSupportingWindows();
 
-            //open simulation log top component
-            openSimulationLogTopcomponent();
+            if (simulationFacade.isTimerPaused()) {
+                simulationFacade.resumeTimer();
+            } else {
 
+                simulationFacade.initTimer(EdgeUtils.convertTopologyEdgeListToEdgeList(topology.getG().getEdges()), VerticesUtil.convertTopologyVertexList2NetworkNodeList(topology.getVertexFactory().getAllVertices()));
+                simulationFacade.startTimer();
+            }
 
-            // throw new UnsupportedOperationException("Not implemented yet.");
         } catch (RoutingException ex) {
             JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),
                     NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_part1") + "\n" + ex.getMessage() + "\n" + NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_part2"),
@@ -251,15 +270,6 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
                 ConfigureSimulationAction.getInstance().updateState(simulationState);
             }
         }
-    }
-
-    /**
-     * opens new simulation log top component associated with this topology
-     */
-    private void openSimulationLogTopcomponent() {
-        SimulationLogTopComponent logTopComponent = (SimulationLogTopComponent) WindowManager.getDefault().findTopComponent("SimulationLogTopComponent");
-        logTopComponent.setTopology(topology);
-        logTopComponent.open();
     }
 
     /**

@@ -39,6 +39,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.ConfirmDialogPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.deletion.EdgeDeletionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.deletion.VertexDeletionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.SimulationTopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs.SimulationLogTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
@@ -113,85 +114,12 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
         vertexPopup.addSeparator();
         vertexPopup.addSeparator();
         JMenuItem menuItemDelete = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete"));
-        menuItemDelete.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (NetbeansWindowHelper.getInstance().getActiveTopology() == null) {
-                    return;
-                }
-
-                Map<TopologyVertex, List<SimulationData.Data>> affectedSimrules;
-                if (topology.getSelectedVertices().isEmpty()) {//there may be some selected vertices or user just right-clicks on the vertex
-                    affectedSimrules = getAffectedSimrules(Arrays.asList(selectedVertex));
-                } else {
-                    affectedSimrules = getAffectedSimrules(topology.getSelectedVertices());
-                }
-
-                if (affectedSimrules.isEmpty()) {//there are no affected simulation rules
-                    if (!PreferenciesHelper.isNeverShowVertexDeleteConfirmation()) {
-                        ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "vertex_delete_question") + " " + VerticesUtil.getVerticesNames(topology.getSelectedVertices()));
-                        NotifyDescriptor descriptor = new NotifyDescriptor(
-                                panel, // instance of your panel
-                                NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete_confirm_title"), // title of the dialog
-                                NotifyDescriptor.YES_NO_OPTION, NotifyDescriptor.QUESTION_MESSAGE, null,
-                                NotifyDescriptor.YES_OPTION // default option is "Yes"
-                                );
-
-                        if (DialogDisplayer.getDefault().notify(descriptor) != NotifyDescriptor.YES_OPTION) {
-                            return;
-                        }
-                        if (panel.isNeverShow()) {
-                            PreferenciesHelper.setNeverShowVertexDeleteConfirmation(panel.isNeverShow());
-                        }
-                    }
-                } else {//some simulation rules depend on this vertex
-
-                    VertexDeletionDialog dialog = new VertexDeletionDialog(affectedSimrules);
-                    dialog.setVisible(true);
-
-
-                    if (dialog.getReturnCode() == VertexDeletionDialog.ReturnCode.CANCEL) {
-                        return;
-                    }
-
-                    for (TopologyVertex v : affectedSimrules.keySet()) {
-                        for (SimulationData.Data data : affectedSimrules.get(v)) {
-                            if (VerticesUtil.isVertexSourceOrDestination(v, data)) {//topology vertex marked for removal is source or destination in some simulation rule
-                                topology.getTopolElementTopComponent().getSimulationData().removeSimulationData(data.getId());
-                            }
-                        }
-                    }
-
-                    //reload simulation rules shown in SimulationTopComponent
-                    SimulationTopComponent myTC = (SimulationTopComponent) WindowManager.getDefault().findTopComponent("SimulationTopComponent");
-                    if (myTC.isOpened()) {//only if it is opened (note: opened is not the same as visible - it may be opened, but covered by some other TopComponent)
-                        myTC.loadSimulationRules();
-                    }
-                }
-
-                if (topology.getSelectedVertices().isEmpty()) {//user right clicks on the vertex - this does not selects vertex
-                    topology.deleteVertex(selectedVertex);
-                } else {
-                    topology.deleteVertex(topology.getSelectedVertices());
-                }
-
-                logg.debug("vertex deletion: " + VerticesUtil.getVerticesNames(topology.getSelectedVertices()));
-            }
-
-            private Map<TopologyVertex, List<SimulationData.Data>> getAffectedSimrules(Collection<TopologyVertex> selectedVertices) {
-                Map<TopologyVertex, List<SimulationData.Data>> affectedRules = new HashMap<TopologyVertex, List<SimulationData.Data>>();
-                for (TopologyVertex v : selectedVertices) {
-                    List<Data> simulRulesThatContainsNode = topology.getTopolElementTopComponent().getSimulationData().getSimulationDataContainingVertex(v);
-                    if (!simulRulesThatContainsNode.isEmpty()) {
-                        affectedRules.put(v, simulRulesThatContainsNode);
-                    }
-                }
-                return affectedRules;
-            }
-        });
         vertexPopup.add(menuItemDelete);
+        JMenuItem menuSimulLog = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "simul_log"));
+        menuSimulLog.addActionListener(new ShowSimulationLogsMenuItem());
+        vertexPopup.add(menuSimulLog);
 
+        menuItemDelete.addActionListener(new VertexDeleteMenuItem());
     }
 
     private void createEdgePopup() {
@@ -199,70 +127,172 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
         edgePopup.add(new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "properties")));
         edgePopup.addSeparator();
         JMenuItem menuItemDelete = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete"));
-        menuItemDelete.addActionListener(new ActionListener() {
+        menuItemDelete.addActionListener(new EdgeDeleteMenuItem());
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (NetbeansWindowHelper.getInstance().getActiveTopology() == null) {
+        edgePopup.add(menuItemDelete);
+    }
+
+    private class VertexDeleteMenuItem implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (NetbeansWindowHelper.getInstance().getActiveTopology() == null) {
+                return;
+            }
+
+            Map<TopologyVertex, List<SimulationData.Data>> affectedSimrules;
+            if (topology.getSelectedVertices().isEmpty()) {//there may be some selected vertices or user just right-clicks on the vertex
+                affectedSimrules = getAffectedSimrules(Arrays.asList(selectedVertex));
+            } else {
+                affectedSimrules = getAffectedSimrules(topology.getSelectedVertices());
+            }
+
+            if (affectedSimrules.isEmpty()) {//there are no affected simulation rules
+                if (!PreferenciesHelper.isNeverShowVertexDeleteConfirmation()) {
+                    ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "vertex_delete_question") + " " + VerticesUtil.getVerticesNames(topology.getSelectedVertices()));
+                    NotifyDescriptor descriptor = new NotifyDescriptor(
+                            panel, // instance of your panel
+                            NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete_confirm_title"), // title of the dialog
+                            NotifyDescriptor.YES_NO_OPTION, NotifyDescriptor.QUESTION_MESSAGE, null,
+                            NotifyDescriptor.YES_OPTION // default option is "Yes"
+                            );
+
+                    if (DialogDisplayer.getDefault().notify(descriptor) != NotifyDescriptor.YES_OPTION) {
+                        return;
+                    }
+                    if (panel.isNeverShow()) {
+                        PreferenciesHelper.setNeverShowVertexDeleteConfirmation(panel.isNeverShow());
+                    }
+                }
+            } else {//some simulation rules depend on this vertex
+
+                VertexDeletionDialog dialog = new VertexDeletionDialog(affectedSimrules);
+                dialog.setVisible(true);
+
+
+                if (dialog.getReturnCode() == VertexDeletionDialog.ReturnCode.CANCEL) {
                     return;
                 }
 
-                Map<TopologyEdge, List<SimulationData.Data>> affectedSimrules;
-                if (topology.getSelectedVertices().isEmpty()) {//there may be some selected vertices or user just right-clicks on the vertex
-                    affectedSimrules = getAffectedSimrules(Arrays.asList(selectedEdge));
-                } else {
-                    affectedSimrules = getAffectedSimrules(topology.getSelectedEdges());
-                }
-
-                if (affectedSimrules.isEmpty()) {//there are no affected simulation rules
-                    if (!PreferenciesHelper.isNeverShowEdgeDeleteConfirmation()) {
-                        ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "edge_delete_question") + " " + selectedEdge.getVertex1().getName() + " " + NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "and") + " " + selectedEdge.getVertex2().getName());
-                        NotifyDescriptor descriptor = new NotifyDescriptor(
-                                panel, // instance of your panel
-                                NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete_confirm_title"), // title of the dialog
-                                NotifyDescriptor.YES_NO_OPTION, NotifyDescriptor.QUESTION_MESSAGE, null,
-                                NotifyDescriptor.YES_OPTION // default option is "Yes"
-                                );
-
-                        if (DialogDisplayer.getDefault().notify(descriptor) != NotifyDescriptor.YES_OPTION) {
-                            return;
-                        }
-                        if (panel.isNeverShow()) {
-                            PreferenciesHelper.setNeverShowEdgeDeleteConfirmation(panel.isNeverShow());
+                for (TopologyVertex v : affectedSimrules.keySet()) {
+                    for (SimulationData.Data data : affectedSimrules.get(v)) {
+                        if (VerticesUtil.isVertexSourceOrDestination(v, data)) {//topology vertex marked for removal is source or destination in some simulation rule
+                            topology.getTopolElementTopComponent().getSimulationData().removeSimulationData(data.getId());
                         }
                     }
-                } else {//some simulation rules depend on this vertex
+                }
 
-                    EdgeDeletionDialog dialog = new EdgeDeletionDialog(affectedSimrules);
-                    dialog.setVisible(true);
+                //reload simulation rules shown in SimulationTopComponent
+                SimulationTopComponent myTC = (SimulationTopComponent) WindowManager.getDefault().findTopComponent("SimulationTopComponent");
+                if (myTC.isOpened()) {//only if it is opened (note: opened is not the same as visible - it may be opened, but covered by some other TopComponent)
+                    myTC.loadSimulationRules();
+                }
+            }
 
+            if (topology.getSelectedVertices().isEmpty()) {//user right clicks on the vertex - this does not selects vertex
+                topology.deleteVertex(selectedVertex);
+            } else {
+                topology.deleteVertex(topology.getSelectedVertices());
+            }
 
-                    if (dialog.getReturnCode() == EdgeDeletionDialog.ReturnCode.CANCEL) {
+            logg.debug("vertex deletion: " + VerticesUtil.getVerticesNames(topology.getSelectedVertices()));
+        }
+
+        private Map<TopologyVertex, List<SimulationData.Data>> getAffectedSimrules(Collection<TopologyVertex> selectedVertices) {
+            Map<TopologyVertex, List<SimulationData.Data>> affectedRules = new HashMap<TopologyVertex, List<SimulationData.Data>>();
+            for (TopologyVertex v : selectedVertices) {
+                List<Data> simulRulesThatContainsNode = topology.getTopolElementTopComponent().getSimulationData().getSimulationDataContainingVertex(v);
+                if (!simulRulesThatContainsNode.isEmpty()) {
+                    affectedRules.put(v, simulRulesThatContainsNode);
+                }
+            }
+            return affectedRules;
+        }
+    }
+
+    private class EdgeDeleteMenuItem implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (NetbeansWindowHelper.getInstance().getActiveTopology() == null) {
+                return;
+            }
+
+            Map<TopologyEdge, List<SimulationData.Data>> affectedSimrules;
+            if (topology.getSelectedVertices().isEmpty()) {//there may be some selected vertices or user just right-clicks on the vertex
+                affectedSimrules = getAffectedSimrules(Arrays.asList(selectedEdge));
+            } else {
+                affectedSimrules = getAffectedSimrules(topology.getSelectedEdges());
+            }
+
+            if (affectedSimrules.isEmpty()) {//there are no affected simulation rules
+                if (!PreferenciesHelper.isNeverShowEdgeDeleteConfirmation()) {
+                    ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "edge_delete_question") + " " + selectedEdge.getVertex1().getName() + " " + NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "and") + " " + selectedEdge.getVertex2().getName());
+                    NotifyDescriptor descriptor = new NotifyDescriptor(
+                            panel, // instance of your panel
+                            NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete_confirm_title"), // title of the dialog
+                            NotifyDescriptor.YES_NO_OPTION, NotifyDescriptor.QUESTION_MESSAGE, null,
+                            NotifyDescriptor.YES_OPTION // default option is "Yes"
+                            );
+
+                    if (DialogDisplayer.getDefault().notify(descriptor) != NotifyDescriptor.YES_OPTION) {
                         return;
                     }
-                }
-
-                if (topology.getSelectedEdges().isEmpty()) {//user right clicks on the vertex - this does not selects vertex
-                    topology.deleteEdge(selectedEdge);
-                } else {
-                    topology.deleteEdge(topology.getSelectedEdges());
-                }
-
-                logg.debug("edge (edges)  deleted");
-            }
-
-            private Map<TopologyEdge, List<SimulationData.Data>> getAffectedSimrules(Collection<TopologyEdge> edges) {
-                Map<TopologyEdge, List<SimulationData.Data>> affectedRules = new HashMap<TopologyEdge, List<SimulationData.Data>>();
-                for (TopologyEdge e : edges) {
-                    List<Data> simulRulesThatContainsNode = topology.getTopolElementTopComponent().getSimulationData().getSimulationDataContainingEdge(e);
-                    if (!simulRulesThatContainsNode.isEmpty()) {
-                        affectedRules.put(e, simulRulesThatContainsNode);
+                    if (panel.isNeverShow()) {
+                        PreferenciesHelper.setNeverShowEdgeDeleteConfirmation(panel.isNeverShow());
                     }
                 }
-                return affectedRules;
-            }
-        });
+            } else {//some simulation rules depend on this vertex
 
-        edgePopup.add(menuItemDelete);
+                EdgeDeletionDialog dialog = new EdgeDeletionDialog(affectedSimrules);
+                dialog.setVisible(true);
+
+
+                if (dialog.getReturnCode() == EdgeDeletionDialog.ReturnCode.CANCEL) {
+                    return;
+                }
+            }
+
+            if (topology.getSelectedEdges().isEmpty()) {//user right clicks on the vertex - this does not selects vertex
+                topology.deleteEdge(selectedEdge);
+            } else {
+                topology.deleteEdge(topology.getSelectedEdges());
+            }
+
+            logg.debug("edge (edges)  deleted");
+        }
+
+        private Map<TopologyEdge, List<SimulationData.Data>> getAffectedSimrules(Collection<TopologyEdge> edges) {
+            Map<TopologyEdge, List<SimulationData.Data>> affectedRules = new HashMap<TopologyEdge, List<SimulationData.Data>>();
+            for (TopologyEdge e : edges) {
+                List<Data> simulRulesThatContainsNode = topology.getTopolElementTopComponent().getSimulationData().getSimulationDataContainingEdge(e);
+                if (!simulRulesThatContainsNode.isEmpty()) {
+                    affectedRules.put(e, simulRulesThatContainsNode);
+                }
+            }
+            return affectedRules;
+        }
+    }
+
+    private class ShowSimulationLogsMenuItem implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (topology.getSelectedVertices().isEmpty()) {
+                openSimulationLogTopcomponent(Arrays.asList(selectedVertex));
+            } else {
+                openSimulationLogTopcomponent(topology.getSelectedVertices());
+            }
+        }
+
+        /**
+         * opens new simulation log top component associated with this topology
+         */
+        private void openSimulationLogTopcomponent(Collection<TopologyVertex> vertices) {
+            SimulationLogTopComponent logTopComponent = (SimulationLogTopComponent) WindowManager.getDefault().findTopComponent("SimulationLogTopComponent");
+            logTopComponent.setTopology(topology);
+            logTopComponent.showVetices(vertices);
+            logTopComponent.open();
+        }
     }
 }

@@ -16,24 +16,30 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs;
 
-import java.util.List;
+import java.awt.Color;
+import java.awt.Component;
+import java.util.*;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.RowFilter;
+import javax.swing.table.*;
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXTable;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogCategory;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLog;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedEvent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedListener;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexdeleted.VertexDeletedEvent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexdeleted.VertexDeletedListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtil;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.closeabletabbedpane.CloseableTabbedPaneListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.dropdownevent.DropDownHiddenEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.dropdownevent.DropDownHiddenListener;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.SimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 
 /**
@@ -46,9 +52,9 @@ autostore = false)
 persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "output", openAtStartup = false)
 @ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs.SimulationLogTopComponent")
-@ActionReference(path = "Menu/Window" /*
- * , position = 333
- */)
+//@ActionReference(path = "Menu/Window" /*
+// * , position = 333
+// */)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_SimulationLogTopComponentAction" //        , preferredID = "SimulationLogTopComponent"
 )
 @Messages({
@@ -56,9 +62,15 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
     "CTL_SimulationLogTopComponent=SimulationLogTopComponent Window",
     "HINT_SimulationLogTopComponent=This is a SimulationLogTopComponent window"
 })
-public final class SimulationLogTopComponent extends TopComponent implements VertexCreatedListener, SimulationLogListener, DropDownHiddenListener {
+public final class SimulationLogTopComponent extends TopComponent implements SimulationLogListener, DropDownHiddenListener, CloseableTabbedPaneListener {
 
     private static Logger logg = Logger.getLogger(SimulationLogTopComponent.class);
+    /**
+     * mapping between TopologyVertex and SimulationLogPanel<br/> each
+     * TopologyVertex has got one SimulationLogPanel<br/> note: TopologyVertex
+     * object is represented by its name (String)
+     */
+    private Map<String, JXTable> panels = new HashMap<String, JXTable>();
     private Topology topology;
 
     public SimulationLogTopComponent() {
@@ -67,10 +79,16 @@ public final class SimulationLogTopComponent extends TopComponent implements Ver
         setToolTipText(Bundle.HINT_SimulationLogTopComponent());
         putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
 
-        initSeverityDropDown();
+        initCategoryDropDown();
 
-        dropSeverity.addDropDownHiddenListener(this);
-        dropVertices.addDropDownHiddenListener(this);
+        dropCategory.addDropDownHiddenListener(this);
+        closeableTabbedPane1.addCloseableTabbedPaneListener(this);
+    }
+
+    public void showVetices(Collection<TopologyVertex> vertices) {
+        for (TopologyVertex v : vertices) {
+            createSimulationLogPanel(v.getName());
+        }
     }
 
     /**
@@ -80,24 +98,124 @@ public final class SimulationLogTopComponent extends TopComponent implements Ver
      */
     public void setTopology(Topology topology) {
         this.topology = topology;
-        List<TopologyVertex> allVertices = topology.getVertexFactory().getAllVertices();
-        for (TopologyVertex vertex : allVertices) {
-            dropVertices.addCheckBoxMenuItem(vertex.getName(), true);
-        }
-        dropVertices.selectAll(true);
     }
 
-    private void initSeverityDropDown() {
+    private void initCategoryDropDown() {
         for (LogCategory cat : LogCategory.values()) {
-            dropSeverity.addCheckBoxMenuItem(cat.name(), true);
+            dropCategory.addCheckBoxMenuItem(cat.toString(), true);
         }
-        dropVertices.selectAll(true);
+        dropCategory.selectAll(true);
     }
 
-    private void updateTreeTable() {
+    /**
+     * category filter has been changed
+     *
+     * @param selectedCheckBoxes list of selected checkboxes (categories)
+     */
+    private void updateLogs(List<String> selectedCheckBoxes) {
+        String regex = createRegex(selectedCheckBoxes);
+
+        for (Map.Entry<String, JXTable> entry : panels.entrySet()) {
+            JXTable table = entry.getValue();
+
+            table.setRowFilter(RowFilter.regexFilter(regex, table.convertColumnIndexToView(0)));
+        }
     }
 
-    private void addToTreeTable(SimulationLog simulationLog) {
+    private String createRegex(List<String> categoryList) {
+        if (categoryList.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String cat : categoryList) {
+            sb.append("(").append(cat).append(")|");
+        }
+        //remove the last |
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
+    }
+
+    private void addLog(SimulationLog simulationLog) {
+        if (simulationLog == null) {
+            throw new IllegalArgumentException("simulationLog is NULL");
+        }
+        if (simulationLog.getSourceName().equals(SimulationLogUtil.SOURCE_GENERAL)) {//all panels should be notified
+            for (Map.Entry<String, JXTable> entry : panels.entrySet()) {
+                JXTable table = entry.getValue();
+                ((DefaultTableModel) table.getModel()).addRow(new String[]{simulationLog.getCategory().toString(), simulationLog.getCause(), simulationLog.getFormattedSimulationTime()});
+            }
+            return;
+        }
+
+        JXTable table = getSimulationLogPanel(simulationLog.getSourceName());
+        if (table == null) {//no one is interrested in this simulation log
+            return;
+        }
+        ((DefaultTableModel) table.getModel()).addRow(new String[]{simulationLog.getCategory().toString(), simulationLog.getCause(), simulationLog.getFormattedSimulationTime()});
+    }
+
+    private void createSimulationLogPanel(String vertex) {
+        JXTable table = new JXTable();
+        table.setModel(new javax.swing.table.DefaultTableModel(
+                new Object[][]{},
+                new String[]{
+                    "Category", "Message", "Simulation time"
+                }) {
+
+            Class[] types = new Class[]{
+                java.lang.String.class, java.lang.Object.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean[]{
+                false, false, false
+            };
+
+            @Override
+            public Class getColumnClass(int columnIndex) {
+                return types[columnIndex];
+            }
+
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit[columnIndex];
+            }
+        });
+
+        //add sorter so table can be filtered
+        table.setRowSorter(new TableRowSorter<TableModel>(table.getModel()));
+
+        //table highlighter
+        initTableRowHighlighter(table);
+
+        //add table to hashmap
+        panels.put(vertex, table);
+
+        //add table to tabbed pane
+        closeableTabbedPane1.addTab(vertex, table);
+    }
+
+    private void initTableRowHighlighter(JXTable table) {
+        TableColumnModel colModel = table.getColumnModel();
+        for (Enumeration<TableColumn> colEnum = colModel.getColumns(); colEnum.hasMoreElements();) {
+            TableColumn c = colEnum.nextElement();
+            c.setCellRenderer(new RowHighlighterTableCellRender(JLabel.CENTER));
+        }
+    }
+
+    private JXTable getSimulationLogPanel(String vertex) {
+        if (panels.containsKey(vertex)) {
+            return panels.get(vertex);
+        }
+        return null;
+    }
+
+    /**
+     * user closed the panel
+     *
+     * @param vertex name of the vertex assocoated with this simulation log
+     * panel
+     */
+    private void panelClosed(String vertex) {
+        panels.remove(vertex);
     }
 
     /**
@@ -108,70 +226,33 @@ public final class SimulationLogTopComponent extends TopComponent implements Ver
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
-        dropVertices = new sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton();
-        dropSeverity = new sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton(false);
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jXTreeTable1 = new org.jdesktop.swingx.JXTreeTable();
+        dropCategory = new sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton(false);
+        closeableTabbedPane1 = new sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.closeabletabbedpane.CloseableTabbedPane();
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(SimulationLogTopComponent.class, "SimulationLogTopComponent.jPanel1.border.title"))); // NOI18N
-
-        org.openide.awt.Mnemonics.setLocalizedText(dropVertices, org.openide.util.NbBundle.getMessage(SimulationLogTopComponent.class, "SimulationLogTopComponent.dropVertices.text")); // NOI18N
-
-        org.openide.awt.Mnemonics.setLocalizedText(dropSeverity, org.openide.util.NbBundle.getMessage(SimulationLogTopComponent.class, "SimulationLogTopComponent.dropSeverity.text")); // NOI18N
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(dropVertices, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dropSeverity, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(dropVertices, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(dropSeverity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-
-        jScrollPane1.setViewportView(jXTreeTable1);
+        org.openide.awt.Mnemonics.setLocalizedText(dropCategory, org.openide.util.NbBundle.getMessage(SimulationLogTopComponent.class, "SimulationLogTopComponent.dropCategory.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 674, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(51, Short.MAX_VALUE))
+                .addGap(22, 22, 22)
+                .addComponent(dropCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(41, 41, 41)
+                .addComponent(closeableTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 739, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 14, Short.MAX_VALUE)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                .addGap(23, 23, 23)
+                .addComponent(dropCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(200, Short.MAX_VALUE))
+            .addComponent(closeableTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton dropSeverity;
-    private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton dropVertices;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private org.jdesktop.swingx.JXTreeTable jXTreeTable1;
+    private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.closeabletabbedpane.CloseableTabbedPane closeableTabbedPane1;
+    private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton dropCategory;
     // End of variables declaration//GEN-END:variables
 
     @Override
@@ -179,7 +260,6 @@ public final class SimulationLogTopComponent extends TopComponent implements Ver
         if (topology == null) {
             throw new IllegalStateException("topology is NULL; setTopology() method must be called");
         }
-        topology.addVertexCreatedListener(this);
         topology.getTopolElementTopComponent().getSimulationFacade().addSimulationLogListener(this);
     }
 
@@ -188,7 +268,6 @@ public final class SimulationLogTopComponent extends TopComponent implements Ver
         if (topology == null) {
             throw new IllegalStateException("topology is NULL; setTopology() method must be called");
         }
-        topology.removeVertexCreatedListener(this);
         topology.getTopolElementTopComponent().getSimulationFacade().removeSimulationLogListener(this);
     }
 
@@ -203,17 +282,63 @@ public final class SimulationLogTopComponent extends TopComponent implements Ver
     }
 
     @Override
-    public void vertexCreatedOccurred(VertexCreatedEvent evt) {
-        dropVertices.addCheckBoxMenuItem(evt.getNewVertex().getName(), true);
-    }
-
-    @Override
     public void simulationLogOccurred(SimulationLogEvent sle) {
-        addToTreeTable(sle.getSimulationLog());
+        addLog(sle.getSimulationLog());
     }
 
     @Override
     public void dropDownHiddenOccurred(DropDownHiddenEvent evt) {
-        updateTreeTable();
+        updateLogs(evt.getSelectedCheckBoxes());
+    }
+
+    @Override
+    public boolean closeTab(int index) {
+        panelClosed(closeableTabbedPane1.getTitleAt(index));
+        return true;
+    }
+
+    /**
+     * highlight particular row according to the cell's value
+     */
+    class RowHighlighterTableCellRender extends DefaultTableCellRenderer {
+
+        private final Color HIGHLIGHT_COLOR_WARNING = Color.YELLOW;
+        private final Color HIGHLIGHT_COLOR_ERROR = Color.RED;
+        private final Color HIGHLIGHT_COLOR_INFO = Color.WHITE;
+
+        public RowHighlighterTableCellRender(int alignment) {
+            setHorizontalAlignment(alignment);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            int categoryColumn = table.convertColumnIndexToView(0);
+            String category = (String) table.getValueAt(row, categoryColumn);
+            Color foreground = Color.WHITE;
+
+            if (category.equals(LogCategory.ERROR.toString())) {
+                foreground = HIGHLIGHT_COLOR_ERROR;
+            }
+
+            if (category.equals(LogCategory.INFO.toString())) {
+                foreground = HIGHLIGHT_COLOR_INFO;
+            }
+            if (category.equals(LogCategory.WARNING.toString())) {
+                foreground = HIGHLIGHT_COLOR_WARNING;
+            }
+
+            if (!isSelected) {
+                comp.setBackground(foreground);
+                comp.setForeground(Color.BLACK);
+            } else {
+                comp.setBackground(Color.WHITE);
+                comp.setForeground(Color.BLACK);
+            }
+
+            return comp;
+        }
     }
 }
