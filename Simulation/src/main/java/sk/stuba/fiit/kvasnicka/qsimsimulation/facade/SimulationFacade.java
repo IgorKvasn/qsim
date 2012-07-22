@@ -41,6 +41,7 @@ public class SimulationFacade {
     private SimulationTimer timer;
     private SimulationManager simulationManager = new SimulationManager();
     private PingManager pingManager = new PingManager();
+    private boolean pausedsimulation = false;
 
     /**
      * initialises simulation timer
@@ -86,6 +87,7 @@ public class SimulationFacade {
         }
         timer.setTimerDelay(initialSpeedUp);
         startTimer();
+        pausedsimulation = false;
     }
 
     /**
@@ -96,6 +98,8 @@ public class SimulationFacade {
         if (timer == null) throw new IllegalStateException("Stopping timer: timer has not been started");
         timer.stopTimer();
         timer.clearSimulationData();
+        pausedsimulation = false;
+        timer = null;
     }
 
     /**
@@ -107,6 +111,7 @@ public class SimulationFacade {
     public void pauseTimer() {
         if (timer == null) throw new IllegalStateException("Puse timer: timer has not been started");
         timer.pauseTimer();
+        pausedsimulation = true;
     }
 
     /**
@@ -118,6 +123,7 @@ public class SimulationFacade {
     public void resumeTimer() {
         if (timer == null) throw new IllegalStateException("Resume timer: timer has not been started");
         timer.resumeTimer();
+        pausedsimulation = false;
     }
 
     /**
@@ -200,6 +206,18 @@ public class SimulationFacade {
     public boolean isTimerRunning() {
         if (timer == null) return false;
         return timer.isRunning();
+    }
+
+    /**
+     * detects if simulation timer is currently paused - that means, it has been started and consequently paused
+     * if timer has not been started at all, returns false
+     *
+     * @return
+     */
+    public boolean isTimerPaused() {
+        if (timer == null) return false;
+        if (timer.isRunning()) return false;
+        return pausedsimulation;
     }
 
     /**
