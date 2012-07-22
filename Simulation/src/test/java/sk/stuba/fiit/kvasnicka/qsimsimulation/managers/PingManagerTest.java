@@ -25,12 +25,13 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
+import static sk.stuba.fiit.kvasnicka.TestUtils.setWithoutSetter;
 
 /**
  * @author Igor Kvasnicka
@@ -82,31 +83,4 @@ public class PingManagerTest {
     }
 
 
-    private Object getPropertyWithoutGetter(Class klass, Object bean, String field) {
-        Field f = null;
-        try {
-            f = klass.getDeclaredField(field);
-            f.setAccessible(true);
-            return f.get(bean);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private void setWithoutSetter(Class c, Object o, String field, Object value) {
-
-        Field f = null;
-        try {
-            f = c.getDeclaredField(field);
-            f.setAccessible(true);
-            f.set(o, value);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-    }
 }

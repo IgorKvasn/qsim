@@ -34,18 +34,21 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredListe
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
+import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
+import static sk.stuba.fiit.kvasnicka.TestUtils.setWithoutSetter;
 
 /**
  * testing PacketDeliveryListener and PingPacketDeliveryListener
@@ -85,6 +88,11 @@ public class PacketDeliveryListenerTest {
         node2 = new Router("node2", qosMechanism, swQueues2, 10, 10, 10, 10, 100, 0, 0);
         node3 = new Router("node3", qosMechanism, swQueues2, 10, 10, 10, 10, 100, 0, 0);
 
+        SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
+
+        initNetworkNode(node1, simulationLogUtils);
+        initNetworkNode(node2, simulationLogUtils);
+        initNetworkNode(node3, simulationLogUtils);
 
         edge1 = new Edge(100, node1, node2);
         edge1.setMtu(100);
@@ -106,7 +114,7 @@ public class PacketDeliveryListenerTest {
         deliveredPackets = 0;
         deliveredPingPackets = 0;
 
-        SimulationRuleBean rule = new SimulationRuleBean("",node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
         rule.setRoute(Arrays.asList(node1, node2));
 
         SimulationFacade simulationFacade = new SimulationFacade();
@@ -119,7 +127,7 @@ public class PacketDeliveryListenerTest {
         rule.addPingPacketDeliveredListener(testListenerClass);
         rule.addPacketDeliveredListener(testListenerClass);
 
-        SimulationTimer timer = (SimulationTimer) getPropertyWithoutGetter(SimulationFacade.class,simulationFacade,"timer");
+        SimulationTimer timer = (SimulationTimer) getPropertyWithoutGetter(SimulationFacade.class, simulationFacade, "timer");
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);
@@ -142,10 +150,10 @@ public class PacketDeliveryListenerTest {
         deliveredPackets = 0;
         deliveredPingPackets = 0;
 
-        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
+        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("",node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
         rule.setRoute(Arrays.asList(node1, node2));
 
         TestListenerClass testListenerClass = new TestListenerClass();
@@ -154,6 +162,7 @@ public class PacketDeliveryListenerTest {
         rule.addPacketDeliveredListener(testListenerClass);
 
         simulationManager.addSimulationRule(rule);
+
 
         setWithoutSetter(SimulationTimer.class, timer, "simulationManager", simulationManager);
         timer.startSimulationTimer(simulationManager, new PingManager());
@@ -171,20 +180,6 @@ public class PacketDeliveryListenerTest {
     }
 
 
-    private void setWithoutSetter(Class c, Object o, String field, Object value) {
-
-        Field f = null;
-        try {
-            f = c.getDeclaredField(field);
-            f.setAccessible(true);
-            f.set(o, value);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-    }
-
     private class TestListenerClass implements PingPacketDeliveredListener, PacketDeliveredListener {
 
         @Override
@@ -196,19 +191,5 @@ public class PacketDeliveryListenerTest {
         public void packetDeliveredOccurred(PingPacketDeliveredEvent evt) {
             deliveredPingPackets++;
         }
-    }
-
-    private Object getPropertyWithoutGetter(Class klass, Object bean, String field) {
-        Field f = null;
-        try {
-            f = klass.getDeclaredField(field);
-            f.setAccessible(true);
-            return f.get(bean);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }

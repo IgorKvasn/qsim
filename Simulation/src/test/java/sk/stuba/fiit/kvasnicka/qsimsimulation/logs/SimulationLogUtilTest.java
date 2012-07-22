@@ -31,6 +31,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
@@ -40,7 +41,10 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
+import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
 
 /**
  * @author Igor Kvasnicka
@@ -52,12 +56,14 @@ public class SimulationLogUtilTest {
     private SimulationManager simulationManager;
     private boolean logged;
     private ListenerClass listener;
+    private SimulationLogUtils simulationLogUtils;
 
     @Before
     public void before() {
 
         logged = false;
         listener = new ListenerClass();
+        simulationLogUtils = new SimulationLogUtils();
 
         SwQueues.QueueDefinition[] q = new SwQueues.QueueDefinition[1];
         q[0] = new SwQueues.QueueDefinition(50, "queue 1");
@@ -81,6 +87,9 @@ public class SimulationLogUtilTest {
         node1 = new Router("node1", qosMechanism, swQueues, 10, 10, 10, 10, 100, 0, 0);
         node2 = new Router("node2", qosMechanism, swQueues2, 10, 10, 10, 10, 100, 0, 0);
 
+        initNetworkNode(node1, simulationLogUtils);
+        initNetworkNode(node2, simulationLogUtils);
+
 
         edge1 = new Edge(100, node1, node2);
         edge1.setMtu(100);
@@ -90,7 +99,7 @@ public class SimulationLogUtilTest {
 
     @After
     public void after() {
-        SimulationLogUtil.getInstance().removeSimulationLogListener(listener);
+        simulationLogUtils.removeSimulationLogListener(listener);
     }
 
     /**
@@ -102,12 +111,12 @@ public class SimulationLogUtilTest {
     public void testSimulationLogListener() {
         //create and register listener
 
-        SimulationLogUtil.getInstance().addSimulationLogListener(listener);
+        simulationLogUtils.addSimulationLogListener(listener);
 
         //run simulation
-        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
+        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), simulationLogUtils);
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("",node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
         rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
@@ -119,6 +128,48 @@ public class SimulationLogUtilTest {
         timer.actionPerformed(null);
 
         assertTrue(logged);
+    }
+
+    /**
+     * each simulation facade should have got separate SimulationLogUtils object (class instance)
+     * also network nodes associated with each simulation facade should have got reference to its simulation facade
+     */
+    @Test
+    public void testMultipleSimulationLogs() {
+        NetworkNode node11 = new Router("node11", qosMechanism, null, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node12 = new Router("node12", qosMechanism, null, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node21 = new Router("node21", qosMechanism, null, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node22 = new Router("node22", qosMechanism, null, 10, 10, 10, 10, 100, 0, 0);
+
+
+        Edge edge1 = new Edge(100, node11, node12);
+        edge1.setMtu(100);
+        edge1.setPacketErrorRate(0.0);
+        edge1.setLength(2);
+
+        Edge edge2 = new Edge(100, node21, node22);
+        edge2.setMtu(100);
+        edge2.setPacketErrorRate(0.0);
+        edge2.setLength(2);
+
+        SimulationFacade facade1 = new SimulationFacade();
+        facade1.initTimer(Arrays.asList(edge1), Arrays.asList(node11, node12));
+
+        SimulationFacade facade2 = new SimulationFacade();
+        facade2.initTimer(Arrays.asList(edge2), Arrays.asList(node21, node22));
+
+        SimulationLogUtils simulationLogUtils1 = (SimulationLogUtils) getPropertyWithoutGetter(SimulationFacade.class, facade1, "simulationLogUtils");
+        SimulationLogUtils simulationLogUtils2 = (SimulationLogUtils) getPropertyWithoutGetter(SimulationFacade.class, facade2, "simulationLogUtils");
+
+        //assert simulationLogUtils objects - they should be different for each facade
+        assertFalse(simulationLogUtils1 == simulationLogUtils2); //that should be different objects
+
+        //network nodes should have reference to appropriate simulationLogUtils
+        assertTrue(getPropertyWithoutGetter(NetworkNode.class, node11, "simulLog") == simulationLogUtils1);
+        assertTrue(getPropertyWithoutGetter(NetworkNode.class, node12, "simulLog") == simulationLogUtils1);
+
+        assertTrue(getPropertyWithoutGetter(NetworkNode.class, node21, "simulLog") == simulationLogUtils2);
+        assertTrue(getPropertyWithoutGetter(NetworkNode.class, node22, "simulLog") == simulationLogUtils2);
     }
 
     private class ListenerClass implements SimulationLogListener {

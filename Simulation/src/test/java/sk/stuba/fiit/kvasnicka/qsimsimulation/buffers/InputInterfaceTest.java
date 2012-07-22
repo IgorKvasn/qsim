@@ -31,13 +31,13 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.PacketCrcErrorException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.QueueingHelper;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,6 +46,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
+import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
 
 /**
  * @author Igor Kvasnicka
@@ -91,6 +93,9 @@ public class InputInterfaceTest {
 
         node1 = new Router("node1", qosMechanism, swQueues, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0);
         node2 = new Router("node2", qosMechanism, swQueues2, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0);
+        SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
+        initNetworkNode(node1, simulationLogUtils);
+        initNetworkNode(node2, simulationLogUtils);
 
 
         edge = new Edge(100, node1, node2);
@@ -313,20 +318,5 @@ public class InputInterfaceTest {
 
         //assert - there should be 2 fragments in RX buffer
         assertEquals(MAX_RX_SIZE, inputInterface.getNumberOfFragments());
-    }
-
-
-    private Object getPropertyWithoutGetter(Class klass, Object bean, String field) {
-        Field f = null;
-        try {
-            f = klass.getDeclaredField(field);
-            f.setAccessible(true);
-            return f.get(bean);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }

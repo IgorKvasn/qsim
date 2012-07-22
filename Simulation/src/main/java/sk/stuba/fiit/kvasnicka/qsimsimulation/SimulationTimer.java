@@ -27,7 +27,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogCategory;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogSource;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLog;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtil;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
@@ -65,9 +65,11 @@ public class SimulationTimer implements ActionListener {
     private static final int MIN_TIMER_DELAY = 10; //[msec]
     private static final int MAX_TIMER_DELAY = 1000;//[msec]
     private javax.swing.event.EventListenerList listenerList = new javax.swing.event.EventListenerList();
+    private SimulationLogUtils simulationLogUtils;
 
 
-    public SimulationTimer(List<Edge> edgeList, List<NetworkNode> nodeList) {
+    public SimulationTimer(List<Edge> edgeList, List<NetworkNode> nodeList, SimulationLogUtils simulationLogUtils) {
+        this.simulationLogUtils = simulationLogUtils;
         topologyManager = new TopologyManager(edgeList, nodeList);
     }
 
@@ -102,7 +104,7 @@ public class SimulationTimer implements ActionListener {
         if (logg.isDebugEnabled()) {
             logg.debug("starting simulation timer");
         }
-        SimulationLogUtil.getInstance().log(new SimulationLog(LogCategory.INFO, "Starting simulation timer", SimulationLogUtil.SOURCE_GENERAL, LogSource.UNKNOWN, 0));
+        simulationLogUtils.log(new SimulationLog(LogCategory.INFO, "Starting simulation timer", SimulationLogUtils.SOURCE_GENERAL, LogSource.UNKNOWN, 0));
         timer.start();
     }
 
@@ -118,7 +120,7 @@ public class SimulationTimer implements ActionListener {
             logg.debug("stopping simulation timer");
         }
 
-        SimulationLogUtil.getInstance().log(new SimulationLog(LogCategory.INFO, "Stopping simulation timer", SimulationLogUtil.SOURCE_GENERAL, LogSource.UNKNOWN, simulationTime));
+        simulationLogUtils.log(new SimulationLog(LogCategory.INFO, "Stopping simulation timer", SimulationLogUtils.SOURCE_GENERAL, LogSource.UNKNOWN, simulationTime));
 
         timer.stop();
         for (SimulationRuleBean rule : simulationManager.getRulesUnmodifiable()) {
@@ -135,7 +137,7 @@ public class SimulationTimer implements ActionListener {
             logg.debug("pause simulation timer");
         }
 
-        SimulationLogUtil.getInstance().log(new SimulationLog(LogCategory.INFO, "Pausing simulation timer", SimulationLogUtil.SOURCE_GENERAL, LogSource.UNKNOWN, simulationTime));
+        simulationLogUtils.log(new SimulationLog(LogCategory.INFO, "Pausing simulation timer", SimulationLogUtils.SOURCE_GENERAL, LogSource.UNKNOWN, simulationTime));
 
 
         timer.stop();
@@ -147,7 +149,7 @@ public class SimulationTimer implements ActionListener {
             logg.debug("resuming simulation timer");
         }
 
-        SimulationLogUtil.getInstance().log(new SimulationLog(LogCategory.INFO, "Resuming simulation timer", SimulationLogUtil.SOURCE_GENERAL, LogSource.UNKNOWN, simulationTime));
+        simulationLogUtils.log(new SimulationLog(LogCategory.INFO, "Resuming simulation timer", SimulationLogUtils.SOURCE_GENERAL, LogSource.UNKNOWN, simulationTime));
 
         timer.start();
     }
@@ -207,7 +209,7 @@ public class SimulationTimer implements ActionListener {
                 if (logg.isDebugEnabled()) {
                     logg.debug("there is nothing left to simulate");
                 }
-                SimulationLogUtil.getInstance().log(new SimulationLog(LogCategory.INFO, "Nothing to simulate - simulation stopped", SimulationLogUtil.SOURCE_GENERAL, LogSource.UNKNOWN, simulationTime));
+                simulationLogUtils.log(new SimulationLog(LogCategory.INFO, "Nothing to simulate - simulation stopped", SimulationLogUtils.SOURCE_GENERAL, LogSource.UNKNOWN, simulationTime));
 
                 timer.stop();
             }
@@ -215,7 +217,7 @@ public class SimulationTimer implements ActionListener {
         } catch (Exception e) {
             //just to make it fail-safe catch all possible problems
             logg.error("Error during timer execution", e);
-            SimulationLogUtil.getInstance().log(new SimulationLog(LogCategory.ERROR, "Unknown error: " + e.getLocalizedMessage(), SimulationLogUtil.SOURCE_GENERAL, LogSource.UNKNOWN, - 1));
+            simulationLogUtils.log(new SimulationLog(LogCategory.ERROR, "Unknown error: " + e.getLocalizedMessage(), SimulationLogUtils.SOURCE_GENERAL, LogSource.UNKNOWN, - 1));
         }
     }
 

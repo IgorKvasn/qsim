@@ -25,10 +25,6 @@ import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogCategory;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogSource;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLog;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtil;
 
 /**
  * here all delays are calculated
@@ -70,7 +66,6 @@ public abstract class DelayHelper {
             return function.value(interpolationX);
         } catch (MathException e) {
             logg.error(e);
-            SimulationLogUtil.getInstance().log(new SimulationLog(LogCategory.ERROR, "Unable to calculate processing delay: " + e.getMessage(), networkNode.getName(), LogSource.UNKNOWN, - 1));
             return MIN_PROCESSING_DELAY;
         }
     }

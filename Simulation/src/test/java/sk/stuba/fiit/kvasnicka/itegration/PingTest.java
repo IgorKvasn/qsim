@@ -19,7 +19,6 @@ package sk.stuba.fiit.kvasnicka.itegration;
 
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
@@ -32,12 +31,10 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtil;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,6 +42,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
 
 /**
  * @author Igor Kvasnicka
@@ -99,10 +97,6 @@ public class PingTest {
         edge2.setLength(3);
     }
 
-    @After
-    public void after() {
-        SimulationLogUtil.getInstance().removeSimulationLogListener(listener);
-    }
 
     /**
      * simulate one packet
@@ -110,7 +104,7 @@ public class PingTest {
     @Test
     public void testSinglePacketSimulation() throws NoSuchFieldException, IllegalAccessException {
 
-        SimulationRuleBean rule = new SimulationRuleBean("",node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
         rule.setRoute(Arrays.asList(node1, node2));
 
         SimulationFacade simulationFacade = new SimulationFacade();
@@ -138,7 +132,7 @@ public class PingTest {
     @Test
     public void testSinglePacket_3Nodes() throws NoSuchFieldException, IllegalAccessException {
 
-        SimulationRuleBean rule = new SimulationRuleBean("",node1, node3, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node3, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
         rule.setRoute(Arrays.asList(node1, node2, node3));
 
         SimulationFacade simulationFacade = new SimulationFacade();
@@ -169,7 +163,7 @@ public class PingTest {
      */
     @Test
     public void testSinglePacketSimulation_infinitePing() throws NoSuchFieldException, IllegalAccessException {
-        SimulationRuleBean rule = new SimulationRuleBean("",node1, node2, - 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);    //notice this -1
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, - 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);    //notice this -1
         rule.setRoute(Arrays.asList(node1, node2));
 
         SimulationFacade simulationFacade = new SimulationFacade();
@@ -186,20 +180,6 @@ public class PingTest {
 
 
         assertTrue(timer.isRunning());    //timer has not yet finished
-    }
-
-    private Object getPropertyWithoutGetter(Class klass, Object bean, String field) {
-        Field f = null;
-        try {
-            f = klass.getDeclaredField(field);
-            f.setAccessible(true);
-            return f.get(bean);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     private class ListenerClass implements SimulationLogListener {

@@ -23,7 +23,8 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.pingrule.PingRuleListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.simulationrule.SimulationRuleListener;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtil;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.ReflectionHelper;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
@@ -42,6 +43,7 @@ public class SimulationFacade {
     private SimulationManager simulationManager = new SimulationManager();
     private PingManager pingManager = new PingManager();
     private boolean pausedsimulation = false;
+    private SimulationLogUtils simulationLogUtils;
 
     /**
      * initialises simulation timer
@@ -53,8 +55,11 @@ public class SimulationFacade {
         if (timer != null && timer.isRunning()) {
             throw new IllegalStateException("Starting timer: simulation timer is already running.");
         }
-        timer = new SimulationTimer(edgeList, nodeList);
+        simulationLogUtils = new SimulationLogUtils(); //injector.getInstance(SimulationLogUtils.class);
+        ReflectionHelper.initSimulLog(nodeList, simulationLogUtils);
+        timer = new SimulationTimer(edgeList, nodeList, simulationLogUtils);
     }
+
 
     /**
      * creates and starts new simulation timer
@@ -277,14 +282,20 @@ public class SimulationFacade {
      * register for simulation logs, e.g. packet delivery, topology errors/informations, etc.
      */
     public void addSimulationLogListener(SimulationLogListener l) {
-        SimulationLogUtil.getInstance().addSimulationLogListener(l);
+        if (simulationLogUtils == null) {
+            throw new IllegalStateException("simulationLogUtils is NULL; call initTimer() method before");
+        }
+        simulationLogUtils.addSimulationLogListener(l);
     }
 
     /**
      * removes listener for simulation logs, e.g. packet delivery, topology errors/informations, etc.
      */
     public void removeSimulationLogListener(SimulationLogListener l) {
-        SimulationLogUtil.getInstance().removeSimulationLogListener(l);
+        if (simulationLogUtils == null) {
+            throw new IllegalStateException("simulationLogUtils is NULL; call initTimer() method before");
+        }
+        simulationLogUtils.removeSimulationLogListener(l);
     }
 }
 
