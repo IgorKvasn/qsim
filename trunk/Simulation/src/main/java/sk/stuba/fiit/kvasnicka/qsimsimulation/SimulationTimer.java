@@ -215,7 +215,7 @@ public class SimulationTimer implements ActionListener {
         } catch (Exception e) {
             //just to make it fail-safe catch all possible problems
             logg.error("Error during timer execution", e);
-            SimulationLogUtil.getInstance().log(new SimulationLog(LogCategory.ERROR, "Unknown error: " + e.getLocalizedMessage(), SimulationLogUtil.SOURCE_UNKNOWN, LogSource.UNKNOWN, - 1));
+            SimulationLogUtil.getInstance().log(new SimulationLog(LogCategory.ERROR, "Unknown error: " + e.getLocalizedMessage(), SimulationLogUtil.SOURCE_GENERAL, LogSource.UNKNOWN, - 1));
         }
     }
 

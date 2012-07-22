@@ -79,6 +79,8 @@ public class SimulationRuleBean {
     private boolean ping;
     @Getter
     private List<NetworkNode> route;
+    @Getter
+    private String name;
     /**
      * list of all who wants to be notified, when packet is delivered
      * especially useful when waiting for a ping to be delivered
@@ -100,7 +102,8 @@ public class SimulationRuleBean {
      * @param packetTypeEnum
      * @see #setRoute(java.util.List)
      */
-    public SimulationRuleBean(NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, double activeDelay, PacketTypeEnum packetTypeEnum, Layer4TypeEnum layer4Type, boolean ping) {
+    public SimulationRuleBean(String name, NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, double activeDelay, PacketTypeEnum packetTypeEnum, Layer4TypeEnum layer4Type, boolean ping) {
+        this.name = name;
         this.activationTime = activeDelay;
         this.packetTypeEnum = packetTypeEnum;
         this.layer4Type = layer4Type;
@@ -160,6 +163,8 @@ public class SimulationRuleBean {
             throw new IllegalArgumentException("route must consist of at least 2 network nodes: source and destination; this route is long: " + route.size());
         }
         this.route = route;
+
+        routes.clear();
 
         //routes from node1 to node2....
         for (int i = 0; i < route.size() - 1; i++) {

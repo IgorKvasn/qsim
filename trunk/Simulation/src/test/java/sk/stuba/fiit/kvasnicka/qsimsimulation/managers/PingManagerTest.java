@@ -50,7 +50,7 @@ public class PingManagerTest {
 
     @Test
     public void testPingAdd() {
-        SimulationRuleBean rule = new SimulationRuleBean(node1, node2, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
+        SimulationRuleBean rule = new SimulationRuleBean("",node1, node2, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
         setWithoutSetter(SimulationRuleBean.class, rule, "route", Arrays.asList(node1, node2));
         pingManager.addPing(rule, 1);
 
