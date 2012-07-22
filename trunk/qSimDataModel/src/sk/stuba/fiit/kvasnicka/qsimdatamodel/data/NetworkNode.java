@@ -32,8 +32,9 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.QueueingHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogCategory;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogSource;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimLog;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLog;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtil;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
@@ -68,7 +69,8 @@ import java.util.Map;
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class NetworkNode implements Serializable {
     private static Logger logg = Logger.getLogger(NetworkNode.class);
-
+    @SimLog
+    private SimulationLogUtils simulLog;
 
     @Getter
     @Setter
@@ -227,7 +229,7 @@ public abstract class NetworkNode implements Serializable {
                 if (logg.isDebugEnabled()) {
                     logg.debug("no space left in output queue -> packet dropped");
                 }
-                SimulationLogUtil.getInstance().log(new SimulationLog(LogCategory.INFO, "No space left in output queue -> packet dropped", getName(), LogSource.VERTEX, packet.getSimulationTime()));
+                simulLog.log(new SimulationLog(LogCategory.INFO, "No space left in output queue -> packet dropped", getName(), LogSource.VERTEX, packet.getSimulationTime()));
                 if (packet.getLayer4().isRetransmissionEnabled()) {
                     retransmittPacket(packet);
                 }
@@ -277,10 +279,10 @@ public abstract class NetworkNode implements Serializable {
             logg.debug("packet has been delivered to destination " + packet.getDestination() + " - it took " + (packet.getSimulationTime() - packet.getCreationTime()) + " msec");
         }
         if (packet.getSimulationRule().isPing()) {
-            SimulationLogUtil.getInstance().log(new SimulationLog(LogCategory.INFO, "Ping packet delivered in: " + (packet.getSimulationTime() - packet.getCreationTime()) + " msec", packet.getSimulationRule().getSource().getName(), LogSource.VERTEX, packet.getSimulationTime()));
+            simulLog.log(new SimulationLog(LogCategory.INFO, "Ping packet delivered in: " + (packet.getSimulationTime() - packet.getCreationTime()) + " msec", packet.getSimulationRule().getSource().getName(), LogSource.VERTEX, packet.getSimulationTime()));
             packet.getSimulationRule().firePingPacketDeliveredEvent(new PingPacketDeliveredEvent(this, packet));
         } else {
-            SimulationLogUtil.getInstance().log(new SimulationLog(LogCategory.INFO, "Packet has been delivered", packet.getSimulationRule().getSource().getName(), LogSource.VERTEX, packet.getSimulationTime()));
+            simulLog.log(new SimulationLog(LogCategory.INFO, "Packet has been delivered", packet.getSimulationRule().getSource().getName(), LogSource.VERTEX, packet.getSimulationTime()));
             packet.getSimulationRule().firePacketDeliveredEvent(new PacketDeliveredEvent(this, packet));
         }
     }
@@ -427,7 +429,7 @@ public abstract class NetworkNode implements Serializable {
                 logg.debug("no space left in TX buffer -> packet dropped");
             }
 
-            SimulationLogUtil.getInstance().log(new SimulationLog(LogCategory.INFO, "No space left in TX buffer -> packet dropped", getName(), LogSource.VERTEX, fragment.getReceivedTime()));
+            simulLog.log(new SimulationLog(LogCategory.INFO, "No space left in TX buffer -> packet dropped", getName(), LogSource.VERTEX, fragment.getReceivedTime()));
             rxInterfaces.get(fragment.getFrom()).removeFragments(fragment.getFragmentID());
             if (fragment.getOriginalPacket().getLayer4().isRetransmissionEnabled()) {
                 retransmittPacket(fragment.getOriginalPacket());
@@ -438,7 +440,7 @@ public abstract class NetworkNode implements Serializable {
                 logg.debug("packet has wrong CRC");
             }
 
-            SimulationLogUtil.getInstance().log(new SimulationLog(LogCategory.INFO, "Wrong packet CRC.", getName(), LogSource.VERTEX, fragment.getReceivedTime()));
+            simulLog.log(new SimulationLog(LogCategory.INFO, "Wrong packet CRC.", getName(), LogSource.VERTEX, fragment.getReceivedTime()));
 
             if (e.getPacket().getLayer4().isRetransmissionEnabled()) {
                 retransmittPacket(e.getPacket());

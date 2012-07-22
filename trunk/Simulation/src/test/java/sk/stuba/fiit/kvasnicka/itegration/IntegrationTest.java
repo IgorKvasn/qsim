@@ -33,6 +33,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
@@ -47,6 +48,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
 
 /**
  * @author Igor Kvasnicka
@@ -86,6 +88,11 @@ public class IntegrationTest {
         node2 = new Router("node2", qosMechanism, swQueues2, 10, 10, 10, 10, 100, 0, 0);
         node3 = new Router("node3", qosMechanism, swQueues2, 10, 10, 10, 10, 100, 0, 0);
 
+        SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
+        initNetworkNode(node1, simulationLogUtils);
+        initNetworkNode(node2, simulationLogUtils);
+        initNetworkNode(node3, simulationLogUtils);
+
 
         edge1 = new Edge(100, node1, node2);
         edge1.setMtu(100);
@@ -113,7 +120,7 @@ public class IntegrationTest {
     @Test
     public void testNosimulationRules() {
 
-        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
+        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
 
         simulationManager = new SimulationManager();
 
@@ -129,7 +136,7 @@ public class IntegrationTest {
      */
     @Test
     public void testSinglePacketSimulation() throws NoSuchFieldException, IllegalAccessException {
-        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
+        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
 
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
@@ -156,7 +163,7 @@ public class IntegrationTest {
      */
     @Test
     public void testMultiplePacketsSimulation() throws NoSuchFieldException, IllegalAccessException {
-        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
+        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
 
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 2, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
@@ -193,7 +200,7 @@ public class IntegrationTest {
 
         PowerMock.replay(DelayHelper.class);
 
-        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
+        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
 
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 2, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
@@ -224,7 +231,7 @@ public class IntegrationTest {
      */
     @Test
     public void testSimulationRuleActivationDelay() throws NoSuchFieldException, IllegalAccessException {
-        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
+        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
 
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 2, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
@@ -268,7 +275,7 @@ public class IntegrationTest {
      */
     @Test
     public void testStopAndClearTimer() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
-        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
+        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
 
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 2, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
@@ -293,7 +300,7 @@ public class IntegrationTest {
      */
     @Test
     public void test3Nodes() throws NoSuchFieldException, IllegalAccessException {
-        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1, edge2), Arrays.asList(node1, node2, node3));
+        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1, edge2), Arrays.asList(node1, node2, node3), new SimulationLogUtils());
 
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node3, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
@@ -323,7 +330,7 @@ public class IntegrationTest {
      */
     @Test
     public void testSimulRuleAdd() throws NoSuchFieldException, IllegalAccessException {
-        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
+        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
         simulationManager = new SimulationManager();
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);

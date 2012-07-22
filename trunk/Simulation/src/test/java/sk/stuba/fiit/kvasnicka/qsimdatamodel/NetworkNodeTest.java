@@ -39,11 +39,12 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
@@ -58,6 +59,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
+import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
+import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
+import static sk.stuba.fiit.kvasnicka.TestUtils.setWithoutSetter;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(DelayHelper.class)
@@ -105,6 +109,9 @@ public class NetworkNodeTest {
 
         node1 = new Router("node1", qosMechanism, swQueues, MAX_TX_SIZE, 10, 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
         node2 = new Router("node2", qosMechanism, swQueues2, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0);
+        SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
+        initNetworkNode(node1, simulationLogUtils);
+        initNetworkNode(node2, simulationLogUtils);
 
 
         edge = new Edge(100, node1, node2);
@@ -205,6 +212,9 @@ public class NetworkNodeTest {
         //redefine nodes, to make maxTxSize smaller number
         node1 = new Router("node1", qosMechanism, swQueues, 3, 10, 10, 10, 100, 0, 0);
         node2 = new Router("node2", qosMechanism, swQueues2, 0, 10, 10, 10, 100, 0, 0);
+        SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
+        initNetworkNode(node1, simulationLogUtils);
+        initNetworkNode(node2, simulationLogUtils);
 
         edge = new Edge(100, node1, node2);
         edge.setMtu(100);
@@ -376,6 +386,7 @@ public class NetworkNodeTest {
         p2.setQosQueue(qosMechanism.classifyAndMarkPacket(p2));
 
         //add packets directly to output queue - NOT to output buffer
+
         Method privateStringMethod = NetworkNode.class.getDeclaredMethod("addToOutputQueue", Packet.class);
         privateStringMethod.setAccessible(true);
         privateStringMethod.invoke(node1, p1);
@@ -633,10 +644,10 @@ public class NetworkNodeTest {
         EasyMock.expect(DelayHelper.calculatePacketCreationDelay(EasyMock.anyObject(NetworkNode.class), EasyMock.anyInt(), EasyMock.anyObject(PacketTypeEnum.class))).andReturn(SimulationTimer.TIME_QUANTUM / 2).times(2);
         PowerMock.replayAll();
 
-        SimulationRuleBean rule = new SimulationRuleBean("",node1, node2, 2, 50, 0, null, Layer4TypeEnum.UDP, false);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 2, 50, 0, null, Layer4TypeEnum.UDP, false);
         rule.setRoute(Arrays.asList(node1, node2));
 
-        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2));
+        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2), new SimulationLogUtils());
 
         SimulationManager simulationManager = new SimulationManager();
         simulationManager.addSimulationRule(rule);
@@ -662,35 +673,8 @@ public class NetworkNodeTest {
     }
 
 
-    private Object getPropertyWithoutGetter(Class klass, Object bean, String field) {
-        Field f = null;
-        try {
-            f = klass.getDeclaredField(field);
-            f.setAccessible(true);
-            return f.get(bean);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private void setWithoutSetter(Class c, Object o, String field, Object value) {
-        Field f = null;
-        try {
-            f = c.getDeclaredField(field);
-            f.setAccessible(true);
-            f.set(o, value);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("",node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {

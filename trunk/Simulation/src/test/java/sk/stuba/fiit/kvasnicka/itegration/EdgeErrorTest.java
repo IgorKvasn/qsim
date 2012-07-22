@@ -29,11 +29,12 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
@@ -44,6 +45,8 @@ import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
+import static sk.stuba.fiit.kvasnicka.TestUtils.setWithoutSetter;
 
 /**
  * @author Igor Kvasnicka
@@ -80,6 +83,11 @@ public class EdgeErrorTest {
         node1 = new Router("node1", qosMechanism, swQueues, 10, 10, 10, 10, 2.1, 0, 0);
         node2 = new Router("node2", qosMechanism, swQueues2, 10, 10, 10, 10, 2.1, 0, 0);
 
+        SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
+
+        initNetworkNode(node1, simulationLogUtils);
+        initNetworkNode(node2, simulationLogUtils);
+
 
 //        edge = new Edge(100, node1, node2, 100, 0.0);
 //        edge.setLength(2);
@@ -101,12 +109,12 @@ public class EdgeErrorTest {
      * simulate one TCP packet - this means that packet retransmission should occur
      */
     @Test
-    public void testSinglePacketSimulation_TCP() throws NoSuchFieldException, IllegalAccessException {
+    public void testSinglePacketSimulation_TCP() throws Exception {
 
-        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2));
+        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2), new SimulationLogUtils());
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("",node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP, false);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP, false);
         rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
@@ -131,19 +139,5 @@ public class EdgeErrorTest {
         privateStringField.setAccessible(true);
         PacketManager packetManager = (PacketManager) privateStringField.get(timer);
         assertTrue(packetManager.checkNoPacketsInSimulation());
-    }
-
-    private void setWithoutSetter(Class c, Object o, String field, Object value) {
-
-        Field f = null;
-        try {
-            f = c.getDeclaredField(field);
-            f.setAccessible(true);
-            f.set(o, value);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
     }
 }

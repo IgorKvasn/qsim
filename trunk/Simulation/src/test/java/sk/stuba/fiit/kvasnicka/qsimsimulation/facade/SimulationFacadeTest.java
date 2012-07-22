@@ -23,6 +23,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.util.Arrays;
@@ -30,6 +31,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
 
 /**
  * @author Igor Kvasnicka
@@ -46,6 +48,9 @@ public class SimulationFacadeTest {
 
         node1 = new Router("node1", null, null, 10, 10, 10, 10, 100, 0, 0);
         node2 = new Router("node2", null, null, 10, 10, 10, 10, 100, 0, 0);
+        SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
+        initNetworkNode(node1, simulationLogUtils);
+        initNetworkNode(node2, simulationLogUtils);
 
         SimulationRuleBean rule1 = new SimulationRuleBean("", node1, node2, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
         rule1.setRoute(Arrays.asList(node1, node2));
