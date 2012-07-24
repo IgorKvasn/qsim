@@ -40,6 +40,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.deletion.EdgeDeletionD
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.deletion.VertexDeletionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.SimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs.SimulationLogTopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.SimulationStateEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
@@ -114,6 +115,9 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
         vertexPopup.addSeparator();
         vertexPopup.addSeparator();
         JMenuItem menuItemDelete = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete"));
+        if (!topology.getTopolElementTopComponent().getSimulationState().equals(SimulationStateEnum.NOTHING)) {
+            menuItemDelete.setEnabled(false);
+        }
         vertexPopup.add(menuItemDelete);
         JMenuItem menuSimulLog = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "simul_log"));
         menuSimulLog.addActionListener(new ShowSimulationLogsMenuItem());
@@ -128,7 +132,9 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
         edgePopup.addSeparator();
         JMenuItem menuItemDelete = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete"));
         menuItemDelete.addActionListener(new EdgeDeleteMenuItem());
-
+        if (!topology.getTopolElementTopComponent().getSimulationState().equals(SimulationStateEnum.NOTHING)) {
+            menuItemDelete.setEnabled(false);
+        }
         edgePopup.add(menuItemDelete);
     }
 

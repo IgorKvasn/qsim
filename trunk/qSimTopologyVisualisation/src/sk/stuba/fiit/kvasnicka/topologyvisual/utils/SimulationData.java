@@ -16,7 +16,6 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.utils;
 
-import edu.uci.ics.jung.graph.AbstractGraph;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,13 +31,11 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
-import sk.stuba.fiit.kvasnicka.topologyvisual.facade.TopologyFacade;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.utils.SimulationRuleHelper;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
 import sk.stuba.fiit.kvasnicka.topologyvisual.route.RoutingHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 
@@ -254,6 +251,7 @@ public class SimulationData {
     public static class Data {
 
         private String id = null;
+        private String name;
         private TopologyVertex sourceVertex, destinationVertex;
         private List<TopologyVertex> fixedVertices;
         private Layer4TypeEnum layer4protocol;
@@ -265,7 +263,7 @@ public class SimulationData {
 
         private void setId() {
             if (id != null) {
-                throw new IllegalStateException("simulaiton data ID is already set");
+                throw new IllegalStateException("simulation data ID is already set");
             }
             id = UUID.randomUUID().toString();
         }

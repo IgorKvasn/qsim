@@ -34,7 +34,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogCategory;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLog;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtil;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.closeabletabbedpane.CloseableTabbedPaneListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.dropdownevent.DropDownHiddenEvent;
@@ -139,7 +139,7 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
         if (simulationLog == null) {
             throw new IllegalArgumentException("simulationLog is NULL");
         }
-        if (simulationLog.getSourceName().equals(SimulationLogUtil.SOURCE_GENERAL)) {//all panels should be notified
+        if (simulationLog.getSourceName().equals(SimulationLogUtils.SOURCE_GENERAL)) {//all panels should be notified
             for (Map.Entry<String, JXTable> entry : panels.entrySet()) {
                 JXTable table = entry.getValue();
                 ((DefaultTableModel) table.getModel()).addRow(new String[]{simulationLog.getCategory().toString(), simulationLog.getCause(), simulationLog.getFormattedSimulationTime()});

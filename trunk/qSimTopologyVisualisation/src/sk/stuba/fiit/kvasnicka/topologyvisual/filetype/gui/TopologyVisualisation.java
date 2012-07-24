@@ -61,10 +61,12 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectio
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.AddSimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.SimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs.SimulationLogTopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.SimulRuleReviewTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.VerticesSelectionPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
+import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalDataManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.SimulationStateEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.EdgeUtils;
@@ -99,8 +101,10 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     private VerticesSelectionPanel verticesSelectionPanel = null;//used as callback object when user is selecting vertex during simulation rules definition
     private SimulationFacade simulationFacade; //todo serialise - SimulationManager and PingManager
     @Getter
-    private transient SimulationData simulationData; //do NOT serialise
+    private transient SimulationData simulationData;
+    @Getter
     private transient SimulationStateEnum simulationState;
+    private transient StatisticalDataManager statManager;
 
     public TopologyVisualisation(TopologyFileTypeDataObject dataObject) {
         this.dataObject = dataObject;
@@ -118,7 +122,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
 
         initTopology();
         initPalette();
-        initToolbar();
+//        initToolbar();
     }
 
     public SimulationFacade getSimulationFacade() {
@@ -199,6 +203,14 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
             //everuthing that is no use for simulation
             closeAllSupportingWindows();
 
+            statManager = new StatisticalDataManager(simulationRules);
+            simulationFacade.addPingRuleListener(statManager);
+            simulationFacade.addSimulationRuleListener(statManager);
+            simulationFacade.addPingPacketDeliveredListener(statManager);
+
+            //opens all supporting windows for simulation
+            openSimulationWindows(statManager, simulationFacade.getSimulationRules());
+
             if (simulationFacade.isTimerPaused()) {
                 simulationFacade.resumeTimer();
             } else {
@@ -219,8 +231,30 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
      * stops (cancels) the simulation
      */
     public void stopSimulation() {
+        if (simulationState != SimulationStateEnum.PAUSED || simulationState != SimulationStateEnum.RUN) {
+            throw new IllegalStateException("simulation is not eligible for stop - only running or paused simulations can be stopped");
+        }
+
+        if (statManager == null) {
+            throw new IllegalStateException("statManager is NULL - it seems like simulation has not been started");
+        }
+
         //change simulation state
         setSimulationState(SimulationStateEnum.NOTHING);
+
+        simulationFacade.removePingRuleListener(statManager);
+        simulationFacade.removeSimulationRuleListener(statManager);
+        simulationFacade.removePingPacketDeliveredListener(statManager);
+
+        closeSimulationWindows();
+
+        //opens palette sho user can add new vertices/edges
+        TopologyPaletteTopComponent palette = (TopologyPaletteTopComponent) WindowManager.getDefault().findTopComponent("TopologyPaletteTopComponent");
+        if (palette == null) {
+            logg.error("Could not find component TopologyPaletteTopComponent");
+            return;
+        }
+        palette.open();
     }
 
     /**
@@ -299,7 +333,23 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
             return;
         }
         addSimulRule.close();
+    }
 
+    private void openSimulationWindows(StatisticalDataManager statManager, List<SimulationRuleBean> simulRules) {
+        SimulRuleReviewTopComponent simulRuleReview = (SimulRuleReviewTopComponent) WindowManager.getDefault().findTopComponent("SimulRuleReviewTopComponent");
+        simulRuleReview.setSimulationRules(statManager, simulRules, simulationFacade.getSimulationTime());
+        simulationFacade.addSimulationRuleActivatedListener(simulRuleReview);
+        simulationFacade.addPingRuleListener(simulRuleReview);
+        simulationFacade.addSimulationRuleListener(simulRuleReview);
+        simulRuleReview.open();
+    }
+
+    private void closeSimulationWindows() {
+        SimulRuleReviewTopComponent simulRuleReview = (SimulRuleReviewTopComponent) WindowManager.getDefault().findTopComponent("SimulRuleReviewTopComponent");
+        simulationFacade.removeSimulationRuleActivatedListener(simulRuleReview);
+        simulationFacade.removePingRuleListener(simulRuleReview);
+        simulationFacade.removeSimulationRuleListener(simulRuleReview);
+        simulRuleReview.close();
     }
 
     /**

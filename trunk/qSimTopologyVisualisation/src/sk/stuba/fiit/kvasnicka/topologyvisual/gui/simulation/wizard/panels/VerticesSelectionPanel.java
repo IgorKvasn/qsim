@@ -18,6 +18,7 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels;
 
 import java.util.List;
 import javax.swing.JComboBox;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.openide.util.NbBundle;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.SimulationRuleException;
@@ -131,6 +132,11 @@ public class VerticesSelectionPanel extends PanelInterface {
             throw new SimulationRuleException(NbBundle.getMessage(VerticesSelectionPanel.class, "vertex_empty_error"));
         }
 
+        if (StringUtils.isEmpty(jTextField1.getText())) {
+            throw new SimulationRuleException(NbBundle.getMessage(VerticesSelectionPanel.class, "name_empty"));
+        }
+
+
         TopologyVertex vDest = null;
         TopologyVertex vSource = null;
         try {
@@ -196,6 +202,8 @@ public class VerticesSelectionPanel extends PanelInterface {
         lblError = new javax.swing.JLabel();
         jToggleButton1 = new javax.swing.JToggleButton();
         jToggleButton2 = new javax.swing.JToggleButton();
+        jLabel4 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(VerticesSelectionPanel.class, "VerticesSelectionPanel.jLabel1.text")); // NOI18N
 
@@ -224,6 +232,8 @@ public class VerticesSelectionPanel extends PanelInterface {
             }
         });
 
+        jLabel4.setText(org.openide.util.NbBundle.getMessage(VerticesSelectionPanel.class, "VerticesSelectionPanel.jLabel4.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -231,6 +241,10 @@ public class VerticesSelectionPanel extends PanelInterface {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addGap(91, 91, 91)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel2)
@@ -247,12 +261,16 @@ public class VerticesSelectionPanel extends PanelInterface {
                                 .addComponent(lblError))
                             .addComponent(jToggleButton2)))
                     .addComponent(jLabel1))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(303, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -270,7 +288,7 @@ public class VerticesSelectionPanel extends PanelInterface {
                             .addComponent(jToggleButton1))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jToggleButton2)))
-                .addContainerGap(45, Short.MAX_VALUE))
+                .addGap(20, 20, 20))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -295,6 +313,8 @@ public class VerticesSelectionPanel extends PanelInterface {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JTextField jTextField1;
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JToggleButton jToggleButton2;
     private javax.swing.JLabel lblError;
