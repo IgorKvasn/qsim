@@ -23,7 +23,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
  */
 public final class StatisticalDataManager implements PingRuleListener, SimulationRuleListener, PingPacketDeliveredListener {
 
-    private Map<String, StatisticalData> dataMap;
+    private Map<String, StatisticalData> dataMap;//key=unique ID of simul rule; value = statistical data
 
     public StatisticalDataManager(List<SimulationRuleBean> rules) {
         dataMap = new HashMap<String, StatisticalData>(rules.size() * 4 / 3);
@@ -31,8 +31,8 @@ public final class StatisticalDataManager implements PingRuleListener, Simulatio
             addData(rule);
         }
     }
-    
-    public Collection<StatisticalData> getStatisticalData(){
+
+    public Collection<StatisticalData> getStatisticalData() {
         return dataMap.values();
     }
 
@@ -55,7 +55,7 @@ public final class StatisticalDataManager implements PingRuleListener, Simulatio
         return new StatisticalData(rule);
     }
 
-    private StatisticalData getStatisticalData(SimulationRuleBean rule) {
+    public StatisticalData getStatisticalData(SimulationRuleBean rule) {
         if (rule == null) {
             throw new IllegalArgumentException("rule is NULL");
         }
@@ -67,7 +67,7 @@ public final class StatisticalDataManager implements PingRuleListener, Simulatio
 
     private void packetDelivered(Packet packet) {
         StatisticalData statisticalData = getStatisticalData(packet.getSimulationRule());
-        statisticalData.addDelay(packet.getSimulationTime() - packet.getCreationTime());
+        statisticalData.addDelay(packet.getSimulationTime() - packet.getCreationTime(), packet.getSimulationTime());
     }
 
     @Override
