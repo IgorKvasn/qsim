@@ -71,6 +71,7 @@ public class SimulationTimer implements ActionListener {
     public SimulationTimer(List<Edge> edgeList, List<NetworkNode> nodeList, SimulationLogUtils simulationLogUtils) {
         this.simulationLogUtils = simulationLogUtils;
         topologyManager = new TopologyManager(edgeList, nodeList);
+        packetManager = new PacketManager(this);
     }
 
     /**
@@ -91,8 +92,6 @@ public class SimulationTimer implements ActionListener {
 
         this.simulationManager = simulationManager;
         this.pingManager = pingManager;
-
-        packetManager = new PacketManager(this);
 
         packetGenerator = new PacketGenerator(simulationManager.getRulesUnmodifiable(), this);
 
@@ -213,7 +212,7 @@ public class SimulationTimer implements ActionListener {
 
                 timer.stop();
             }
-            fireSimulationTimerEvent(new SimulationTimerEvent(this));
+            fireSimulationTimerEvent(new SimulationTimerEvent(this, simulationTime));
         } catch (Exception e) {
             //just to make it fail-safe catch all possible problems
             logg.error("Error during timer execution", e);

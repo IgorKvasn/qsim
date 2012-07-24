@@ -21,8 +21,11 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.pingrule.PingRuleListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.simulationrule.SimulationRuleListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.timer.SimulationTimerListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.ReflectionHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
@@ -44,6 +47,7 @@ public class SimulationFacade {
     private PingManager pingManager = new PingManager();
     private boolean pausedsimulation = false;
     private SimulationLogUtils simulationLogUtils;
+    private List<SimulationRuleActivationListener> listenerToBeAdded = new LinkedList<SimulationRuleActivationListener>();
 
     /**
      * initialises simulation timer
@@ -58,6 +62,12 @@ public class SimulationFacade {
         simulationLogUtils = new SimulationLogUtils(); //injector.getInstance(SimulationLogUtils.class);
         ReflectionHelper.initSimulLog(nodeList, simulationLogUtils);
         timer = new SimulationTimer(edgeList, nodeList, simulationLogUtils);
+
+
+        for (SimulationRuleActivationListener listener : listenerToBeAdded) {
+            timer.getPacketGenerator().addSimulationRuleActivationListener(listener);
+        }
+        listenerToBeAdded.clear();
     }
 
 
@@ -140,6 +150,25 @@ public class SimulationFacade {
     public void setTimerDelay(double speedUp) {
         if (timer == null) throw new IllegalStateException("Change timer delay: timer has not been started");
         timer.setTimerDelay(speedUp);
+    }
+
+    /**
+     * finds simulation rule by its unique ID
+     *
+     * @param id
+     * @return
+     */
+    public SimulationRuleBean findSimulationRuleById(String id) {
+        if (pingManager == null) throw new IllegalStateException("pingManager is NULL");
+        if (simulationManager == null) throw new IllegalStateException("simulationManager is NULL");
+
+        for (SimulationRuleBean rule : pingManager.getPingSimulationRules()) {
+            if (id.equals(rule.getUniqueID())) return rule;
+        }
+        for (SimulationRuleBean rule : simulationManager.getRulesUnmodifiable()) {
+            if (id.equals(rule.getUniqueID())) return rule;
+        }
+        throw new IllegalStateException("could not find simulation rule with ID " + id);
     }
 
     /**
@@ -251,6 +280,24 @@ public class SimulationFacade {
         return result;
     }
 
+    /**
+     * returns current simulation time
+     * to be notified when simulation time changes, register SimulationTimerListener - SimulationTimerEvent contains this information
+     *
+     * @return
+     */
+    public double getSimulationTime() {
+        if (timer == null) throw new IllegalStateException("timer is NULL");
+        return timer.getSimulationTime();
+    }
+
+    /**
+     * manually activate simulation rule
+     * simulation rule will be active in next simulation quantum
+     */
+    public void setActivateSimulationRule(SimulationRuleBean rule) {
+        rule.setActivationTime(getSimulationTime());
+    }
 
     /**
      * register for adding or removing new simulation rule
@@ -296,6 +343,78 @@ public class SimulationFacade {
             throw new IllegalStateException("simulationLogUtils is NULL; call initTimer() method before");
         }
         simulationLogUtils.removeSimulationLogListener(l);
+    }
+
+    /**
+     * adds listener to be notified when ping packet reaches its destination
+     *
+     * @param l
+     */
+    public void addPingPacketDeliveredListener(PingPacketDeliveredListener l) {
+        for (SimulationRuleBean rule : getPingSimulationRules()) {
+            rule.addPingPacketDeliveredListener(l);
+        }
+    }
+
+    /**
+     * removes listener
+     *
+     * @param l
+     */
+    public void removePingPacketDeliveredListener(PingPacketDeliveredListener l) {
+        for (SimulationRuleBean rule : getPingSimulationRules()) {
+            rule.addPingPacketDeliveredListener(l);
+        }
+    }
+
+    /**
+     * adds listener to be notified each time, simulation timer ticks
+     *
+     * @param l
+     */
+    public void addSimulationTimerListener(SimulationTimerListener l) {
+        if (timer == null) throw new IllegalStateException("timer is NULL");
+        timer.addSimulationTimerListener(l);
+    }
+
+    /**
+     * removes the listener
+     *
+     * @param l
+     */
+    public void removeSimulationTimerListener(SimulationTimerListener l) {
+        if (timer == null) throw new IllegalStateException("timer is NULL");
+        timer.removeSimulationTimerListener(l);
+    }
+
+    /**
+     * add listener to be notified when simulation rule became active
+     * <b>WARNINIG:</b> listener cannot be removed, until simulation timer starts
+     *
+     * @param l
+     * @see #removeSimulationRuleActivatedListener(sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener)
+     */
+    public void addSimulationRuleActivatedListener(SimulationRuleActivationListener l) {
+        //the problem with this method is, that PacketGenerator object owns this listener
+        //and PacketGenerator is initialised, when timer is started (because it needs list of all simulation rules)
+        //so to be able to register this listener BEFORE simulation timer starts, I created this "to be added" list
+        //when simulation starts (using proper facade method), all listeners "to be added" are added to finally created PacketGenerator
+        //the only drawback is that it is not possible to remove listener, before simulation timer starts
+        listenerToBeAdded.add(l);
+    }
+
+    /**
+     * removes listener
+     *
+     * @param l
+     */
+    public void removeSimulationRuleActivatedListener(SimulationRuleActivationListener l) {
+        if (timer == null) throw new IllegalStateException("you cannot remove listener before simulation timer starts");
+        if (timer.getPacketGenerator() == null) {
+            throw new IllegalStateException("packet generator is NULL - timer is badly inicialised");
+        }
+
+        timer.getPacketGenerator().removeSimulationRuleActivationListener(l);
     }
 }
 

@@ -15,31 +15,22 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.qsimsimulation.events.timer;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation;
 
 import lombok.Getter;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.util.EventObject;
 
 /**
- * this event occurs at the end of simulation timer tick
- * event contains information about simulation time that just passed
- *
  * @author Igor Kvasnicka
  */
-public class SimulationTimerEvent extends EventObject {
+public class SimulationRuleActivationEvent extends EventObject {
     @Getter
-    private double simulationTime;
+    private SimulationRuleBean rule;
 
-    /**
-     * Constructs a prototypical Event.
-     *
-     * @param source         The object on which the Event initially occurred.
-     * @param simulationTime current simulation time
-     * @throws IllegalArgumentException if source is null.
-     */
-    public SimulationTimerEvent(Object source, double simulationTime) {
+    public SimulationRuleActivationEvent(Object source, SimulationRuleBean rule) {
         super(source);
-        this.simulationTime = simulationTime;
+        this.rule = rule;
     }
 }

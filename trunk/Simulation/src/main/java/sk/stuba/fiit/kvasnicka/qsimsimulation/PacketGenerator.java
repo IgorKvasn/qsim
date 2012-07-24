@@ -19,11 +19,13 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation;
 
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationEvent;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.PingPacket;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.util.LinkedList;
@@ -40,7 +42,7 @@ public class PacketGenerator {
     private List<SimulationRuleBean> simulationRules;
     private PacketManager packetManager;
     private PingManager pingManager;
-
+    private javax.swing.event.EventListenerList listenerList = new javax.swing.event.EventListenerList();
 
     public PacketGenerator(List<SimulationRuleBean> simulationRules, SimulationTimer simulationTimer) {
         this.simulationRules = simulationRules;
@@ -61,6 +63,7 @@ public class PacketGenerator {
                 addPacketsToNetworkNode(timeQuantum, rule, simulationTime);
             } else {//check if the time came to activate this rule
                 if (checkRuleActivate(rule, simulationTime)) {//yes, I should activate it
+                    fireSimulationRuleActivatedEvent(new SimulationRuleActivationEvent(this, rule));
                     rule.setActive(true);
                     addPacketsToNetworkNode(timeQuantum, rule, simulationTime);
                     rule.increaseActivationTime(timeQuantum);
@@ -107,6 +110,8 @@ public class PacketGenerator {
             packets.add(createPacket(rule.getPacketSize(), rule, rule.getLayer4Type(), rule.getActivationTime() + timeSpent + simulationTime));
             timeSpent += creationDelay;//I have spent some time
             rule.decreaseNumberOfPackets();
+
+            if (rule.isFinished()) fireSimulationRuleFinishedEvent(new SimulationRuleActivationEvent(this, rule));
         }
         if (logg.isDebugEnabled()) {
             logg.debug("Packets created: " + packets.size());
@@ -127,5 +132,31 @@ public class PacketGenerator {
             return new PingPacket(pingManager, packetSize, layer4, packetManager, rule, creationTime);
         }
         return new Packet(packetSize, layer4, packetManager, rule, creationTime);
+    }
+
+    public void addSimulationRuleActivationListener(SimulationRuleActivationListener listener) {
+        listenerList.add(SimulationRuleActivationListener.class, listener);
+    }
+
+    public void removeSimulationRuleActivationListener(SimulationRuleActivationListener listener) {
+        listenerList.remove(SimulationRuleActivationListener.class, listener);
+    }
+
+    private void fireSimulationRuleActivatedEvent(SimulationRuleActivationEvent evt) {
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = 0; i < listeners.length; i += 2) {
+            if (listeners[i].equals(SimulationRuleActivationListener.class)) {
+                ((SimulationRuleActivationListener) listeners[i + 1]).simulationRuleActivatedOccurred(evt);
+            }
+        }
+    }
+
+    private void fireSimulationRuleFinishedEvent(SimulationRuleActivationEvent evt) {
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = 0; i < listeners.length; i += 2) {
+            if (listeners[i].equals(SimulationRuleActivationListener.class)) {
+                ((SimulationRuleActivationListener) listeners[i + 1]).simulationRuleFinishedOccurred(evt);
+            }
+        }
     }
 }
