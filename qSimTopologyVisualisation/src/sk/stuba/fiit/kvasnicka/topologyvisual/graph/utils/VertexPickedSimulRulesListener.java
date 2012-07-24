@@ -28,8 +28,6 @@ import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.AddSimulationTopComponent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
-import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 
 /**
@@ -37,7 +35,6 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
  *
  * @author Igor Kvasnicka
  */
-@Deprecated //todo a default JUNG's pick support is used; see VertexPickedTopolCreationListener class 
 public class VertexPickedSimulRulesListener implements GraphMouseListener<TopologyVertex> {
 
     private static Logger logg = Logger.getLogger(VertexPickedSimulRulesListener.class);

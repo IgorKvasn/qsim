@@ -27,6 +27,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.ContainerPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 
 /**
@@ -115,7 +116,7 @@ public final class AddSimulationTopComponent extends TopComponent {
         if (modifyData != null) {
             panelIterator.initDefaultPanel(modifyData, panelToShow, false);
         } else {
-            panelIterator.initDefaultPanel(new Data(), panelToShow, true);
+            panelIterator.initDefaultPanel(new SimulationData.Data(), panelToShow, true);
         }
         modifyData = null;
         panelToShow = 0;

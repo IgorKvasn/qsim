@@ -18,7 +18,6 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.utils;
 
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
 
 /**
@@ -33,7 +32,7 @@ public class SimulationRuleHelper {
      * @return simulation rule
      */
     private static SimulationRuleBean createSimulationRule(SimulationData.Data data) {
-        SimulationRuleBean rule = new SimulationRuleBean(data.getSourceVertex().getDataModel(), data.getDestinationVertex().getDataModel(), data.getPacketCount(), data.getPacketSize(), data.getActivationDelay(), data.getPacketType(), data.getLayer4protocol(), data.isPing());
+        SimulationRuleBean rule = new SimulationRuleBean(data.getName(), data.getSourceVertex().getDataModel(), data.getDestinationVertex().getDataModel(), data.getPacketCount(), data.getPacketSize(), data.getActivationDelay(), data.getPacketType(), data.getLayer4protocol(), data.isPing());
         return rule;
     }
 
