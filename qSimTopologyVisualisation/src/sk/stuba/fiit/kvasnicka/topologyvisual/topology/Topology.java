@@ -96,7 +96,6 @@ public class Topology implements VertexCreatedListener {
      */
     public Topology(TopologyVisualisation topolElementTopComponent) {
         this.topolElementTopComponent = topolElementTopComponent;
-
     }
 
     /**

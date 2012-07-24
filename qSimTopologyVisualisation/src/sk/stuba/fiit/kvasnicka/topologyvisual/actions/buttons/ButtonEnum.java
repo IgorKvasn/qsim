@@ -16,13 +16,13 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.actions.buttons;
 
-import sk.stuba.fiit.kvasnicka.topologyvisual.topology.SimulationStateEnum;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyStateEnum;
 
 /**
  * this enum specifies each button <br/> it is used to determine, what button is
  * to be active in particular simulation state
  *
- * @see SimulationStateEnum
+ * @see TopologyStateEnum
  * @author Igor Kvasnicka
  */
 public enum ButtonEnum {

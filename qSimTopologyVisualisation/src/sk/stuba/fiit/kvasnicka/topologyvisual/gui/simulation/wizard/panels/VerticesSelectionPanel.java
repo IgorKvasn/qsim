@@ -106,6 +106,7 @@ public class VerticesSelectionPanel extends PanelInterface {
         //data is valid - now it is a good time to store these data
         iterator.getStoredData().setDestinationVertex((TopologyVertex) combDestination.getSelectedItem());
         iterator.getStoredData().setSourceVertex((TopologyVertex) combSource.getSelectedItem());
+        iterator.getStoredData().setName(jTextField1.getText());
         return true;
     }
 

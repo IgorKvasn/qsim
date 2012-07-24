@@ -31,7 +31,7 @@ import org.openide.util.actions.Presenter;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.buttons.ButtonEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
-import sk.stuba.fiit.kvasnicka.topologyvisual.topology.SimulationStateEnum;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyStateEnum;
 
 @ActionID(category = "Simulation",
 id = "sk.stuba.fiit.kvasnicka.topologyvisual.actions.ConfigureSimulationAction")
@@ -68,7 +68,7 @@ public final class ConfigureSimulationAction extends AbstractAction implements P
         return button;
     }
 
-    public void updateState(SimulationStateEnum state) {
+    public void updateState(TopologyStateEnum state) {
         if (state == null) {
             button.setEnabled(false);
             return;

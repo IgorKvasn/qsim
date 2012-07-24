@@ -32,6 +32,8 @@ import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.events.topologystate.TopologyStateChangedEvent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.events.topologystate.TopologyStateChangedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
@@ -40,7 +42,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.deletion.EdgeDeletionD
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.deletion.VertexDeletionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.SimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs.SimulationLogTopComponent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.topology.SimulationStateEnum;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyStateEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
@@ -50,13 +52,15 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.utils.VerticesUtil;
  *
  * @author Igor Kvasnicka
  */
-public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugin {
+public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugin implements TopologyStateChangedListener {
 
     private static Logger logg = Logger.getLogger(PopupVertexEdgeMenuMousePlugin.class);
     private JPopupMenu vertexPopup, edgePopup;
     private TopologyVertex selectedVertex = null;
     private TopologyEdge selectedEdge = null;
     private Topology topology;
+    private JMenuItem menuItemDeleteVertex;
+    private JMenuItem menuItemDeleteEdge;
 
     /**
      * Creates a new instance of PopupVertexEdgeMenuMousePlugin
@@ -76,6 +80,7 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
         createVertexPopup();
         createEdgePopup();
         this.topology = topology;
+        topology.getTopolElementTopComponent().addTopologyStateChangedListener(this);
     }
 
     /**
@@ -114,28 +119,35 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
         vertexPopup.add(new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "properties")));
         vertexPopup.addSeparator();
         vertexPopup.addSeparator();
-        JMenuItem menuItemDelete = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete"));
-        if (!topology.getTopolElementTopComponent().getSimulationState().equals(SimulationStateEnum.NOTHING)) {
-            menuItemDelete.setEnabled(false);
-        }
-        vertexPopup.add(menuItemDelete);
+        menuItemDeleteVertex = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete"));
+        menuItemDeleteVertex.setEnabled(true);
+
+        vertexPopup.add(menuItemDeleteVertex);
         JMenuItem menuSimulLog = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "simul_log"));
         menuSimulLog.addActionListener(new ShowSimulationLogsMenuItem());
         vertexPopup.add(menuSimulLog);
 
-        menuItemDelete.addActionListener(new VertexDeleteMenuItem());
+        menuItemDeleteVertex.addActionListener(new VertexDeleteMenuItem());
     }
 
     private void createEdgePopup() {
         edgePopup = new JPopupMenu();
         edgePopup.add(new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "properties")));
         edgePopup.addSeparator();
-        JMenuItem menuItemDelete = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete"));
-        menuItemDelete.addActionListener(new EdgeDeleteMenuItem());
-        if (!topology.getTopolElementTopComponent().getSimulationState().equals(SimulationStateEnum.NOTHING)) {
-            menuItemDelete.setEnabled(false);
+        menuItemDeleteEdge = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete"));
+        menuItemDeleteEdge.addActionListener(new EdgeDeleteMenuItem());
+        edgePopup.add(menuItemDeleteEdge);
+    }
+
+    @Override
+    public void topologyStateChangeOccured(TopologyStateChangedEvent event) {
+        if (!topology.getTopolElementTopComponent().getSimulationState().equals(TopologyStateEnum.NOTHING)) {
+            menuItemDeleteVertex.setEnabled(false);
+            menuItemDeleteEdge.setEnabled(false);
+        } else {
+            menuItemDeleteVertex.setEnabled(true);
+            menuItemDeleteEdge.setEnabled(true);
         }
-        edgePopup.add(menuItemDelete);
     }
 
     private class VertexDeleteMenuItem implements ActionListener {

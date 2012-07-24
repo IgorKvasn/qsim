@@ -46,6 +46,10 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.actions.ConfigureSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.PauseSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.RunSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.StopSimulationAction;
+import sk.stuba.fiit.kvasnicka.topologyvisual.events.statisticaldata.StatisticalDataChangedListener;
+import sk.stuba.fiit.kvasnicka.topologyvisual.events.statisticaldata.StatisticalDataEvent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.events.topologystate.TopologyStateChangedEvent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.events.topologystate.TopologyStateChangedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
@@ -62,12 +66,13 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.AddSimulationTopCom
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.SimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs.SimulationLogTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.SimulRuleReviewTopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.SimulationDataTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.VerticesSelectionPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalDataManager;
-import sk.stuba.fiit.kvasnicka.topologyvisual.topology.SimulationStateEnum;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyStateEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.EdgeUtils;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
@@ -103,7 +108,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
     @Getter
     private transient SimulationData simulationData;
     @Getter
-    private transient SimulationStateEnum simulationState;
+    private transient TopologyStateEnum simulationState;
     private transient StatisticalDataManager statManager;
 
     public TopologyVisualisation(TopologyFileTypeDataObject dataObject) {
@@ -118,7 +123,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
         topology = new Topology(this);
         simulationData = new SimulationData(dataObject, topology);
 
-        setSimulationState(SimulationStateEnum.NOTHING);
+        setSimulationState(TopologyStateEnum.NOTHING);
 
         initTopology();
         initPalette();
@@ -197,11 +202,11 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
             }
 
             //change simulation state
-            setSimulationState(SimulationStateEnum.RUN);
+            setSimulationState(TopologyStateEnum.RUN);
 
             //close palette, simulation top component, add simulation rule top component,... 
             //everuthing that is no use for simulation
-            closeAllSupportingWindows();
+            closeTopologyCreationWindows();
 
             statManager = new StatisticalDataManager(simulationRules);
             simulationFacade.addPingRuleListener(statManager);
@@ -231,7 +236,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
      * stops (cancels) the simulation
      */
     public void stopSimulation() {
-        if (simulationState != SimulationStateEnum.PAUSED || simulationState != SimulationStateEnum.RUN) {
+        if (simulationState == TopologyStateEnum.PAUSED || simulationState == TopologyStateEnum.RUN) {
             throw new IllegalStateException("simulation is not eligible for stop - only running or paused simulations can be stopped");
         }
 
@@ -240,7 +245,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
         }
 
         //change simulation state
-        setSimulationState(SimulationStateEnum.NOTHING);
+        setSimulationState(TopologyStateEnum.NOTHING);
 
         simulationFacade.removePingRuleListener(statManager);
         simulationFacade.removeSimulationRuleListener(statManager);
@@ -262,7 +267,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
      */
     public void pauseSimulation() {
         //change simulation state
-        setSimulationState(SimulationStateEnum.PAUSED);
+        setSimulationState(TopologyStateEnum.PAUSED);
     }
 
     /**
@@ -277,9 +282,10 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
         component.open();
     }
 
-    private void setSimulationState(SimulationStateEnum state) {
+    private void setSimulationState(TopologyStateEnum state) {
         simulationState = state;
         updateToolbarButtons(false);
+        fireTopologyStateChangeEvent(new TopologyStateChangedEvent(this, state));
     }
 
     /**
@@ -312,7 +318,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
      * </ol>
      *
      */
-    private void closeAllSupportingWindows() {
+    private void closeTopologyCreationWindows() {
         TopologyPaletteTopComponent palette = (TopologyPaletteTopComponent) WindowManager.getDefault().findTopComponent("TopologyPaletteTopComponent");
         if (palette == null) {
             logg.error("Could not find component TopologyPaletteTopComponent");
@@ -337,7 +343,7 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
 
     private void openSimulationWindows(StatisticalDataManager statManager, List<SimulationRuleBean> simulRules) {
         SimulRuleReviewTopComponent simulRuleReview = (SimulRuleReviewTopComponent) WindowManager.getDefault().findTopComponent("SimulRuleReviewTopComponent");
-        simulRuleReview.setSimulationRules(statManager, simulRules, simulationFacade.getSimulationTime());
+        simulRuleReview.setSimulationRules(statManager, simulRules);
         simulationFacade.addSimulationRuleActivatedListener(simulRuleReview);
         simulationFacade.addPingRuleListener(simulRuleReview);
         simulationFacade.addSimulationRuleListener(simulRuleReview);
@@ -350,6 +356,9 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
         simulationFacade.removePingRuleListener(simulRuleReview);
         simulationFacade.removeSimulationRuleListener(simulRuleReview);
         simulRuleReview.close();
+
+        SimulationDataTopComponent simulData = (SimulationDataTopComponent) WindowManager.getDefault().findTopComponent("SimulationDataTopComponent");
+        simulData.close();
     }
 
     /**
@@ -602,6 +611,23 @@ public final class TopologyVisualisation extends JPanel implements Serializable,
             NetbeansWindowHelper.getInstance().activateWindow(this);
         }
         //  read your settings according to their version
+    }
+
+    public void addTopologyStateChangedListener(TopologyStateChangedListener listener) {
+        listenerList.add(TopologyStateChangedListener.class, listener);
+    }
+
+    public void removeTopologyStateChangedListener(TopologyStateChangedListener listener) {
+        listenerList.remove(TopologyStateChangedListener.class, listener);
+    }
+
+    private void fireTopologyStateChangeEvent(TopologyStateChangedEvent evt) {
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = 0; i < listeners.length; i += 2) {
+            if (listeners[i].equals(TopologyStateChangedListener.class)) {
+                ((TopologyStateChangedListener) listeners[i + 1]).topologyStateChangeOccured(evt);
+            }
+        }
     }
 
     public PaletteActionEnum getSelectedAction() {

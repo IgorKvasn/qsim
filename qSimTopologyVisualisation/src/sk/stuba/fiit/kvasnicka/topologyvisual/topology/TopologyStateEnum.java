@@ -28,7 +28,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.actions.buttons.ButtonEnum;
  * @see ButtonEnum
  * @author Igor Kvasnicka
  */
-public enum SimulationStateEnum {
+public enum TopologyStateEnum {
 
     /**
      * no particular state - simulation has not been started or it is stopped

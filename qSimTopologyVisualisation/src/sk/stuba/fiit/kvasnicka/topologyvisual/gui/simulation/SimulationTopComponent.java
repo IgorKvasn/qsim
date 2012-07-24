@@ -270,6 +270,7 @@ public final class SimulationTopComponent extends TopComponent {
                 return canEdit [columnIndex];
             }
         });
+        jXTable1.setColumnSelectionAllowed(true);
         jXTable1.setSortable(false);
         jXTable1.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(jXTable1);
@@ -436,6 +437,7 @@ public final class SimulationTopComponent extends TopComponent {
 
         public RowHighlighterTableCellRender(int alignment) {
             setHorizontalAlignment(alignment);
+            setOpaque(true);
         }
 
         @Override

@@ -6,36 +6,34 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata;
 
 import info.monitorenter.gui.chart.Chart2D;
 import info.monitorenter.gui.chart.ITrace2D;
-import info.monitorenter.gui.chart.traces.Trace2DSimple;
-import info.monitorenter.gui.chart.traces.painters.TracePainterFill;
-import java.awt.Color;
-import java.awt.GridLayout;
-import java.util.List;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.Getter;
 import org.jdesktop.swingx.JXTaskPane;
-import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import org.openide.windows.TopComponent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
+import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalData;
+import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalDataManager;
 
 /**
  * Top component which displays something.
  */
-@ConvertAsProperties(dtd = "-//sk.stuba.fiit.kvasnicka.topologyvisual.simulationdata//SimulationData//EN",
-autostore = false)
+//@ConvertAsProperties(dtd = "-//sk.stuba.fiit.kvasnicka.topologyvisual.simulationdata//SimulationData//EN",
+//autostore = false)
 @TopComponent.Description(preferredID = "SimulationDataTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
-persistenceType = TopComponent.PERSISTENCE_ALWAYS)
+persistenceType = TopComponent.PERSISTENCE_NEVER)
 @TopComponent.Registration(mode = "output", openAtStartup = false)
 @ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.simulationdata.SimulationDataTopComponent")
 @ActionReference(path = "Menu/Window" /*
  * , position = 333
  */)
-@TopComponent.OpenActionRegistration(displayName = "#CTL_SimulationDataAction",
-preferredID = "SimulationDataTopComponent")
+//@TopComponent.OpenActionRegistration(displayName = "#CTL_SimulationDataAction",
+//preferredID = "SimulationDataTopComponent")
 @Messages({
     "CTL_SimulationDataAction=SimulationData",
     "CTL_SimulationDataTopComponent=SimulationData Window",
@@ -43,59 +41,63 @@ preferredID = "SimulationDataTopComponent")
 })
 public final class SimulationDataTopComponent extends TopComponent {
 
-    public SimulationDataTopComponent() {
+    private Map<SimulationRuleBean, TaskPanel> rules;
+    private StatisticalDataManager statData;
+
+    public SimulationDataTopComponent(Collection<StatisticalData> statDatas) {
         initComponents();
         setName(Bundle.CTL_SimulationDataTopComponent());
         setToolTipText(Bundle.HINT_SimulationDataTopComponent());
+        rules = new HashMap<SimulationRuleBean, TaskPanel>();
 
         chart.setToolTipType(Chart2D.ToolTipType.VALUE_SNAP_TO_TRACEPOINTS);
     }
 
     /**
-     * "trace" is object that stores point on the chart
-     *
-     * @param traceColor color to be rendered
-     * @return
-     */
-    private ITrace2D createTrace(Color traceColor) {
-
-        ITrace2D trace = new Trace2DSimple();
-        trace.setColor(traceColor);
-        trace.setTracePainter(new TracePainterFill(chart));
-        chart.addTrace(trace);
-
-        return trace;
-    }
-
-    /**
-     * sets simulation rules that should be showed
+     * adds simulation rule that should be showed
      *
      * @param rules
      */
-    public void setSimulationRule(List<SimulationRuleBean> rules) {
-        setName(createTitle(rules));
-        for (SimulationRuleBean rule : rules) {
-            addTaskPane();//todo dokoncit - tu byt ako argument statisticke data
+    public void addSimulationRule(StatisticalDataManager statData, SimulationRuleBean rule) {
+        if (rules.containsKey(rule)) {//this rule is already showing
+            return;
         }
-    }
+        this.statData = statData;
+        setName(createTitle(rules.keySet()));
+        StatisticalData statisticalData = statData.getStatisticalData(rule);
+        SimulationDataPanel panel = new SimulationDataPanel(statisticalData, this, statisticalData.getChartTrace().getColor());
+        statisticalData.addStatisticalDataChangedListener(panel);
+        JXTaskPane pane = new JXTaskPane();
 
-    private void addTaskPane() {
-        JXTaskPane p = new JXTaskPane();
-        p.setTitle("baf");
-        JPanel pp = new JPanel(new GridLayout(2, 2));
-
-        pp.add(new JLabel("adad"));
-        pp.add(new JLabel("dddd"));
-        pp.add(new JLabel("111adad"));
-        pp.add(new JLabel("2222adad"));
-        p.add(pp);
-
-        jXTaskPaneContainer1.add(p);
+        pane.setTitle(rule.getName());
+        jXTaskPaneContainer1.add(pane);
         jXTaskPaneContainer1.revalidate();
+
+        rules.put(rule, new TaskPanel(pane, panel));
     }
 
-    private String createTitle(List<SimulationRuleBean> rules) {
+    public void removeSimulationRule(SimulationRuleBean rule) {
+        StatisticalData statisticalData = statData.getStatisticalData(rule);
+        TaskPanel hashPanel = rules.get(rule);
+        if (hashPanel == null) {
+            throw new IllegalStateException("could not find panel for simulation rule");
+        }
 
+        statisticalData.removeStatisticalDataChangedListener(hashPanel.getPanel());
+
+        jXTaskPaneContainer1.remove(hashPanel.getTaskPane());
+
+        ITrace2D trace = statisticalData.getChartTrace();
+        chart.removeTrace(trace);
+
+        rules.remove(rule);
+        setName(createTitle(rules.keySet()));
+
+        jXTaskPaneContainer1.revalidate();
+
+    }
+
+    private String createTitle(Collection<SimulationRuleBean> rules) {
         StringBuilder sb = new StringBuilder();
         int i = 0;
         for (SimulationRuleBean rule : rules) {
@@ -107,7 +109,16 @@ public final class SimulationDataTopComponent extends TopComponent {
             sb.append(rule.getName()).append(", ");
         }
         return sb.toString();
+    }
 
+    void showInChart(StatisticalData statData, boolean showTrace) {
+        ITrace2D trace = statData.getChartTrace();
+
+        if (showTrace) {
+            chart.addTrace(trace);
+        } else {
+            chart.removeTrace(trace);
+        }
     }
 
     /**
@@ -137,6 +148,7 @@ public final class SimulationDataTopComponent extends TopComponent {
         );
 
         jXTaskPaneContainer1.setOpaque(false);
+        jXTaskPaneContainer1.setLayout(new java.awt.GridLayout(0, 1));
         jScrollPane1.setViewportView(jXTaskPaneContainer1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -182,5 +194,17 @@ public final class SimulationDataTopComponent extends TopComponent {
 
     void readProperties(java.util.Properties p) {
         String version = p.getProperty("version");
+    }
+
+    @Getter
+    private static class TaskPanel {
+
+        private JXTaskPane taskPane;
+        private SimulationDataPanel panel;
+
+        public TaskPanel(JXTaskPane taskPane, SimulationDataPanel panel) {
+            this.taskPane = taskPane;
+            this.panel = panel;
+        }
     }
 }
