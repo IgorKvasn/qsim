@@ -52,10 +52,8 @@ public class RoutingHelper {
 
     private static Logger logg = Logger.getLogger(RoutingHelper.class);
     private TopologyVertex routeSource;
-    private static TopologyFacade topologyFacade;
 
     public RoutingHelper() {
-        topologyFacade = findTopologyFacade();
     }
 
     /**
@@ -132,6 +130,7 @@ public class RoutingHelper {
     }
 
     public static int getNumberOfNeighboursByType(Topology topology, TopologyVertex v, Class type) {
+        TopologyFacade topologyFacade = findTopologyFacade();
         Collection<TopologyVertex> neighbors = topologyFacade.getNeighbours(topology, v);
         int count = 0;
         for (TopologyVertex vertex : neighbors) {
@@ -239,6 +238,7 @@ public class RoutingHelper {
         //note, that I take two sucessors from fixed list - e.g. fixed[i] and fixed[i+1]
 
         TopologyVertex vBegin, vEnd;
+        TopologyFacade topologyFacade = findTopologyFacade();
         for (int i = 0; i < fixed.size() - 1; i++) {
             vBegin = fixed.get(i);
             vEnd = fixed.get(i + 1);

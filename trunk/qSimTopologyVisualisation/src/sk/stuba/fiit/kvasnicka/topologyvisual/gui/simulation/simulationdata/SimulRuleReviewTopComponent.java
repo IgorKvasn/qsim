@@ -32,8 +32,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalDataManager;
 /**
  * Top component which displays something.
  */
-@ConvertAsProperties(dtd = "-//sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata//SimulRuleReview//EN",
-autostore = false)
+//@ConvertAsProperties(dtd = "-//sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata//SimulRuleReview//EN",
+//autostore = false)
 @TopComponent.Description(preferredID = "SimulRuleReviewTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
 persistenceType = TopComponent.PERSISTENCE_NEVER)
@@ -42,8 +42,8 @@ persistenceType = TopComponent.PERSISTENCE_NEVER)
 @ActionReference(path = "Menu/Window" /*
  * , position = 333
  */)
-@TopComponent.OpenActionRegistration(displayName = "#CTL_SimulRuleReviewAction",
-preferredID = "SimulRuleReviewTopComponent")
+//@TopComponent.OpenActionRegistration(displayName = "#CTL_SimulRuleReviewAction",
+//preferredID = "SimulRuleReviewTopComponent")
 @Messages({
     "CTL_SimulRuleReviewAction=SimlRuleReview",
     "CTL_SimulRuleReviewTopComponent=SimlRuleReview Window",
@@ -56,8 +56,9 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
     private DefaultTableModel pingModel, simulRuleModel;
     private StatisticalDataManager statManager;
     private SimulationDataTopComponent simulDataTopComponent;
+    private final SimulationFacade simulationFacade;
 
-    public SimulRuleReviewTopComponent() {
+    public SimulRuleReviewTopComponent(SimulationFacade simulationFacade) {
         initComponents();
         setName(Bundle.CTL_SimulRuleReviewTopComponent());
         setToolTipText(Bundle.HINT_SimulRuleReviewTopComponent());
@@ -78,6 +79,7 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
         SelectionListener listenerSimul = new SelectionListener(simulTable, false);
         simulTable.getSelectionModel().addListSelectionListener(listenerSimul);
         simulTable.getColumnModel().getSelectionModel().addListSelectionListener(listenerSimul);
+        this.simulationFacade = simulationFacade;
     }
 
     public void setSimulationRules(StatisticalDataManager statManager, List<SimulationRuleBean> simulRules) {
@@ -96,12 +98,16 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
 
         //add ping rules
         for (StatisticalData data : statManager.getStatisticalData()) {
-            addRow(pingModel, data.getRule());
+            if (data.getRule().isPing()) {
+                addRow(pingModel, data.getRule());
+            }
         }
 
         //add simulation rules
         for (SimulationRuleBean rule : simulRules) {
-            addRow(simulRuleModel, rule);
+            if (!rule.isPing()) {
+                addRow(simulRuleModel, rule);
+            }
         }
     }
 
@@ -130,10 +136,7 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
         }
 
         String ruleId = (String) model.getValueAt(row, 0);
-        SimulationFacade simulationFacade = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().getSimulationFacade();
-        if (simulationFacade == null) {
-            throw new IllegalStateException("simulation facade is NULL");
-        }
+
         return simulationFacade.findSimulationRuleById(ruleId);
 
     }
@@ -163,10 +166,7 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
             int selRow = simulTable.convertRowIndexToModel(simulTable.getSelectedRow());
             ruleId = (String) simulRuleModel.getValueAt(selRow, 0);
         }
-        SimulationFacade simulationFacade = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().getSimulationFacade();
-        if (simulationFacade == null) {
-            throw new IllegalStateException("simulation facade is NULL");
-        }
+
         SimulationRuleBean simulrule = simulationFacade.findSimulationRuleById(ruleId);
         simulationFacade.setActivateSimulationRule(simulrule);
     }
@@ -240,10 +240,7 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
             int selRow = simulTable.convertRowIndexToModel(simulTable.getSelectedRow());
             ruleId = (String) simulRuleModel.getValueAt(selRow, 0);
         }
-        SimulationFacade simulationFacade = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().getSimulationFacade();
-        if (simulationFacade == null) {
-            throw new IllegalStateException("simulation facade is NULL");
-        }
+
         SimulationRuleBean simulRule = simulationFacade.findSimulationRuleById(ruleId);
 
         //now open statistical data top component
@@ -519,6 +516,9 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
 
     @Override
     public void componentClosed() {
+        simulationFacade.removeSimulationRuleActivatedListener(this);
+        simulationFacade.removePingRuleListener(this);
+        simulationFacade.removeSimulationRuleListener(this);
     }
 
     void writeProperties(java.util.Properties p) {
@@ -576,7 +576,7 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
         @Override
         public void valueChanged(ListSelectionEvent e) {
 
-            if (table.getSelectedRowCount() == -1) {
+            if (table.getSelectedRowCount() == 0) {
                 return;
             }
             showDetails(table.getSelectedRow(), ping);

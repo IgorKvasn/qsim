@@ -72,7 +72,7 @@ public class StatisticalData {
             throw new IllegalStateException("packet delay is negative - something is wrong with simulation engine...");
         }
         delayList.add(delay);
-        chartTrace.addPoint(when,delay);
+        chartTrace.addPoint(when, delay);
         fireStatisticalDataChangeEvent(new StatisticalDataEvent(this, rule, delay, when));
     }
 
@@ -91,6 +91,9 @@ public class StatisticalData {
      * @return
      */
     public double calculateAverageDelay() {
+        if (delayList.isEmpty()) {
+            return Double.NaN;
+        }
         double av = 0;
         for (double delay : delayList) {
             av += delay;
@@ -99,6 +102,9 @@ public class StatisticalData {
     }
 
     public double getMinDelay() {
+        if (delayList.isEmpty()) {
+            return Double.NaN;
+        }
         double min = Double.MAX_VALUE;
         for (double delay : delayList) {
             min = Math.min(min, delay);
@@ -107,6 +113,9 @@ public class StatisticalData {
     }
 
     public double getMaxDelay() {
+        if (delayList.isEmpty()) {
+            return Double.NaN;
+        }
         double max = Double.MIN_VALUE;
         for (double delay : delayList) {
             max = Math.max(max, delay);

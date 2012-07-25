@@ -47,6 +47,10 @@ public class ContainerPanel extends javax.swing.JPanel {
         jButton4.setEnabled(!panelIterator.isPanelLast());
     }
 
+    public void reset() {
+        jButton4.setText(NbBundle.getMessage(ContainerPanel.class, "ContainerPanel.jButton4.text"));
+    }
+
     public void setPanel(JPanel panel) {
         if (actualPanel != null) {
             jPanel1.remove(actualPanel);
@@ -177,6 +181,9 @@ public class ContainerPanel extends javax.swing.JPanel {
                     return;
                 }
                 componentAdd.close();
+
+                jButton4.setText(NbBundle.getMessage(ContainerPanel.class, "ContainerPanel.jButton4.text"));
+
             } else {
                 try {
                     ((PacketSendingPanel) panelIterator.getCurrentPanel()).showErrorLabel(NbBundle.getMessage(ContainerPanel.class, "packetSendingPanel_not_valid"));

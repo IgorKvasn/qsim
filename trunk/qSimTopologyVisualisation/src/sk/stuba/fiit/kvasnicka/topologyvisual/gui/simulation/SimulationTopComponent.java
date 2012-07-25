@@ -84,15 +84,6 @@ public final class SimulationTopComponent extends TopComponent {
          * object
          */
         jXTable1.removeColumn(jXTable1.getColumnModel().getColumn(0));
-        initTableRowHighlighter();
-    }
-
-    private void initTableRowHighlighter() {
-        TableColumnModel colModel = jXTable1.getColumnModel();
-        for (Enumeration<TableColumn> colEnum = colModel.getColumns(); colEnum.hasMoreElements();) {
-            TableColumn c = colEnum.nextElement();
-            c.setCellRenderer(new RowHighlighterTableCellRender(JLabel.CENTER));
-        }
     }
 
     /**
@@ -270,7 +261,6 @@ public final class SimulationTopComponent extends TopComponent {
                 return canEdit [columnIndex];
             }
         });
-        jXTable1.setColumnSelectionAllowed(true);
         jXTable1.setSortable(false);
         jXTable1.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(jXTable1);
@@ -291,14 +281,13 @@ public final class SimulationTopComponent extends TopComponent {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 643, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(23, 23, 23)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnAdd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 643, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(23, 23, 23)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnAdd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(162, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -425,43 +414,6 @@ public final class SimulationTopComponent extends TopComponent {
             }
             button.setText(value.toString());
             return button;
-        }
-    }
-
-    /**
-     * highlight particular row according to the cell's value
-     */
-    class RowHighlighterTableCellRender extends DefaultTableCellRenderer {
-
-        private final Color HIGHLIGHT_COLOR = Color.YELLOW;
-
-        public RowHighlighterTableCellRender(int alignment) {
-            setHorizontalAlignment(alignment);
-            setOpaque(true);
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            Component comp = super.getTableCellRendererComponent(table, value, isSelected,
-                    hasFocus, row, column);
-            boolean ping = (Boolean) table.getValueAt(row, 2);
-
-            if (column == 2) {
-                comp = new JCheckBox();
-            }
-
-            if (!isSelected) {
-                if (ping) {
-                    comp.setBackground(HIGHLIGHT_COLOR);
-                    comp.setForeground(Color.BLACK);
-                } else {
-
-                    comp.setBackground(Color.WHITE);
-                    comp.setForeground(Color.BLACK);
-                }
-            }
-            return comp;
         }
     }
 }

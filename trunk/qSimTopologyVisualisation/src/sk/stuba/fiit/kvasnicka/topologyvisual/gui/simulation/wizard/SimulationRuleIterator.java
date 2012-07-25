@@ -90,6 +90,7 @@ public class SimulationRuleIterator {
         this.allowPrevious = allowPrevious;
         defaulPanel = panelToShow;
         initPanels();
+        containerPanel.reset();
         actualPanel = panelToShow;
         panels[actualPanel].init(this);
         panels[actualPanel].initValues(data);

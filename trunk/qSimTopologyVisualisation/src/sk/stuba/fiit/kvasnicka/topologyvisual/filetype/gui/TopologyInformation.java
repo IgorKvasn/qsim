@@ -40,7 +40,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
  * @author Igor Kvasnicka
  */
 
-public class TopologyInformation extends javax.swing.JPanel implements MultiViewElement, Serializable {
+public class TopologyInformation extends javax.swing.JPanel implements MultiViewElement {
 
     private JToolBar toolBar = new JToolBar();
     private transient MultiViewElementCallback callback;

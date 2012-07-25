@@ -16,6 +16,7 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -227,7 +228,7 @@ public class TopologyVertexFactory implements Factory<TopologyVertex> {
         }
     }
 
-    private static class VertexComparator implements Comparator<TopologyVertex> {
+    private static class VertexComparator implements Serializable, Comparator<TopologyVertex> {
 
         @Override
         public int compare(TopologyVertex o1, TopologyVertex o2) {
