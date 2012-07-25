@@ -59,7 +59,7 @@ public class MyVertexIconShapeTransformer<V extends TopologyVertex> extends Vert
                     // to be ready
                     int width = image.getWidth(null);
                     int height = image.getHeight(null);
-                    AffineTransform transform = AffineTransform.getTranslateInstance(- width / 2, - height / 2);
+                    AffineTransform transform = AffineTransform.getTranslateInstance(- width / 2.0, - height / 2.0);
                     shape = transform.createTransformedShape(shape);
                     shapeMap.put(image, shape);
                 }

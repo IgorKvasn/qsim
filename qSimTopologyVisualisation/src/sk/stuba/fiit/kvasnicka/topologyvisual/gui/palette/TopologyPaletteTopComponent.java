@@ -46,9 +46,7 @@ preferredID = "TopologyPaletteTopComponent")
     "CTL_TopologyPaletteTopComponent=TopologyPalette Window",
     "HINT_TopologyPaletteTopComponent=This is a TopologyPalette window",
     "nodes=Nodes",
-    "edges=Edges",
-    "custom_nodes=Custom nodes",
-    "custom_edges=Custom edges"
+    "edges=Edges"
 })
 public final class TopologyPaletteTopComponent extends TopComponent {
 
@@ -73,9 +71,6 @@ public final class TopologyPaletteTopComponent extends TopComponent {
         topologyPalette1.addChild(category, NbBundle.getMessage(TopologyVisualisation.class, "fastEthernetLink"), PaletteActionEnum.NEW_EDGE_FAST_ETHERNET);
         topologyPalette1.addChild(category, NbBundle.getMessage(TopologyVisualisation.class, "ethernetLink"), PaletteActionEnum.NEW_EDGE_ETHERNET);
         topologyPalette1.addChild(category, NbBundle.getMessage(TopologyVisualisation.class, "customLink"), PaletteActionEnum.NEW_EDGE_CUSTOM);
-
-        topologyPalette1.addCategory(NbBundle.getMessage(TopologyPaletteTopComponent.class, "custom_nodes"));
-        topologyPalette1.addCategory(NbBundle.getMessage(TopologyPaletteTopComponent.class, "custom_edges"));
     }
 
     private void resetPalette() {

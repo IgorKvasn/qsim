@@ -63,17 +63,18 @@ public final class SimulationDataTopComponent extends TopComponent {
             return;
         }
         this.statData = statData;
-        setName(createTitle(rules.keySet()));
         StatisticalData statisticalData = statData.getStatisticalData(rule);
         SimulationDataPanel panel = new SimulationDataPanel(statisticalData, this, statisticalData.getChartTrace().getColor());
         statisticalData.addStatisticalDataChangedListener(panel);
         JXTaskPane pane = new JXTaskPane();
-
+        pane.add(panel);
         pane.setTitle(rule.getName());
         jXTaskPaneContainer1.add(pane);
         jXTaskPaneContainer1.revalidate();
 
         rules.put(rule, new TaskPanel(pane, panel));
+        setName(createTitle(rules.keySet()));
+
     }
 
     public void removeSimulationRule(SimulationRuleBean rule) {

@@ -107,7 +107,7 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
 //    }
     private void serialize(XmlSerializationProxy proxy, Graph topologyGraph, AbstractLayout<TopologyVertex, TopologyEdge> layout) throws JAXBException, FileNotFoundException, IOException {
         logg.debug("serialisation....- file: " + getPrimaryFile().getNameExt());
-
+//todo use auto-closable here
         BufferedWriter fileOutput = new BufferedWriter(new FileWriter(FileUtil.toFile(getPrimaryFile())));
         String jaxbString = "";
         if (proxy != null) {
@@ -165,7 +165,6 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
     private void initSerialisationUtils(final AbstractLayout<TopologyVertex, TopologyEdge> layout) {
         graphWriter.addVertexData("x", null, "0",
                 new Transformer<TopologyVertex, String>() {
-
                     @Override
                     public String transform(TopologyVertex v) {
                         return Double.toString(layout.getX(v));
@@ -174,7 +173,6 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
 
         graphWriter.addVertexData("y", null, "0",
                 new Transformer<TopologyVertex, String>() {
-
                     @Override
                     public String transform(TopologyVertex v) {
                         return Double.toString(layout.getY(v));
@@ -183,7 +181,6 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
 
         graphWriter.addVertexData("imageType", null, "null",
                 new Transformer<TopologyVertex, String>() {
-
                     @Override
                     public String transform(TopologyVertex v) {
                         return v.getImageType().name();
@@ -192,7 +189,6 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
 
         graphWriter.addVertexData("vertex_name", null, "null",
                 new Transformer<TopologyVertex, String>() {
-
                     @Override
                     public String transform(TopologyVertex v) {
                         return v.getName();
@@ -201,7 +197,6 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
 
         graphWriter.addEdgeData("vertex1_name", null, "null",
                 new Transformer<TopologyEdge, String>() {
-
                     @Override
                     public String transform(TopologyEdge e) {
                         return e.getVertex1().getName();
@@ -210,7 +205,6 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
 
         graphWriter.addEdgeData("vertex2_name", null, "null",
                 new Transformer<TopologyEdge, String>() {
-
                     @Override
                     public String transform(TopologyEdge e) {
                         return e.getVertex2().getName();

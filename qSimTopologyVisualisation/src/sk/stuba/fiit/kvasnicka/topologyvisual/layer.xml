@@ -22,6 +22,7 @@ along with qSim.  If not, see &lt;http://www.gnu.org/licenses/>.
         <folder name="Simulation">
         </folder>
         <folder name="Window">
+<!--            <file name="sk-DeleteTopComponent.instance_hidden"/>-->
             <file name="sk-stuba-fiit-kvasnicka-topologyvisual-gui-simulation-logs-SimulationLogTopComponent.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
                 <attr name="preferredID" stringvalue="SimulationLogTopComponent"/>

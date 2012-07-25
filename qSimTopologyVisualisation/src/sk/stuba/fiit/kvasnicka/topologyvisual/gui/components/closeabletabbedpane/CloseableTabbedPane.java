@@ -1,6 +1,5 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.closeabletabbedpane;
 
-
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -117,7 +116,7 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
         boolean doPaintCloseIcon = true;
         try {
             Object prop = null;
-            if ((((JComponent) component).getClientProperty("isClosable")) != null) {
+            if ((prop = ((JComponent) component).getClientProperty("isClosable")) != null) {
                 doPaintCloseIcon = (Boolean) prop;
             }
         } catch (Exception ignored) {/*
@@ -128,7 +127,6 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
 
         component.addPropertyChangeListener("isClosable",
                 new PropertyChangeListener() {
-
                     @Override
                     public void propertyChange(PropertyChangeEvent e) {
                         Object newVal = e.getNewValue();
@@ -170,8 +168,7 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
      * Invoked when the mouse button has been clicked (pressed and released) on
      * a component.
      *
-     * @param e the
-     * <code>MouseEvent</code>
+     * @param e the <code>MouseEvent</code>
      */
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -181,8 +178,7 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
     /**
      * Invoked when the mouse enters a component.
      *
-     * @param e the
-     * <code>MouseEvent</code>
+     * @param e the <code>MouseEvent</code>
      */
     @Override
     public void mouseEntered(MouseEvent e) {
@@ -191,8 +187,7 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
     /**
      * Invoked when the mouse exits a component.
      *
-     * @param e the
-     * <code>MouseEvent</code>
+     * @param e the <code>MouseEvent</code>
      */
     @Override
     public void mouseExited(MouseEvent e) {
@@ -208,8 +203,7 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
     /**
      * Invoked when a mouse button has been pressed on a component.
      *
-     * @param e the >
-     * <code>MouseEvent</code>
+     * @param e the > <code>MouseEvent</code>
      */
     @Override
     public void mousePressed(MouseEvent e) {
@@ -219,8 +213,7 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
     /**
      * Invoked when a mouse button has been released on a component.
      *
-     * @param e the
-     * <code>MouseEvent</code>
+     * @param e the <code>MouseEvent</code>
      */
     @Override
     public void mouseReleased(MouseEvent e) {
@@ -236,8 +229,7 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
      * <code>MOUSE_DRAGGED</code> events may not be delivered during a native
      * Drag&Drop operation.
      *
-     * @param e the
-     * <code>MouseEvent</code>
+     * @param e the <code>MouseEvent</code>
      */
     @Override
     public void mouseDragged(MouseEvent e) {
@@ -248,8 +240,7 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
      * Invoked when the mouse cursor has been moved onto a component but no
      * buttons have been pushed.
      *
-     * @param e the
-     * <code>MouseEvent</code>
+     * @param e the <code>MouseEvent</code>
      */
     @Override
     public void mouseMoved(MouseEvent e) {
@@ -260,8 +251,7 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
      * Processes all caught
      * <code>MouseEvent</code>s.
      *
-     * @param e the
-     * <code>MouseEvent</code>
+     * @param e the <code>MouseEvent</code>
      */
     private void processMouseEvents(MouseEvent e) {
         int tabNumber = getUI().tabForCoordinate(this, e.getX(), e.getY());
@@ -343,8 +333,7 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
      * Adds an
      * <code>CloseableTabbedPaneListener</code> to the tabbedpane.
      *
-     * @param l the
-     * <code>CloseableTabbedPaneListener</code> to be added
+     * @param l the <code>CloseableTabbedPaneListener</code> to be added
      */
     public void addCloseableTabbedPaneListener(CloseableTabbedPaneListener l) {
         listenerList.add(CloseableTabbedPaneListener.class, l);
@@ -365,9 +354,8 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
      * <code>SearchListener</code>s added to this
      * <code>SearchPane</code> with addSearchListener().
      *
-     * @return all of the
-     * <code>SearchListener</code>s added or an empty array if no listeners have
-     * been added
+     * @return all of the <code>SearchListener</code>s added or an empty array
+     * if no listeners have been added
      */
     public CloseableTabbedPaneListener[] getCloseableTabbedPaneListener() {
         return listenerList.getListeners(CloseableTabbedPaneListener.class);

@@ -80,10 +80,7 @@ public class VerticesSelectionPanel extends PanelInterface {
         }
 
         List<TopologyVertex> vertices = topology.getVertexFactory().getAllVertices();
-        if (vertices == null) {
-            logg.error("list of all vertices is null");
-            return false;
-        }
+      
         for (TopologyVertex v : vertices) {
             combDestination.addItem(v);
             combSource.addItem(v);
