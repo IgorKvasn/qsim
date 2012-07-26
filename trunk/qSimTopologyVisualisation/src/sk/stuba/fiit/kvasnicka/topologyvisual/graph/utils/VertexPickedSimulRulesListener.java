@@ -43,14 +43,14 @@ public class VertexPickedSimulRulesListener implements GraphMouseListener<Topolo
     private PickedState<TopologyVertex> ps;
     private AddSimulationTopComponent component;
 
-    public VertexPickedSimulRulesListener(DefaultVertexIconTransformer<TopologyVertex> imager, TopologyVisualisation topComponent, PickedState<TopologyVertex> ps) {
+    public VertexPickedSimulRulesListener(DefaultVertexIconTransformer<TopologyVertex> imager, TopologyVisualisation topComponent, AddSimulationTopComponent addSimulationTopComponent, PickedState<TopologyVertex> ps) {
+        if (addSimulationTopComponent == null) {
+            throw new IllegalStateException("addSimulationTopComponent is NULL");
+        }
         this.imager = imager;
         this.topComponent = topComponent;
+        this.component = addSimulationTopComponent;
         this.ps = ps;
-        component = (AddSimulationTopComponent) WindowManager.getDefault().findTopComponent("AddSimulationTopComponent");
-        if (component == null) {
-            throw new IllegalStateException("Could not ind window: AddSimulationTopComponent");
-        }
     }
 
     /**
@@ -73,7 +73,6 @@ public class VertexPickedSimulRulesListener implements GraphMouseListener<Topolo
 //    private void selectVertex(LayeredIcon icon, ImageType imageType, boolean select) {
 //        icon.setImage(ImageResourceHelper.loadImageVertexAsImage(imageType, select));
 //    }
-
     @Override
     public void graphPressed(TopologyVertex v, MouseEvent me) {
     }

@@ -4,19 +4,19 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata;
 
-import info.monitorenter.gui.chart.ITrace2D;
 import java.util.List;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.pingrule.PingRuleEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.pingrule.PingRuleListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationEvent;
@@ -25,7 +25,6 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.events.simulationrule.SimulationRu
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.simulationrule.SimulationRuleListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalData;
 import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalDataManager;
 
@@ -60,6 +59,8 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
 
     public SimulRuleReviewTopComponent(SimulationFacade simulationFacade) {
         initComponents();
+        this.simulationFacade = simulationFacade;
+
         setName(Bundle.CTL_SimulRuleReviewTopComponent());
         setToolTipText(Bundle.HINT_SimulRuleReviewTopComponent());
 
@@ -79,7 +80,28 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
         SelectionListener listenerSimul = new SelectionListener(simulTable, false);
         simulTable.getSelectionModel().addListSelectionListener(listenerSimul);
         simulTable.getColumnModel().getSelectionModel().addListSelectionListener(listenerSimul);
-        this.simulationFacade = simulationFacade;
+
+        ChangeListener changeListener = new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent changeEvent) {
+                JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
+                int index = sourceTabbedPane.getSelectedIndex();
+                if (index == 1) {//tab with index=1 is simulation rules tab
+                    btnStat.setEnabled(false);
+                } else {
+                    btnStat.setEnabled(true);
+                }
+
+            }
+        };
+        jTabbedPane1.addChangeListener(changeListener);
+    }
+
+    public void closeSimulationDataTopComponent() {
+        if (simulDataTopComponent != null) {
+            simulDataTopComponent.close();
+            simulDataTopComponent = null;
+        }
     }
 
     public void setSimulationRules(StatisticalDataManager statManager, List<SimulationRuleBean> simulRules) {
@@ -580,7 +602,6 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
                 return;
             }
             showDetails(table.getSelectedRow(), ping);
-
         }
     }
 }

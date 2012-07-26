@@ -30,6 +30,7 @@ import org.apache.log4j.Logger;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
+import org.openide.windows.Mode;
 import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.events.topologystate.TopologyStateChangedEvent;
@@ -76,7 +77,8 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
      * class.
      */
     public PopupVertexEdgeMenuMousePlugin(Topology topology, int modifiers) {
-        super(modifiers);
+        super(modifiers);     
+
         createVertexPopup();
         createEdgePopup();
         this.topology = topology;
@@ -200,11 +202,7 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                     }
                 }
 
-                //reload simulation rules shown in SimulationTopComponent
-                SimulationTopComponent myTC = (SimulationTopComponent) WindowManager.getDefault().findTopComponent("SimulationTopComponent");
-                if (myTC.isOpened()) {//only if it is opened (note: opened is not the same as visible - it may be opened, but covered by some other TopComponent)
-                    myTC.loadSimulationRules();
-                }
+               topology.getTopolElementTopComponent().reloadSimulationRuleData();
             }
 
             if (topology.getSelectedVertices().isEmpty()) {//user right clicks on the vertex - this does not selects vertex
@@ -294,6 +292,8 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
 
     private class ShowSimulationLogsMenuItem implements ActionListener {
 
+        private SimulationLogTopComponent logTopComponent = new SimulationLogTopComponent();
+
         @Override
         public void actionPerformed(ActionEvent e) {
             if (topology.getSelectedVertices().isEmpty()) {
@@ -307,10 +307,12 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
          * opens new simulation log top component associated with this topology
          */
         private void openSimulationLogTopcomponent(Collection<TopologyVertex> vertices) {
-            SimulationLogTopComponent logTopComponent = (SimulationLogTopComponent) WindowManager.getDefault().findTopComponent("SimulationLogTopComponent");
             logTopComponent.setTopology(topology);
             logTopComponent.showVetices(vertices);
+            Mode outputMode = WindowManager.getDefault().findMode("output");
+            outputMode.dockInto(logTopComponent);
             logTopComponent.open();
+            logTopComponent.requestActive();
         }
     }
 }

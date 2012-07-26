@@ -18,8 +18,6 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui;
 
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -63,10 +61,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectio
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.AddSimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.SimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.SimulRuleReviewTopComponent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.SimulationDataTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.VerticesSelectionPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
-import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalDataManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
@@ -101,13 +97,15 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     @Setter
     private boolean active = false;
     private VerticesSelectionPanel verticesSelectionPanel = null;//used as callback object when user is selecting vertex during simulation rules definition
-    private SimulationFacade simulationFacade; //todo serialise - SimulationManager and PingManager
+    @Getter
+    private SimulationFacade simulationFacade = new SimulationFacade(); //todo serialise - SimulationManager and PingManager
     @Getter
     private transient SimulationData simulationData;
     @Getter
     private transient TopologyStateEnum simulationState;
     private transient StatisticalDataManager statManager;
     private transient SimulRuleReviewTopComponent simulRuleReviewTopComponent;
+    private transient SimulationTopComponent simulationTopComponent;
 
     public TopologyVisualisation(TopologyFileTypeDataObject dataObject) {
         this.dataObject = dataObject;
@@ -127,19 +125,14 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         initPalette();
     }
 
-    public SimulationFacade getSimulationFacade() {
-        if (simulationFacade == null) {
-            simulationFacade = new SimulationFacade();
-        }
-        return simulationFacade;
-    }
+    
 
     /**
      * starts the simulation
      */
     public void runSimulation() {
         //todo check if simulation is already running, but beware that simulation may be paused - playing paused simulation means resume
-        if (getSimulationFacade().isTimerRunning()) {
+        if (simulationFacade.isTimerRunning()) {
             throw new IllegalStateException("simulation is already running");
         }
 
@@ -233,18 +226,24 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
      * configure simulation rules
      */
     public void configureSimulation() {
-        SimulationTopComponent component = (SimulationTopComponent) WindowManager.getDefault().findTopComponent("SimulationTopComponent");
-        if (component == null) {
-            logg.error("Could not find component SimulationTopComponent");
-            return;
-        }
-        component.open();
+        simulationTopComponent = new SimulationTopComponent(simulationFacade, simulationData);
+        Mode outputMode = WindowManager.getDefault().findMode("output");
+        outputMode.dockInto(simulationTopComponent);
+        simulationTopComponent.open();
+        simulationTopComponent.requestActive();
     }
 
     private void setSimulationState(TopologyStateEnum state) {
         simulationState = state;
         updateToolbarButtons(false);
         fireTopologyStateChangeEvent(new TopologyStateChangedEvent(this, state));
+    }
+
+    public void reloadSimulationRuleData() {
+        //reload simulation rules shown in SimulationTopComponent
+        if (simulationTopComponent != null && simulationTopComponent.isOpened()) {//only if it is opened (note: opened is not the same as visible - it may be opened, but covered by some other TopComponent)
+            simulationTopComponent.loadSimulationRules();
+        }
     }
 
     /**
@@ -286,19 +285,11 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         logg.debug("---- closing palette - can close: " + palette.canClose());
         palette.close();
 
-        SimulationTopComponent simulationTopComp = (SimulationTopComponent) WindowManager.getDefault().findTopComponent("SimulationTopComponent");
-        if (simulationTopComp == null) {
-            logg.error("Could not find component SimulationTopComponent");
-            return;
+        if (simulationTopComponent != null) {
+            simulationTopComponent.close();
+            simulationTopComponent.closeAddSimulationTopComponent();
+            simulationTopComponent = null;
         }
-        simulationTopComp.close();
-
-        AddSimulationTopComponent addSimulRule = (AddSimulationTopComponent) WindowManager.getDefault().findTopComponent("AddSimulationTopComponent");
-        if (addSimulRule == null) {
-            logg.error("Could not find component AddSimulationTopComponent");
-            return;
-        }
-        addSimulRule.close();
     }
 
     private void openSimulationWindows(StatisticalDataManager statManager, List<SimulationRuleBean> simulRules) {
@@ -320,13 +311,17 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             simulationFacade.removePingRuleListener(simulRuleReviewTopComponent);
             simulationFacade.removeSimulationRuleListener(simulRuleReviewTopComponent);
             simulRuleReviewTopComponent.close();
+            simulRuleReviewTopComponent.closeSimulationDataTopComponent();
+            simulRuleReviewTopComponent = null;
         }
-
-
-        SimulationDataTopComponent simulData = (SimulationDataTopComponent) WindowManager.getDefault().findTopComponent("SimulationDataTopComponent");
-        if (simulData != null) {//if null, this top component is not opened
-            simulData.close();
+        if (simulationTopComponent != null) {
+            simulationTopComponent.close();
+            simulationTopComponent = null;
         }
+    }
+
+    public AddSimulationTopComponent getAddSimulRuleTopComponent() {
+        return simulationTopComponent.getAddSimulationTopComponent();
     }
 
     /**
@@ -360,7 +355,6 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         topologyElementCreator = new TopologyElementCreatorHelper(topology, this);
         //listen for vertices to change their position
         topology.getVv().addChangeListener(new ChangeListener() {
-
             @Override
             public void stateChanged(ChangeEvent e) {
                 topologyModified();
@@ -426,19 +420,10 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     }
 
     private void hideSimulationTopComponents() {
-        SimulationTopComponent component = (SimulationTopComponent) WindowManager.getDefault().findTopComponent("SimulationTopComponent");
-        if (component == null) {
-            logg.error("Could not find component SimulationTopComponent");
-            return;
+        if (simulationTopComponent != null) {
+            simulationTopComponent.close();
+            simulationTopComponent.closeAddSimulationTopComponent();
         }
-        component.close();
-
-        AddSimulationTopComponent componentAdd = (AddSimulationTopComponent) WindowManager.getDefault().findTopComponent("AddSimulationTopComponent");
-        if (componentAdd == null) {
-            logg.error("Could not find component AddSimulationTopComponent");
-            return;
-        }
-        componentAdd.close();
     }
 
     /**

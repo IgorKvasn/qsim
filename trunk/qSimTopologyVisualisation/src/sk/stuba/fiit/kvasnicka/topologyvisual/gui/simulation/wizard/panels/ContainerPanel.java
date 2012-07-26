@@ -36,15 +36,19 @@ public class ContainerPanel extends javax.swing.JPanel {
     private static final Logger logg = Logger.getLogger(ContainerPanel.class);
     private SimulationRuleIterator panelIterator;
     private JPanel actualPanel;
+    private final AddSimulationTopComponent addSimulationTopComponent;
+    private final SimulationTopComponent simulationTopComponent;
 
     /**
      * Creates new form ContainerPanel
      */
-    public ContainerPanel(SimulationRuleIterator panelIterator) {
+    public ContainerPanel(SimulationRuleIterator panelIterator, AddSimulationTopComponent addSimulationTopComponent, SimulationTopComponent simulationTopComponent) {
         initComponents();
         this.panelIterator = panelIterator;
         jButton3.setEnabled(false);
         jButton4.setEnabled(!panelIterator.isPanelLast());
+        this.addSimulationTopComponent = addSimulationTopComponent;
+        this.simulationTopComponent = simulationTopComponent;
     }
 
     public void reset() {
@@ -67,17 +71,12 @@ public class ContainerPanel extends javax.swing.JPanel {
 
         panelIterator.cancelIterator();
 
-        AddSimulationTopComponent componentAdd = (AddSimulationTopComponent) WindowManager.getDefault().findTopComponent("AddSimulationTopComponent");
-        if (componentAdd == null) {
-            logg.error("Could not find component AddSimulationTopComponent");
-            return;
-        }
-        componentAdd.close();
+
+        addSimulationTopComponent.close();
     }
 
     private void reloadSimulationRules() {
-        SimulationTopComponent myTC = (SimulationTopComponent) WindowManager.getDefault().findTopComponent("SimulationTopComponent");
-        myTC.loadSimulationRules();
+        simulationTopComponent.loadSimulationRules();
     }
 
     /**
@@ -175,12 +174,7 @@ public class ContainerPanel extends javax.swing.JPanel {
                 panelIterator.cancelIterator();
 
                 //close this top component
-                AddSimulationTopComponent componentAdd = (AddSimulationTopComponent) WindowManager.getDefault().findTopComponent("AddSimulationTopComponent");
-                if (componentAdd == null) {
-                    logg.error("Could not find component AddSimulationTopComponent");
-                    return;
-                }
-                componentAdd.close();
+                addSimulationTopComponent.close();
 
                 jButton4.setText(NbBundle.getMessage(ContainerPanel.class, "ContainerPanel.jButton4.text"));
 
