@@ -33,8 +33,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 /**
  * Top component which displays something.
  */
-@ConvertAsProperties(dtd = "-//sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation//AddSimulation//EN",
-autostore = false)
+//@ConvertAsProperties(dtd = "-//sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation//AddSimulation//EN",
+//autostore = false)
 @TopComponent.Description(preferredID = "AddSimulationTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
 persistenceType = TopComponent.PERSISTENCE_NEVER)
@@ -59,14 +59,14 @@ public final class AddSimulationTopComponent extends TopComponent {
     private Data modifyData = null; //simulation data to be modified; null if new data should be created
     private int panelToShow = 0;
 
-    public AddSimulationTopComponent() {
+    public AddSimulationTopComponent(SimulationTopComponent simulationTopComponent) {
         initComponents();
         setName(Bundle.CTL_AddSimulationTopComponent());
         setToolTipText(Bundle.HINT_AddSimulationTopComponent());
         putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
         putClientProperty(TopComponent.PROP_SLIDING_DISABLED, Boolean.TRUE);
         panelIterator = new SimulationRuleIterator();
-        containerPanel = new ContainerPanel(panelIterator);
+        containerPanel = new ContainerPanel(panelIterator, this, simulationTopComponent);
         panelIterator.setContainerPanel(containerPanel);
         setLayout(new BorderLayout());
         add(containerPanel, BorderLayout.CENTER);

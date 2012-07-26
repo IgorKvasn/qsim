@@ -16,16 +16,14 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.table.*;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.util.NbBundle;
@@ -33,17 +31,18 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
-import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 
 /**
  * Top component which displays something.
  */
-@ConvertAsProperties(dtd = "-//sk.stuba.fiit.kvasnicka.topologyvisual.gui//Simulation//EN",
-autostore = false)
+//@ConvertAsProperties(dtd = "-//sk.stuba.fiit.kvasnicka.topologyvisual.gui//Simulation//EN",
+//autostore = false)
 @TopComponent.Description(preferredID = "SimulationTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
 persistenceType = TopComponent.PERSISTENCE_NEVER)
@@ -52,8 +51,8 @@ persistenceType = TopComponent.PERSISTENCE_NEVER)
 @ActionReference(path = "Menu/Window" /*
  * , position = 333
  */)
-@TopComponent.OpenActionRegistration(displayName = "#CTL_SimulationAction",
-preferredID = "SimulationTopComponent")
+//@TopComponent.OpenActionRegistration(displayName = "#CTL_SimulationAction",
+//preferredID = "SimulationTopComponent")
 @Messages({
     "CTL_SimulationAction=Simulation",
     "CTL_SimulationTopComponent=Simulation Window",
@@ -69,8 +68,12 @@ public final class SimulationTopComponent extends TopComponent {
     private RowFilter<TableModel, Object> compoundRowFilter = null;
     private TableRowSorter<TableModel> sorterSimRules;
     private DefaultTableModel tableModel;
+    private final SimulationFacade simulationFacade;
+    @Getter
+    private AddSimulationTopComponent addSimulationTopComponent;
+    private final SimulationData simulationData;
 
-    public SimulationTopComponent() {
+    public SimulationTopComponent(SimulationFacade simulationFacade, SimulationData simulationData) {
         initComponents();
 
         setName(Bundle.CTL_SimulationTopComponent());
@@ -84,6 +87,8 @@ public final class SimulationTopComponent extends TopComponent {
          * object
          */
         jXTable1.removeColumn(jXTable1.getColumnModel().getColumn(0));
+        this.simulationFacade = simulationFacade;
+        this.simulationData = simulationData;
     }
 
     /**
@@ -91,15 +96,20 @@ public final class SimulationTopComponent extends TopComponent {
      * #208059: http://netbeans.org/bugzilla/show_bug.cgi?id=208059
      */
     private void addSimulation() {
-        Mode outputMode = WindowManager.getDefault().findMode("output");
-        TopComponent myTC = WindowManager.getDefault().findTopComponent("AddSimulationTopComponent");
-        if (myTC == null) {
-            logg.error("Could not ind window: AddSimulationTopComponent");
-            return;
+        if (addSimulationTopComponent == null) {
+            throw new IllegalStateException("addSimulationTopComponent is NULL");
         }
-        outputMode.dockInto(myTC);
-        myTC.open();
-        myTC.requestActive();
+        Mode outputMode = WindowManager.getDefault().findMode("output");
+        outputMode.dockInto(addSimulationTopComponent);
+        addSimulationTopComponent.open();
+        addSimulationTopComponent.requestActive();
+    }
+
+    public void closeAddSimulationTopComponent() {
+        if (addSimulationTopComponent != null) {
+            addSimulationTopComponent.close();
+            addSimulationTopComponent = null;
+        }
     }
 
     private void updateFilter() {
@@ -309,6 +319,7 @@ public final class SimulationTopComponent extends TopComponent {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        addSimulationTopComponent = new AddSimulationTopComponent(this);
         addSimulation();
     }//GEN-LAST:event_btnAddActionPerformed
 
@@ -337,14 +348,12 @@ public final class SimulationTopComponent extends TopComponent {
 
         int rowToModify = jXTable1.convertRowIndexToModel(jXTable1.getSelectedRow());
         String dataID = (String) tableModel.getValueAt(rowToModify, 0);
-        Data data = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().getSimulationData().findSimulationData(dataID);
+        Data data = simulationData.findSimulationData(dataID);
 
-        TopComponent myTC = WindowManager.getDefault().findTopComponent("AddSimulationTopComponent");
-        if (myTC == null) {
-            logg.error("Could not ind window: AddSimulationTopComponent");
-            return;
+        if (addSimulationTopComponent == null) {
+            addSimulationTopComponent = new AddSimulationTopComponent(this);
         }
-        ((AddSimulationTopComponent) myTC).modifySimulationRule(data, SimulationRuleIterator.ROUTING_PANEL);
+        addSimulationTopComponent.modifySimulationRule(data, SimulationRuleIterator.ROUTING_PANEL);
         addSimulation();
 
     }//GEN-LAST:event_jButton2ActionPerformed
@@ -371,11 +380,8 @@ public final class SimulationTopComponent extends TopComponent {
 
     @Override
     public void componentOpened() {
-        TopologyVisualisation activeTopologyVisualisation = NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation();
-        if (activeTopologyVisualisation == null) {
-            throw new IllegalStateException("activeTopologyVisualisation is NULL");
-        }
-        List<SimulationRuleBean> simulationRules = activeTopologyVisualisation.getSimulationFacade().getSimulationRules();
+
+        List<SimulationRuleBean> simulationRules = simulationFacade.getSimulationRules();
         if (simulationRules == null) {
             throw new IllegalStateException("Simulation rules are NULL"); //this really should not happen
         }

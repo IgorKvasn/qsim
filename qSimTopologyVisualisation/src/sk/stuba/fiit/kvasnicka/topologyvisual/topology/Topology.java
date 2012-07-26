@@ -297,7 +297,7 @@ public class Topology implements VertexCreatedListener {
         PickedState<TopologyVertex> ps = vv.getPickedVertexState();
         vv.removeGraphMouseListener(vertexPickedListener);
         DefaultVertexIconTransformer<TopologyVertex> vertexIconTransformer = (DefaultVertexIconTransformer<TopologyVertex>) vv.getRenderContext().getVertexIconTransformer();
-        vertexPickedListener = new VertexPickedSimulRulesListener(vertexIconTransformer, topolElementTopComponent, ps);
+        vertexPickedListener = new VertexPickedSimulRulesListener(vertexIconTransformer, topolElementTopComponent,topolElementTopComponent.getAddSimulRuleTopComponent() , ps);
         vv.addGraphMouseListener(vertexPickedListener);
     }
 
