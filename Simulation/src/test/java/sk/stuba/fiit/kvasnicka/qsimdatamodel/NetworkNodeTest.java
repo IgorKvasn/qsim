@@ -37,6 +37,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.PacketGenerator;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
@@ -654,7 +655,7 @@ public class NetworkNodeTest {
 
         setWithoutSetter(SimulationTimer.class, timer, "simulationManager", simulationManager);
 
-        timer.startSimulationTimer(simulationManager, new PingManager()); //need to init all the stuff
+        timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>()); //need to init all the stuff
 
 
         Field privateStringField = SimulationTimer.class.getDeclaredField("packetGenerator");

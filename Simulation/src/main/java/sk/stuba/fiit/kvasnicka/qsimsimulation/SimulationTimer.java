@@ -21,6 +21,7 @@ import lombok.Getter;
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.timer.SimulationTimerEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.timer.SimulationTimerListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
@@ -77,7 +78,7 @@ public class SimulationTimer implements ActionListener {
     /**
      * starts the timer
      */
-    public void startSimulationTimer(SimulationManager simulationManager, PingManager pingManager) {
+    public void startSimulationTimer(SimulationManager simulationManager, PingManager pingManager, List<SimulationRuleActivationListener> listenerToBeAdded) {
         if (simulationManager == null) {
             throw new IllegalStateException("simulation manager is NULL");
         }
@@ -98,6 +99,12 @@ public class SimulationTimer implements ActionListener {
         for (NetworkNode node : getTopologyManager().getNodeList()) {
             node.setTopologyManager(topologyManager);
         }
+        //adds listeners
+        for (SimulationRuleActivationListener listener : listenerToBeAdded) {
+            packetGenerator.addSimulationRuleActivationListener(listener);
+        }
+        listenerToBeAdded.clear();
+
 
         timer = new Timer(convertTime(1), this);
         if (logg.isDebugEnabled()) {

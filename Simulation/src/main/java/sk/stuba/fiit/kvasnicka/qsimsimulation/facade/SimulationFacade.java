@@ -62,12 +62,6 @@ public class SimulationFacade {
         simulationLogUtils = new SimulationLogUtils(); //injector.getInstance(SimulationLogUtils.class);
         ReflectionHelper.initSimulLog(nodeList, simulationLogUtils);
         timer = new SimulationTimer(edgeList, nodeList, simulationLogUtils);
-
-
-        for (SimulationRuleActivationListener listener : listenerToBeAdded) {
-            timer.getPacketGenerator().addSimulationRuleActivationListener(listener);
-        }
-        listenerToBeAdded.clear();
     }
 
 
@@ -84,7 +78,8 @@ public class SimulationFacade {
         if (timer.isRunning()) {
             throw new IllegalStateException("Starting timer: simulation timeris already running.");
         }
-        timer.startSimulationTimer(simulationManager, pingManager);
+
+        timer.startSimulationTimer(simulationManager, pingManager, listenerToBeAdded);
     }
 
     /**
