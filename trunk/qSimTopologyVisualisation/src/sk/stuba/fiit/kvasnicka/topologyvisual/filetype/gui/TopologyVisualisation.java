@@ -64,6 +64,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.Simu
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.VerticesSelectionPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
+import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.RunningSimulationManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalDataManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyStateEnum;
@@ -88,7 +89,6 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     private TopologyElementCreatorHelper topologyElementCreator;
     private PaletteActionEnum selectedAction = null;
     private DialogHandler dialogHandler;
-    private InstanceContent content;
     @Getter
     private TopologyFileTypeDataObject dataObject;
     private JToolBar toolBar = new JToolBar();
@@ -115,7 +115,6 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
         initComponents();
 
-        content = new InstanceContent();
         topology = new Topology(this);
         simulationData = new SimulationData(dataObject, topology);
 
@@ -125,13 +124,10 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         initPalette();
     }
 
-    
-
     /**
      * starts the simulation
      */
     public void runSimulation() {
-        //todo check if simulation is already running, but beware that simulation may be paused - playing paused simulation means resume
         if (simulationFacade.isTimerRunning()) {
             throw new IllegalStateException("simulation is already running");
         }
@@ -176,6 +172,9 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
                 simulationFacade.startTimer();
             }
 
+            //add this simulation to list of all running simulations
+            RunningSimulationManager.getInstance().simulationStarted(dataObject.getName());
+
         } catch (RoutingException ex) {
             JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),
                     NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_part1") + "\n" + ex.getMessage() + "\n" + NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_part2"),
@@ -204,6 +203,9 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         simulationFacade.removePingPacketDeliveredListener(statManager);
 
         closeSimulationWindows();
+
+        //remove this simulation from list of all running simulations
+        RunningSimulationManager.getInstance().simulationEnded(dataObject.getName());
 
         //opens palette sho user can add new vertices/edges
         TopologyPaletteTopComponent palette = (TopologyPaletteTopComponent) WindowManager.getDefault().findTopComponent("TopologyPaletteTopComponent");
@@ -589,7 +591,6 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
     @Override
     public void vertexCreatedOccurred(VertexCreatedEvent evt) {
-        content.add(evt.getNewVertex());//todo this has PROBABLY no meaning
         topologyModified();
     }
 
