@@ -27,7 +27,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalDataManager;
 @TopComponent.Description(preferredID = "SimulationDataTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
 persistenceType = TopComponent.PERSISTENCE_NEVER)
-@TopComponent.Registration(mode = "output", openAtStartup = false)
+@TopComponent.Registration(mode = "myoutput", openAtStartup = false)
 @ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.simulationdata.SimulationDataTopComponent")
 @ActionReference(path = "Menu/Window" /*
  * , position = 333
@@ -130,9 +130,18 @@ public final class SimulationDataTopComponent extends TopComponent {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        chart = new info.monitorenter.gui.chart.Chart2D();
+        jSplitPane1 = new javax.swing.JSplitPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         jXTaskPaneContainer1 = new org.jdesktop.swingx.JXTaskPaneContainer();
+        chart = new info.monitorenter.gui.chart.Chart2D();
+
+        jSplitPane1.setDividerLocation(252);
+
+        jXTaskPaneContainer1.setOpaque(false);
+        jXTaskPaneContainer1.setLayout(new java.awt.GridLayout(0, 1));
+        jScrollPane1.setViewportView(jXTaskPaneContainer1);
+
+        jSplitPane1.setLeftComponent(jScrollPane1);
 
         chart.setRequestedRepaint(false);
         chart.setUseAntialiasing(true);
@@ -141,16 +150,14 @@ public final class SimulationDataTopComponent extends TopComponent {
         chart.setLayout(chartLayout);
         chartLayout.setHorizontalGroup(
             chartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 821, Short.MAX_VALUE)
+            .addGap(0, 656, Short.MAX_VALUE)
         );
         chartLayout.setVerticalGroup(
             chartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 379, Short.MAX_VALUE)
+            .addGap(0, 311, Short.MAX_VALUE)
         );
 
-        jXTaskPaneContainer1.setOpaque(false);
-        jXTaskPaneContainer1.setLayout(new java.awt.GridLayout(0, 1));
-        jScrollPane1.setViewportView(jXTaskPaneContainer1);
+        jSplitPane1.setRightComponent(chart);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -158,24 +165,21 @@ public final class SimulationDataTopComponent extends TopComponent {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 363, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
-                .addComponent(chart, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 919, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1)
-                    .addComponent(chart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jSplitPane1)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private info.monitorenter.gui.chart.Chart2D chart;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSplitPane jSplitPane1;
     private org.jdesktop.swingx.JXTaskPaneContainer jXTaskPaneContainer1;
     // End of variables declaration//GEN-END:variables
 

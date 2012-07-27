@@ -227,7 +227,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
      */
     public void configureSimulation() {
         simulationTopComponent = new SimulationTopComponent(simulationFacade, simulationData);
-        Mode outputMode = WindowManager.getDefault().findMode("output");
+        Mode outputMode = WindowManager.getDefault().findMode("myoutput");
         outputMode.dockInto(simulationTopComponent);
         simulationTopComponent.open();
         simulationTopComponent.requestActive();

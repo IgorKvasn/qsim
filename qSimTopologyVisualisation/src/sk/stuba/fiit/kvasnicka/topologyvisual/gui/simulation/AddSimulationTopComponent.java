@@ -38,7 +38,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 @TopComponent.Description(preferredID = "AddSimulationTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
 persistenceType = TopComponent.PERSISTENCE_NEVER)
-@TopComponent.Registration(mode = "output", openAtStartup = false)
+@TopComponent.Registration(mode = "myoutput", openAtStartup = false)
 @ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.AddSimulationTopComponent")
 //@ActionReference(path = "Menu/Window" /*
 // * , position = 333

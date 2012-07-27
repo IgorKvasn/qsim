@@ -29,7 +29,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalData;
 import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalDataManager;
 
 /**
- * Top component which displays something.
+ * Top component which displays review (summary) about all simulation rules.
  */
 //@ConvertAsProperties(dtd = "-//sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata//SimulRuleReview//EN",
 //autostore = false)

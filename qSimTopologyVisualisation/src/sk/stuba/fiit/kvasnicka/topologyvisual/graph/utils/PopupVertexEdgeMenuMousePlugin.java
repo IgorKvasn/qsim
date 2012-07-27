@@ -309,7 +309,7 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
         private void openSimulationLogTopcomponent(Collection<TopologyVertex> vertices) {
             logTopComponent.setTopology(topology);
             logTopComponent.showVetices(vertices);
-            Mode outputMode = WindowManager.getDefault().findMode("output");
+            Mode outputMode = WindowManager.getDefault().findMode("myoutput");
             outputMode.dockInto(logTopComponent);
             logTopComponent.open();
             logTopComponent.requestActive();
