@@ -32,6 +32,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
@@ -44,6 +45,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
@@ -124,7 +126,7 @@ public class IntegrationTest {
 
         simulationManager = new SimulationManager();
 
-        timer.startSimulationTimer(simulationManager, new PingManager());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
+        timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
 
         timer.actionPerformed(null);
 
@@ -144,7 +146,7 @@ public class IntegrationTest {
 
         simulationManager.addSimulationRule(rule);
 
-        timer.startSimulationTimer(simulationManager, new PingManager());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
+        timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);
@@ -171,7 +173,7 @@ public class IntegrationTest {
 
         simulationManager.addSimulationRule(rule);
 
-        timer.startSimulationTimer(simulationManager, new PingManager());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
+        timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);
@@ -207,7 +209,7 @@ public class IntegrationTest {
         rule.setRoute(Arrays.asList(node1, node2));
         simulationManager.addSimulationRule(rule);
 
-        timer.startSimulationTimer(simulationManager, new PingManager());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
+        timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);
@@ -239,7 +241,7 @@ public class IntegrationTest {
 
         simulationManager.addSimulationRule(rule);
 
-        timer.startSimulationTimer(simulationManager, new PingManager());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
+        timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);
@@ -283,7 +285,7 @@ public class IntegrationTest {
 
         simulationManager.addSimulationRule(rule);
 
-        timer.startSimulationTimer(simulationManager, new PingManager());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
+        timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);
@@ -308,7 +310,7 @@ public class IntegrationTest {
 
         simulationManager.addSimulationRule(rule);
 
-        timer.startSimulationTimer(simulationManager, new PingManager());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
+        timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);
@@ -338,7 +340,7 @@ public class IntegrationTest {
         simulationManager.addSimulationRule(rule);
 
 
-        timer.startSimulationTimer(simulationManager, new PingManager());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
+        timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
 
         //perform 2 timer ticks
         timer.actionPerformed(null);

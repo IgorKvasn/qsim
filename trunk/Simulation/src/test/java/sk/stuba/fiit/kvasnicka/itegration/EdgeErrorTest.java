@@ -29,6 +29,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
@@ -119,7 +120,7 @@ public class EdgeErrorTest {
 
         simulationManager.addSimulationRule(rule);
 
-        timer.startSimulationTimer(simulationManager, new PingManager());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
+        timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);

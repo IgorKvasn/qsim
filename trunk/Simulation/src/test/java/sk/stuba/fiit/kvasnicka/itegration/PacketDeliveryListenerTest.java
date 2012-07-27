@@ -33,6 +33,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
@@ -42,6 +43,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -165,7 +167,7 @@ public class PacketDeliveryListenerTest {
 
 
         setWithoutSetter(SimulationTimer.class, timer, "simulationManager", simulationManager);
-        timer.startSimulationTimer(simulationManager, new PingManager());
+        timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>());
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);
