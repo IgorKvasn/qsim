@@ -20,7 +20,7 @@
               <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
               <Component id="dropCategory" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="41" max="-2" attributes="0"/>
-              <Component id="closeableTabbedPane1" pref="739" max="32767" attributes="0"/>
+              <Component id="closeableTabbedPane1" pref="780" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -29,7 +29,7 @@
           <Group type="102" attributes="0">
               <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
               <Component id="dropCategory" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="200" max="32767" attributes="0"/>
+              <EmptySpace pref="289" max="32767" attributes="0"/>
           </Group>
           <Component id="closeableTabbedPane1" alignment="0" max="32767" attributes="0"/>
       </Group>
