@@ -25,8 +25,8 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.events.simulationrule.SimulationRu
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.simulationrule.SimulationRuleListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
-import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalData;
-import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalDataManager;
+import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.rules.SimulRuleStatisticalData;
+import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.rules.SimulRuleStatisticalDataManager;
 
 /**
  * Top component which displays review (summary) about all simulation rules.
@@ -53,7 +53,7 @@ persistenceType = TopComponent.PERSISTENCE_NEVER)
 public final class SimulRuleReviewTopComponent extends TopComponent implements SimulationRuleActivationListener, SimulationRuleListener, PingRuleListener {
 
     private DefaultTableModel pingModel, simulRuleModel;
-    private StatisticalDataManager statManager;
+    private SimulRuleStatisticalDataManager statManager;
     private SimulationDataTopComponent simulDataTopComponent;
     private final SimulationFacade simulationFacade;
 
@@ -104,7 +104,7 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
         }
     }
 
-    public void setSimulationRules(StatisticalDataManager statManager, List<SimulationRuleBean> simulRules) {
+    public void setSimulationRules(SimulRuleStatisticalDataManager statManager, List<SimulationRuleBean> simulRules) {
         this.statManager = statManager;
         simulDataTopComponent = new SimulationDataTopComponent(statManager.getStatisticalData());
 
@@ -119,7 +119,7 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
         }
 
         //add ping rules
-        for (StatisticalData data : statManager.getStatisticalData()) {
+        for (SimulRuleStatisticalData data : statManager.getStatisticalData()) {
             if (data.getRule().isPing()) {
                 addRow(pingModel, data.getRule());
             }

@@ -13,7 +13,7 @@ import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.events.statisticaldata.StatisticalDataChangedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.events.statisticaldata.StatisticalDataEvent;
-import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalData;
+import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.rules.SimulRuleStatisticalData;
 
 /**
  * panel that shows simulation statistical data for one simulation rule
@@ -22,14 +22,14 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalData;
  */
 public class SimulationDataPanel extends javax.swing.JPanel implements StatisticalDataChangedListener {
 
-    private final StatisticalData statData;
+    private final SimulRuleStatisticalData statData;
     private final SimulationDataTopComponent simulationDataTopComponent;
     private ColorPreviewIcon colorPreviewIcon;
 
     /**
      * Creates new form SimulationDataPanel
      */
-    public SimulationDataPanel(StatisticalData data, SimulationDataTopComponent simulationDataTopComponent, Color traceColor) {
+    public SimulationDataPanel(SimulRuleStatisticalData data, SimulationDataTopComponent simulationDataTopComponent, Color traceColor) {
         initComponents();
         this.statData = data;
         updateData();

@@ -38,6 +38,7 @@ import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.ConfigureSimulationAction;
@@ -60,12 +61,14 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectio
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectionListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.AddSimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.SimulationTopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.NetworkNodeStatisticsTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.SimulRuleReviewTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.VerticesSelectionPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.RunningSimulationManager;
-import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalDataManager;
+import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.nodes.NetworkNodeStatsManager;
+import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.rules.SimulRuleStatisticalDataManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyStateEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.EdgeUtils;
@@ -103,9 +106,11 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     private transient SimulationData simulationData;
     @Getter
     private transient TopologyStateEnum simulationState;
-    private transient StatisticalDataManager statManager;
+    private transient SimulRuleStatisticalDataManager statManager;
     private transient SimulRuleReviewTopComponent simulRuleReviewTopComponent;
     private transient SimulationTopComponent simulationTopComponent;
+    private transient NetworkNodeStatisticsTopComponent networkNodeStatisticsTopComponent;
+    private transient NetworkNodeStatsManager networkNodeStatsManager;
 
     public TopologyVisualisation(TopologyFileTypeDataObject dataObject) {
         this.dataObject = dataObject;
@@ -157,7 +162,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             //everuthing that is no use for simulation
             closeTopologyCreationWindows();
 
-            statManager = new StatisticalDataManager(simulationRules);
+            statManager = new SimulRuleStatisticalDataManager(simulationRules);
             simulationFacade.addPingRuleListener(statManager);
             simulationFacade.addSimulationRuleListener(statManager);
             simulationFacade.addPingPacketDeliveredListener(statManager);
@@ -168,7 +173,9 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             if (simulationFacade.isTimerPaused()) {
                 simulationFacade.resumeTimer();
             } else {
-                simulationFacade.initTimer(EdgeUtils.convertTopologyEdgeListToEdgeList(topology.getG().getEdges()), VerticesUtil.convertTopologyVertexList2NetworkNodeList(topology.getVertexFactory().getAllVertices()));
+                List<NetworkNode> networkNodeList = VerticesUtil.convertTopologyVertexList2NetworkNodeList(topology.getVertexFactory().getAllVertices());
+                simulationFacade.initTimer(EdgeUtils.convertTopologyEdgeListToEdgeList(topology.getG().getEdges()), networkNodeList);
+                networkNodeStatsManager = new NetworkNodeStatsManager(networkNodeList, simulationFacade);
                 simulationFacade.startTimer();
             }
 
@@ -181,6 +188,17 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
                     NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_title"),
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    public void openNetworkNodeSimulationTopcomponent() {//todo call this from toolbar action
+        if (networkNodeStatisticsTopComponent == null) {
+            networkNodeStatisticsTopComponent = new NetworkNodeStatisticsTopComponent(this);
+        }
+
+        Mode outputMode = WindowManager.getDefault().findMode("output");
+        outputMode.dockInto(networkNodeStatisticsTopComponent);
+        networkNodeStatisticsTopComponent.open();
+        networkNodeStatisticsTopComponent.requestActive();
     }
 
     /**
@@ -202,6 +220,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         simulationFacade.removeSimulationRuleListener(statManager);
         simulationFacade.removePingPacketDeliveredListener(statManager);
 
+        networkNodeStatsManager.removeStatisticsListeners();
         closeSimulationWindows();
 
         //remove this simulation from list of all running simulations
@@ -294,7 +313,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         }
     }
 
-    private void openSimulationWindows(StatisticalDataManager statManager, List<SimulationRuleBean> simulRules) {
+    private void openSimulationWindows(SimulRuleStatisticalDataManager statManager, List<SimulationRuleBean> simulRules) {
         simulRuleReviewTopComponent = new SimulRuleReviewTopComponent(simulationFacade);
         simulRuleReviewTopComponent.setSimulationRules(statManager, simulRules);
         simulationFacade.addSimulationRuleActivatedListener(simulRuleReviewTopComponent);
@@ -319,6 +338,11 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         if (simulationTopComponent != null) {
             simulationTopComponent.close();
             simulationTopComponent = null;
+        }
+
+        if (networkNodeStatisticsTopComponent != null) {
+            networkNodeStatisticsTopComponent.close();
+            networkNodeStatisticsTopComponent = null;
         }
     }
 
