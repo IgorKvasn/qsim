@@ -16,8 +16,8 @@ import org.openide.awt.ActionReference;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
-import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalData;
-import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.StatisticalDataManager;
+import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.rules.SimulRuleStatisticalData;
+import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.rules.SimulRuleStatisticalDataManager;
 
 /**
  * Top component which displays something.
@@ -42,9 +42,9 @@ persistenceType = TopComponent.PERSISTENCE_NEVER)
 public final class SimulationDataTopComponent extends TopComponent {
 
     private Map<SimulationRuleBean, TaskPanel> rules;
-    private StatisticalDataManager statData;
+    private SimulRuleStatisticalDataManager statData;
 
-    public SimulationDataTopComponent(Collection<StatisticalData> statDatas) {
+    public SimulationDataTopComponent(Collection<SimulRuleStatisticalData> statDatas) {
         initComponents();
         setName(Bundle.CTL_SimulationDataTopComponent());
         setToolTipText(Bundle.HINT_SimulationDataTopComponent());
@@ -58,12 +58,12 @@ public final class SimulationDataTopComponent extends TopComponent {
      *
      * @param rules
      */
-    public void addSimulationRule(StatisticalDataManager statData, SimulationRuleBean rule) {
+    public void addSimulationRule(SimulRuleStatisticalDataManager statData, SimulationRuleBean rule) {
         if (rules.containsKey(rule)) {//this rule is already showing
             return;
         }
         this.statData = statData;
-        StatisticalData statisticalData = statData.getStatisticalData(rule);
+        SimulRuleStatisticalData statisticalData = statData.getStatisticalData(rule);
         SimulationDataPanel panel = new SimulationDataPanel(statisticalData, this, statisticalData.getChartTrace().getColor());
         statisticalData.addStatisticalDataChangedListener(panel);
         JXTaskPane pane = new JXTaskPane();
@@ -78,7 +78,7 @@ public final class SimulationDataTopComponent extends TopComponent {
     }
 
     public void removeSimulationRule(SimulationRuleBean rule) {
-        StatisticalData statisticalData = statData.getStatisticalData(rule);
+        SimulRuleStatisticalData statisticalData = statData.getStatisticalData(rule);
         TaskPanel hashPanel = rules.get(rule);
         if (hashPanel == null) {
             throw new IllegalStateException("could not find panel for simulation rule");
@@ -112,7 +112,7 @@ public final class SimulationDataTopComponent extends TopComponent {
         return sb.toString();
     }
 
-    void showInChart(StatisticalData statData, boolean showTrace) {
+    void showInChart(SimulRuleStatisticalData statData, boolean showTrace) {
         ITrace2D trace = statData.getChartTrace();
 
         if (showTrace) {
