@@ -71,4 +71,12 @@ public class PreferenciesHelper {
     public static void setNodeTooltipDescription(boolean show) {
         NbPreferences.forModule(PreferenciesHelper.class).putBoolean("isNodeTooltipDescription", show);
     }
+
+    public static void saveRecentlyClosed(String recently) {
+        NbPreferences.forModule(PreferenciesHelper.class).put("recently_closed_projects", recently);
+    }
+
+    public static String loadRecentlyClosed() {
+        return NbPreferences.forModule(PreferenciesHelper.class).get("recently_closed_projects", "");
+    }
 }
