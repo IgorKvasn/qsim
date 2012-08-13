@@ -35,6 +35,7 @@ public class StatisticalData {
         this.rule = rule;
         delayList = new LinkedList<Double>();
         chartTrace = createTrace(rule, generateRandomColor());
+        chartTrace.setName(rule.getName());
     }
 
     public String getSimulationruleId() {
