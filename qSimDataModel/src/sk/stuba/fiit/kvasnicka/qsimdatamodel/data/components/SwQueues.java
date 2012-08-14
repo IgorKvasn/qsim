@@ -21,7 +21,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
-import javax.xml.bind.annotation.XmlTransient;
 import java.util.List;
 
 /**
@@ -30,15 +29,15 @@ import java.util.List;
  * @author Igor Kvasnicka
  */
 
-//todo cela trieda ma byt JAXB serializovatelna - alebo nie?
+//todo cela trieda ma byt JAXB serializovatelna - alebo nie?  - ano
 
 public class SwQueues {
-    @XmlTransient
+    @Getter
     private QueueDefinition[] queues;
 
     public SwQueues(QueueDefinition[] queues) {
         this.queues = new QueueDefinition[queues.length];
-        System.arraycopy(queues, 0, this.queues, 0, queues.length); //http://pmd.sourceforge.net/rules/sunsecure.html
+        System.arraycopy(queues, 0, this.queues, 0, queues.length); //http://pmd.sourceforge.net/rules/java/sunsecure.html - ArrayIsStoredDirectly
     }
 
     public int getQueueCount() {
@@ -64,7 +63,7 @@ public class SwQueues {
      * returns used capacity of appropriate output queue
      *
      * @param queueNumber queue number
-     * @param outputQueue all packets in output queue - regardless of QoS queue number
+     * @param outputQueue all packets in output queue - regardless of QoS queue number (use NetowrkNode.getOutputQueue() to retrieve these packets)
      * @return queue size
      */
     public int getQueueUsedCapacity(int queueNumber, List<Packet> outputQueue) {
