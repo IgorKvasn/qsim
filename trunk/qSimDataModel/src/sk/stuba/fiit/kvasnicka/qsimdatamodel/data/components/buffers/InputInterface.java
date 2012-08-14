@@ -37,7 +37,7 @@ public class InputInterface {
      * edge that is connected to this intput interface
      */
     private Edge edge;
-    private int maxTxSize;
+    private int maxRxSize;
     /**
      * key = fragmentID
      * value = number of fragment already received
@@ -45,12 +45,7 @@ public class InputInterface {
     private Map<String, Integer> fragmentMap;
 
     public InputInterface(Edge edge, int maxRxSize) {
-        if (maxRxSize == - 1) {
-            this.maxTxSize = - 1;
-        } else {
-            this.maxTxSize = maxRxSize;
-        }
-
+        this.maxRxSize = maxRxSize;
         this.edge = edge;
         fragmentMap = new HashMap<String, Integer>();
     }
@@ -77,7 +72,7 @@ public class InputInterface {
         }
         int recievedFragments = fragmentMap.get(fragment.getFragmentID());
 
-        if (getNumberOfFragments() == maxTxSize) {//there is not enough space - tail drop
+        if (getNumberOfFragments() == maxRxSize) {//there is not enough space - tail drop
             throw new NotEnoughBufferSpaceException("Not enough space in RX buffer");
         }
 

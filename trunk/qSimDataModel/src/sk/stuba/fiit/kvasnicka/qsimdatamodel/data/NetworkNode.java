@@ -108,9 +108,11 @@ public abstract class NetworkNode implements Serializable {
     @XmlTransient
     @Getter
     private Map<NetworkNode, InputInterface> rxInterfaces;
-
+    @Getter
     private int maxTxBufferSize;
+    @Getter
     private int maxRxBufferSize;
+    @Getter
     private int maxIntputQueueSize;
 
 
@@ -171,6 +173,77 @@ public abstract class NetworkNode implements Serializable {
      * new rule(s) By default there are no rules defined.
      */
     protected void fillForbiddenRoutingRules(Map<Class, Integer> routingRules) {
+    }
+
+    /**
+     * returns number of packets in output queue
+     *
+     * @return
+     */
+    public int getOutputQueueUsage() {
+        return outputQueue.size();
+    }
+
+    /**
+     * returns number of packets in input queue
+     *
+     * @return
+     */
+    public int getInputQueueUsage() {
+        return inputQueue.size();
+    }
+
+    /**
+     * returns number of packets in RX (all RX buffers)
+     *
+     * @return
+     */
+    public int getRXUsage() {
+        int usage = 0;
+        for (InputInterface in : rxInterfaces.values()) {
+            usage += in.getNumberOfFragments();
+        }
+        return usage;
+    }
+
+    /**
+     * retuns sum of all RX queue sizes
+     *
+     * @return
+     */
+    public int getMaxRxSizeTotal() {
+        return maxRxBufferSize * rxInterfaces.size();
+    }
+
+    /**
+     * retuns sum of all TX queue sizes
+     *
+     * @return
+     */
+    public int getMaxTxSizeTotal() {
+        return maxTxBufferSize * txInterfaces.size();
+    }
+
+    /**
+     * returns number of packets in TX (all TX buffers)
+     *
+     * @return
+     */
+    public int getTXUsage() {
+        int usage = 0;
+        for (OutputInterface out : txInterfaces.values()) {
+            usage += out.getFragmentsCount();
+        }
+        return usage;
+    }
+
+    /**
+     * returns number of packets being processed
+     *
+     * @return
+     */
+    public int getProcessingPackets() {
+        return processingPackets.size();
     }
 
 
