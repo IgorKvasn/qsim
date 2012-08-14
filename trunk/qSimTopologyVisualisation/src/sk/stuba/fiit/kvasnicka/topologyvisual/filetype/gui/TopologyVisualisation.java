@@ -346,6 +346,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
         if (networkNodeStatisticsTopComponent != null) {
             networkNodeStatisticsTopComponent.close();
+            networkNodeStatisticsTopComponent.cleanUp();
             networkNodeStatisticsTopComponent = null;
         }
     }
