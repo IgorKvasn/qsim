@@ -70,6 +70,7 @@ import java.util.Map;
 public abstract class NetworkNode implements Serializable {
     private static Logger logg = Logger.getLogger(NetworkNode.class);
     @SimLog
+    @XmlTransient
     private SimulationLogUtils simulLog;
 
     @Getter
@@ -85,7 +86,6 @@ public abstract class NetworkNode implements Serializable {
      * (Router, Computer,..) as class value = maximum connections (links) are
      * possible to create with this neigbour
      */
-    @XmlTransient
     protected Map<Class, Integer> routingRules;
     @Getter
     private QosMechanism qosMechanism;
@@ -93,7 +93,7 @@ public abstract class NetworkNode implements Serializable {
 
     @XmlTransient
     private List<Packet> processingPackets;
-
+    @Getter
     private SwQueues swQueues;
 
     /**
@@ -121,6 +121,7 @@ public abstract class NetworkNode implements Serializable {
      * all packets in output queue
      * if you are looking for QoS queues, they are <b>defined</b> on SwQueues
      */
+    @Getter
     private List<Packet> outputQueue;
 
     @Setter
@@ -244,6 +245,19 @@ public abstract class NetworkNode implements Serializable {
      */
     public int getProcessingPackets() {
         return processingPackets.size();
+    }
+
+    /**
+     * returns maximum number of packets that can be stored in all output queues (all QoS queues)
+     *
+     * @return
+     */
+    public int getMaxOutputQueueSize() {
+        int total = 0;
+        for (int i = 0; i < swQueues.getQueueCount(); i++) {
+            total += swQueues.getQueueMaxCapacity(i);
+        }
+        return total;
     }
 
 
