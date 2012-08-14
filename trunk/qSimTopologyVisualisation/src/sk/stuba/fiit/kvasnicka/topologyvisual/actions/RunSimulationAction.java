@@ -34,8 +34,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyStateEnum;
 
 @ActionID(category = "Simulation",
 id = "sk.stuba.fiit.kvasnicka.topologyvisual.actions.RunSimulationAction")
-@ActionRegistration(iconBase = "sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/play_16.png",
-displayName = "#CTL_RunSimulationAction")
+@ActionRegistration( lazy = false, displayName = "#CTL_RunSimulationAction")
 @ActionReferences({
     @ActionReference(path = "Toolbars/Simulation", position = 3333)
 })

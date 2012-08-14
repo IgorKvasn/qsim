@@ -34,7 +34,6 @@ public enum TopologyStateEnum {
      * no particular state - simulation has not been started or it is stopped
      */
     NOTHING {
-
         @Override
         public Set<ButtonEnum> getButtonsEnabled() {
             return EnumSet.of(ButtonEnum.CONFIGURE, ButtonEnum.RUN);
@@ -44,17 +43,15 @@ public enum TopologyStateEnum {
      * simulation is running
      */
     RUN {
-
         @Override
         public Set<ButtonEnum> getButtonsEnabled() {
-            return EnumSet.of(ButtonEnum.STOP, ButtonEnum.PAUSE);
+            return EnumSet.of(ButtonEnum.STOP, ButtonEnum.PAUSE, ButtonEnum.NODE_STATS);
         }
     },
     /**
      * simulation is temporary paused
      */
     PAUSED {
-
         @Override
         public Set<ButtonEnum> getButtonsEnabled() {
             return EnumSet.of(ButtonEnum.RUN, ButtonEnum.STOP);

@@ -15,6 +15,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 import lombok.Getter;
+import org.apache.log4j.Logger;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.util.NbBundle.Messages;
@@ -24,6 +25,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.simulationdata.NetworkNodeRemoveStatDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.simulationdata.NetworkNodeAddStatDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.simulationdata.NetworkNodeRemoveStatDialog.AddRemove;
+import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.nodes.NetworkNodePropertyEnum;
+import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.nodes.NetworkNodeStatisticsBean.TraceIdentifier;
 
 /**
  * Top component which displays something.
@@ -48,12 +51,12 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 })
 public final class NetworkNodeStatisticsTopComponent extends TopComponent {
 
+    private static Logger logg = Logger.getLogger(NetworkNodeStatisticsTopComponent.class);
     private NetworkNodeAddStatDialog addDialog;
     private NetworkNodeRemoveStatDialog removeDialog;
     private TopologyVisualisation topologyVisualisation;
-    private Set<MonitoringNode> traceSet;
+    private Set<MonitoringNode> showingTraceSet;
     private Map<ChartTraces, ITrace2D> traceMap;
-    private Random random = new Random();
 
     public NetworkNodeStatisticsTopComponent(TopologyVisualisation topologyVisualisation) {
         initComponents();
@@ -62,7 +65,7 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
         addDialog = new NetworkNodeAddStatDialog(this, topologyVisualisation);
         removeDialog = new NetworkNodeRemoveStatDialog(this, topologyVisualisation);
         this.topologyVisualisation = topologyVisualisation;
-        traceSet = new HashSet<MonitoringNode>(topologyVisualisation.getTopology().getVertexFactory().getAllVertices().size() * 4 / 3);
+        showingTraceSet = new HashSet<MonitoringNode>(topologyVisualisation.getTopology().getVertexFactory().getAllVertices().size() * 4 / 3);
         traceMap = new HashMap<ChartTraces, ITrace2D>(topologyVisualisation.getTopology().getVertexFactory().getAllVertices().size() * 4 / 3);
     }
 
@@ -71,7 +74,7 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
     }
 
     private void showRemoveDialog() {
-        removeDialog.showDialog(traceSet);
+        removeDialog.showDialog(showingTraceSet);
     }
 
     public void addNetworkNodes(List<TopologyVertex> nodeList, Set<NetworkNodePropertyEnum> selectedProperties) {
@@ -81,25 +84,50 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
                 monitoring.addNetworkNodeProperty(propertyEnum);
             }
 
-            traceSet.add(monitoring);
+            showingTraceSet.add(monitoring);
 
-            //todo add to chart
+            showTraces();
         }
     }
 
     public void removeNetworkNodes(Set<AddRemove> nodesToRemoveSet) {
-      //todo remove from chart
+        //todo remove from chart
+        for (AddRemove addRemove : nodesToRemoveSet) {
+
+            TraceIdentifier traceIdentifier = topologyVisualisation.getNetworkNodeStatsManager().getTrace(addRemove.getV().getDataModel(), addRemove.getPropertyEnum());
+
+            if (addRemove.isSelected()) {//add trace               
+                if (traceIdentifier.isVisible()) {//this should not happen
+                    logg.warn("trace is already visible - there is something wrong with NetworkNodeRemoveStatDialog - node: " + addRemove.getV().getName() + " property: " + addRemove.getPropertyEnum());
+                    continue;
+                }
+                traceIdentifier.setVisible(true);
+                chart2D1.addTrace(traceIdentifier.getTrace());
+            } else {//remove trace
+                if (!traceIdentifier.isVisible()) {//this should not happen
+                    logg.warn("trace is NOT visible - there is something wrong with NetworkNodeRemoveStatDialog - node: " + addRemove.getV().getName() + " property: " + addRemove.getPropertyEnum());
+                    continue;
+                }
+                traceIdentifier.setVisible(false);
+                chart2D1.removeTrace(traceIdentifier.getTrace());
+            }
+        }
     }
 
-    private ITrace2D createTrace(String vertexName, NetworkNodePropertyEnum propertyEnum) {
-        ITrace2D trace = new Trace2DSimple();
-        trace.setColor(generateRandomColor());
-        trace.setName(vertexName + " - " + propertyEnum.toString());
-        return trace;
-    }
+    private void showTraces() {
+        for (MonitoringNode monitoringNode : showingTraceSet) {
+            for (NetworkNodePropertyEnum prop : monitoringNode.getPropertyEnumSet()) {
+                TraceIdentifier traceIdentifier = topologyVisualisation.getNetworkNodeStatsManager().getTrace(monitoringNode.vertex.getDataModel(), prop);
 
-    private Color generateRandomColor() {
-        return new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+                if (traceIdentifier.isVisible()) {
+                    continue;
+                }
+
+                traceIdentifier.setVisible(true);
+
+                chart2D1.addTrace(traceIdentifier.getTrace());
+            }
+        }
     }
 
     /**
@@ -146,7 +174,7 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
             }
         });
 
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/remove.png"))); // NOI18N
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/edit.png"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(jButton2, org.openide.util.NbBundle.getMessage(NetworkNodeStatisticsTopComponent.class, "NetworkNodeStatisticsTopComponent.jButton2.text")); // NOI18N
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -322,21 +350,6 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
                 return false;
             }
             return true;
-        }
-    }
-
-    public enum NetworkNodePropertyEnum {
-
-        RX("RX"), TX("TX"), OUTPUT_BUFFER("Output buffer"), INPUT_BUFFER("Input buffer"), PROCESSING("Processing");
-        private final String visibleName;
-
-        private NetworkNodePropertyEnum(String visibleName) {
-            this.visibleName = visibleName;
-        }
-
-        @Override
-        public String toString() {
-            return visibleName;
         }
     }
 }

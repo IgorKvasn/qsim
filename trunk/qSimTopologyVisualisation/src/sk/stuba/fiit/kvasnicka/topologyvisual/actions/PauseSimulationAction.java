@@ -35,8 +35,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyStateEnum;
 
 @ActionID(category = "Simulation",
 id = "sk.stuba.fiit.kvasnicka.topologyvisual.actions.PauseSimulationAction")
-@ActionRegistration(iconBase = "sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/pause_16.png",
-displayName = "#CTL_PauseSimulationAction")
+@ActionRegistration(lazy = false, displayName = "#CTL_PauseSimulationAction")
 @ActionReferences({
     @ActionReference(path = "Toolbars/Simulation", position = 3433)
 })

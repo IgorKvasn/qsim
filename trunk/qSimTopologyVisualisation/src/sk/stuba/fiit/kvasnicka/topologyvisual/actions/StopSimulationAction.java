@@ -35,8 +35,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyStateEnum;
 
 @ActionID(category = "Build",
 id = "sk.stuba.fiit.kvasnicka.topologyvisual.actions.StopSimulationAction")
-@ActionRegistration(iconBase = "sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/stop_16.png",
-displayName = "#CTL_StopSimulationAction")
+@ActionRegistration(lazy = false, displayName = "#CTL_StopSimulationAction")
 @ActionReferences({
     @ActionReference(path = "Toolbars/Simulation", position = 3433)
 })

@@ -52,7 +52,6 @@ public class PacketSendingPanel extends PanelInterface {
 
     @Override
     public boolean validateData() {
-        //todo store all user in SimulationRuleIterator
         iterator.getStoredData().setLayer4protocol(((ComboItem) comboLayer4.getSelectedItem()).getValue());
         iterator.getStoredData().setPacketCount(((Integer) spinCount.getValue()).intValue());
         iterator.getStoredData().setPacketSize((Integer) spinSize.getValue());
