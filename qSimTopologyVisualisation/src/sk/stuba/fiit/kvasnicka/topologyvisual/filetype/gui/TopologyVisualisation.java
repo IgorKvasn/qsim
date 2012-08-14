@@ -42,6 +42,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.ConfigureSimulationAction;
+import sk.stuba.fiit.kvasnicka.topologyvisual.actions.NetworkNodeStatsAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.PauseSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.RunSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.StopSimulationAction;
@@ -110,6 +111,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     private transient SimulRuleReviewTopComponent simulRuleReviewTopComponent;
     private transient SimulationTopComponent simulationTopComponent;
     private transient NetworkNodeStatisticsTopComponent networkNodeStatisticsTopComponent;
+    @Getter
     private transient NetworkNodeStatsManager networkNodeStatsManager;
 
     public TopologyVisualisation(TopologyFileTypeDataObject dataObject) {
@@ -190,7 +192,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         }
     }
 
-    public void openNetworkNodeSimulationTopcomponent() {//todo call this from toolbar action
+    public void openNetworkNodeSimulationTopcomponent() {
         if (networkNodeStatisticsTopComponent == null) {
             networkNodeStatisticsTopComponent = new NetworkNodeStatisticsTopComponent(this);
         }
@@ -281,12 +283,14 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
                 PauseSimulationAction.getInstance().updateState(null);
                 StopSimulationAction.getInstance().updateState(null);
                 ConfigureSimulationAction.getInstance().updateState(null);
+                NetworkNodeStatsAction.getInstance().updateState(null);
 
             } else {
                 RunSimulationAction.getInstance().updateState(simulationState);
                 PauseSimulationAction.getInstance().updateState(simulationState);
                 StopSimulationAction.getInstance().updateState(simulationState);
                 ConfigureSimulationAction.getInstance().updateState(simulationState);
+                NetworkNodeStatsAction.getInstance().updateState(simulationState);
             }
         }
     }

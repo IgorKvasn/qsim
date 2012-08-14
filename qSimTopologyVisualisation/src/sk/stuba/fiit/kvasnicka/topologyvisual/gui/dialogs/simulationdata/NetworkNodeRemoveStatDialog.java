@@ -21,7 +21,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.NetworkNodeStatisticsTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.NetworkNodeStatisticsTopComponent.MonitoringNode;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.NetworkNodeStatisticsTopComponent.NetworkNodePropertyEnum;
+import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.nodes.NetworkNodePropertyEnum;
 
 /**
  *
@@ -120,11 +120,11 @@ public class NetworkNodeRemoveStatDialog extends javax.swing.JDialog {
         MonitoringNode monitoringNode = getSelectedMonitoringNode();
 
         if (getOriginalValue(monitoringNode, propertyEnum) == selected) {//this is the original value
-            nodesToRemoveSet.remove(new AddRemove(monitoringNode.getVertex(), propertyEnum));
+            nodesToRemoveSet.remove(new AddRemove(monitoringNode.getVertex(), propertyEnum, false));
             return;
         }
 
-        AddRemove addRemove = new AddRemove(monitoringNode.getVertex(), propertyEnum);
+        AddRemove addRemove = new AddRemove(monitoringNode.getVertex(), propertyEnum, selected);
         nodesToRemoveSet.add(addRemove);
     }
 
@@ -309,6 +309,8 @@ public class NetworkNodeRemoveStatDialog extends javax.swing.JDialog {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         statisticsTopComponent.removeNetworkNodes(nodesToRemoveSet);
+        this.setVisible(false);
+        this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -358,10 +360,12 @@ public class NetworkNodeRemoveStatDialog extends javax.swing.JDialog {
 
         private TopologyVertex v;
         private NetworkNodePropertyEnum propertyEnum;
+        private boolean selected;
 
-        public AddRemove(TopologyVertex v, NetworkNodePropertyEnum propertyEnum) {
+        public AddRemove(TopologyVertex v, NetworkNodePropertyEnum propertyEnum, boolean selected) {
             this.v = v;
             this.propertyEnum = propertyEnum;
+            this.selected = selected;
         }
 
         @Override
