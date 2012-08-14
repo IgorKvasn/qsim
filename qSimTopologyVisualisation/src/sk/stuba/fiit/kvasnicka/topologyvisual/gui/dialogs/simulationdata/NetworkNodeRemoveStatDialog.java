@@ -163,11 +163,7 @@ public class NetworkNodeRemoveStatDialog extends javax.swing.JDialog {
         jXSearchField1.setToolTipText(org.openide.util.NbBundle.getMessage(NetworkNodeRemoveStatDialog.class, "NetworkNodeRemoveStatDialog.jXSearchField1.toolTipText")); // NOI18N
         jXSearchField1.setLayoutStyle(org.jdesktop.swingx.JXSearchField.LayoutStyle.VISTA);
 
-        jXList1.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
+        jXList1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane2.setViewportView(jXList1);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);

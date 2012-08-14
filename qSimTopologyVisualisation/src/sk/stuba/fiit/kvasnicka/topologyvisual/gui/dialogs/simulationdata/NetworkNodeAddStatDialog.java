@@ -32,7 +32,6 @@ import lombok.Getter;
 import org.jdesktop.swingx.JXList;
 import org.jdesktop.swingx.JXSearchField;
 import org.openide.windows.WindowManager;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.NetworkNodeStatisticsTopComponent;
@@ -80,7 +79,6 @@ public class NetworkNodeAddStatDialog extends javax.swing.JDialog {
     private void resetData() {
         jXSearchField1.setText("");
         jXList1.setRowFilter(null);
-        lblSelectedCount.setText("0/" + topologyVisualisation.getTopology().getVertexFactory().getAllVertices().size());
 
         listModel.clear();
         for (TopologyVertex v : topologyVisualisation.getTopology().getVertexFactory().getAllVertices()) {
@@ -114,10 +112,6 @@ public class NetworkNodeAddStatDialog extends javax.swing.JDialog {
         return checkListManager.getSelectedList();
     }
 
-    private void updateNumberOfSelectedItems() {
-        lblSelectedCount.setText(checkListManager.getSelectedList().size() + "/" + topologyVisualisation.getTopology().getVertexFactory().getAllVertices().size());
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -137,8 +131,6 @@ public class NetworkNodeAddStatDialog extends javax.swing.JDialog {
         jXSearchField1 = new org.jdesktop.swingx.JXSearchField();
         jScrollPane2 = new javax.swing.JScrollPane();
         jXList1 = new org.jdesktop.swingx.JXList();
-        jLabel1 = new javax.swing.JLabel();
-        lblSelectedCount = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
 
@@ -192,16 +184,8 @@ public class NetworkNodeAddStatDialog extends javax.swing.JDialog {
         jXSearchField1.setToolTipText(org.openide.util.NbBundle.getMessage(NetworkNodeAddStatDialog.class, "NetworkNodeAddStatDialog.jXSearchField1.toolTipText")); // NOI18N
         jXSearchField1.setLayoutStyle(org.jdesktop.swingx.JXSearchField.LayoutStyle.VISTA);
 
-        jXList1.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
+        jXList1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane2.setViewportView(jXList1);
-
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(NetworkNodeAddStatDialog.class, "NetworkNodeAddStatDialog.jLabel1.text")); // NOI18N
-
-        org.openide.awt.Mnemonics.setLocalizedText(lblSelectedCount, org.openide.util.NbBundle.getMessage(NetworkNodeAddStatDialog.class, "NetworkNodeAddStatDialog.lblSelectedCount.text")); // NOI18N
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -211,11 +195,7 @@ public class NetworkNodeAddStatDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jXSearchField1, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(lblSelectedCount)))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -224,10 +204,6 @@ public class NetworkNodeAddStatDialog extends javax.swing.JDialog {
                 .addComponent(jXSearchField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(lblSelectedCount))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -298,13 +274,11 @@ public class NetworkNodeAddStatDialog extends javax.swing.JDialog {
     private javax.swing.JCheckBox chckTX;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane2;
     private org.jdesktop.swingx.JXList jXList1;
     private org.jdesktop.swingx.JXSearchField jXSearchField1;
-    private javax.swing.JLabel lblSelectedCount;
     // End of variables declaration//GEN-END:variables
 
     public void showDialog() {
@@ -371,7 +345,6 @@ public class NetworkNodeAddStatDialog extends javax.swing.JDialog {
                 selectionModel.addSelectionInterval(index, index);
                 selectedList.remove(item);
             }
-            updateNumberOfSelectedItems();
         }
 
         /*------------------------------[ MouseListener ]-------------------------------------*/

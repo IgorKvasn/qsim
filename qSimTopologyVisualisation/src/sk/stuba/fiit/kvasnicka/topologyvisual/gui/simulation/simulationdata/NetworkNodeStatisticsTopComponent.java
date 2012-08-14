@@ -4,14 +4,9 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata;
 
-import info.monitorenter.gui.chart.ITrace2D;
-import info.monitorenter.gui.chart.traces.Trace2DSimple;
-import java.awt.Color;
-import java.util.HashMap;
+import java.awt.BorderLayout;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 import lombok.Getter;
@@ -22,6 +17,7 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.panels.simulationdata.networknode.TextualStatisticsPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.simulationdata.NetworkNodeRemoveStatDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.simulationdata.NetworkNodeAddStatDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.simulationdata.NetworkNodeRemoveStatDialog.AddRemove;
@@ -56,7 +52,7 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
     private NetworkNodeRemoveStatDialog removeDialog;
     private TopologyVisualisation topologyVisualisation;
     private Set<MonitoringNode> showingTraceSet;
-    private Map<ChartTraces, ITrace2D> traceMap;
+    private TextualStatisticsPanel textualStatisticsPanel;
 
     public NetworkNodeStatisticsTopComponent(TopologyVisualisation topologyVisualisation) {
         initComponents();
@@ -66,7 +62,9 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
         removeDialog = new NetworkNodeRemoveStatDialog(this, topologyVisualisation);
         this.topologyVisualisation = topologyVisualisation;
         showingTraceSet = new HashSet<MonitoringNode>(topologyVisualisation.getTopology().getVertexFactory().getAllVertices().size() * 4 / 3);
-        traceMap = new HashMap<ChartTraces, ITrace2D>(topologyVisualisation.getTopology().getVertexFactory().getAllVertices().size() * 4 / 3);
+        textualStatisticsPanel = new TextualStatisticsPanel(topologyVisualisation.getTopology().getVertexFactory().getAllVertices());
+        jPanel3.add(textualStatisticsPanel, BorderLayout.CENTER);
+        topologyVisualisation.getSimulationFacade().addSimulationTimerListener(textualStatisticsPanel);
     }
 
     private void showAddDialog() {
@@ -75,6 +73,10 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
 
     private void showRemoveDialog() {
         removeDialog.showDialog(showingTraceSet);
+    }
+
+    public void cleanUp() {
+        topologyVisualisation.getSimulationFacade().removeSimulationTimerListener(textualStatisticsPanel);
     }
 
     public void addNetworkNodes(List<TopologyVertex> nodeList, Set<NetworkNodePropertyEnum> selectedProperties) {
@@ -146,6 +148,7 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
 
         jPanel2.setLayout(new java.awt.BorderLayout());
 
@@ -207,15 +210,17 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
 
         jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(NetworkNodeStatisticsTopComponent.class, "NetworkNodeStatisticsTopComponent.jPanel2.TabConstraints.tabTitle"), jPanel2); // NOI18N
 
+        jPanel3.setLayout(new java.awt.BorderLayout());
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 905, Short.MAX_VALUE)
+            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 905, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 284, Short.MAX_VALUE)
+            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(NetworkNodeStatisticsTopComponent.class, "NetworkNodeStatisticsTopComponent.jPanel1.TabConstraints.tabTitle"), jPanel1); // NOI18N
@@ -251,6 +256,7 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
     private javax.swing.JButton jButton2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JPanel panelButtons;
     private javax.swing.JPanel panelChart;
@@ -272,43 +278,6 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
 
     void readProperties(java.util.Properties p) {
         String version = p.getProperty("version");
-    }
-
-    public static class ChartTraces {
-
-        private TopologyVertex vertex;
-        private NetworkNodePropertyEnum propertyEnum;
-
-        public ChartTraces(TopologyVertex vertex, NetworkNodePropertyEnum propertyEnum) {
-            this.vertex = vertex;
-            this.propertyEnum = propertyEnum;
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = 7;
-            hash = 17 * hash + (this.vertex != null ? this.vertex.hashCode() : 0);
-            hash = 17 * hash + (this.propertyEnum != null ? this.propertyEnum.hashCode() : 0);
-            return hash;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            final ChartTraces other = (ChartTraces) obj;
-            if (this.vertex != other.vertex && (this.vertex == null || !this.vertex.equals(other.vertex))) {
-                return false;
-            }
-            if (this.propertyEnum != other.propertyEnum) {
-                return false;
-            }
-            return true;
-        }
     }
 
     @Getter
