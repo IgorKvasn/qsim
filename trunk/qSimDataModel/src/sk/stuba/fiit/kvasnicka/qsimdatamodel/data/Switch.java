@@ -21,7 +21,7 @@
  */
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data;
 
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -40,7 +40,7 @@ public class Switch extends NetworkNode {
      *
      * @param name default name of the switch
      */
-    public Switch(String name, QosMechanism qosMechanism, SwQueues queues, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
+    public Switch(String name, QosMechanism qosMechanism, OutputQueueManager queues, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
         super(name, qosMechanism, queues, maxTxBufferSize, maxRxBufferSize, maxIntputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay);
     }
 

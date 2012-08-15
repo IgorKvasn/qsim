@@ -32,7 +32,9 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.InputQueue;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.PacketGenerator;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
@@ -59,6 +61,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
 import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
@@ -75,12 +78,12 @@ public class NetworkNodeTest {
     TopologyManager topologyManager;
     NetworkNode node1, node2;
     Edge edge;
-    SwQueues swQueues, swQueues2;
     private final int MAX_TX_SIZE = 200;
     private final int MTU = 100;
     private final int MAX_OUTPUT_QUEUE_SIZE = 10;
     private static final int MAX_PROCESSING_PACKETS = 3;
     private final Layer4TypeEnum layer4 = Layer4TypeEnum.UDP;
+    private OutputQueueManager outputQueueManager1, outputQueueManager2;
 
     @Before
     public void before() {
@@ -89,17 +92,14 @@ public class NetworkNodeTest {
         qosMechanism = EasyMock.createMock(QosMechanism.class);
 
 
-        SwQueues.QueueDefinition[] q = new SwQueues.QueueDefinition[2];
-        q[0] = new SwQueues.QueueDefinition(50, "queue 1");
-        q[1] = new SwQueues.QueueDefinition(1, "queue 2");
-        swQueues = new SwQueues(q);
-
-        SwQueues.QueueDefinition[] q2 = new SwQueues.QueueDefinition[1];
-        q2[0] = new SwQueues.QueueDefinition(50, "queue 1");
-        swQueues2 = new SwQueues(q2);
+        OutputQueue q1 = new OutputQueue(50, "queue 1");
+        OutputQueue q11 = new OutputQueue(1, "queue 11");
+        OutputQueue q2 = new OutputQueue(50, "queue 2");
+        outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1, q11});
+        outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
-        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(List.class), EasyMock.anyObject(SwQueues.class))).andAnswer(new IAnswer<List<Packet>>() {
+        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(List.class), EasyMock.anyObject(OutputQueueManager.class))).andAnswer(new IAnswer<List<Packet>>() {
             @Override
             public List<Packet> answer() throws Throwable {
                 return (List<Packet>) EasyMock.getCurrentArguments()[0];
@@ -108,8 +108,8 @@ public class NetworkNodeTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, swQueues, MAX_TX_SIZE, 10, 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
-        node2 = new Router("node2", qosMechanism, swQueues2, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, MAX_TX_SIZE, 10, 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
+        node2 = new Router("node2", qosMechanism, outputQueueManager2, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -211,8 +211,8 @@ public class NetworkNodeTest {
     @Test
     public void testAddToTxBuffer_overflow() throws Exception {
         //redefine nodes, to make maxTxSize smaller number
-        node1 = new Router("node1", qosMechanism, swQueues, 3, 10, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", qosMechanism, swQueues2, 0, 10, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, 3, 10, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", qosMechanism, outputQueueManager2, 0, 10, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -311,9 +311,9 @@ public class NetworkNodeTest {
         assertEquals(p1.getPacketSize() / MTU, fragments);
 
         //the second packet has got not enough space in TX, so it will be put into output queue
-        List<Packet> outputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "outputQueue");
+        OutputQueueManager outputQueue = node1.getOutputQueues();
         assertNotNull(outputQueue);
-        assertEquals(1, outputQueue.size());
+        assertEquals(1, outputQueue.getOutputQueue().size());
     }
 
     /**
@@ -397,9 +397,9 @@ public class NetworkNodeTest {
         //pre-test check: there should be 0 fragments in TX and 2 packets in output queue
         assertNull(node1.getTxInterfaces().get(node2));
 
-        List<Packet> outputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "outputQueue");
+        OutputQueueManager outputQueue = node1.getOutputQueues();
         assertNotNull(outputQueue);
-        assertEquals(2, outputQueue.size());
+        assertEquals(2, outputQueue.getOutputQueue().size());
 
 
         //test method
@@ -445,9 +445,9 @@ public class NetworkNodeTest {
         assertEquals(MAX_TX_SIZE - 1, fragments);
 
 
-        List<Packet> outputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "outputQueue");
+        OutputQueueManager outputQueue = node1.getOutputQueues();
         assertNotNull(outputQueue);
-        assertEquals(2, outputQueue.size());
+        assertEquals(2, outputQueue.getOutputQueue().size());
 
 
         //test method
@@ -455,9 +455,9 @@ public class NetworkNodeTest {
 
         //one packets should be in TX queue and one should left in output queue
 
-        outputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "outputQueue");
+        outputQueue = node1.getOutputQueues();
         assertNotNull(outputQueue);
-        assertEquals(1, outputQueue.size());
+        assertEquals(1, outputQueue.getOutputQueue().size());
 
         assertNotNull(node1.getTxInterfaces().get(node2));
         fragments = node1.getTxInterfaces().get(node2).getFragmentsCount();
@@ -481,9 +481,9 @@ public class NetworkNodeTest {
         node1.addNewPacketsToOutputQueue(p2);
 
         //assert
-        List<Packet> outputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "outputQueue");
+        OutputQueueManager outputQueue = node1.getOutputQueues();
         assertNotNull(outputQueue);
-        assertEquals(0, outputQueue.size());
+        assertEquals(0, outputQueue.getOutputQueue().size());
 
         assertNotNull(node1.getTxInterfaces().get(node2));
         int fragments = node1.getTxInterfaces().get(node2).getFragmentsCount();
@@ -507,9 +507,9 @@ public class NetworkNodeTest {
         node1.addNewPacketsToOutputQueue(p2);
 
         //assert
-        List<Packet> outputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "outputQueue");
+        OutputQueueManager outputQueue = node1.getOutputQueues();
         assertNotNull(outputQueue);
-        assertEquals(1, outputQueue.size());
+        assertEquals(1, outputQueue.getOutputQueue().size());
 
         assertNotNull(node1.getTxInterfaces().get(node2));
         int fragments = node1.getTxInterfaces().get(node2).getFragmentsCount();
@@ -525,11 +525,17 @@ public class NetworkNodeTest {
         Packet p1 = new Packet(10, layer4, packetManager, null, 10);
         Packet p2 = new Packet(10, layer4, packetManager, null, 30);
 
+        InputQueue inputQueueSetter = new InputQueue();
+
         List<Packet> list = new LinkedList<Packet>(Arrays.asList(p1, p2));
 
-        Field f = NetworkNode.class.getDeclaredField("inputQueue");
+        Field f = InputQueue.class.getDeclaredField("inputQueue");
         f.setAccessible(true);
-        f.set(node1, list);
+        f.set(inputQueueSetter, list);
+
+        Field fnode = NetworkNode.class.getDeclaredField("inputQueue");
+        fnode.setAccessible(true);
+        fnode.set(node1, inputQueueSetter);
 
         //test method
         node1.moveFromInputQueueToProcessing(40);
@@ -537,9 +543,9 @@ public class NetworkNodeTest {
         //assert - both packets should be in processing
         assertEquals(2, node1.getPacketsInProcessing().size());
 
-        List<Packet> inputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "inputQueue");
+        InputQueue inputQueue = (InputQueue) getPropertyWithoutGetter(NetworkNode.class, node1, "inputQueue");
         assertNotNull(inputQueue);
-        assertEquals(0, inputQueue.size());
+        assertTrue(inputQueue.isEmpty());
     }
 
     /**
@@ -557,18 +563,24 @@ public class NetworkNodeTest {
 
         List<Packet> list = new LinkedList<Packet>(Arrays.asList(p1, p2, p3, p4, p5));
 
-        Field f = NetworkNode.class.getDeclaredField("inputQueue");
+        InputQueue inputQueueSetter = new InputQueue();
+
+        Field f = InputQueue.class.getDeclaredField("inputQueue");
         f.setAccessible(true);
-        f.set(node1, list);
+        f.set(inputQueueSetter, list);
+
+        Field fnode = NetworkNode.class.getDeclaredField("inputQueue");
+        fnode.setAccessible(true);
+        fnode.set(node1, inputQueueSetter);
 
         //test method
         node1.moveFromInputQueueToProcessing(40);
 
         //assert - both packets should be in processing
         assertEquals(MAX_PROCESSING_PACKETS, node1.getPacketsInProcessing().size());
-        List<Packet> inputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "inputQueue");
+        InputQueue inputQueue = (InputQueue) getPropertyWithoutGetter(NetworkNode.class, node1, "inputQueue");
         assertNotNull(inputQueue);
-        assertEquals(2, inputQueue.size());
+        assertEquals(2, inputQueue.getUsage());
     }
 
     /**
@@ -589,9 +601,9 @@ public class NetworkNodeTest {
         privateStringMethod.invoke(node1, p2);
 
         //assert
-        List<Packet> inputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "outputQueue");
-        assertNotNull(inputQueue);
-        assertEquals(2, inputQueue.size());
+        OutputQueueManager outputQueue = node1.getOutputQueues();
+        assertNotNull(outputQueue);
+        assertEquals(2, outputQueue.getOutputQueue().size());
     }
 
     /**
@@ -630,9 +642,9 @@ public class NetworkNodeTest {
 
 
         //assert
-        List<Packet> inputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node1, "outputQueue");
-        assertNotNull(inputQueue);
-        assertEquals(2, inputQueue.size());
+        OutputQueueManager outputQueue = node1.getOutputQueues();
+        assertNotNull(outputQueue);
+        assertEquals(2, outputQueue.getOutputQueue().size());
     }
 
     /**

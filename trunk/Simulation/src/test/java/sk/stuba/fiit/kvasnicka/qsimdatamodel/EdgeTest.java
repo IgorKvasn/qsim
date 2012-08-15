@@ -24,9 +24,11 @@ import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.InputInterface;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.OutputInterface;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.RxBuffer;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.TxBuffer;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.InputQueue;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
@@ -45,6 +47,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
 import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
 
@@ -60,7 +63,6 @@ public class EdgeTest {
     TopologyManager topologyManager;
     NetworkNode node1, node2;
     Edge edge;
-    SwQueues swQueues, swQueues2;
     private final int MAX_TX_SIZE = 200;
     private final int MTU = 100;
     private final Layer4TypeEnum layer4 = Layer4TypeEnum.UDP;
@@ -72,16 +74,13 @@ public class EdgeTest {
         qosMechanism = EasyMock.createMock(QosMechanism.class);
 
 
-        SwQueues.QueueDefinition[] q = new SwQueues.QueueDefinition[1];
-        q[0] = new SwQueues.QueueDefinition(50, "queue 1");
-        swQueues = new SwQueues(q);
-
-        SwQueues.QueueDefinition[] q2 = new SwQueues.QueueDefinition[1];
-        q2[0] = new SwQueues.QueueDefinition(50, "queue 1");
-        swQueues2 = new SwQueues(q2);
+        OutputQueue q1 = new OutputQueue(50, "queue 1");
+        OutputQueue q2 = new OutputQueue(50, "queue 2");
+        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
+        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
-        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(List.class), EasyMock.anyObject(SwQueues.class))).andAnswer(new IAnswer<List<Packet>>() {
+        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(List.class), EasyMock.anyObject(OutputQueueManager.class))).andAnswer(new IAnswer<List<Packet>>() {
             @Override
             public List<Packet> answer() throws Throwable {
                 return (List<Packet>) EasyMock.getCurrentArguments()[0];
@@ -90,8 +89,8 @@ public class EdgeTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, swQueues, MAX_TX_SIZE, 10, 10, 2, 100, 0, 0);//max processing packets are set to 2
-        node2 = new Router("node2", qosMechanism, swQueues2, MAX_TX_SIZE, 10, 10, 2, 100, 0, 0);
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, MAX_TX_SIZE, 10, 10, 2, 100, 0, 0);//max processing packets are set to 2
+        node2 = new Router("node2", qosMechanism, outputQueueManager2, MAX_TX_SIZE, 10, 10, 2, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -139,19 +138,19 @@ public class EdgeTest {
         node1.addToTxBuffer(p1, 100);
         node1.addToTxBuffer(p2, 100);
 
-        OutputInterface outputInterface = node1.getTxInterfaces().get(node2);
+        TxBuffer outputInterface = node1.getTxInterfaces().get(node2);
         outputInterface.serialisePackets(50);     //adds two packets to the edge
 
         //test method
         edge.moveFragmentsToNetworkNode(100);
 
         //assert
-        InputInterface inputInterface = node2.getRxInterfaces().get(node1);
+        RxBuffer inputInterface = node2.getRxInterfaces().get(node1);
         assertNotNull(inputInterface);
         assertEquals(0, inputInterface.getNumberOfFragments()); //all fragments are put directly into processing
         assertNull(node2.getRxInterfaces().get(node2));
-        List<Packet> inputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node2, "inputQueue");
-        assertEquals(0, inputQueue.size());//also input queue should be empty
+        InputQueue inputQueue = (InputQueue) getPropertyWithoutGetter(NetworkNode.class, node2, "inputQueue");
+        assertTrue(inputQueue.isEmpty());//also input queue should be empty
 
         assertEquals(2, node2.getPacketsInProcessing().size());
     }
@@ -174,7 +173,7 @@ public class EdgeTest {
         node1.addToTxBuffer(p1, 100);
         node1.addToTxBuffer(p2, 100);
 
-        OutputInterface outputInterface = node1.getTxInterfaces().get(node2);
+        TxBuffer outputInterface = node1.getTxInterfaces().get(node2);
         outputInterface.serialisePackets(50);     //adds two packets to the edge
         node2.addPacketToProcessing(p3); //some packets are already processing
 
@@ -182,12 +181,12 @@ public class EdgeTest {
         edge.moveFragmentsToNetworkNode(100);
 
         //assert
-        InputInterface inputInterface = node2.getRxInterfaces().get(node1);
+        RxBuffer inputInterface = node2.getRxInterfaces().get(node1);
         assertNotNull(inputInterface);
         assertEquals(0, inputInterface.getNumberOfFragments()); //all fragments are put directly into processing
         assertNull(node2.getRxInterfaces().get(node2));
-        List<Packet> inputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node2, "inputQueue");
-        assertEquals(1, inputQueue.size());//also input queue should be empty
+        InputQueue inputQueue = (InputQueue) getPropertyWithoutGetter(NetworkNode.class, node2, "inputQueue");
+        assertEquals(1, inputQueue.getUsage());
 
         assertEquals(2, node2.getPacketsInProcessing().size());
     }

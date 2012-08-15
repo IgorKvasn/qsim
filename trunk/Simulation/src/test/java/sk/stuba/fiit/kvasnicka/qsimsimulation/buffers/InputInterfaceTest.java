@@ -24,8 +24,10 @@ import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.InputInterface;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.RxBuffer;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.InputQueue;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
@@ -61,7 +63,6 @@ public class InputInterfaceTest {
     TopologyManager topologyManager;
     NetworkNode node1, node2;
     Edge edge;
-    SwQueues swQueues, swQueues2;
     private final int MAX_TX_SIZE = 200;
     private final int MTU = 100;
     private final Layer4TypeEnum layer4 = Layer4TypeEnum.UDP;
@@ -73,16 +74,13 @@ public class InputInterfaceTest {
         qosMechanism = EasyMock.createMock(QosMechanism.class);
 
 
-        SwQueues.QueueDefinition[] q = new SwQueues.QueueDefinition[1];
-        q[0] = new SwQueues.QueueDefinition(50, "queue 1");
-        swQueues = new SwQueues(q);
-
-        SwQueues.QueueDefinition[] q2 = new SwQueues.QueueDefinition[1];
-        q2[0] = new SwQueues.QueueDefinition(50, "queue 1");
-        swQueues2 = new SwQueues(q2);
+        OutputQueue q1 = new OutputQueue(50, "queue 1");
+        OutputQueue q2 = new OutputQueue(50, "queue 2");
+        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
+        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
-        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(List.class), EasyMock.anyObject(SwQueues.class))).andAnswer(new IAnswer<List<Packet>>() {
+        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(List.class), EasyMock.anyObject(OutputQueueManager.class))).andAnswer(new IAnswer<List<Packet>>() {
             @Override
             public List<Packet> answer() throws Throwable {
                 return (List<Packet>) EasyMock.getCurrentArguments()[0];
@@ -91,8 +89,8 @@ public class InputInterfaceTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, swQueues, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", qosMechanism, swQueues2, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", qosMechanism, outputQueueManager2, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -126,7 +124,7 @@ public class InputInterfaceTest {
     @Test
     public void testFragmentReceived() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
-        InputInterface inputInterface = new InputInterface(edge, 10);//I do not care about max RX size
+        RxBuffer inputInterface = new RxBuffer(edge, 10);//I do not care about max RX size
         Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
 
         //test method
@@ -149,7 +147,7 @@ public class InputInterfaceTest {
     @Test
     public void testFragmentReceived_multipacket() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
-        InputInterface inputInterface = new InputInterface(edge, 10);//I do not care about max RX size
+        RxBuffer inputInterface = new RxBuffer(edge, 10);//I do not care about max RX size
         Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
         Packet p2 = new Packet(16, layer4, packetManager, null, 10); //4 fragments will be created
 
@@ -183,7 +181,7 @@ public class InputInterfaceTest {
     @Test
     public void testFragmentReceived_packet_created() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
-        InputInterface inputInterface = new InputInterface(edge, 10);//I do not care about max RX size
+        RxBuffer inputInterface = new RxBuffer(edge, 10);//I do not care about max RX size
         Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
 
         //test method
@@ -200,9 +198,9 @@ public class InputInterfaceTest {
         //assert - there should be no fragments in RX buffer, neither input queue or processing
         assertEquals(0, inputInterface.getNumberOfFragments());
 
-        List<Packet> outputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node2, "inputQueue");
-        assertNotNull(outputQueue);
-        assertEquals(0, outputQueue.size());
+        InputQueue inputQueue = (InputQueue) getPropertyWithoutGetter(NetworkNode.class, node2, "inputQueue");
+        assertNotNull(inputQueue);
+        assertTrue(inputQueue.isEmpty());
 
         assertEquals(0, node2.getPacketsInProcessing().size());//there should be 1 packet in processing, because input queue is empty
     }
@@ -217,7 +215,7 @@ public class InputInterfaceTest {
     @Test
     public void testFragmentReceived_packet_created__simulation_time() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
-        InputInterface inputInterface = new InputInterface(edge, 10);//I do not care about max RX size
+        RxBuffer inputInterface = new RxBuffer(edge, 10);//I do not care about max RX size
         Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
 
         //test method
@@ -237,9 +235,9 @@ public class InputInterfaceTest {
         //assert - there should be no fragments in RX buffer, neither input queue or processing
         assertEquals(0, inputInterface.getNumberOfFragments());
 
-        List<Packet> outputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node2, "inputQueue");
-        assertNotNull(outputQueue);
-        assertEquals(0, outputQueue.size());
+        InputQueue inputQueue = (InputQueue) getPropertyWithoutGetter(NetworkNode.class, node2, "inputQueue");
+        assertNotNull(inputQueue);
+        assertTrue(inputQueue.isEmpty());
 
         assertEquals(0, node2.getPacketsInProcessing().size());//there should be 1 packet in processing, because input queue is empty
     }
@@ -254,7 +252,7 @@ public class InputInterfaceTest {
     @Test
     public void testFragmentReceived_packet_created__multiple_packets() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
-        InputInterface inputInterface = new InputInterface(edge, 10);//I do not care about max RX size
+        RxBuffer inputInterface = new RxBuffer(edge, 10);//I do not care about max RX size
         Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
         Packet p2 = new Packet(9, layer4, packetManager, null, 10); //2 fragments will be created
 
@@ -280,9 +278,9 @@ public class InputInterfaceTest {
         //assert - there should be no fragments in RX buffer, neither input queue or processing
         assertEquals(0, inputInterface.getNumberOfFragments());
 
-        List<Packet> outputQueue = (List<Packet>) getPropertyWithoutGetter(NetworkNode.class, node2, "inputQueue");
-        assertNotNull(outputQueue);
-        assertEquals(0, outputQueue.size());
+        InputQueue inputQueue = (InputQueue) getPropertyWithoutGetter(NetworkNode.class, node2, "inputQueue");
+        assertNotNull(inputQueue);
+        assertTrue(inputQueue.isEmpty());
 
         assertEquals(0, node2.getPacketsInProcessing().size());//there should be 1 packet in processing, because input queue is empty
     }
@@ -296,7 +294,7 @@ public class InputInterfaceTest {
     public void testFragmentReceived_overflow() throws PacketCrcErrorException {
         //prepare
         int MAX_RX_SIZE = 2;
-        InputInterface inputInterface = new InputInterface(edge, MAX_RX_SIZE);//max 2 fragments in RX
+        RxBuffer inputInterface = new RxBuffer(edge, MAX_RX_SIZE);//max 2 fragments in RX
         Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
 
         //test method

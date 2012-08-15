@@ -20,6 +20,7 @@ package sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers;
 import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.QueueingHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
@@ -32,7 +33,7 @@ import java.util.List;
 /**
  * @author Igor Kvasnicka
  */
-public class OutputInterface {
+public class TxBuffer implements UsageStatistics {
 
     private List<Fragment> fragments = new LinkedList<Fragment>();
     /**
@@ -48,7 +49,7 @@ public class OutputInterface {
 
     private Edge edge;
 
-    public OutputInterface(int maxBufferSize, NetworkNode currentNode, NetworkNode networknodeNextHop, TopologyManager topologyManager) {
+    public TxBuffer(int maxBufferSize, NetworkNode currentNode, NetworkNode networknodeNextHop, TopologyManager topologyManager) {
 
         if (maxBufferSize == - 1) {
             this.maxBufferSize = Integer.MAX_VALUE;
@@ -120,5 +121,10 @@ public class OutputInterface {
             //add fragment to the edge
             edge.addFragment(fragment);
         }
+    }
+
+    @Override
+    public int getUsage() {
+        return getFragmentsCount();
     }
 }

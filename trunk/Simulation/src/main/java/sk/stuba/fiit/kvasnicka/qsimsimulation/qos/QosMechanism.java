@@ -17,7 +17,7 @@
 
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos;
 
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
 import java.util.List;
@@ -50,5 +50,5 @@ public interface QosMechanism {
      * @param swQueues           definition of QoS queues
      * @return list of packets to send
      */
-    List<Packet> decitePacketsToMoveFromOutputQueue(List<Packet> outputQueuePackets, SwQueues swQueues);
+    List<Packet> decitePacketsToMoveFromOutputQueue(List<Packet> outputQueuePackets, OutputQueueManager swQueues);
 }
