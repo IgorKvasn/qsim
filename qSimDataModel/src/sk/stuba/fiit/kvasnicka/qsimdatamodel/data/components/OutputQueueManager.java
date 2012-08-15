@@ -17,10 +17,11 @@
 
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -29,19 +30,64 @@ import java.util.List;
  * @author Igor Kvasnicka
  */
 
-//todo cela trieda ma byt JAXB serializovatelna - alebo nie?  - ano
+//todo cela trieda ma byt JAXB serializovatelna
 
-public class SwQueues {
+public class OutputQueueManager {
     @Getter
-    private QueueDefinition[] queues;
+    private OutputQueue[] queues;
 
-    public SwQueues(QueueDefinition[] queues) {
-        this.queues = new QueueDefinition[queues.length];
+    /**
+     * all packets in output queue
+     * if you are looking for QoS queues, they are <b>defined</b> on OutputQueueManager
+     */
+    @Getter
+    private List<Packet> outputQueue;
+
+    public OutputQueueManager(OutputQueue[] queues) {
+        this.queues = new OutputQueue[queues.length];
         System.arraycopy(queues, 0, this.queues, 0, queues.length); //http://pmd.sourceforge.net/rules/java/sunsecure.html - ArrayIsStoredDirectly
+
+        //finish output queues initialisation - each queue needs to know it qos number (order)
+        for (int i = 0; i < queues.length; i++) {
+            queues[i].setQosNumber(i);
+            queues[i].setQueueManager(this);
+        }
+
+        outputQueue = new LinkedList<Packet>();
     }
 
     public int getQueueCount() {
         return queues.length;
+    }
+
+    /**
+     * determines if there is enough space in QoS queue in output queue for this packet
+     *
+     * @param qosQueue number of qos queue where this packet belongs
+     * @return true/false according to description
+     */
+    public boolean isOutputQueueAvailable(int qosQueue) {
+        if (getQueueUsedCapacity(qosQueue, getOutputQueue()) + 1 > getQueueMaxCapacity(qosQueue)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * retrieves all packets that are waiting in input buffer within given time interval
+     *
+     * @param time current simulation time
+     * @return returns packets in node's queue that came into queue within specified time interval
+     */
+    public List<Packet> getPacketsInOutputQueue(double time) {
+        List<Packet> list = new LinkedList<Packet>();
+
+        for (Packet packet : outputQueue) {
+            if (packet.getTimeWhenCameToQueue() <= time) {
+                list.add(packet);
+            }
+        }
+        return list;
     }
 
 
@@ -55,7 +101,7 @@ public class SwQueues {
         if (queueNumber > queues.length) {
             throw new IllegalArgumentException("Invalid queueNumber: " + queueNumber);
         }
-        QueueDefinition queueDefinition = queues[queueNumber];
+        OutputQueue queueDefinition = queues[queueNumber];
         return queueDefinition.getMaxCapacity();
     }
 
@@ -68,7 +114,7 @@ public class SwQueues {
      */
     public int getQueueUsedCapacity(int queueNumber, List<Packet> outputQueue) {
         if (queueNumber >= queues.length) {
-            throw new IllegalArgumentException("Invalid queueNumber - max number of QoS queue: " + (queues.length - 1) + ", but method argument was queue number " + queueNumber);
+            throw new IllegalArgumentException("Invalid queueNumber - max number of QoS queue: " + queues.length + " (max allowed qos number is " + (queues.length - 1) + "), but method argument was queue number " + queueNumber);
         }
         if (queueNumber == - 1) {
             throw new IllegalStateException("This packet has not been marked and classified - QoS queue number is -1 (default value)");
@@ -82,24 +128,11 @@ public class SwQueues {
     }
 
     /**
-     * this class is used to define (output) queue
+     * checks if where are no packets in output queue
+     *
+     * @return
      */
-    @Getter
-    @EqualsAndHashCode
-    public static class QueueDefinition {
-
-        private int maxCapacity;
-        private String queueLabel;
-
-        /**
-         * creates new QoS queue
-         *
-         * @param maxCapacity maximum capacity of this queue; all packets above this capacity will be dropped
-         * @param queueLabel  user defined label for this queue - e.g.: "high priority"
-         */
-        public QueueDefinition(int maxCapacity, String queueLabel) {
-            this.maxCapacity = maxCapacity;
-            this.queueLabel = queueLabel;
-        }
+    public boolean isEmpty() {
+        return outputQueue.isEmpty();
     }
 }

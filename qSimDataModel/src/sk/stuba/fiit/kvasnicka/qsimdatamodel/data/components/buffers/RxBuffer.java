@@ -19,6 +19,7 @@ package sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers;
 
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.PacketCrcErrorException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
@@ -30,8 +31,8 @@ import java.util.Map;
 /**
  * @author Igor Kvasnicka
  */
-public class InputInterface {
-    private static Logger logg = Logger.getLogger(InputInterface.class);
+public class RxBuffer implements UsageStatistics {
+    private static Logger logg = Logger.getLogger(RxBuffer.class);
 
     /**
      * edge that is connected to this intput interface
@@ -44,7 +45,7 @@ public class InputInterface {
      */
     private Map<String, Integer> fragmentMap;
 
-    public InputInterface(Edge edge, int maxRxSize) {
+    public RxBuffer(Edge edge, int maxRxSize) {
         this.maxRxSize = maxRxSize;
         this.edge = edge;
         fragmentMap = new HashMap<String, Integer>();
@@ -97,6 +98,11 @@ public class InputInterface {
         return true;
     }
 
+    /**
+     * returns number of fragments in RX buffer
+     *
+     * @return
+     */
     public int getNumberOfFragments() {
         int numberOfFragments = 0;
         for (Integer fragmentCount : fragmentMap.values()) {
@@ -123,5 +129,10 @@ public class InputInterface {
             return;
         }
         fragmentMap.remove(fragmentID);
+    }
+
+    @Override
+    public int getUsage() {
+        return getNumberOfFragments();
     }
 }

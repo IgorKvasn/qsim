@@ -27,14 +27,15 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -57,7 +58,6 @@ public class PacketManagerTest {
     TopologyManager topologyManager;
     NetworkNode node1, node2;
     Edge edge;
-    SwQueues swQueues, swQueues2;
 
 
     @Before
@@ -67,16 +67,13 @@ public class PacketManagerTest {
         qosMechanism = EasyMock.createMock(QosMechanism.class);
 
 
-        SwQueues.QueueDefinition[] q = new SwQueues.QueueDefinition[1];
-        q[0] = new SwQueues.QueueDefinition(50, "queue 1");
-        swQueues = new SwQueues(q);
-
-        SwQueues.QueueDefinition[] q2 = new SwQueues.QueueDefinition[1];
-        q2[0] = new SwQueues.QueueDefinition(50, "queue 1");
-        swQueues2 = new SwQueues(q2);
+        OutputQueue q1 = new OutputQueue(50, "queue 1");
+        OutputQueue q2 = new OutputQueue(50, "queue 2");
+        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
+        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
-        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(List.class), EasyMock.anyObject(SwQueues.class))).andAnswer(new IAnswer<List<Packet>>() {
+        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(List.class), EasyMock.anyObject(OutputQueueManager.class))).andAnswer(new IAnswer<List<Packet>>() {
             @Override
             public List<Packet> answer() throws Throwable {
                 return (List<Packet>) EasyMock.getCurrentArguments()[0];
@@ -85,8 +82,8 @@ public class PacketManagerTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, swQueues, 200, 10, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", qosMechanism, swQueues2, 200, 10, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", qosMechanism, outputQueueManager2, 200, 10, 10, 10, 100, 0, 0);
 
 
         edge = new Edge(100, node1, node2);
@@ -129,7 +126,7 @@ public class PacketManagerTest {
     }
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("",node1, node2, 1, 1, 10, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 10, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {
