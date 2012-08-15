@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.RxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.TxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.InputQueue;
@@ -116,6 +117,7 @@ public abstract class NetworkNode implements Serializable {
     @Getter
     private int maxIntputQueueSize;
 
+    @Getter
     private InputQueue inputQueue;
 
     @Setter
@@ -132,6 +134,14 @@ public abstract class NetworkNode implements Serializable {
     private double minProcessingDelay;
     @Getter
     private double maxProcessingDelay;
+    @Getter
+    private UsageStatistics allRXBuffers;
+    @Getter
+    private UsageStatistics allTXBuffers;
+    @Getter
+    private UsageStatistics allOutputQueues;
+    @Getter
+    private UsageStatistics allProcessingPackets;
 
 
     /**
@@ -144,6 +154,34 @@ public abstract class NetworkNode implements Serializable {
         txInterfaces = new HashMap<NetworkNode, TxBuffer>();
         rxInterfaces = new HashMap<NetworkNode, RxBuffer>();
         inputQueue = new InputQueue();
+
+        allOutputQueues = new UsageStatistics() {
+            @Override
+            public int getUsage() {
+                return getOutputQueueUsage();
+            }
+        };
+
+        allRXBuffers = new UsageStatistics() {
+            @Override
+            public int getUsage() {
+                return getRXUsage();
+            }
+        };
+
+        allTXBuffers = new UsageStatistics() {
+            @Override
+            public int getUsage() {
+                return getTXUsage();
+            }
+        };
+
+        allProcessingPackets = new UsageStatistics() {
+            @Override
+            public int getUsage() {
+                return getProcessingPackets();
+            }
+        };
     }
 
     protected NetworkNode(String name, QosMechanism qosMechanism, OutputQueueManager swQueues, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
