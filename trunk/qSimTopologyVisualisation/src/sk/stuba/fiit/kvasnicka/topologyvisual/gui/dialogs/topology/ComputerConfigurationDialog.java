@@ -26,7 +26,7 @@ import javax.swing.UIManager;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Computer;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.panels.ComputerPanel;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.panels.ComputerPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.BlockingDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;

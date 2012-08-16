@@ -27,7 +27,7 @@ import org.netbeans.api.javahelp.Help;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.SwQueues;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.BlockingDialog;
@@ -260,7 +260,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                         .addGap(24, 24, 24))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -688,7 +688,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         private String name;
         private String description;
         private QosMechanism qosMechanism;
-        private SwQueues swQueues;
+        private OutputQueueManager outputQueueManager;
         private int maxTxBufferSize;
         private int maxIntputQueueSize;
         private int maxRxBufferSize;
@@ -697,11 +697,11 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         private double minProcessingDelay;
         private double maxProcessingDelay;
 
-        public ResultObject(String name, String description, QosMechanism qosMechanism, SwQueues swQueues, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
+        public ResultObject(String name, String description, QosMechanism qosMechanism, OutputQueueManager outputQueueManager, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
             this.name = name;
             this.description = description;
             this.qosMechanism = qosMechanism;
-            this.swQueues = swQueues;
+            this.outputQueueManager = outputQueueManager;
             this.maxTxBufferSize = maxTxBufferSize;
             this.maxRxBufferSize = maxRxBufferSize;
             this.maxIntputQueueSize = maxIntputQueueSize;
@@ -743,8 +743,8 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             return qosMechanism;
         }
 
-        public SwQueues getSwQueues() {
-            return swQueues;
+        public OutputQueueManager getSwQueues() {
+            return outputQueueManager;
         }
 
         public double getTcpDelay() {

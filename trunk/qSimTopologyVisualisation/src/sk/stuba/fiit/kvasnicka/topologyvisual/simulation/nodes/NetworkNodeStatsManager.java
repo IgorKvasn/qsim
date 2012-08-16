@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.nodes.NetworkNodeStatisticsBean.TraceIdentifier;
@@ -20,6 +21,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.nodes.NetworkNodeStatis
 public class NetworkNodeStatsManager {
 
     private Map<NetworkNode, NetworkNodeStatisticsBean> statisticsBeans;
+    private List<Usage2Trace> translateList = new java.util.LinkedList();
     private SimulationFacade simulationFacade;
 
     public NetworkNodeStatsManager(List<NetworkNode> networkNodeList, SimulationFacade simulationFacade) {
@@ -30,6 +32,9 @@ public class NetworkNodeStatsManager {
             NetworkNodeStatisticsBean networkNodeStatisticsBean = new NetworkNodeStatisticsBean(node);
             simulationFacade.addSimulationTimerListener(networkNodeStatisticsBean);
             statisticsBeans.put(networkNodeStatisticsBean.getNode(), networkNodeStatisticsBean);
+            for (UsageStatistics usage : networkNodeStatisticsBean.getUsages()) {
+                translateList.add(new Usage2Trace(usage, networkNodeStatisticsBean.getInputTrace()));
+            }
         }
     }
 
@@ -39,30 +44,23 @@ public class NetworkNodeStatsManager {
         }
     }
 
-    /**
-     * returns trace for chart
-     *
-     * @param node
-     * @param prop
-     * @return
-     */
-    public TraceIdentifier getTrace(NetworkNode node, NetworkNodePropertyEnum prop) {
-        if (!statisticsBeans.containsKey(node)) {
-            throw new IllegalArgumentException("could not find netowrk node in NetworkNodeStatsManager: " + node.getName());
+    public TraceIdentifier getTrace(UsageStatistics usageStatistics) {
+        for (Usage2Trace usage2Trace : translateList) {
+            if (usage2Trace.usageStatistics == usageStatistics) {//yes, I am comparing referencies, because that should be exact same object
+                return usage2Trace.traceIdentifier;
+            }
         }
-        switch (prop) {
-            case RX:
-                return statisticsBeans.get(node).getRxTrace();
-            case TX:
-                return statisticsBeans.get(node).getTxTrace();
-            case OUTPUT_BUFFER:
-                return statisticsBeans.get(node).getOutputTrace();
-            case INPUT_BUFFER:
-                return statisticsBeans.get(node).getInputTrace();
-            case PROCESSING:
-                return statisticsBeans.get(node).getProcessingTrace();
-            default:
-                throw new IllegalStateException("unknown network node property enum: " + prop);
+        throw new IllegalStateException("Could not find TraceIdentifier - something went really wrong");
+    }
+
+    private class Usage2Trace {
+
+        private UsageStatistics usageStatistics;
+        private TraceIdentifier traceIdentifier;
+
+        public Usage2Trace(UsageStatistics usageStatistics, TraceIdentifier traceIdentifier) {
+            this.usageStatistics = usageStatistics;
+            this.traceIdentifier = traceIdentifier;
         }
     }
 }
