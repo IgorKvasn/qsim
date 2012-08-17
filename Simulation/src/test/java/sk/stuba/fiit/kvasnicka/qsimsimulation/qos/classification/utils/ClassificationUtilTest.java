@@ -15,7 +15,7 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils;
 
 import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
@@ -23,6 +23,8 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.ClassificationException;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.ClassificationUtil;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.util.Arrays;

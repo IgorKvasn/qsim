@@ -15,7 +15,7 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.josql;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.josql;
 
 import java.util.List;
 

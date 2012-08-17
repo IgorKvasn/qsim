@@ -98,11 +98,11 @@ public class NetworkNodeTest {
         outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1, q11});
         outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
-        EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
-        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(List.class), EasyMock.anyObject(OutputQueueManager.class))).andAnswer(new IAnswer<List<Packet>>() {
+        EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
+        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(List.class))).andAnswer(new IAnswer<List<Packet>>() {
             @Override
             public List<Packet> answer() throws Throwable {
-                return (List<Packet>) EasyMock.getCurrentArguments()[0];
+                return ((List<List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
             }
         }).times(100);
         EasyMock.replay(qosMechanism);
@@ -313,7 +313,7 @@ public class NetworkNodeTest {
         //the second packet has got not enough space in TX, so it will be put into output queue
         OutputQueueManager outputQueue = node1.getOutputQueues();
         assertNotNull(outputQueue);
-        assertEquals(1, outputQueue.getOutputQueue().size());
+        assertEquals(1, outputQueue.getAllUsage());
     }
 
     /**
@@ -383,8 +383,8 @@ public class NetworkNodeTest {
 
         initRoute(p1, p2);
 
-        p1.setQosQueue(qosMechanism.classifyAndMarkPacket(p1));
-        p2.setQosQueue(qosMechanism.classifyAndMarkPacket(p2));
+        p1.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p1));
+        p2.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p2));
 
         //add packets directly to output queue - NOT to output buffer
 
@@ -399,7 +399,7 @@ public class NetworkNodeTest {
 
         OutputQueueManager outputQueue = node1.getOutputQueues();
         assertNotNull(outputQueue);
-        assertEquals(2, outputQueue.getOutputQueue().size());
+        assertEquals(2, outputQueue.getAllUsage());
 
 
         //test method
@@ -424,8 +424,8 @@ public class NetworkNodeTest {
 
         initRoute(p1, p2, p3);
 
-        p1.setQosQueue(qosMechanism.classifyAndMarkPacket(p1));
-        p2.setQosQueue(qosMechanism.classifyAndMarkPacket(p2));
+        p1.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p1));
+        p2.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p2));
 
         //add packets directly to output queue - NOT to output buffer
         Method privateStringMethod = NetworkNode.class.getDeclaredMethod("addToOutputQueue", Packet.class);
@@ -447,7 +447,7 @@ public class NetworkNodeTest {
 
         OutputQueueManager outputQueue = node1.getOutputQueues();
         assertNotNull(outputQueue);
-        assertEquals(2, outputQueue.getOutputQueue().size());
+        assertEquals(2, outputQueue.getAllUsage());
 
 
         //test method
@@ -457,7 +457,7 @@ public class NetworkNodeTest {
 
         outputQueue = node1.getOutputQueues();
         assertNotNull(outputQueue);
-        assertEquals(1, outputQueue.getOutputQueue().size());
+        assertEquals(1, outputQueue.getAllUsage());
 
         assertNotNull(node1.getTxInterfaces().get(node2));
         fragments = node1.getTxInterfaces().get(node2).getFragmentsCount();
@@ -483,7 +483,7 @@ public class NetworkNodeTest {
         //assert
         OutputQueueManager outputQueue = node1.getOutputQueues();
         assertNotNull(outputQueue);
-        assertEquals(0, outputQueue.getOutputQueue().size());
+        assertEquals(0, outputQueue.getAllUsage());
 
         assertNotNull(node1.getTxInterfaces().get(node2));
         int fragments = node1.getTxInterfaces().get(node2).getFragmentsCount();
@@ -509,7 +509,7 @@ public class NetworkNodeTest {
         //assert
         OutputQueueManager outputQueue = node1.getOutputQueues();
         assertNotNull(outputQueue);
-        assertEquals(1, outputQueue.getOutputQueue().size());
+        assertEquals(1, outputQueue.getAllUsage());
 
         assertNotNull(node1.getTxInterfaces().get(node2));
         int fragments = node1.getTxInterfaces().get(node2).getFragmentsCount();
@@ -591,8 +591,8 @@ public class NetworkNodeTest {
         Packet p1 = new Packet(10, layer4, packetManager, null, 10);
         Packet p2 = new Packet(10, layer4, packetManager, null, 30);
 
-        p1.setQosQueue(qosMechanism.classifyAndMarkPacket(p1));
-        p2.setQosQueue(qosMechanism.classifyAndMarkPacket(p2));
+        p1.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p1));
+        p2.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p2));
 
         //test
         Method privateStringMethod = NetworkNode.class.getDeclaredMethod("addToOutputQueue", Packet.class);
@@ -603,7 +603,7 @@ public class NetworkNodeTest {
         //assert
         OutputQueueManager outputQueue = node1.getOutputQueues();
         assertNotNull(outputQueue);
-        assertEquals(2, outputQueue.getOutputQueue().size());
+        assertEquals(2, outputQueue.getAllUsage());
     }
 
     /**
@@ -644,7 +644,7 @@ public class NetworkNodeTest {
         //assert
         OutputQueueManager outputQueue = node1.getOutputQueues();
         assertNotNull(outputQueue);
-        assertEquals(2, outputQueue.getOutputQueue().size());
+        assertEquals(2, outputQueue.getAllUsage());
     }
 
     /**

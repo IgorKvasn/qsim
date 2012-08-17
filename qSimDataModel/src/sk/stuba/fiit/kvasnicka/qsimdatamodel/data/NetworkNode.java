@@ -158,7 +158,7 @@ public abstract class NetworkNode implements Serializable {
         allOutputQueues = new UsageStatistics() {
             @Override
             public int getUsage() {
-                return getOutputQueueUsage();
+                return getAllOutputQueueUsage();
             }
         };
 
@@ -212,8 +212,8 @@ public abstract class NetworkNode implements Serializable {
      *
      * @return
      */
-    public int getOutputQueueUsage() {
-        return outputQueues.getOutputQueue().size();
+    public int getAllOutputQueueUsage() {
+        return outputQueues.getAllUsage();
     }
 
     /**
@@ -335,7 +335,7 @@ public abstract class NetworkNode implements Serializable {
      */
     private void moveFromProcessingToOutputQueue(Packet packet) {
         //classify and mark packet first
-        packet.setQosQueue(qosMechanism.classifyAndMarkPacket(packet)); //todo toto ma bt este pred processingom, po prijati paketu, aby som zistil, ci to ma byt fast switching
+        packet.setQosQueue(qosMechanism.classifyAndMarkPacket(this, packet)); //todo toto ma bt este pred processingom, po prijati paketu, aby som zistil, ci to ma byt fast switching
         //add as much packets (fragments) as possible to TX buffer - packet can be put into TX only if there is enough space for ALL its fragments
         int mtu = topologyManager.findEdge(getName(), packet.getNextHopNetworkNode(this).getName()).getMtu();
         try {
@@ -361,7 +361,7 @@ public abstract class NetworkNode implements Serializable {
             throw new NotEnoughBufferSpaceException("There is not enough space in output queue for packet with QoS queue: " + packet.getQosQueue());
         }
         packet.setTimeWhenCameToQueue(packet.getSimulationTime());
-        outputQueues.getOutputQueue().add(packet);
+        outputQueues.addPacket(packet);
     }
 
 
@@ -445,15 +445,21 @@ public abstract class NetworkNode implements Serializable {
         return "NetworkNode{" + "name=" + name + '}';
     }
 
-
+    /**
+     * moves as much packets as possible from output queue to TX buffer
+     * it moves only packets that are eligible (according to their simulation time)
+     * and if TX is full, it stops moving packets
+     *
+     * @param time current simulation time
+     */
     public void moveFromOutputQueueToTxBuffer(double time) {
-        List<Packet> eligiblePackets = outputQueues.getPacketsInOutputQueue(time);
-        List<Packet> packetsToSend = qosMechanism.decitePacketsToMoveFromOutputQueue(eligiblePackets, outputQueues);
+        List<List<Packet>> eligiblePackets = outputQueues.getPacketsInOutputQueue(time);
+        List<Packet> packetsToSend = qosMechanism.decitePacketsToMoveFromOutputQueue(this, eligiblePackets);
         for (Packet p : packetsToSend) {
             int mtu = topologyManager.findEdge(getName(), p.getNextHopNetworkNode(this).getName()).getMtu();
             try {
                 addToTxBuffer(p, mtu); //add packet to TX buffer
-                outputQueues.getOutputQueue().remove(p); //remove packet from output queue
+                outputQueues.removePacket(p); //remove packet from output queue
             } catch (NotEnoughBufferSpaceException e) {
                 //there is not enough space in TX, so packet stays in output queue
                 break;//no need to continue

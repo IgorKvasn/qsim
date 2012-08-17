@@ -17,11 +17,12 @@
 
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification;
 
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+
 /**
  * @author Igor Kvasnicka
  */
-public class ClassificationException extends Exception {
-    public ClassificationException(String msg, Exception cause) {
-        super(msg, cause);
-    }
+public interface PacketClassificationInterf {
+    int classifyAndMarkPacket(NetworkNode networkNode, Packet packet);
 }

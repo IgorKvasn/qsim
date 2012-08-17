@@ -74,11 +74,11 @@ public class IntegrationTest {
 
 
         qosMechanism = EasyMock.createMock(QosMechanism.class);
-        EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
-        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(List.class), EasyMock.anyObject(OutputQueueManager.class))).andAnswer(new IAnswer<List<Packet>>() {
+        EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
+        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(List.class))).andAnswer(new IAnswer<List<Packet>>() {
             @Override
             public List<Packet> answer() throws Throwable {
-                return (List<Packet>) EasyMock.getCurrentArguments()[0];
+                return ((List<List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
             }
         }).times(100);
         EasyMock.replay(qosMechanism);
