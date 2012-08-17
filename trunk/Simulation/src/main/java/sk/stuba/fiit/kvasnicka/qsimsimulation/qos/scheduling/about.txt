@@ -1,0 +1,1 @@
+This package defines packet sheduling algorithms. They are used to determine, which packet should be pushed from output queue to TX .

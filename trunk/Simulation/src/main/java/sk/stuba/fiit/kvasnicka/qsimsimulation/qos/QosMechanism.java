@@ -17,8 +17,10 @@
 
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos;
 
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassificationInterf;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
 
 import java.util.List;
 
@@ -32,23 +34,32 @@ import java.util.List;
 //todo urobit serializaciu do jaxb rovnako ako funguje netowrk node a router/switch/computer - @XmlSeeAlso
 
 
-public interface QosMechanism {
+public class QosMechanism {
+    private PacketScheduling packetScheduling;
+    private PacketClassificationInterf packetClassification;
+
     /**
      * marks given packet according to NetworkNode rules
      *
-     * @param packet packet to mark
+     * @param networkNode network node that is calling this method
+     * @param packet      packet to mark
      * @return number of the QoS queue where this packet belongs
      * @see sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet#qosQueue here will be return value stored
      */
 
-    int classifyAndMarkPacket(Packet packet);
+    public int classifyAndMarkPacket(NetworkNode networkNode, Packet packet) {
+        return packetClassification.classifyAndMarkPacket(networkNode, packet);
+    }
 
     /**
      * decides which packets should be moved from output queue
+     * it does not remove packets from output queue!!!
      *
+     * @param networkNode        network node that is calling this method
      * @param outputQueuePackets all packets in all output queues (it does not matter what priority ar what queue are they in)
-     * @param swQueues           definition of QoS queues
      * @return list of packets to send
      */
-    List<Packet> decitePacketsToMoveFromOutputQueue(List<Packet> outputQueuePackets, OutputQueueManager swQueues);
+    public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, List<List<Packet>> outputQueuePackets) {
+        return packetScheduling.decitePacketsToMoveFromOutputQueue(networkNode, outputQueuePackets);
+    }
 }

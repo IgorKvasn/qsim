@@ -15,7 +15,7 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils;
 
 import org.apache.log4j.Logger;
 import org.josql.Query;
@@ -23,8 +23,8 @@ import org.josql.QueryExecutionException;
 import org.josql.QueryParseException;
 import org.josql.QueryResults;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.josql.MyFunctionHandler;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.josql.NegativeMyFunctionHandler;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.josql.MyFunctionHandler;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.josql.NegativeMyFunctionHandler;
 
 import java.util.Arrays;
 

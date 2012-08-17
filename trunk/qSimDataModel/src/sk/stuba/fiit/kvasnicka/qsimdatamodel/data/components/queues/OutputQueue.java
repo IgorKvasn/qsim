@@ -21,6 +21,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Igor Kvasnicka
@@ -34,6 +38,7 @@ public class OutputQueue implements UsageStatistics {
     private String queueLabel;
     private int qosNumber = - 1;
     private OutputQueueManager queueManager = null;
+    private List<Packet> packets;
 
     /**
      * creates new QoS queue
@@ -44,6 +49,7 @@ public class OutputQueue implements UsageStatistics {
     public OutputQueue(int maxCapacity, String queueLabel) {
         this.maxCapacity = maxCapacity;
         this.queueLabel = queueLabel;
+        this.packets = new LinkedList<Packet>();
     }
 
 
@@ -63,8 +69,34 @@ public class OutputQueue implements UsageStatistics {
         }
     }
 
+    /**
+     * determines if there is space in output queue for one more packet
+     *
+     * @return
+     */
+    public boolean isAvailable() {
+        return packets.size() != maxCapacity;
+    }
+
     @Override
     public int getUsage() {
-        return queueManager.getQueueUsedCapacity(qosNumber, queueManager.getOutputQueue());
+        return packets.size();
+    }
+
+    public boolean isEmpty() {
+        return packets.isEmpty();
+    }
+
+    public void removePacket(Packet p) {
+        if (! packets.remove(p)) {
+            throw new IllegalStateException("Could not find packet in output queue - it cannot be deleted");
+        }
+    }
+
+    public void addPacket(Packet p) {
+        if (packets.size() == maxCapacity) {
+            throw new IllegalStateException("output queue is already full - this should be taken care of, already");
+        }
+        packets.add(p);
     }
 }

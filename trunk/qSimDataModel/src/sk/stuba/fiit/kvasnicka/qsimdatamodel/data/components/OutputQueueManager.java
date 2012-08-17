@@ -36,12 +36,12 @@ public class OutputQueueManager {
     @Getter
     private OutputQueue[] queues;
 
-    /**
-     * all packets in output queue
-     * if you are looking for QoS queues, they are <b>defined</b> on OutputQueueManager
-     */
-    @Getter
-    private List<Packet> outputQueue;
+//    /**
+//     * all packets in output queue
+//     * if you are looking for QoS queues, they are <b>defined</b> on OutputQueueManager
+//     */
+//    @Getter
+//    private List<Packet> outputQueue;
 
     public OutputQueueManager(OutputQueue[] queues) {
         this.queues = new OutputQueue[queues.length];
@@ -52,8 +52,6 @@ public class OutputQueueManager {
             queues[i].setQosNumber(i);
             queues[i].setQueueManager(this);
         }
-
-        outputQueue = new LinkedList<Packet>();
     }
 
     public int getQueueCount() {
@@ -67,25 +65,29 @@ public class OutputQueueManager {
      * @return true/false according to description
      */
     public boolean isOutputQueueAvailable(int qosQueue) {
-        if (getQueueUsedCapacity(qosQueue, getOutputQueue()) + 1 > getQueueMaxCapacity(qosQueue)) {
-            return false;
-        }
-        return true;
+        checkQosQueueNumberOk(qosQueue);
+
+        return queues[qosQueue].isAvailable();
     }
 
     /**
-     * retrieves all packets that are waiting in input buffer within given time interval
+     * retrieves all packets in all queues that are waiting in output queue within given time interval
      *
      * @param time current simulation time
-     * @return returns packets in node's queue that came into queue within specified time interval
+     * @return returns packets in node's queue that came into queue within specified time interval;there are multiple output queues; result.get(1) will return list of packets in 2nd queue
      */
-    public List<Packet> getPacketsInOutputQueue(double time) {
-        List<Packet> list = new LinkedList<Packet>();
+    public List<List<Packet>> getPacketsInOutputQueue(double time) {
+        List<List<Packet>> list = new LinkedList<List<Packet>>();
 
-        for (Packet packet : outputQueue) {
-            if (packet.getTimeWhenCameToQueue() <= time) {
-                list.add(packet);
+        for (OutputQueue outputQueue : queues) {
+            List<Packet> oneQueue = new LinkedList<Packet>();
+
+            for (Packet packet : outputQueue.getPackets()) {
+                if (packet.getTimeWhenCameToQueue() <= time) {
+                    oneQueue.add(packet);
+                }
             }
+            list.add(oneQueue);
         }
         return list;
     }
@@ -98,33 +100,21 @@ public class OutputQueueManager {
      * @return queue size
      */
     public int getQueueMaxCapacity(int queueNumber) {
-        if (queueNumber > queues.length) {
-            throw new IllegalArgumentException("Invalid queueNumber: " + queueNumber);
-        }
-        OutputQueue queueDefinition = queues[queueNumber];
-        return queueDefinition.getMaxCapacity();
+        checkQosQueueNumberOk(queueNumber);
+
+        return queues[queueNumber].getMaxCapacity();
     }
 
     /**
      * returns used capacity of appropriate output queue
      *
      * @param queueNumber queue number
-     * @param outputQueue all packets in output queue - regardless of QoS queue number (use NetowrkNode.getOutputQueue() to retrieve these packets)
      * @return queue size
      */
-    public int getQueueUsedCapacity(int queueNumber, List<Packet> outputQueue) {
-        if (queueNumber >= queues.length) {
-            throw new IllegalArgumentException("Invalid queueNumber - max number of QoS queue: " + queues.length + " (max allowed qos number is " + (queues.length - 1) + "), but method argument was queue number " + queueNumber);
-        }
-        if (queueNumber == - 1) {
-            throw new IllegalStateException("This packet has not been marked and classified - QoS queue number is -1 (default value)");
-        }
-        int size = 0;
-        for (Packet p : outputQueue) {
-            if (p.getQosQueue() == - 1) throw new IllegalStateException("packet is not marked");
-            if (p.getQosQueue() == queueNumber) size++;
-        }
-        return size;
+    public int getQueueUsedCapacity(int queueNumber) {
+        checkQosQueueNumberOk(queueNumber);
+
+        return queues[queueNumber].getUsage();
     }
 
     /**
@@ -133,6 +123,53 @@ public class OutputQueueManager {
      * @return
      */
     public boolean isEmpty() {
-        return outputQueue.isEmpty();
+        for (OutputQueue outputQueue : queues) {
+            if (! outputQueue.isEmpty()) return false;
+        }
+        return true;
+    }
+
+    /**
+     * removes packet from output queue
+     *
+     * @param p
+     */
+    public void removePacket(Packet p) {
+        checkQosQueueNumberOk(p.getQosQueue());
+
+        queues[p.getQosQueue()].removePacket(p);
+    }
+
+    /**
+     * adds packet to appropriate output queue
+     *
+     * @param p
+     */
+    public void addPacket(Packet p) {
+        checkQosQueueNumberOk(p.getQosQueue());
+
+        queues[p.getQosQueue()].addPacket(p);
+    }
+
+    private void checkQosQueueNumberOk(int qosNumber) {         //todo test
+        if (qosNumber < 0) {
+            throw new IllegalStateException("qos number is negative: " + qosNumber);
+        }
+        if (qosNumber >= queues.length) {
+            throw new IllegalArgumentException("Invalid queueNumber - max number of QoS queue: " + queues.length + " (max allowed qos number is " + (queues.length - 1) + "), but method argument was queue number " + qosNumber);
+        }
+    }
+
+    /**
+     * returns total number of packets in all output queues
+     *
+     * @return
+     */
+    public int getAllUsage() {
+        int usage = 0;
+        for (OutputQueue queue : queues) {
+            usage += queue.getUsage();
+        }
+        return usage;
     }
 }
