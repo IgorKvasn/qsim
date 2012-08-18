@@ -40,8 +40,6 @@ public class Packet {
      * this number is calculated during "marking" phase
      * in general, high number means high priority
      * <p/>
-     * may be null if packet has not yet been marked
-     * <p/>
      * the lowest value is 0
      */
     @Setter

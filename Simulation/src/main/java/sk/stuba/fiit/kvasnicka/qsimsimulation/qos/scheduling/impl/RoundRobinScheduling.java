@@ -34,6 +34,7 @@ public class RoundRobinScheduling extends PacketScheduling {
 
     @Override
     public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, List<List<Packet>> outputQueuePackets) {
+        if (outputQueuePackets == null) throw new IllegalArgumentException("outputQueuePackets is NULL");
 
         if (outputQueuePackets.isEmpty()) {//there are no output queues??? are you serious????
             throw new IllegalStateException("no output queues defined - cannot perform packet scheduling");
