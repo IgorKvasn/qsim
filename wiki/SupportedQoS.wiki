@@ -1,0 +1,19 @@
+#summary QoS mechanizms available
+#labels Featured
+
+== Packet scheduling ==
+
+Algorithms to determine the order in which packets are to be send.
+
+*  FIFO
+*  Priority Queing
+*  Round robin 
+*  Weighted round robin
+*  WeightedFairQueing (WFQ)
+*  Class-Based WFQ
+
+== Packet classification & marking ==
+
+Algoritms to determine packet priority (and thus its output queue).
+
+*  Best efford (no QoS)
