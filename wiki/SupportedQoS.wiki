@@ -3,7 +3,7 @@
 
 == Packet scheduling ==
 
-Algorithms to determine the order in which packets are to be send.
+Algorithms to determine the order in which packets are to be sent.
 
   * FIFO
   * Priority Queing
