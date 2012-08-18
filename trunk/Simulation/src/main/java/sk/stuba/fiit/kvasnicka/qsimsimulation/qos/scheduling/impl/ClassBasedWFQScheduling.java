@@ -26,19 +26,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * note that implementation requires that queues that should be in the same class must be "near" each other
- * e.g. if 2 queues are in each class, queues no. 1 and 5 will be in different classes
- * if you want them to be in one class, you must "move" queues (e.g. queue 5 swap with queue no.2)
- * but do this BEFORE you run simulation - changing order of queues on runtime may produce some strange behaviour.... however in theory it may work...
- *
  * @author Igor Kvasnicka
  */
-public class WeightedRoundRobinScheduling extends PacketScheduling {
+public class ClassBasedWFQScheduling extends PacketScheduling {
 
     private int currentClassNumber = 0; //number of currently processing class
-    private int[] currentQueues;//currently processing queue for each class
 
     private int[] unprocessedPacketsInClass;
+    private int[][] savedBits; //first parameter is class number, second is queue number within the class
     /**
      * parameter of this packet scheduling defining
      * <b>number of classes</b>
@@ -46,7 +41,7 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
      */
     public static final String CLASS_COUNT = "class_count";
 
-    public WeightedRoundRobinScheduling(Map<String, Object> parameters) {
+    public ClassBasedWFQScheduling(Map<String, Object> parameters) {
         super(parameters);
         if (parameters == null) throw new IllegalArgumentException("no parameters defined - parameter Map is NULL");
         if (! parameters.containsKey(CLASS_COUNT)) {
@@ -56,7 +51,6 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
             throw new IllegalArgumentException("class count parameter must has Integer as value - actual value of defined parameter is " + parameters.get(CLASS_COUNT).getClass());
         }
 
-        currentQueues = new int[(Integer) parameters.get(CLASS_COUNT)];
         unprocessedPacketsInClass = new int[(Integer) parameters.get(CLASS_COUNT)];
     }
 
@@ -67,6 +61,10 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
         if (outputQueuePackets.isEmpty()) {//there are no output queues??? are you serious????
             throw new IllegalStateException("no output queues defined - cannot perform packet scheduling");
         }
+        int classCount = (Integer) parameters.get(CLASS_COUNT);
+        int classSize = getClassSize(outputQueuePackets.size(), classCount);
+
+        savedBits = new int[(Integer) parameters.get(CLASS_COUNT)][classSize];
 
         for (int i = 0; i < unprocessedPacketsInClass.length; i++) {
             unprocessedPacketsInClass[i] = Integer.MAX_VALUE;//it is difficult and useless to calculate unprocessed packets - this will guarantee, that at least one round robin will be done
@@ -74,23 +72,21 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
 
         List<List<Packet>> outputQueuePacketsCopy = outputQueueMakeCopy(outputQueuePackets);
 
-        int classCount = (Integer) parameters.get(CLASS_COUNT);
-        int classSize = getClassSize(outputQueuePacketsCopy.size(), classCount);
 
         List<Packet> packets = new LinkedList<Packet>();
         int inactiveQueue = 0;
         int startClass = currentClassNumber;
-        int packetsToProcess = calculatePacketsToProcess(outputQueuePacketsCopy.size(), classCount);//how many packets can be processed in one round robin run
+        int packetsToProcess = calculateBitsToProcess(calculateAllPacketsSize(outputQueuePacketsCopy), classCount);//how many packets can be processed in one round robin run
 
         while (true) {
 
             if (isClassEmpty(currentClassNumber)) {       //this queue has no more packets left
                 inactiveQueue++;
             } else {
-                //-----------perform inner round robin
+                //-----------perform inner WFQ
                 List<List<Packet>> outputQueuePacketsSubList = outputQueuePacketsCopy.subList(currentClassNumber * classSize, getEndOfClass(currentClassNumber, classSize, outputQueuePacketsCopy.size()));
 
-                performClassRoundRobin(currentClassNumber, outputQueuePacketsSubList, packets, packetsToProcess);
+                performClassWFQ(currentClassNumber, outputQueuePacketsSubList, packets, packetsToProcess, classCount);
                 //--------------------------------------
             }
             currentClassNumber++;
@@ -109,7 +105,23 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
     }
 
     /**
-     * creates copy of output queues, so that packets can be removed from it
+     * calculates the sum of all packet sizes
+     *
+     * @param outputQueues
+     * @return
+     */
+    private int calculateAllPacketsSize(List<List<Packet>> outputQueues) {
+        int size = 0;
+        for (List<Packet> queue : outputQueues) {
+            for (Packet p : queue) {
+                size += p.getPacketSize();
+            }
+        }
+        return size;
+    }
+
+    /**
+     * copies output queues to new List so that I can remove packets from it
      *
      * @param outputQueuePackets
      * @return
@@ -135,18 +147,18 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
     }
 
     /**
-     * calculates how many packets cen be processed in one round robin (outer round robin)
+     * calculates, how many bits can be processed in one round robin
      *
-     * @param queueCount
+     * @param allPacketsSize
      * @param classCount
      * @return
      */
-    private int calculatePacketsToProcess(int queueCount, int classCount) {
-        return queueCount / classCount;
+    private int calculateBitsToProcess(int allPacketsSize, int classCount) {
+        return allPacketsSize / classCount;
     }
 
     /**
-     * calculates index of last queue in a class
+     * calculates index number of last queue in class
      *
      * @param currentClassNumber
      * @param classSize
@@ -162,7 +174,7 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
     }
 
     /**
-     * calculates class size (how many queues are in the class)
+     * calculates class size
      *
      * @param queueCount
      * @param classCount
@@ -180,43 +192,93 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
      *
      * @return
      */
-    private void performClassRoundRobin(int classNumber, List<List<Packet>> outputQueuePackets, List<Packet> result, int packetsToProcess) {
+    private void performClassWFQ(int classNumber, List<List<Packet>> outputQueuePackets, List<Packet> result, int bitsToProcessAll, int classCount) {
 
-        int numberOfQueues = outputQueuePackets.size();
-        int inactiveQueue = 0;
-        int startQueueClass = currentQueues[classNumber];
-        int processed = 0;
-
-        while (true) {
-            if (packetsToProcess == processed) {
-                break;//I have used all my time - I need to wait for another round to finish
-            }
-
-            List<Packet> queue = outputQueuePackets.get(currentQueues[classNumber]);
-
-            if (queue.size() <= 0) {       //this queue has no more packets left
-                inactiveQueue++;
-            } else {
-                result.add(queue.get(0));
-                queue.remove(0);
-                processed++;
-            }
-
-            currentQueues[classNumber]++;
-            currentQueues[classNumber] %= numberOfQueues;
-            if (currentQueues[classNumber] == startQueueClass) {//I have performed one round robin circle
-
-                if (inactiveQueue == numberOfQueues) {
-                    break;//there are no more packets in output queue
-                } else {
-                    inactiveQueue = 0;
-                }
-            }
+        List<Packet> firstPackets = new LinkedList<Packet>();//here are first packet from all queues
+        int[] bitsToProcess = new int[outputQueuePackets.size()]; //how many bits can be processed within this run; all unused bits will be stored in "savedBits"
+        for (int i = 0; i < bitsToProcess.length; i++) {
+            bitsToProcess[i] = savedBits[classNumber][i] + bitsToProcessAll; //I can process given number of bits (by outer round-robin) + bits that I have saved from previous run
         }
 
+        boolean end = false;
+
+        for (; ; ) {
+            if (end) {
+                break;
+            }
+            end = true;
+            for (int queueNumber = 0, outputQueuePacketsSize = outputQueuePackets.size(); queueNumber < outputQueuePacketsSize; queueNumber++) {
+                List<Packet> queue = outputQueuePackets.get(queueNumber);
+                if (queue.isEmpty()) {//no more packets in this queue
+                    continue;
+                }
+                if (queue.get(0).getPacketSize() > bitsToProcess[queueNumber]) {//there is no time for this packet to be processed
+                    savedBits[classNumber][queueNumber] = bitsToProcess[queueNumber];
+                    continue;
+                }
+                end = false;//I have added at least one packet to packet to be scheduled, so maybe there is time for the next WFQ cycle - if not, I simply made one circle more, but never mind that
+                firstPackets.add(queue.get(0));
+                bitsToProcess[queueNumber] -= queue.get(0).getPacketSize();
+            }
+
+            if (firstPackets.isEmpty()) {//there are no more packets in output queues
+                break;
+            }
+            List<Packet> toSchedule = findSmallestPacket(firstPackets);
+
+            removePackets(toSchedule, outputQueuePackets, classCount);//remove them from output queue so they no longer will be first
+            result.addAll(toSchedule);
+            firstPackets.clear();
+        }
+
+
+        //calculate number of unprocessed packets
         unprocessedPacketsInClass[classNumber] = 0;
         for (List<Packet> queue : outputQueuePackets) {
             unprocessedPacketsInClass[classNumber] += queue.size();
         }
+    }
+
+    /**
+     * packets will be removed from output queues (note, that this is just a copy of output queue)
+     *
+     * @param toSchedule
+     * @param outputQueue
+     */
+    private void removePackets(List<Packet> toSchedule, List<List<Packet>> outputQueue, int classCount) {
+        for (Packet p : toSchedule) {
+            if (p.getQosQueue() == - 1) {
+                throw new IllegalStateException("packet has not been marked - how is this possible????");
+            }
+            if (! outputQueue.get(p.getQosQueue() % classCount).remove(p)) {
+                throw new IllegalStateException("unable to remove packet from output queue - it was not found there");
+            }
+        }
+    }
+
+    /**
+     * finds packet that has the smallest size
+     * however there can be multiple packets with the same, smallest size - this method will return all of these packets
+     *
+     * @param packets
+     * @return
+     */
+    private List<Packet> findSmallestPacket(List<Packet> packets) {
+        List<Packet> smallest = new LinkedList<Packet>();
+        for (Packet p : packets) {
+            if (smallest.isEmpty()) {
+                smallest.add(p);
+                continue;
+            }
+
+            if (smallest.get(0).getPacketSize() == p.getPacketSize()) {//another packet with this (smallest) size
+                smallest.add(p);
+            }
+            if (smallest.get(0).getPacketSize() > p.getPacketSize()) {//I have found smaller packet
+                smallest.clear();
+                smallest.add(p);
+            }
+        }
+        return smallest;
     }
 }

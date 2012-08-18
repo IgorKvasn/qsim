@@ -38,6 +38,10 @@ public class FifoScheduling extends PacketScheduling {
         if (node == null) throw new IllegalArgumentException("node is NULL");
         if (outputQueuePackets == null) throw new IllegalArgumentException("outputQueuePackets is NULL");
 
+        if (outputQueuePackets.isEmpty()) {//there are no output queues??? are you serious????
+            throw new IllegalStateException("no output queues defined - cannot perform packet scheduling");
+        }
+
         if (outputQueuePackets.size() != 1) {         //there must be only one queue, otherwise FIFI scheduling cannot be applied
             throw new IllegalStateException("FIFO scheduling can be applied only if network node has only 1 output queue, network node: " + node.getName() + " has " + outputQueuePackets.size() + " queues");
         }
