@@ -17,6 +17,7 @@
 
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos;
 
+import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassificationInterf;
@@ -35,8 +36,15 @@ import java.util.List;
 
 
 public class QosMechanism {
+    @Setter
     private PacketScheduling packetScheduling;
+    @Setter
     private PacketClassificationInterf packetClassification;
+
+    public QosMechanism(PacketScheduling packetScheduling, PacketClassificationInterf packetClassification) {
+        this.packetScheduling = packetScheduling;
+        this.packetClassification = packetClassification;
+    }
 
     /**
      * marks given packet according to NetworkNode rules
@@ -48,6 +56,7 @@ public class QosMechanism {
      */
 
     public int classifyAndMarkPacket(NetworkNode networkNode, Packet packet) {
+        if (packetClassification == null) throw new IllegalStateException("packetClassification is NULL");
         return packetClassification.classifyAndMarkPacket(networkNode, packet);
     }
 
@@ -60,6 +69,7 @@ public class QosMechanism {
      * @return list of packets to send
      */
     public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, List<List<Packet>> outputQueuePackets) {
+        if (packetScheduling == null) throw new IllegalStateException("packetScheduling is NULL");
         return packetScheduling.decitePacketsToMoveFromOutputQueue(networkNode, outputQueuePackets);
     }
 }

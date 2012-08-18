@@ -53,7 +53,7 @@ public class FifoSchedulingTest {
     public void testDecitePacketsToMoveFromOutputQueue() {
         OutputQueue q1 = new OutputQueue(50, "queue 1");
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        QosMechanism qosMechanism = new QosMechanism();
+        QosMechanism qosMechanism = new QosMechanism(null, null);
 
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
 
@@ -78,7 +78,7 @@ public class FifoSchedulingTest {
         OutputQueue q1 = new OutputQueue(50, "queue 1");
         OutputQueue q2 = new OutputQueue(50, "queue 2");
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1, q2});
-        QosMechanism qosMechanism = new QosMechanism();
+        QosMechanism qosMechanism = new QosMechanism(null, null);
 
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
 
@@ -98,7 +98,7 @@ public class FifoSchedulingTest {
     @Test
     public void testDecitePacketsToMoveFromOutputQueue_no_queue() {
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{});
-        QosMechanism qosMechanism = new QosMechanism();
+        QosMechanism qosMechanism = new QosMechanism(null, null);
 
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
 

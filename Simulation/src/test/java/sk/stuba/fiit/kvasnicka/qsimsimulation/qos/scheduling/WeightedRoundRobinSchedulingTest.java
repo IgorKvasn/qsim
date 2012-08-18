@@ -36,6 +36,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Igor Kvasnicka
@@ -48,6 +49,46 @@ public class WeightedRoundRobinSchedulingTest {
     public void before() {
 
     }
+
+    @Test
+    public void testConstructor_null() {
+        try {
+            new WeightedRoundRobinScheduling(null);
+            fail("no parameters - exception should be thrown");
+        } catch (IllegalArgumentException e) {
+            //OK
+        }
+    }
+
+    @Test
+    public void testConstructor_no_class_count_parameter() {
+        try {
+            new WeightedRoundRobinScheduling(new HashMap<String, Object>());
+            fail("no class count parameter - exception should be thrown");
+        } catch (IllegalArgumentException e) {
+            //OK
+        }
+    }
+
+    @Test
+    public void testConstructor_wrong_parameter_value_type() {
+        try {
+            new WeightedRoundRobinScheduling(new HashMap<String, Object>() {{
+                put(WeightedRoundRobinScheduling.CLASS_COUNT, "test");
+            }});
+            fail("parameter class count should has integer value - exception should be thrown");
+        } catch (IllegalArgumentException e) {
+            //OK
+        }
+    }
+
+    @Test
+    public void testConstructor_ok() {
+        new WeightedRoundRobinScheduling(new HashMap<String, Object>() {{
+            put(WeightedRoundRobinScheduling.CLASS_COUNT, 1);
+        }});
+    }
+
 
     @Test
     public void testGetClassSize() {
@@ -108,7 +149,7 @@ public class WeightedRoundRobinSchedulingTest {
 
         OutputQueue q1 = new OutputQueue(50, "queue 1");
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        QosMechanism qosMechanism = new QosMechanism();
+        QosMechanism qosMechanism = new QosMechanism(null, null);
 
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
 
@@ -150,7 +191,7 @@ public class WeightedRoundRobinSchedulingTest {
 
         OutputQueue q1 = new OutputQueue(50, "queue 1");
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        QosMechanism qosMechanism = new QosMechanism();
+        QosMechanism qosMechanism = new QosMechanism(null, null);
 
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
 
@@ -192,7 +233,7 @@ public class WeightedRoundRobinSchedulingTest {
         });
         OutputQueue q1 = new OutputQueue(50, "queue 1");
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        QosMechanism qosMechanism = new QosMechanism();
+        QosMechanism qosMechanism = new QosMechanism(null, null);
 
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
 

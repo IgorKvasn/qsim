@@ -51,10 +51,10 @@ public abstract class ClassificationUtil {
      * @return true/false
      */
     public static boolean isClassificationRuleApplied(String rule, Packet packet) throws ClassificationException {
-        String josql_rule = JO_SQL_PREFIX + rule;
+        String josqlRule = JO_SQL_PREFIX + rule;
 
         try {
-            q.parse(josql_rule);
+            q.parse(josqlRule);
             QueryResults qr = q.execute(Arrays.asList(packet));
             return ! qr.getResults().isEmpty();
         } catch (QueryParseException e) {
