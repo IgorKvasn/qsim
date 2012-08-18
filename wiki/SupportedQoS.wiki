@@ -5,7 +5,7 @@
 
 Algorithms to determine the order in which packets are to be send.
 
-  *FIFO
+  * FIFO
   *Priority Queing
   *Round robin 
   *Weighted round robin
