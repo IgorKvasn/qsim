@@ -35,7 +35,6 @@ import java.util.Map;
  */
 public class WeightedRoundRobinScheduling extends PacketScheduling {
 
-    private int startClass = 0;
     private int currentClassNumber = 0; //number of currently processing class
     private int[] currentQueues;//currently processing queue for each class
 
@@ -56,12 +55,14 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
         if (! (parameters.get(CLASS_COUNT) instanceof Integer)) {
             throw new IllegalArgumentException("class count parameter must has Integer as value - actual value of defined parameter is " + parameters.get(CLASS_COUNT).getClass());
         }
+
+        currentQueues = new int[(Integer) parameters.get(CLASS_COUNT)];
+        unprocessedPacketsInClass = new int[(Integer) parameters.get(CLASS_COUNT)];
     }
 
     @Override
     public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, List<List<Packet>> outputQueuePackets) {
-        currentQueues = new int[(Integer) parameters.get(CLASS_COUNT)];
-        unprocessedPacketsInClass = new int[(Integer) parameters.get(CLASS_COUNT)];
+
 
         for (int i = 0; i < unprocessedPacketsInClass.length; i++) {
             unprocessedPacketsInClass[i] = Integer.MAX_VALUE;//it is difficult and useless to calculate unprocessed packets - this will guarantee, that at least one round robin will be done
@@ -73,7 +74,6 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
         int classSize = getClassSize(outputQueuePacketsCopy.size(), classCount);
 
         List<Packet> packets = new LinkedList<Packet>();
-        int numberOfQueues = outputQueuePacketsCopy.size();
         int inactiveQueue = 0;
         int startClass = currentClassNumber;
         int packetsToProcess = calculatePacketsToProcess(outputQueuePacketsCopy.size(), classCount);//how many packets can be processed in one round robin run
@@ -146,7 +146,7 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
 
         int numberOfQueues = outputQueuePackets.size();
         int inactiveQueue = 0;
-        int startQueue = currentQueues[classNumber];
+        int startQueueClass = currentQueues[classNumber];
         int processed = 0;
 
         while (true) {
@@ -166,7 +166,7 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
 
             currentQueues[classNumber]++;
             currentQueues[classNumber] %= numberOfQueues;
-            if (currentQueues[classNumber] == startQueue) {//I have performed one round robin circle
+            if (currentQueues[classNumber] == startQueueClass) {//I have performed one round robin circle
 
                 if (inactiveQueue == numberOfQueues) {
                     break;//there are no more packets in output queue
@@ -176,10 +176,8 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
             }
         }
 
-
         unprocessedPacketsInClass[classNumber] = 0;
-        for (int i = 0, outputQueuePacketsSize = outputQueuePackets.size(); i < outputQueuePacketsSize; i++) {
-            List<Packet> queue = outputQueuePackets.get(i);
+        for (List<Packet> queue : outputQueuePackets) {
             unprocessedPacketsInClass[classNumber] += queue.size();
         }
     }
