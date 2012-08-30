@@ -196,6 +196,7 @@ public abstract class NetworkNode implements Serializable {
         this.tcpDelay = tcpDelay;
         this.minProcessingDelay = minProcessingDelay;
         this.maxProcessingDelay = maxProcessingDelay;
+        outputQueues.setNode(this);
     }
 
     /**

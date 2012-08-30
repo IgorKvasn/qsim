@@ -27,7 +27,6 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.ClassBasedWFQScheduling;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedRoundRobinScheduling;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -105,14 +104,14 @@ public class ClassBasedWFQSchedulingTest {
     public void testDecitePacketsToMoveFromOutputQueue_three_queues() {
         classBasedWFQScheduling = new ClassBasedWFQScheduling(new HashMap<String, Object>() {
             {
-                put(WeightedRoundRobinScheduling.CLASS_COUNT, 2);
+                put(ClassBasedWFQScheduling.CLASS_COUNT, 2);
             }
         });
 
 
         OutputQueue q1 = new OutputQueue(50, "queue 1");
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        QosMechanism qosMechanism = new QosMechanism(null, null);
+        QosMechanism qosMechanism = new QosMechanism(null, null, null);
 
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
 
