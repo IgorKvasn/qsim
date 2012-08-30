@@ -42,8 +42,10 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -87,21 +89,20 @@ public class EdgeErrorTest {
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
 
-
-//        edge = new Edge(100, node1, node2, 100, 0.0);
-//        edge.setLength(2);
-
         edge = PowerMock.createPartialMock(Edge.class, "getPacketErrorRate");
         EasyMock.expect(edge.getPacketErrorRate()).andReturn(5.0).times(1);
         EasyMock.expect(edge.getPacketErrorRate()).andReturn(0.0).times(2);
         PowerMock.replay(edge);
 
         setWithoutSetter(Edge.class, edge, "fragments", new LinkedList<Packet>());
-        setWithoutSetter(Edge.class, edge, "speed", 1000);
+        setWithoutSetter(Edge.class, edge, "maxSpeed", 1000);
         setWithoutSetter(Edge.class, edge, "length", 20);
         setWithoutSetter(Edge.class, edge, "node1", node1);
         setWithoutSetter(Edge.class, edge, "node2", node2);
         setWithoutSetter(Edge.class, edge, "mtu", 1000);
+        setWithoutSetter(Edge.class, edge, "speedMap", new HashMap<SimulationRuleBean, Long>());
+        setWithoutSetter(Edge.class, edge, "congestedInfoSet", new TreeSet<Object>());
+
     }
 
     /**

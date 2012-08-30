@@ -91,10 +91,7 @@ public class SimulationLogUtilTest {
         initNetworkNode(node2, simulationLogUtils);
 
 
-        edge1 = new Edge(100, node1, node2);
-        edge1.setMtu(100);
-        edge1.setPacketErrorRate(0.0);
-        edge1.setLength(2);
+        edge1 = new Edge(100, 100, 0, 2, node1, node2);
     }
 
     @After
@@ -136,21 +133,25 @@ public class SimulationLogUtilTest {
      */
     @Test
     public void testMultipleSimulationLogs() {
-        NetworkNode node11 = new Router("node11", qosMechanism, null, 10, 10, 10, 10, 100, 0, 0);
-        NetworkNode node12 = new Router("node12", qosMechanism, null, 10, 10, 10, 10, 100, 0, 0);
-        NetworkNode node21 = new Router("node21", qosMechanism, null, 10, 10, 10, 10, 100, 0, 0);
-        NetworkNode node22 = new Router("node22", qosMechanism, null, 10, 10, 10, 10, 100, 0, 0);
+
+        OutputQueue q11 = new OutputQueue(50, "queue 11");
+        OutputQueue q12 = new OutputQueue(50, "queue 12");
+        OutputQueue q21 = new OutputQueue(50, "queue 21");
+        OutputQueue q22 = new OutputQueue(50, "queue 22");
+        OutputQueueManager outputQueueManager11 = new OutputQueueManager(new OutputQueue[]{q11});
+        OutputQueueManager outputQueueManager12 = new OutputQueueManager(new OutputQueue[]{q12});
+        OutputQueueManager outputQueueManager21 = new OutputQueueManager(new OutputQueue[]{q21});
+        OutputQueueManager outputQueueManager22 = new OutputQueueManager(new OutputQueue[]{q22});
 
 
-        Edge edge1 = new Edge(100, node11, node12);
-        edge1.setMtu(100);
-        edge1.setPacketErrorRate(0.0);
-        edge1.setLength(2);
+        NetworkNode node11 = new Router("node11", qosMechanism, outputQueueManager11, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node12 = new Router("node12", qosMechanism, outputQueueManager12, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node21 = new Router("node21", qosMechanism, outputQueueManager21, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node22 = new Router("node22", qosMechanism, outputQueueManager22, 10, 10, 10, 10, 100, 0, 0);
 
-        Edge edge2 = new Edge(100, node21, node22);
-        edge2.setMtu(100);
-        edge2.setPacketErrorRate(0.0);
-        edge2.setLength(2);
+
+        Edge edge1 = new Edge(100, 100, 2, 0, node11, node12);
+        Edge edge2 = new Edge(100, 100, 2, 0, node21, node22);
 
         SimulationFacade facade1 = new SimulationFacade();
         facade1.initTimer(Arrays.asList(edge1), Arrays.asList(node11, node12));

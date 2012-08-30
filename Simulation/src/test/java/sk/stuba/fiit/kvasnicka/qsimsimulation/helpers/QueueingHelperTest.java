@@ -134,17 +134,11 @@ public class QueueingHelperTest {
         NetworkNode node2 = new Router("node2", qosMechanism, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
 
 
-        Edge edge = new Edge(100, node1, node2);
-        edge.setMtu(10);
-        edge.setPacketErrorRate(0.0);
-        edge.setLength(2);
+        Edge edge = new Edge(100, 10, 2, 0, node1, node2);
 
         TopologyManager topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(node1, node2));
         node1.setTopologyManager(topologyManager);
         node2.setTopologyManager(topologyManager);
-
-//        node1.setRoute("node2", "node2");
-//        node2.setRoute("node1", "node1");
 
         SimulationTimer timer = EasyMock.createMock(SimulationTimer.class);
         EasyMock.expect(timer.getTopologyManager()).andReturn(topologyManager).times(100);

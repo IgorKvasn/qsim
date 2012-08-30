@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
 /**
  * here all delays are calculated
@@ -39,9 +40,9 @@ public abstract class DelayHelper {
     public static final double PACKET_CREATION_DELAY = 0.1;
 
 
-    public static double calculateSerialisationDelay(Edge edge, int packetSize) {
+    public static double calculateSerialisationDelay(Packet packet, Edge edge, int packetSize) {
         if (edge == null) throw new IllegalArgumentException("edge is NULL");
-        return (double) packetSize / edge.getSpeed();
+        return (double) packetSize / edge.getSpeed(packet);
     }
 
     public static double calculatePropagationDelay(Edge edge) {

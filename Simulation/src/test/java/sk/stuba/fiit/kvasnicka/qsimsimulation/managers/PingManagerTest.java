@@ -21,6 +21,8 @@ import org.junit.Before;
 import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
@@ -45,13 +47,19 @@ public class PingManagerTest {
     public void before() {
         pingManager = new PingManager();
 
-        node1 = new Router("node1", null, null, 10, 10, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", null, null, 10, 10, 10, 10, 100, 0, 0);
+        OutputQueue q1 = new OutputQueue(50, "queue 1");
+        OutputQueue q2 = new OutputQueue(50, "queue 2");
+        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
+        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
+
+
+        node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
     }
 
     @Test
     public void testPingAdd() {
-        SimulationRuleBean rule = new SimulationRuleBean("",node1, node2, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, true);
         setWithoutSetter(SimulationRuleBean.class, rule, "route", Arrays.asList(node1, node2));
         pingManager.addPing(rule, 1);
 
@@ -81,6 +89,4 @@ public class PingManagerTest {
         assertNotNull(pingManager.getPingSimulationRules());
         assertEquals(0, pingManager.getPingSimulationRules().size());
     }
-
-
 }

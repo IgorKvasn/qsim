@@ -97,18 +97,11 @@ public class OutputInterfaceTest {
         initNetworkNode(node2, simulationLogUtils);
 
 
-        edge = new Edge(100, node1, node2);
-        edge.setMtu(MTU);
-        edge.setPacketErrorRate(0.0);
-        edge.setLength(2);
+        edge = new Edge(100, MTU, 0, 2, node1, node2);
 
         topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(node1, node2));
         node1.setTopologyManager(topologyManager);
         node2.setTopologyManager(topologyManager);
-
-//
-//        node1.setRoute("node2", "node2");
-//        node2.setRoute("node1", "node1");
 
         timer = EasyMock.createMock(SimulationTimer.class);
         EasyMock.expect(timer.getTopologyManager()).andReturn(topologyManager).times(100);
@@ -126,7 +119,7 @@ public class OutputInterfaceTest {
     public void testSerialisePackets() throws NotEnoughBufferSpaceException {
         //preparation
         PowerMock.mockStatic(DelayHelper.class);
-        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(1.0).times(2);
+        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Packet.class), EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(1.0).times(2);
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(2);
         PowerMock.replay(DelayHelper.class);
 
@@ -161,7 +154,7 @@ public class OutputInterfaceTest {
     public void testSerialisePackets_not_enough_time() throws NotEnoughBufferSpaceException {
         //preparation
         PowerMock.mockStatic(DelayHelper.class);
-        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(1.0).times(2);
+        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Packet.class), EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(1.0).times(2);
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(2);
         PowerMock.replay(DelayHelper.class);
 
@@ -198,7 +191,7 @@ public class OutputInterfaceTest {
     public void testSerialisePackets_not_enough_time_2() throws NotEnoughBufferSpaceException {
         //preparation
         PowerMock.mockStatic(DelayHelper.class);
-        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(5.0).times(2);
+        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Packet.class), EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(5.0).times(2);
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(2);
         PowerMock.replay(DelayHelper.class);
 
@@ -239,7 +232,7 @@ public class OutputInterfaceTest {
     public void testSerialisePackets_complicated() throws NotEnoughBufferSpaceException {
         //preparation
         PowerMock.mockStatic(DelayHelper.class);
-        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(5.0).times(4);
+        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Packet.class), EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(5.0).times(4);
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(3);
         PowerMock.replay(DelayHelper.class);
 
@@ -277,7 +270,7 @@ public class OutputInterfaceTest {
     public void testSerialisePackets_complicated_2() throws NotEnoughBufferSpaceException {
         //preparation
         PowerMock.mockStatic(DelayHelper.class);
-        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(5.0).times(4);
+        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Packet.class), EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(5.0).times(4);
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(3);
         PowerMock.replay(DelayHelper.class);
 
@@ -317,7 +310,7 @@ public class OutputInterfaceTest {
     public void testSerialisePackets_complicated_3() throws NotEnoughBufferSpaceException {
         //preparation
         PowerMock.mockStatic(DelayHelper.class);
-        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(5.0).times(4);
+        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Packet.class), EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(5.0).times(4);
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(3);
         PowerMock.replay(DelayHelper.class);
 

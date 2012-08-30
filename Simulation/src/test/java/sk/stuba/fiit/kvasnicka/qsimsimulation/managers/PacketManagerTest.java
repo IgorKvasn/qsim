@@ -86,10 +86,7 @@ public class PacketManagerTest {
         node2 = new Router("node2", qosMechanism, outputQueueManager2, 200, 10, 10, 10, 100, 0, 0);
 
 
-        edge = new Edge(100, node1, node2);
-        edge.setMtu(100);
-        edge.setPacketErrorRate(0.0);
-        edge.setLength(2);
+        edge = new Edge(100, 100, 0, 2, node1, node2);
 
         topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(node1, node2));
         node1.setTopologyManager(topologyManager);

@@ -33,6 +33,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.RxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.InputQueue;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.PacketGenerator;
@@ -42,11 +43,13 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.QueueingHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
@@ -105,6 +108,9 @@ public class NetworkNodeTest {
                 return ((List<List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
             }
         }).times(100);
+        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
+        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
+
         EasyMock.replay(qosMechanism);
 
 
@@ -115,10 +121,7 @@ public class NetworkNodeTest {
         initNetworkNode(node2, simulationLogUtils);
 
 
-        edge = new Edge(100, node1, node2);
-        edge.setMtu(MTU);
-        edge.setPacketErrorRate(0.0);
-        edge.setLength(2);
+        edge = new Edge(100, MTU, 2, 0, node1, node2);
 
         topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(node1, node2));
         node1.setTopologyManager(topologyManager);
@@ -210,17 +213,21 @@ public class NetworkNodeTest {
      */
     @Test
     public void testAddToTxBuffer_overflow() throws Exception {
+
         //redefine nodes, to make maxTxSize smaller number
+        OutputQueue q1 = new OutputQueue(50, "queue 1");
+        OutputQueue q11 = new OutputQueue(1, "queue 11");
+        OutputQueue q2 = new OutputQueue(50, "queue 2");
+        outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1, q11});
+        outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
+
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 3, 10, 10, 10, 100, 0, 0);
         node2 = new Router("node2", qosMechanism, outputQueueManager2, 0, 10, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
 
-        edge = new Edge(100, node1, node2);
-        edge.setMtu(100);
-        edge.setPacketErrorRate(0.0);
-        edge.setLength(2);
+        edge = new Edge(100, 100, 2, 0, node1, node2);
 
         topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(node1, node2));
         node1.setTopologyManager(topologyManager);
@@ -685,9 +692,118 @@ public class NetworkNodeTest {
         assertEquals(2, fragments);
     }
 
+    /**
+     * one fragment was dropped
+     * this is a test to check if no packet is created and the rest of the fragments are removed after the last fragment came
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testAddToRxBuffer_overflow_fragments_remove() throws Exception {
+
+        //redefine nodes, to make maxTxSize smaller number
+        OutputQueue q1 = new OutputQueue(50, "queue 1");
+        OutputQueue q11 = new OutputQueue(1, "queue 11");
+        OutputQueue q2 = new OutputQueue(50, "queue 2");
+        outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1, q11});
+        outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
+
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, 3, 1, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", qosMechanism, outputQueueManager2, 0, 3, 10, 10, 100, 0, 0);
+        SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
+        initNetworkNode(node1, simulationLogUtils);
+        initNetworkNode(node2, simulationLogUtils);
+
+        edge = new Edge(100, 100, 2, 0, node1, node2);
+
+        topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(node1, node2));
+        node1.setTopologyManager(topologyManager);
+        node2.setTopologyManager(topologyManager);
+
+
+        //create packets
+        Packet p1 = new Packet(200, Layer4TypeEnum.TCP, packetManager, null, 10);
+        Packet p2 = new Packet(101, Layer4TypeEnum.TCP, packetManager, null, 30);
+
+        initRoute(p1, p2);
+
+        Fragment[] fragments1 = QueueingHelper.createFragments(p1, 10, node1, node2);
+
+
+        node2.addToRxBuffer(fragments1[0]);//adds first fragment to RX
+        assertEquals(1, node2.getRxInterfaces().get(node1).getNumberOfFragments());
+        setWithoutSetter(RxBuffer.class, node2.getRxInterfaces().get(node1), "maxRxSize", 1);//temporary change maxRxSize to simulate buffer is full
+
+        node2.addToRxBuffer(fragments1[1]); //tries to add fragment to RX, but it should be dropped
+        assertEquals(1, node2.getRxInterfaces().get(node1).getNumberOfFragments());
+        setWithoutSetter(RxBuffer.class, node2.getRxInterfaces().get(node1), "maxRxSize", 1000); //all the rest of the fragments will be added
+
+
+        for (int i = 2; i < fragments1.length; i++) {
+            node2.addToRxBuffer(fragments1[i]);
+        }
+
+        //all fragments should be removed
+        assertEquals(0, node2.getRxInterfaces().get(node1).getNumberOfFragments());
+        assertTrue(node2.getInputQueue().isEmpty());
+        assertEquals(0, node2.getProcessingPackets());
+    }
+
+    /**
+     * last fragment was dropped
+     * this is a test to check if no packet is created and the rest of the fragments are removed after the last fragment came
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testAddToRxBuffer_overflow_fragments_remove_lsat_fragment_dropped() throws Exception {
+
+        //redefine nodes, to make maxTxSize smaller number
+        OutputQueue q1 = new OutputQueue(50, "queue 1");
+        OutputQueue q11 = new OutputQueue(1, "queue 11");
+        OutputQueue q2 = new OutputQueue(50, "queue 2");
+        outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1, q11});
+        outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
+
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, 3, 300, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", qosMechanism, outputQueueManager2, 0, 300, 10, 10, 100, 0, 0);
+        SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
+        initNetworkNode(node1, simulationLogUtils);
+        initNetworkNode(node2, simulationLogUtils);
+
+        edge = new Edge(100, 100, 2, 0, node1, node2);
+
+        topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(node1, node2));
+        node1.setTopologyManager(topologyManager);
+        node2.setTopologyManager(topologyManager);
+
+
+        //create packets
+        Packet p1 = new Packet(200, Layer4TypeEnum.TCP, packetManager, null, 10);
+        Packet p2 = new Packet(101, Layer4TypeEnum.TCP, packetManager, null, 30);
+
+        initRoute(p1, p2);
+
+        Fragment[] fragments1 = QueueingHelper.createFragments(p1, 10, node1, node2);
+
+        for (int i = 0; i < fragments1.length - 1; i++) {
+            node2.addToRxBuffer(fragments1[i]);
+        }
+        assertEquals(fragments1.length - 1, node2.getRxInterfaces().get(node1).getNumberOfFragments());
+
+        setWithoutSetter(RxBuffer.class, node2.getRxInterfaces().get(node1), "maxRxSize", fragments1.length - 1);//temporary change maxRxSize to simulate buffer is full
+
+        node2.addToRxBuffer(fragments1[fragments1.length - 1]);//adds last  fragment to RX
+
+        //all fragments should be removed
+        assertEquals(0, node2.getRxInterfaces().get(node1).getNumberOfFragments());
+        assertTrue(node2.getInputQueue().isEmpty());
+        assertEquals(0, node2.getProcessingPackets());
+    }
+
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP, false);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {

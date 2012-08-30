@@ -108,7 +108,7 @@ public class TxBuffer implements UsageStatistics {
             }
 
             int fragmentSize = QueueingHelper.calculateFragmentSize(fragment.getFragmentNumber(), QueueingHelper.calculateNumberOfFragments(fragment.getOriginalPacket().getPacketSize(), edge.getMtu()), edge.getMtu(), fragment.getOriginalPacket().getPacketSize());
-            double serDelay = DelayHelper.calculateSerialisationDelay(edge, fragmentSize);
+            double serDelay = DelayHelper.calculateSerialisationDelay(fragment.getOriginalPacket(), edge, fragmentSize);
             if (serialisationEndTime + serDelay > simulationTime) { //there is no time left to serialise this packet
                 continue;
             }
