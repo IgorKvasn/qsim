@@ -18,6 +18,7 @@
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components;
 
 import lombok.Getter;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
@@ -35,13 +36,7 @@ import java.util.List;
 public class OutputQueueManager {
     @Getter
     private OutputQueue[] queues;
-
-//    /**
-//     * all packets in output queue
-//     * if you are looking for QoS queues, they are <b>defined</b> on OutputQueueManager
-//     */
-//    @Getter
-//    private List<Packet> outputQueue;
+    private NetworkNode node;
 
     public OutputQueueManager(OutputQueue[] queues) {
         this.queues = new OutputQueue[queues.length];
@@ -52,6 +47,19 @@ public class OutputQueueManager {
             queues[i].setQosNumber(i);
             queues[i].setQueueManager(this);
         }
+    }
+
+    public void setNode(NetworkNode node) {
+        if (this.node == null) {
+            this.node = node;
+        } else {
+            throw new IllegalStateException("network node for this OutputQueueManager has been already set to value: " + this.node.getName() + " and you are setting it to: " + node.getName());
+        }
+    }
+
+    public NetworkNode getNode() {
+        if (node == null) throw new IllegalStateException("network node has not been set - call setNode() first!");
+        return node;
     }
 
     public int getQueueCount() {
@@ -147,6 +155,11 @@ public class OutputQueueManager {
      */
     public void addPacket(Packet p) {
         checkQosQueueNumberOk(p.getQosQueue());
+
+
+        //retrieve packets in output queue within time this packet arrives
+        List<Packet> queue = getPacketsInOutputQueue(p.getSimulationTime()).get(p.getQosQueue());
+        node.getQosMechanism().performActiveQueueManagement(queue, p);
 
         queues[p.getQosQueue()].addPacket(p);
     }

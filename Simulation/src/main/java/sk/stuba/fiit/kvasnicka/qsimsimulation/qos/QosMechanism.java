@@ -21,6 +21,7 @@ import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassificationInterf;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.ActiveQueueManagement;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
 
 import java.util.List;
@@ -40,10 +41,13 @@ public class QosMechanism {
     private PacketScheduling packetScheduling;
     @Setter
     private PacketClassificationInterf packetClassification;
+    @Setter
+    private ActiveQueueManagement activeQueueManagement;
 
-    public QosMechanism(PacketScheduling packetScheduling, PacketClassificationInterf packetClassification) {
+    public QosMechanism(PacketScheduling packetScheduling, PacketClassificationInterf packetClassification, ActiveQueueManagement activeQueueManagement) {
         this.packetScheduling = packetScheduling;
         this.packetClassification = packetClassification;
+        this.activeQueueManagement = activeQueueManagement;
     }
 
     /**
@@ -71,5 +75,18 @@ public class QosMechanism {
     public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, List<List<Packet>> outputQueuePackets) {
         if (packetScheduling == null) throw new IllegalStateException("packetScheduling is NULL");
         return packetScheduling.decitePacketsToMoveFromOutputQueue(networkNode, outputQueuePackets);
+    }
+
+    /**
+     * performs active queue management over specified output queue
+     * this method determines whether packet can be added to the queue
+     *
+     * @param queue     single output queue
+     * @param newPacket packet to be added
+     */
+    public void performActiveQueueManagement(List<Packet> queue, Packet newPacket) {
+        if (activeQueueManagement == null) throw new IllegalStateException("activeQueueManagement is NULL");
+        if (newPacket == null) throw new IllegalStateException("newPacket is NULL");
+        activeQueueManagement.manageQueue(queue, newPacket);
     }
 }

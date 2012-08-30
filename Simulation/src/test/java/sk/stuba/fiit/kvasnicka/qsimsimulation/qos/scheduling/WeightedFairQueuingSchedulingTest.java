@@ -90,7 +90,7 @@ public class WeightedFairQueuingSchedulingTest {
     public void testDecitePacketsToMoveFromOutputQueue_one_queue() {
         OutputQueue q1 = new OutputQueue(50, "queue 1");
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        QosMechanism qosMechanism = new QosMechanism(null, null);
+        QosMechanism qosMechanism = new QosMechanism(null, null, null);
 
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
 
@@ -117,7 +117,7 @@ public class WeightedFairQueuingSchedulingTest {
     public void testDecitePacketsToMoveFromOutputQueue_multiple_queues() {
         OutputQueue q1 = new OutputQueue(50, "queue 1");
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        QosMechanism qosMechanism = new QosMechanism(null, null);
+        QosMechanism qosMechanism = new QosMechanism(null, null, null);
 
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
 
