@@ -19,10 +19,15 @@ package sk.stuba.fiit.kvasnicka.qsimdatamodel.data;
 
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
 /**
  * @author Igor Kvasnicka
@@ -30,7 +35,7 @@ import java.util.List;
 public class Edge {       //todo preco edge nie je serialisable ale vsetky network nody (computer, router, switch) su?
 
     private static Logger logg = Logger.getLogger(Edge.class);
-    private long speed;
+    private long maxSpeed;   //bit/s
     private int length;
     private NetworkNode node1, node2;
     private int mtu;
@@ -47,32 +52,31 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
     private double packetErrorRate;
 
     /**
-     * creates new instance of Edge object with speed parameter defined do not
+     * each TCP simulation rule (= TCP flow) has its own speed because of TCP congestion avoidance
+     */
+    private Map<SimulationRuleBean, Long> speedMap;
+
+    private static final long MIN_SPEED = 1;
+
+    private TreeSet<CongestedInfo> congestedInfoSet;
+
+    /**
+     * creates new instance of Edge object with maxSpeed parameter defined do not
      * forget to set length parameter later on
      *
      * @param speed bitrate [bit/s]
      */
-    public Edge(long speed, NetworkNode node1, NetworkNode node2) {//fixme mozno mtu a packetErrorRate nebude ako argument, ale podobne ako speed a length sa bude nastavovat neskor
-        this.speed = speed;
-        length = - 1;
-        this.node1 = node1;
-        this.node2 = node2;
-    }
-
-    /**
-     * used when in time of creating new instance, speed and length parameters
-     * are not known yet
-     */
-    public Edge(NetworkNode node1, NetworkNode node2) { //fixme ako v tom druhom konstruktore
-        speed = - 1;
-        length = - 1;
-        this.node1 = node1;
-        this.node2 = node2;
-    }
-
-    public void setPacketErrorRate(double packetErrorRate) {
+    public Edge(long speed, int mtu, int length, double packetErrorRate, NetworkNode node1, NetworkNode node2) {
+        this.maxSpeed = speed;
+        this.mtu = mtu;
+        this.length = length;
         this.packetErrorRate = packetErrorRate;
+        this.node1 = node1;
+        this.node2 = node2;
+        speedMap = new HashMap<SimulationRuleBean, Long>();
+        congestedInfoSet = new TreeSet<CongestedInfo>();
     }
+
 
     public double getPacketErrorRate() {
         return packetErrorRate;
@@ -81,13 +85,115 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
 
     public int getMtu() {
         if (mtu == - 1) {
-            throw new IllegalStateException("speed of this edge us not defined");
+            throw new IllegalStateException("maxSpeed of this edge us not defined");
         }
         return mtu;
     }
 
-    public void setMtu(int mtu) {
-        this.mtu = mtu;
+    /**
+     * each simulation rule has its of speed for this link
+     * this simulates TCP congestion avoidance mechanism
+     *
+     * @param packet
+     * @return
+     */
+    public long getSpeed(Packet packet) {
+        if (packet == null) throw new IllegalArgumentException("packet is NULL");
+        if (packet.getSimulationRule() == null) throw new IllegalStateException("simulation rule in packet is NULL");
+
+        //apply congestion information
+        applyCongestion(packet.getSimulationTime(), packet.getSimulationRule());
+
+        if (speedMap.containsKey(packet.getSimulationRule())) {
+            return speedMap.get(packet.getSimulationRule());
+        }
+        speedMap.put(packet.getSimulationRule(), maxSpeed);
+        return maxSpeed;
+    }
+
+    /**
+     * check if there is congestion detected and apply them (decrease edge speed)
+     *
+     * @param simulationTime
+     * @param rule
+     */
+    private void applyCongestion(double simulationTime, SimulationRuleBean rule) {
+        CongestedInfo congestedInfo;
+        for (; ; ) {
+            if (congestedInfoSet.isEmpty()) {
+                break;
+            }
+            congestedInfo = congestedInfoSet.first();
+            if (congestedInfo.simulationTime <= simulationTime) {//congestion should be applied now
+                decreaseSpeed(rule);
+                congestedInfoSet.remove(congestedInfo);
+            } else {
+                break;
+            }
+        }
+    }
+
+    /**
+     * decreases edge speed by one half - according to TCP congestion avoidance algorithm
+     * however this will happen not now, but after network node's TCP timer expires - this is determined by method's second argument
+     *
+     * @param rule
+     * @param simulationTime simulation time, when congestion will be detected
+     */
+    public void decreaseSpeed(SimulationRuleBean rule, double simulationTime) {
+        if (rule == null) throw new IllegalArgumentException("rule is NULL");
+
+        congestedInfoSet.add(new CongestedInfo(rule, simulationTime));
+    }
+
+    /**
+     * actually decreases edge speed by one half
+     *
+     * @param rule
+     */
+    private void decreaseSpeed(SimulationRuleBean rule) {
+        if (rule == null) throw new IllegalArgumentException("rule is NULL");
+
+        if (speedMap.containsKey(rule)) {
+            if (speedMap.get(rule) == MIN_SPEED) return;
+        }
+        if (speedMap.containsKey(rule)) {
+            speedMap.put(rule, speedMap.get(rule) / 2);
+        }
+        logg.warn("speed is not in map (never queued before), but it is already decreasing - quite strange, isn't it?");
+        speedMap.put(rule, maxSpeed / 2);
+
+        //link speed must not be less than MIN_SPEED
+        if (speedMap.get(rule) < MIN_SPEED) speedMap.put(rule, MIN_SPEED);
+
+        if (logg.isDebugEnabled()) {
+            logg.debug("decreasing edge speed to: " + speedMap.get(rule) + "; max speed is: " + maxSpeed);
+        }
+    }
+
+    /**
+     * increases link speed by one quarter - according to TCP congestion avoidance algorithm
+     *
+     * @param rule
+     */                                                    //todo test
+    public void increaseSpeed(SimulationRuleBean rule) {
+        if (rule == null) throw new IllegalArgumentException("rule is NULL");
+
+        if (speedMap.containsKey(rule)) {
+            if (speedMap.get(rule) == maxSpeed) return;
+        }
+
+        if (speedMap.containsKey(rule)) {
+            speedMap.put(rule, speedMap.get(rule) * 5 / 4);
+        }
+        logg.warn("speed is not in map (never queued before), but it is already increasing - quite strange, isn't it?");
+        speedMap.put(rule, maxSpeed * 5 / 4);
+
+        if (speedMap.get(rule) > maxSpeed) speedMap.put(rule, maxSpeed);
+
+        if (logg.isDebugEnabled()) {
+            logg.debug("increasing edge speed to: " + speedMap.get(rule) + "; max speed is: " + getMaxSpeed());
+        }
     }
 
     /**
@@ -95,21 +201,13 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
      *
      * @return bitrate
      */
-    public long getSpeed() {
-        if (speed == - 1) {
-            throw new IllegalStateException("speed of this edge us not defined");
+    public long getMaxSpeed() {
+        if (maxSpeed == - 1) {
+            throw new IllegalStateException("maxSpeed of this edge us not defined");
         }
-        return speed;
+        return maxSpeed;
     }
 
-    /**
-     * sets link's bitrate [bit/s]
-     *
-     * @param speed bitrate
-     */
-    public void setSpeed(long speed) {
-        this.speed = speed;
-    }
 
     /**
      * sets how long is this link [m]
@@ -123,14 +221,6 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
         return length;
     }
 
-    /**
-     * sets length of link [m]
-     *
-     * @param length lenght of the link
-     */
-    public void setLength(int length) {
-        this.length = length;
-    }
 
     public NetworkNode getNode1() {
         return node1;
@@ -159,6 +249,21 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
                 //add fragment to the appropriate network node
                 fragment.getTo().addToRxBuffer(fragment);
             }
+        }
+    }
+
+    private class CongestedInfo implements Comparable<CongestedInfo> {
+        private final SimulationRuleBean rule;
+        private final double simulationTime;
+
+        private CongestedInfo(SimulationRuleBean rule, double simulationTime) {
+            this.rule = rule;
+            this.simulationTime = simulationTime;
+        }
+
+        @Override
+        public int compareTo(CongestedInfo o) {
+            return ((Double) simulationTime).compareTo(o.simulationTime);
         }
     }
 }

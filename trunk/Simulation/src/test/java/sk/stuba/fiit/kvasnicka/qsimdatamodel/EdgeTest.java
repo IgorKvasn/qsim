@@ -79,7 +79,7 @@ public class EdgeTest {
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
-        EasyMock.expect(qosMechanism.classifyAndMarkPacket( EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
+        EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
         EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(List.class))).andAnswer(new IAnswer<List<Packet>>() {
             @Override
             public List<Packet> answer() throws Throwable {
@@ -95,10 +95,7 @@ public class EdgeTest {
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
 
-        edge = new Edge(100, node1, node2);
-        edge.setMtu(MTU);
-        edge.setPacketErrorRate(0.0);
-        edge.setLength(2);
+        edge = new Edge(100, MTU, 2, 0, node1, node2);
 
         topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(node1, node2));
         node1.setTopologyManager(topologyManager);
@@ -106,8 +103,6 @@ public class EdgeTest {
 
         node1.setTopologyManager(topologyManager);
         node2.setTopologyManager(topologyManager);
-//        node1.setRoute("node2", "node2");
-//        node2.setRoute("node1", "node1");
 
         timer = EasyMock.createMock(SimulationTimer.class);
         EasyMock.expect(timer.getTopologyManager()).andReturn(topologyManager).times(100);

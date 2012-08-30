@@ -15,41 +15,12 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues;
-
-import lombok.Getter;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-
-import java.util.LinkedList;
-import java.util.List;
+package sk.stuba.fiit.kvasnicka.qsimdatamodel;
 
 /**
  * @author Igor Kvasnicka
  */
-public class InputQueue implements UsageStatistics {
-    @Getter
-    private List<Packet> inputQueue;
-
-    public InputQueue() {
-        inputQueue = new LinkedList<Packet>();
-    }
-
-    @Override
-    public int getUsage() {
-        return inputQueue.size();
-    }
-
-    /**
-     * checks if there are no packets in input queue
-     *
-     * @return
-     */
-    public boolean isEmpty() {
-        return inputQueue.isEmpty();
+public class XmlSerialisationTest {
+    public XmlSerialisationTest() {
     }
 }
-//
-//if (Layer4TypeEnum.TCP == fragment.getOriginalPacket().getLayer4()) {
-//           nodeCongested(fragment.getOriginalPacket());
-//       }

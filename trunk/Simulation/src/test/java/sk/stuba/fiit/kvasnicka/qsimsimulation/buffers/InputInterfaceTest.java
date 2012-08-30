@@ -96,10 +96,7 @@ public class InputInterfaceTest {
         initNetworkNode(node2, simulationLogUtils);
 
 
-        edge = new Edge(100, node1, node2);
-        edge.setMtu(MTU);
-        edge.setPacketErrorRate(0.0);
-        edge.setLength(2);
+        edge = new Edge(100, MTU, 2, 0, node1, node2);
 
         topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(node1, node2));
         node1.setTopologyManager(topologyManager);
@@ -314,7 +311,7 @@ public class InputInterfaceTest {
             //OK
         }
 
-        //assert - there should be 2 fragments in RX buffer
-        assertEquals(MAX_RX_SIZE, inputInterface.getNumberOfFragments());
+        //assert - all fragments should be removed, because all were received, although only 2 were not dropped
+        assertEquals(0, inputInterface.getNumberOfFragments());
     }
 }

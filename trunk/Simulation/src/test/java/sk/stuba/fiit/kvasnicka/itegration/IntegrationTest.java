@@ -69,8 +69,11 @@ public class IntegrationTest {
 
         OutputQueue q1 = new OutputQueue(50, "queue 1");
         OutputQueue q2 = new OutputQueue(50, "queue 2");
+        OutputQueue q3 = new OutputQueue(50, "queue 3");
+
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
+        OutputQueueManager outputQueueManager3 = new OutputQueueManager(new OutputQueue[]{q3});
 
 
         qosMechanism = EasyMock.createMock(QosMechanism.class);
@@ -85,7 +88,7 @@ public class IntegrationTest {
 
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
         node2 = new Router("node2", qosMechanism, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
-        node3 = new Router("node3", qosMechanism, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
+        node3 = new Router("node3", qosMechanism, outputQueueManager3, 10, 10, 10, 10, 100, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
@@ -93,24 +96,8 @@ public class IntegrationTest {
         initNetworkNode(node3, simulationLogUtils);
 
 
-        edge1 = new Edge(100, node1, node2);
-        edge1.setMtu(100);
-        edge1.setPacketErrorRate(0.0);
-        edge1.setLength(2);
-
-        edge2 = new Edge(100, node2, node3);
-        edge2.setMtu(100);
-        edge2.setPacketErrorRate(0.0);
-        edge2.setLength(3);
-//
-//        topologyManager = new TopologyManager(Arrays.asList(edge1, edge2), Arrays.asList(node1, node2, node3));
-//        node1.setTopologyManager(topologyManager);
-//        node2.setTopologyManager(topologyManager);
-//        node3.setTopologyManager(topologyManager);
-
-
-//        node1.setRoute("node2", "node2");
-//        node2.setRoute("node1", "node1");
+        edge1 = new Edge(100, 100, 2, 0, node1, node2);
+        edge2 = new Edge(100, 100, 3, 0, node2, node3);
     }
 
     /**
@@ -195,7 +182,7 @@ public class IntegrationTest {
         EasyMock.expect(DelayHelper.calculatePacketCreationDelay(EasyMock.anyObject(NetworkNode.class), EasyMock.anyInt(), EasyMock.anyObject(PacketTypeEnum.class))).andReturn(0.0).times(10);
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(10);
         EasyMock.expect(DelayHelper.calculateProcessingDelay(EasyMock.anyObject(NetworkNode.class))).andReturn(1.0).times(10);
-        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(0.2).times(10);
+        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Packet.class), EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(0.2).times(10);
 
         PowerMock.replay(DelayHelper.class);
 

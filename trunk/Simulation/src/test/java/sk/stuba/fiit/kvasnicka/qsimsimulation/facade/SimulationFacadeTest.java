@@ -21,6 +21,8 @@ import org.junit.Before;
 import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
@@ -46,8 +48,14 @@ public class SimulationFacadeTest {
     public void before() {
         facade = new SimulationFacade();
 
-        node1 = new Router("node1", null, null, 10, 10, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", null, null, 10, 10, 10, 10, 100, 0, 0);
+        OutputQueue q1 = new OutputQueue(50, "queue 1");
+        OutputQueue q2 = new OutputQueue(50, "queue 2");
+        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
+        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
+
+
+        node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -70,7 +78,11 @@ public class SimulationFacadeTest {
      */
     @Test
     public void testGetSimulRulesThatContainsNode_none() {
-        NetworkNode node3 = new Router("node3", null, null, 10, 10, 10, 10, 100, 0, 0);
+
+        OutputQueue q3 = new OutputQueue(50, "queue 3");
+        OutputQueueManager outputQueueManager3 = new OutputQueueManager(new OutputQueue[]{q3});
+
+        NetworkNode node3 = new Router("node3", null, outputQueueManager3, 10, 10, 10, 10, 100, 0, 0);
         List<SimulationRuleBean> rules = facade.getSimulRulesThatContainsNode(node3);
         assertNotNull(rules);
         assertEquals(0, rules.size());

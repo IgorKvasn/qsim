@@ -26,6 +26,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.RxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.TxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.InputQueue;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
@@ -352,6 +353,9 @@ public abstract class NetworkNode implements Serializable {
                 if (packet.getLayer4().isRetransmissionEnabled()) {
                     retransmittPacket(packet);
                 }
+                if (Layer4TypeEnum.TCP == packet.getLayer4()) {
+                    nodeCongested(packet);   //todo test
+                }
             }
         }
     }
@@ -515,7 +519,7 @@ public abstract class NetworkNode implements Serializable {
     public void addToRxBuffer(Fragment fragment) {
         if (! rxInterfaces.containsKey(fragment.getFrom())) {
             Edge edge = topologyManager.findEdge(this.getName(), fragment.getFrom().getName());
-            rxInterfaces.put(fragment.getFrom(), new RxBuffer(edge, maxTxBufferSize));
+            rxInterfaces.put(fragment.getFrom(), new RxBuffer(edge, maxRxBufferSize));
         }
         Packet packet = null;
         try {
@@ -526,10 +530,11 @@ public abstract class NetworkNode implements Serializable {
             }
 
             simulLog.log(new SimulationLog(LogCategory.INFO, "No space left in TX buffer -> packet dropped", getName(), LogSource.VERTEX, fragment.getReceivedTime()));
-            rxInterfaces.get(fragment.getFrom()).removeFragments(fragment.getFragmentID());
+
             if (fragment.getOriginalPacket().getLayer4().isRetransmissionEnabled()) {
                 retransmittPacket(fragment.getOriginalPacket());
             }
+
             return;
         } catch (PacketCrcErrorException e) {
             if (logg.isDebugEnabled()) {
@@ -552,6 +557,8 @@ public abstract class NetworkNode implements Serializable {
             }
         }
     }
+
+
 
     /**
      * tries to move as much packets as possible from input queue to processing
@@ -576,13 +583,25 @@ public abstract class NetworkNode implements Serializable {
      *
      * @param packet packet to send
      */
-    public void retransmittPacket(Packet packet) {
+    private void retransmittPacket(Packet packet) {//todo test - najprv nech je paket chybny a potom je ok
         NetworkNode nodePrevious = packet.getPreviousHopNetworkNode(this);
         if (logg.isDebugEnabled()) {
             logg.debug("packet retransmission from node: " + nodePrevious);
         }
         packet.setSimulationTime(packet.getSimulationTime() + nodePrevious.getTcpDelay());
         nodePrevious.moveFromProcessingToOutputQueue(packet);
+    }
+
+    /**
+     * called when network node is congested - either input/output queue or TX/RX are full
+     * it may seem that this method is called every time packet is retransmitted, but it is not true - when packet CRC is wrong, this method is not called
+     *
+     * @param packet packet that was dropped because of congestion
+     */
+    private void nodeCongested(Packet packet) {
+        NetworkNode nodePrevious = packet.getPreviousHopNetworkNode(this);
+        Edge edge = topologyManager.findEdge(this.getName(), nodePrevious.getName());
+        edge.decreaseSpeed(packet.getSimulationRule(), packet.getSimulationTime() + nodePrevious.getTcpDelay());
     }
 
     /**

@@ -70,8 +70,11 @@ public class PacketDeliveryListenerTest {
     public void before() {
         OutputQueue q1 = new OutputQueue(50, "queue 1");
         OutputQueue q2 = new OutputQueue(50, "queue 2");
+        OutputQueue q3 = new OutputQueue(50, "queue 3");
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
+        OutputQueueManager outputQueueManager3 = new OutputQueueManager(new OutputQueue[]{q3});
+
 
         qosMechanism = EasyMock.createMock(QosMechanism.class);
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
@@ -85,7 +88,7 @@ public class PacketDeliveryListenerTest {
 
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
         node2 = new Router("node2", qosMechanism, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
-        node3 = new Router("node3", qosMechanism, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
+        node3 = new Router("node3", qosMechanism, outputQueueManager3, 10, 10, 10, 10, 100, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
 
@@ -93,15 +96,8 @@ public class PacketDeliveryListenerTest {
         initNetworkNode(node2, simulationLogUtils);
         initNetworkNode(node3, simulationLogUtils);
 
-        edge1 = new Edge(100, node1, node2);
-        edge1.setMtu(100);
-        edge1.setPacketErrorRate(0.0);
-        edge1.setLength(2);
-
-        edge2 = new Edge(100, node2, node3);
-        edge2.setMtu(100);
-        edge2.setPacketErrorRate(0.0);
-        edge2.setLength(3);
+        edge1 = new Edge(100, 100, 2, 0, node1, node2);
+        edge2 = new Edge(100, 100, 3, 0, node1, node2);
     }
 
 
@@ -192,3 +188,4 @@ public class PacketDeliveryListenerTest {
         }
     }
 }
+
