@@ -116,9 +116,6 @@ public abstract class NetworkNode implements Serializable {
     @Getter
     private int maxRxBufferSize;
     @Getter
-    private int maxIntputQueueSize;
-
-    @Getter
     private InputQueue inputQueue;
 
     @Setter
@@ -192,7 +189,7 @@ public abstract class NetworkNode implements Serializable {
         this.qosMechanism = qosMechanism;
         this.maxTxBufferSize = maxTxBufferSize;
         this.maxRxBufferSize = maxRxBufferSize;
-        this.maxIntputQueueSize = maxIntputQueueSize;
+        inputQueue.setMaxSize(maxIntputQueueSize);
         this.maxProcessingPackets = maxProcessingPackets;
         this.tcpDelay = tcpDelay;
         this.minProcessingDelay = minProcessingDelay;
@@ -553,11 +550,23 @@ public abstract class NetworkNode implements Serializable {
                 addPacketToProcessing(packet);
             } else {//there is no CPU left for this packet to be processed - it is placed into input queue
                 packet.setTimeWhenCameToQueue(packet.getSimulationTime()); //packet.getSimulationTime() is a time, when packet was de-fragmented
-                inputQueue.getInputQueue().add(packet);
+                if (inputQueue.isAvailable()) {
+                    inputQueue.addPacket(packet);
+                } else {    //there is not enough space in input queue - packet is dropped
+                    if (logg.isDebugEnabled()) {
+                        logg.debug("no space left in input queue -> packet dropped");
+                    }
+                    simulLog.log(new SimulationLog(LogCategory.INFO, "No space left in input queue -> packet dropped", getName(), LogSource.VERTEX, packet.getSimulationTime()));
+                    if (packet.getLayer4().isRetransmissionEnabled()) {
+                        retransmittPacket(packet);
+                    }
+                    if (Layer4TypeEnum.TCP == packet.getLayer4()) {
+                        nodeCongested(packet);   //todo test
+                    }
+                }
             }
         }
     }
-
 
 
     /**
