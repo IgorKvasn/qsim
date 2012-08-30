@@ -30,8 +30,10 @@ import java.util.List;
 public class InputQueue implements UsageStatistics {
     @Getter
     private List<Packet> inputQueue;
+    private int maxSize;
 
     public InputQueue() {
+        this.maxSize = - 1;
         inputQueue = new LinkedList<Packet>();
     }
 
@@ -47,6 +49,28 @@ public class InputQueue implements UsageStatistics {
      */
     public boolean isEmpty() {
         return inputQueue.isEmpty();
+    }
+
+    public void setMaxSize(int maxIntputQueueSize) {
+        if (this.maxSize == - 1) {
+            this.maxSize = maxIntputQueueSize;
+        } else {
+            throw new IllegalStateException("max input qeueue size is already set to value: " + maxSize + "; proposed new value is " + maxIntputQueueSize);
+        }
+    }
+
+    public void addPacket(Packet packet) {
+        if (packet == null) throw new IllegalArgumentException("packet is NULL");
+        if (maxSize == - 1) throw new IllegalStateException("input queue max size is not set");
+
+        if (inputQueue.size() == maxSize) {
+            throw new IllegalStateException("input queue is full - this should be already taken care of");
+        }
+        inputQueue.add(packet);
+    }
+
+    public boolean isAvailable() {
+        return inputQueue.size() != maxSize;
     }
 }
 //
