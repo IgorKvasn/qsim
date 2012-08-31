@@ -54,7 +54,7 @@ import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
 /**
  * @author Igor Kvasnicka
  */
-public class InputInterfaceTest {
+public class RxBufferTest {
 
     PacketManager packetManager;
     SimulationTimer timer;

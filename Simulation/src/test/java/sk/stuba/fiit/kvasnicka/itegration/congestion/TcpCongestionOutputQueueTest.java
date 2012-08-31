@@ -15,7 +15,7 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.itegration;
+package sk.stuba.fiit.kvasnicka.itegration.congestion;
 
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
@@ -49,9 +49,11 @@ import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
 import static sk.stuba.fiit.kvasnicka.TestUtils.setWithoutSetter;
 
 /**
+ * tests congestion behaviour on output queues
+ *
  * @author Igor Kvasnicka
  */
-public class TcpCongestionTest {
+public class TcpCongestionOutputQueueTest {
     PacketManager packetManager;
     SimulationTimer timer;
     QosMechanism qosMechanism;
@@ -61,9 +63,7 @@ public class TcpCongestionTest {
     Edge edge1, edge2;
     private final int MAX_TX_SIZE = 0;
     private final int MTU = 100;
-    private final int MAX_OUTPUT_QUEUE_SIZE = 10;
     private static final int MAX_PROCESSING_PACKETS = 3;
-    private final Layer4TypeEnum layer4 = Layer4TypeEnum.UDP;
     private OutputQueueManager outputQueueManager1, outputQueueManager2, outputQueueManager3;
     private OutputQueue q2;
 
