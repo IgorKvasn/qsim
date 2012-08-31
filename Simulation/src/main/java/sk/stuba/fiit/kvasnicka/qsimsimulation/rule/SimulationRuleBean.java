@@ -118,6 +118,7 @@ public class SimulationRuleBean {
 
 
     public void decreaseNumberOfPackets() {
+        if (numberOfPackets == - 1) return; //-1 is infinity
         numberOfPackets--;
     }
 

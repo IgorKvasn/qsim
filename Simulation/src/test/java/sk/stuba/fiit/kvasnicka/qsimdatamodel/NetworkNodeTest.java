@@ -756,7 +756,7 @@ public class NetworkNodeTest {
      * @throws Exception
      */
     @Test
-    public void testAddToRxBuffer_overflow_fragments_remove_lsat_fragment_dropped() throws Exception {
+    public void testAddToRxBuffer_overflow_fragments_remove_last_fragment_dropped() throws Exception {
 
         //redefine nodes, to make maxTxSize smaller number
         OutputQueue q1 = new OutputQueue(50, "queue 1");

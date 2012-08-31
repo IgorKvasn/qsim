@@ -61,7 +61,7 @@ public class RxBuffer implements UsageStatistics {
      * this method is called whenever fragment is received
      *
      * @param fragment received fragment
-     * @return reference to Packet objekt when all fragments are received; null if there are some fragments to be received
+     * @return reference to Packet object when all fragments are received; null if there are some fragments to be received
      */
     public Packet fragmentReceived(Fragment fragment) throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         if (! fragmentMap.containsKey(fragment.getFragmentID())) {//this is the first fragment I received
