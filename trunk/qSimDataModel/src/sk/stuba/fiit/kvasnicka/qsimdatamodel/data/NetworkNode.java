@@ -31,6 +31,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.PacketCrcErrorException;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.RoutingException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.QueueingHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogCategory;
@@ -599,12 +600,17 @@ public abstract class NetworkNode implements Serializable {
      * @param packet packet to send
      */
     private void retransmittPacket(Packet packet) {//todo test - najprv nech je paket chybny a potom je ok
-        NetworkNode nodePrevious = packet.getPreviousHopNetworkNode(this);
-        packet.setSimulationTime(packet.getSimulationTime() + nodePrevious.getTcpDelay());
-        if (logg.isDebugEnabled()) {
-            logg.debug("packet retransmission from node: " + nodePrevious + " started at: " + packet.getSimulationTime());
+        NetworkNode nodePrevious = null;
+        try {
+            nodePrevious = packet.getPreviousHopNetworkNode(this);
+            packet.setSimulationTime(packet.getSimulationTime() + nodePrevious.getTcpDelay());
+            if (logg.isDebugEnabled()) {
+                logg.debug("packet retransmission from node: " + nodePrevious + " started at: " + packet.getSimulationTime());
+            }
+            nodePrevious.moveFromProcessingToOutputQueue(packet);
+        } catch (RoutingException e) {
+            logg.warn("routing exception: " + e.getMessage());
         }
-        nodePrevious.moveFromProcessingToOutputQueue(packet);
     }
 
     /**
@@ -615,9 +621,14 @@ public abstract class NetworkNode implements Serializable {
      * @see #nodeCongestedNot(sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet)
      */
     private void nodeCongested(Packet packet) {
-        NetworkNode nodePrevious = packet.getPreviousHopNetworkNode(this);
-        Edge edge = topologyManager.findEdge(this.getName(), nodePrevious.getName());
-        edge.decreaseSpeed(packet.getSimulationRule(), packet.getSimulationTime() + nodePrevious.getTcpDelay());
+        NetworkNode nodePrevious = null;
+        try {
+            nodePrevious = packet.getPreviousHopNetworkNode(this);
+            Edge edge = topologyManager.findEdge(this.getName(), nodePrevious.getName());
+            edge.decreaseSpeed(packet.getSimulationRule(), packet.getSimulationTime() + nodePrevious.getTcpDelay());
+        } catch (RoutingException e) {
+            logg.warn("routing exception: " + e.getMessage());
+        }
     }
 
     /**
@@ -627,9 +638,14 @@ public abstract class NetworkNode implements Serializable {
      * @see #nodeCongested(sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet)
      */
     private void nodeCongestedNot(Packet packet) {
-        NetworkNode nodePrevious = packet.getPreviousHopNetworkNode(this);
-        Edge edge = topologyManager.findEdge(this.getName(), nodePrevious.getName());
-        edge.increaseSpeed(packet.getSimulationRule());
+        NetworkNode nodePrevious = null;
+        try {
+            nodePrevious = packet.getPreviousHopNetworkNode(this);
+            Edge edge = topologyManager.findEdge(this.getName(), nodePrevious.getName());
+            edge.increaseSpeed(packet.getSimulationRule());
+        } catch (RoutingException e) {
+            logg.warn("routing exception: " + e.getMessage());
+        }
     }
 
 

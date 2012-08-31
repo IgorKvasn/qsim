@@ -33,6 +33,8 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
@@ -49,6 +51,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
@@ -64,9 +67,12 @@ public class IntegrationTest {
     NetworkNode node1, node2, node3;
     Edge edge1, edge2;
     private SimulationManager simulationManager;
+    int packetDelivered;
 
     @Before
     public void before() {
+
+        packetDelivered = 0;
 
         OutputQueue q1 = new OutputQueue(50, "queue 1");
         OutputQueue q2 = new OutputQueue(50, "queue 2");
@@ -365,6 +371,9 @@ public class IntegrationTest {
 
         simulationManager.addSimulationRule(rule);
 
+        TestListenerClass testListenerClass = new TestListenerClass();
+        rule.addPacketDeliveredListener(testListenerClass);
+
         timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>());
 
         timer.actionPerformed(null);
@@ -373,11 +382,12 @@ public class IntegrationTest {
         timer.actionPerformed(null);
 
         timer.actionPerformed(null);
-        System.out.println("b");
+        assertEquals(0, node1.getOutputQueues().getAllUsage());
         setWithoutSetter(Edge.class, edge1, "packetErrorRate", 0);
-
+        assertEquals(0, node1.getOutputQueues().getAllUsage());
         timer.actionPerformed(null);
 
+        assertEquals(1, packetDelivered); //assert that packet has been delivered
         assertFalse(timer.isRunning());
     }
 
@@ -386,5 +396,13 @@ public class IntegrationTest {
         privateStringField.setAccessible(true);
         PacketManager packetManager = (PacketManager) privateStringField.get(timer);
         assertTrue(packetManager.checkNoPacketsInSimulation());
+    }
+
+    private class TestListenerClass implements PacketDeliveredListener {
+
+        @Override
+        public void packetDeliveredOccurred(PacketDeliveredEvent evt) {
+            packetDelivered++;
+        }
     }
 }
