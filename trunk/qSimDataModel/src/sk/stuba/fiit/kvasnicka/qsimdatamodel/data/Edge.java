@@ -58,7 +58,7 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
 
     private static final long MIN_SPEED = 1;
 
-    private TreeSet<CongestedInfo> congestedInfoSet;
+    private TreeSet<CongestedInfo> congestedInfoSet;  //todo otestuj, ci je to spravne usortene - od najmensieho casu po najvacsi
 
     /**
      * creates new instance of Edge object with maxSpeed parameter defined do not
@@ -144,6 +144,9 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
         if (rule == null) throw new IllegalArgumentException("rule is NULL");
 
         congestedInfoSet.add(new CongestedInfo(rule, simulationTime));
+        if (logg.isDebugEnabled()) {
+            logg.debug("new congestion info for rule: " + rule.getName() + "; simulation time: " + simulationTime);
+        }
     }
 
     /**

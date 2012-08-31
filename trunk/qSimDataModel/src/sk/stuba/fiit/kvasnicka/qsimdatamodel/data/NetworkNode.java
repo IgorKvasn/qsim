@@ -133,6 +133,8 @@ public abstract class NetworkNode implements Serializable {
     @Getter
     private double maxProcessingDelay;
     @Getter
+    private int maxIntputQueueSize;
+    @Getter
     private UsageStatistics allRXBuffers;
     @Getter
     private UsageStatistics allTXBuffers;
@@ -189,6 +191,7 @@ public abstract class NetworkNode implements Serializable {
         this.qosMechanism = qosMechanism;
         this.maxTxBufferSize = maxTxBufferSize;
         this.maxRxBufferSize = maxRxBufferSize;
+        this.maxIntputQueueSize = maxIntputQueueSize;
         inputQueue.setMaxSize(maxIntputQueueSize);
         this.maxProcessingPackets = maxProcessingPackets;
         this.tcpDelay = tcpDelay;
@@ -342,6 +345,9 @@ public abstract class NetworkNode implements Serializable {
         } catch (NotEnoughBufferSpaceException e) {
             try {
                 addToOutputQueue(packet);
+                if (Layer4TypeEnum.TCP == packet.getLayer4()) {//todo test
+                    nodeCongestedNot(packet);
+                }
             } catch (NotEnoughBufferSpaceException e1) {
                 if (logg.isDebugEnabled()) {
                     logg.debug("no space left in output queue -> packet dropped");
@@ -594,10 +600,10 @@ public abstract class NetworkNode implements Serializable {
      */
     private void retransmittPacket(Packet packet) {//todo test - najprv nech je paket chybny a potom je ok
         NetworkNode nodePrevious = packet.getPreviousHopNetworkNode(this);
-        if (logg.isDebugEnabled()) {
-            logg.debug("packet retransmission from node: " + nodePrevious);
-        }
         packet.setSimulationTime(packet.getSimulationTime() + nodePrevious.getTcpDelay());
+        if (logg.isDebugEnabled()) {
+            logg.debug("packet retransmission from node: " + nodePrevious + " started at: " + packet.getSimulationTime());
+        }
         nodePrevious.moveFromProcessingToOutputQueue(packet);
     }
 
@@ -606,12 +612,26 @@ public abstract class NetworkNode implements Serializable {
      * it may seem that this method is called every time packet is retransmitted, but it is not true - when packet CRC is wrong, this method is not called
      *
      * @param packet packet that was dropped because of congestion
+     * @see #nodeCongestedNot(sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet)
      */
     private void nodeCongested(Packet packet) {
         NetworkNode nodePrevious = packet.getPreviousHopNetworkNode(this);
         Edge edge = topologyManager.findEdge(this.getName(), nodePrevious.getName());
         edge.decreaseSpeed(packet.getSimulationRule(), packet.getSimulationTime() + nodePrevious.getTcpDelay());
     }
+
+    /**
+     * node is no more congested
+     *
+     * @param packet
+     * @see #nodeCongested(sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet)
+     */
+    private void nodeCongestedNot(Packet packet) {
+        NetworkNode nodePrevious = packet.getPreviousHopNetworkNode(this);
+        Edge edge = topologyManager.findEdge(this.getName(), nodePrevious.getName());
+        edge.increaseSpeed(packet.getSimulationRule());
+    }
+
 
     /**
      * this method determines if packet can be processed or it must wait because there is no CPU left for it

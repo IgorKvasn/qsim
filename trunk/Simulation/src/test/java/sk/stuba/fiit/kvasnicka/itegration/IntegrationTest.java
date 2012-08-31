@@ -52,6 +52,7 @@ import java.util.List;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
+import static sk.stuba.fiit.kvasnicka.TestUtils.setWithoutSetter;
 
 /**
  * @author Igor Kvasnicka
@@ -86,9 +87,9 @@ public class IntegrationTest {
         }).times(100);
         EasyMock.replay(qosMechanism);
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", qosMechanism, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
-        node3 = new Router("node3", qosMechanism, outputQueueManager3, 10, 10, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, 10, 10, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node2 = new Router("node2", qosMechanism, outputQueueManager2, 10, 10, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node3 = new Router("node3", qosMechanism, outputQueueManager3, 10, 10, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
@@ -348,6 +349,37 @@ public class IntegrationTest {
         checkNoPacketsInTopology(timer);
     }
 
+
+    /**
+     * simulate one packet and test retransmission because of CRC failure
+     */
+    @Test
+    public void testSinglePacketSimulation_retransmission() throws NoSuchFieldException, IllegalAccessException {
+        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
+
+        setWithoutSetter(Edge.class, edge1, "packetErrorRate", 1);
+
+        simulationManager = new SimulationManager();
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, .05, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP, false);
+        rule.setRoute(Arrays.asList(node1, node2));
+
+        simulationManager.addSimulationRule(rule);
+
+        timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>());
+
+        timer.actionPerformed(null);
+
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+
+        timer.actionPerformed(null);
+        System.out.println("b");
+        setWithoutSetter(Edge.class, edge1, "packetErrorRate", 0);
+
+        timer.actionPerformed(null);
+
+        assertFalse(timer.isRunning());
+    }
 
     private void checkNoPacketsInTopology(SimulationTimer timer) throws NoSuchFieldException, IllegalAccessException {
         Field privateStringField = SimulationTimer.class.getDeclaredField("packetManager");
