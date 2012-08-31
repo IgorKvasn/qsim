@@ -23,4 +23,6 @@ package sk.stuba.fiit.kvasnicka.qsimdatamodel;
 public class XmlSerialisationTest {
     public XmlSerialisationTest() {
     }
+
+    //todo todo
 }

@@ -55,7 +55,7 @@ import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(DelayHelper.class)
-public class OutputInterfaceTest {
+public class TxBufferTest {
 
     PacketManager packetManager;
     SimulationTimer timer;

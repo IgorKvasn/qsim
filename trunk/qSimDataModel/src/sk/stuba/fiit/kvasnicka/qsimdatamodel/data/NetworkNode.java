@@ -528,7 +528,7 @@ public abstract class NetworkNode implements Serializable {
             packet = rxInterfaces.get(fragment.getFrom()).fragmentReceived(fragment);
         } catch (NotEnoughBufferSpaceException e) {
             if (logg.isDebugEnabled()) {
-                logg.debug("no space left in TX buffer -> packet dropped");
+                logg.debug("no space left in RX buffer -> packet dropped");
             }
 
             simulLog.log(new SimulationLog(LogCategory.INFO, "No space left in TX buffer -> packet dropped", getName(), LogSource.VERTEX, fragment.getReceivedTime()));
