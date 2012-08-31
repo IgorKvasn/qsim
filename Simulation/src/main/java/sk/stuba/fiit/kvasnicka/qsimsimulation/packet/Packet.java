@@ -23,6 +23,7 @@ import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.RoutingException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
@@ -147,7 +148,14 @@ public class Packet {
         return simulationRule.getNextHopFromRoutingTable(currentNode);
     }
 
-    public NetworkNode getPreviousHopNetworkNode(NetworkNode currentNode) {
+    /**
+     * finds previous network node according to routing rules
+     *
+     * @param currentNode current network node
+     * @return previous network node
+     * @throws RoutingException if unable to find previous network node - this happens if there is no previous network node
+     */
+    public NetworkNode getPreviousHopNetworkNode(NetworkNode currentNode) throws RoutingException {
         if (simulationRule == null) {
             throw new IllegalStateException("simulation rule for this packet is NULL - it has not been properly initialised");
         }

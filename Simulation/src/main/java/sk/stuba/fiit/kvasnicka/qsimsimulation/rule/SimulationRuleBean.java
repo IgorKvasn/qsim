@@ -31,6 +31,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.RoutingException;
 
 import javax.swing.event.EventListenerList;
 import java.util.HashMap;
@@ -186,9 +187,9 @@ public class SimulationRuleBean {
      * @param currentNode network node, where packet is currently placed
      * @return previous network node
      */
-    public NetworkNode getPreviousHopFromRoutingTable(NetworkNode currentNode) {
+    public NetworkNode getPreviousHopFromRoutingTable(NetworkNode currentNode) throws RoutingException {
         if (! routes.containsValue(currentNode)) {
-            throw new IllegalStateException("cannot find previous network node for: " + currentNode);
+            throw new RoutingException("cannot find previous network node for: " + currentNode);
         }
         for (NetworkNode node : routes.keySet()) {
             if (routes.get(node).equals(currentNode)) {//this is the route I came here

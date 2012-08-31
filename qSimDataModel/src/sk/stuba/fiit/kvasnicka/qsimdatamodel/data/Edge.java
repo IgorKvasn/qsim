@@ -58,7 +58,7 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
 
     private static final long MIN_SPEED = 1;
 
-    private TreeSet<CongestedInfo> congestedInfoSet;  //todo otestuj, ci je to spravne usortene - od najmensieho casu po najvacsi
+    private TreeSet<CongestedInfo> congestedInfoSet;
 
     /**
      * creates new instance of Edge object with maxSpeed parameter defined do not
@@ -125,7 +125,9 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
             }
             congestedInfo = congestedInfoSet.first();
             if (congestedInfo.simulationTime <= simulationTime) {//congestion should be applied now
-                decreaseSpeed(rule);
+                for (int i = 0; i < congestedInfo.count; i++) {
+                    decreaseSpeed(rule);
+                }
                 congestedInfoSet.remove(congestedInfo);
             } else {
                 break;
@@ -143,7 +145,21 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
     public void decreaseSpeed(SimulationRuleBean rule, double simulationTime) {
         if (rule == null) throw new IllegalArgumentException("rule is NULL");
 
-        congestedInfoSet.add(new CongestedInfo(rule, simulationTime));
+        CongestedInfo congInfo = new CongestedInfo(rule, simulationTime);
+
+        if (congestedInfoSet.contains(congInfo)) { //congestion info with this simulation time already exists
+            for (CongestedInfo c : congestedInfoSet) {//find this info
+                if (congInfo.equals(c)) {
+                    c.count++;//increase count of infos
+                    if (logg.isDebugEnabled()) {
+                        logg.debug("new congestion info for rule: " + rule.getName() + "; simulation time: " + simulationTime);
+                    }
+                    return;
+                }
+            }
+        }
+
+        congestedInfoSet.add(congInfo);
         if (logg.isDebugEnabled()) {
             logg.debug("new congestion info for rule: " + rule.getName() + "; simulation time: " + simulationTime);
         }
@@ -162,9 +178,10 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
         }
         if (speedMap.containsKey(rule)) {
             speedMap.put(rule, speedMap.get(rule) / 2);
+        } else {
+            logg.warn("speed is not in map (never queued before), but it is already decreasing - quite strange, isn't it?");
+            speedMap.put(rule, maxSpeed / 2);
         }
-        logg.warn("speed is not in map (never queued before), but it is already decreasing - quite strange, isn't it?");
-        speedMap.put(rule, maxSpeed / 2);
 
         //link speed must not be less than MIN_SPEED
         if (speedMap.get(rule) < MIN_SPEED) speedMap.put(rule, MIN_SPEED);
@@ -178,7 +195,7 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
      * increases link speed by one quarter - according to TCP congestion avoidance algorithm
      *
      * @param rule
-     */                                                    //todo test
+     */
     public void increaseSpeed(SimulationRuleBean rule) {
         if (rule == null) throw new IllegalArgumentException("rule is NULL");
 
@@ -187,10 +204,11 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
         }
 
         if (speedMap.containsKey(rule)) {
-            speedMap.put(rule, speedMap.get(rule) * 5 / 4);
+            speedMap.put(rule, speedMap.get(rule) * 3 / 2);
+        } else {
+            logg.warn("speed is not in map (never queued before), but it is already increasing - quite strange, isn't it?");
+            speedMap.put(rule, maxSpeed * 3 / 2);
         }
-        logg.warn("speed is not in map (never queued before), but it is already increasing - quite strange, isn't it?");
-        speedMap.put(rule, maxSpeed * 5 / 4);
 
         if (speedMap.get(rule) > maxSpeed) speedMap.put(rule, maxSpeed);
 
@@ -258,15 +276,35 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
     private class CongestedInfo implements Comparable<CongestedInfo> {
         private final SimulationRuleBean rule;
         private final double simulationTime;
+        private int count; //there can be multiple congestedInfo objects with the same simulation time (theoretically - quite handy in tests)
 
         private CongestedInfo(SimulationRuleBean rule, double simulationTime) {
             this.rule = rule;
             this.simulationTime = simulationTime;
+            this.count = 1;
         }
 
         @Override
         public int compareTo(CongestedInfo o) {
             return ((Double) simulationTime).compareTo(o.simulationTime);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            CongestedInfo that = (CongestedInfo) o;
+
+            if (Double.compare(that.simulationTime, simulationTime) != 0) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            long temp = simulationTime != + 0.0d ? Double.doubleToLongBits(simulationTime) : 0L;
+            return (int) (temp ^ (temp >>> 32));
         }
     }
 }
