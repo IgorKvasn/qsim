@@ -82,20 +82,14 @@ public class RxBuffer implements UsageStatistics {
         //this is the last fragment, but not all fragments were received
         //that means that some fragment was dropped - I will drop these fragments from buffer
         if ((fragment.getFragmentCountTotal() == fragment.getFragmentNumber()) && (recievedFragments + 1 != fragment.getFragmentCountTotal())) {
-            if (logg.isDebugEnabled()) {
-                logg.debug("removing fragments of uncomplete packet; number of removed fragments: " + fragment.getFragmentCountTotal());
-            }
-            fragmentMap.remove(fragment.getFragmentID());
+            removeFromFragmentMap(fragment);
             return null;
         }
 
         if (getNumberOfFragments() == maxRxSize) {//there is not enough space - tail drop
             //if the last fragment was dropped - do not forget to empty RX
             if (fragment.getFragmentCountTotal() == fragment.getFragmentNumber()) {
-                if (logg.isDebugEnabled()) {
-                    logg.debug("removing fragments of uncomplete packet; number of removed fragments: " + fragment.getFragmentCountTotal() + "; also - this happens when last fragment was dropped");
-                }
-                fragmentMap.remove(fragment.getFragmentID());
+                removeFromFragmentMap(fragment);
             }
             throw new NotEnoughBufferSpaceException("Not enough space in RX buffer");
         }
@@ -113,6 +107,13 @@ public class RxBuffer implements UsageStatistics {
 
         fragmentMap.put(fragment.getFragmentID(), recievedFragments + 1);
         return null;
+    }
+
+    private void removeFromFragmentMap(Fragment fragment) {
+        if (logg.isDebugEnabled()) {
+            logg.debug("removing fragments of uncomplete packet; number of removed fragments: " + fragment.getFragmentCountTotal());
+        }
+        fragmentMap.remove(fragment.getFragmentID());
     }
 
 

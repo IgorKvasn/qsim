@@ -66,8 +66,6 @@ import java.util.Map;
 //todo Cav, future me: potom nezabudni, ze ak max size TX alebo RX je -1, tak sa to berie ako nekonecno - uz to je nakodene, len v GUI na to nezabudni ;)
 
 
-//todo kde bude volany RED/WRED ?
-
 @EqualsAndHashCode(of = {"name"})
 @XmlSeeAlso({Router.class, Switch.class, Computer.class})
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -346,7 +344,7 @@ public abstract class NetworkNode implements Serializable {
         } catch (NotEnoughBufferSpaceException e) {
             try {
                 addToOutputQueue(packet);
-                if (Layer4TypeEnum.TCP == packet.getLayer4()) {//todo test
+                if (Layer4TypeEnum.TCP == packet.getLayer4()) {
                     nodeCongestedNot(packet);
                 }
             } catch (NotEnoughBufferSpaceException e1) {
@@ -358,7 +356,7 @@ public abstract class NetworkNode implements Serializable {
                     retransmittPacket(packet);
                 }
                 if (Layer4TypeEnum.TCP == packet.getLayer4()) {
-                    nodeCongested(packet);   //todo test
+                    nodeCongested(packet);
                 }
             }
         }
@@ -568,7 +566,7 @@ public abstract class NetworkNode implements Serializable {
                         retransmittPacket(packet);
                     }
                     if (Layer4TypeEnum.TCP == packet.getLayer4()) {
-                        nodeCongested(packet);   //todo test
+                        nodeCongested(packet);
                     }
                 }
             }

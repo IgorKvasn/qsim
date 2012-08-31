@@ -35,6 +35,7 @@ import java.util.TreeSet;
 public class Edge {       //todo preco edge nie je serialisable ale vsetky network nody (computer, router, switch) su?
 
     private static Logger logg = Logger.getLogger(Edge.class);
+    private static final double EDGE_SPEED_INCREMENT = (double) 3 / 2; //speed is multiplied with this
     private long maxSpeed;   //bit/s
     private int length;
     private NetworkNode node1, node2;
@@ -102,7 +103,7 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
         if (packet.getSimulationRule() == null) throw new IllegalStateException("simulation rule in packet is NULL");
 
         //apply congestion information
-        applyCongestion(packet.getSimulationTime(), packet.getSimulationRule());
+        applyCongestion(packet.getSimulationTime());
 
         if (speedMap.containsKey(packet.getSimulationRule())) {
             return speedMap.get(packet.getSimulationRule());
@@ -115,9 +116,8 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
      * check if there is congestion detected and apply them (decrease edge speed)
      *
      * @param simulationTime
-     * @param rule
      */
-    private void applyCongestion(double simulationTime, SimulationRuleBean rule) {
+    private void applyCongestion(double simulationTime) {
         CongestedInfo congestedInfo;
         for (; ; ) {
             if (congestedInfoSet.isEmpty()) {
@@ -126,7 +126,7 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
             congestedInfo = congestedInfoSet.first();
             if (congestedInfo.simulationTime <= simulationTime) {//congestion should be applied now
                 for (int i = 0; i < congestedInfo.count; i++) {
-                    decreaseSpeed(rule);
+                    decreaseSpeed(congestedInfo.rule);
                 }
                 congestedInfoSet.remove(congestedInfo);
             } else {
@@ -174,7 +174,9 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
         if (rule == null) throw new IllegalArgumentException("rule is NULL");
 
         if (speedMap.containsKey(rule)) {
-            if (speedMap.get(rule) == MIN_SPEED) return;
+            if (speedMap.get(rule) == MIN_SPEED) {
+                return;
+            }
         }
         if (speedMap.containsKey(rule)) {
             speedMap.put(rule, speedMap.get(rule) / 2);
@@ -200,14 +202,16 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
         if (rule == null) throw new IllegalArgumentException("rule is NULL");
 
         if (speedMap.containsKey(rule)) {
-            if (speedMap.get(rule) == maxSpeed) return;
+            if (speedMap.get(rule) == maxSpeed) {
+                return;
+            }
         }
 
         if (speedMap.containsKey(rule)) {
-            speedMap.put(rule, speedMap.get(rule) * 3 / 2);
+            speedMap.put(rule, Math.round(speedMap.get(rule) * EDGE_SPEED_INCREMENT));
         } else {
             logg.warn("speed is not in map (never queued before), but it is already increasing - quite strange, isn't it?");
-            speedMap.put(rule, maxSpeed * 3 / 2);
+            speedMap.put(rule, Math.round(maxSpeed * EDGE_SPEED_INCREMENT));
         }
 
         if (speedMap.get(rule) > maxSpeed) speedMap.put(rule, maxSpeed);
@@ -273,7 +277,7 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
         }
     }
 
-    private class CongestedInfo implements Comparable<CongestedInfo> {
+    private static final class CongestedInfo implements Comparable<CongestedInfo> {
         private final SimulationRuleBean rule;
         private final double simulationTime;
         private int count; //there can be multiple congestedInfo objects with the same simulation time (theoretically - quite handy in tests)

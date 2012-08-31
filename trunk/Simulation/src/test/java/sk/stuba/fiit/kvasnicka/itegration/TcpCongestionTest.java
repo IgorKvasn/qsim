@@ -244,7 +244,9 @@ public class TcpCongestionTest {
 
         //assert edge speed decrease
         speed = edge1.getSpeed(p5);
-        assertEquals(decreaseSpeed * 3 / 2, speed);
+        double speed_increment = (Double) getPropertyWithoutGetter(Edge.class, edge1, "EDGE_SPEED_INCREMENT");
+
+        assertEquals(Math.round(decreaseSpeed * speed_increment), speed);
 
         node2.addPacketToProcessing(p7);
         node2.addPacketToProcessing(p8);
@@ -313,7 +315,80 @@ public class TcpCongestionTest {
     }
 
 
+    /**
+     * there are two simulation rules each of them should have got different speeds
+     */
+    @Test
+    public void testMoveFromProcessingToOutputQueue_overflow_two_rules() {
+        //create packets
+        Packet p1 = new Packet(19000, Layer4TypeEnum.TCP, packetManager, null, 10);//this packet will fill up output queue
+
+        Packet p2 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 10);
+        Packet p3 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 30);
+        Packet p4 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 330);//this creation time is important, because this is time when edge congestion happens
+        Packet p5 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 350);
+        Packet p6 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 580);//this creation time is important, because this is time when edge congestion happens
+
+        initRoute(p1, p2, p3, p4);
+        initRoute2(p5, p6);
+
+        //first add packets to processing
+        node2.addPacketToProcessing(p1);
+        node2.addPacketToProcessing(p2);
+        node2.addPacketToProcessing(p3);
+
+        //now here comes method I want to test
+        node2.movePacketsFromProcessingToOutputQueue(100);
+
+        //the second packet should be dropped
+        OutputQueueManager outputQueue = node2.getOutputQueues();
+        assertNotNull(outputQueue);
+        assertEquals(1, outputQueue.getAllUsage()); //only one packet in output queue
+
+        //get edge speed in some time in the future (edge speed is changed due to congestion with some delay - TCP timer delay)
+        long speed = edge1.getSpeed(p4);
+        assertEquals(edge1.getMaxSpeed() / 4, speed); //-------------------speed for first simul rule should be one quoter
+
+        //add another packet - should be dropped, because of congestion
+        node2.addPacketToProcessing(p5);
+        node2.movePacketsFromProcessingToOutputQueue(500);
+
+        outputQueue = node2.getOutputQueues();
+        assertNotNull(outputQueue);
+        assertEquals(1, outputQueue.getAllUsage()); //only one packet in output queue
+
+        //assert edge speed decrease
+        speed = edge1.getSpeed(p6);
+        assertEquals(edge1.getMaxSpeed() / 2, speed); //-------------------speed for first simul rule should be one half
+
+
+        //edge congestion set should be empty
+        TreeSet set = (TreeSet) getPropertyWithoutGetter(Edge.class, edge1, "congestedInfoSet");
+        assertNotNull(set);
+        assertTrue(set.isEmpty());
+    }
+
+
     private void initRoute(Packet... packets) {
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node3, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP, false);
+        simulationRuleBean.setRoute(Arrays.asList(node1, node2, node3));
+
+        for (Packet p : packets) {
+            Field f = null;
+            try {
+                f = Packet.class.getDeclaredField("simulationRule");
+                f.setAccessible(true);
+                f.set(p, simulationRuleBean);
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    private void initRoute2(Packet... packets) {
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node3, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP, false);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2, node3));
 
