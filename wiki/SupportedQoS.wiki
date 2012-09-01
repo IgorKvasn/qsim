@@ -20,5 +20,5 @@ Algoritms to determine packet priority (and thus its output queue).
 
 
 ==Other QoS related features==
-- simplified TCP acknowledgement model
-- TCP congestion avoidance
+  * simplified TCP acknowledgement model
+  * TCP congestion avoidance
