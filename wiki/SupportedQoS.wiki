@@ -17,3 +17,8 @@ Algorithms to determine the order in which packets are to be sent.
 Algoritms to determine packet priority (and thus its output queue).
 
   * Best efford (no QoS)
+
+
+==Other QoS related features==
+- simplified TCP acknowledgement model
+- TCP congestion avoidance
