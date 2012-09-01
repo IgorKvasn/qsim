@@ -129,7 +129,7 @@ public class PacketGenerator {
      */
     private Packet createPacket(int packetSize, SimulationRuleBean rule, Layer4TypeEnum layer4, double creationTime) {
         if (rule.isPing()) {
-            return new PingPacket(pingManager, packetSize, layer4, packetManager, rule, creationTime);
+            return new PingPacket(pingManager, packetSize, packetManager, rule, creationTime);
         }
         return new Packet(packetSize, layer4, packetManager, rule, creationTime);
     }

@@ -50,7 +50,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Igor Kvasnicka
  */
-public class XmlSerialisationTest implements Serializable {
+public class SerialisationTest implements Serializable {
     NetworkNode node;
     Edge edge;
     TopologyManager topologyManager;
