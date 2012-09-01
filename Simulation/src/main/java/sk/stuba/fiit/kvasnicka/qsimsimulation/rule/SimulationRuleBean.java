@@ -77,7 +77,6 @@ public class SimulationRuleBean {
      */
     private Map<NetworkNode, NetworkNode> routes;//key=current network node; value=next hop network node
     private Layer4TypeEnum layer4Type;
-    private boolean ping;
     @Getter
     private List<NetworkNode> route;
     @Getter
@@ -108,7 +107,6 @@ public class SimulationRuleBean {
         this.activationTime = activeDelay;
         this.packetTypeEnum = packetTypeEnum;
         this.layer4Type = layer4Type;
-        this.ping = ping;
         this.active = false;
         this.source = source;
         this.destination = destination;
@@ -117,6 +115,14 @@ public class SimulationRuleBean {
         routes = new HashMap<NetworkNode, NetworkNode>();
     }
 
+    /**
+     * determines, if it is a ping simulation rule
+     *
+     * @return
+     */
+    public boolean isPing() {
+        return layer4Type == Layer4TypeEnum.ICMP;
+    }
 
     public void decreaseNumberOfPackets() {
         if (numberOfPackets == - 1) return; //-1 is infinity

@@ -35,8 +35,8 @@ public class PingPacket extends Packet {
     private String originalSimulRuleID;
 
 
-    public PingPacket(PingManager pingManager, int size, Layer4TypeEnum layer4, PacketManager packetManager, SimulationRuleBean simulationRule, double creationTime) {
-        super(size, layer4, packetManager, simulationRule, creationTime);
+    public PingPacket(PingManager pingManager, int size, PacketManager packetManager, SimulationRuleBean simulationRule, double creationTime) {
+        super(size, Layer4TypeEnum.ICMP, packetManager, simulationRule, creationTime);
         this.pingManager = pingManager;
         originalSourceNetworknode = simulationRule.getSource();
         originalSimulRuleID = simulationRule.getUniqueID();

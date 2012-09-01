@@ -33,6 +33,11 @@ public enum Layer4TypeEnum {
         public boolean isRetransmissionEnabled() {
             return false;
         }
+    }, ICMP {
+        @Override
+        public boolean isRetransmissionEnabled() {
+            return false;
+        }
     };
 
     /**
