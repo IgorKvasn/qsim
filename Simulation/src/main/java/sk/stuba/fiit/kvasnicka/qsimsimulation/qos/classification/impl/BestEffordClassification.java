@@ -25,6 +25,8 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassific
  * @author Igor Kvasnicka
  */
 public class BestEffordClassification implements PacketClassificationInterf {
+    private static final long serialVersionUID = - 570855006019224631L;
+
     public BestEffordClassification() {
     }
 

@@ -30,6 +30,7 @@ import java.util.TreeMap;
 public class RandomEarlyDetection extends ActiveQueueManagement {
 
     public static final String EXPONENTIAL_WEIGHT_FACTOR = "exponential_weight_factor";
+    private static final long serialVersionUID = 1566117576697050626L;
     /**
      * map of previous average queue sizes
      * key = queue number (packet.getQosQueue)

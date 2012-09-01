@@ -37,6 +37,7 @@ import java.util.WeakHashMap;
  */
 public class TopologyManager implements Serializable {
 
+    private static final long serialVersionUID = - 305447759850623788L;
     private List<Edge> edgeList;
     private List<NetworkNode> nodeList;
 

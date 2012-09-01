@@ -35,6 +35,7 @@ import java.util.Map;
  */
 public class WeightedRoundRobinScheduling extends PacketScheduling {
 
+    private static final long serialVersionUID = - 4165594410407914293L;
     private transient int currentClassNumber = 0; //number of currently processing class
     private transient int[] currentQueues;//currently processing queue for each class
 

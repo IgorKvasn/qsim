@@ -30,6 +30,7 @@ import java.util.Map;
  */
 public class ClassBasedWFQScheduling extends PacketScheduling {
 
+    private static final long serialVersionUID = 953487501873159118L;
     private transient int currentClassNumber = 0; //number of currently processing class
 
     private transient int[] unprocessedPacketsInClass;

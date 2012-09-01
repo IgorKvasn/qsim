@@ -54,7 +54,7 @@ public class SimulationManagerTest {
 
     @Test
     public void testPingAdd() {
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, false);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
         simulationManager.addSimulationRule(rule);
 
         assertNotNull(simulationManager.getRulesUnmodifiable());

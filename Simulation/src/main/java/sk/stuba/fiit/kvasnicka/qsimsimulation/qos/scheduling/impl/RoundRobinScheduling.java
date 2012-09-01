@@ -30,6 +30,7 @@ import java.util.List;
  * @author Igor Kvasnicka
  */
 public class RoundRobinScheduling extends PacketScheduling {
+    private static final long serialVersionUID = 8606581356591929660L;
     private transient int currentQueue = 0;
 
     @Override

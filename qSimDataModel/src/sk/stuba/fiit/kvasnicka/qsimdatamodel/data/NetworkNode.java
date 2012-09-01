@@ -67,6 +67,7 @@ import java.util.Map;
 public abstract class NetworkNode implements Serializable {
 
     private static Logger logg = Logger.getLogger(NetworkNode.class);
+    private static final long serialVersionUID = 5329622657148825399L;
     @SimLog
     private transient SimulationLogUtils simulLog;
 

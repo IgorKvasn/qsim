@@ -31,6 +31,7 @@ import java.util.List;
  * @author Igor Kvasnicka
  */
 public class InputQueue implements UsageStatistics, Serializable {
+    private static final long serialVersionUID = 6065064185201761330L;
     @Getter
     private transient List<Packet> inputQueue;
     private int maxSize = - 1;

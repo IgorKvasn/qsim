@@ -34,6 +34,7 @@ import java.util.List;
  */
 
 public class OutputQueueManager implements Serializable {
+    private static final long serialVersionUID = - 2867356876883962827L;
     @Getter
     private List<OutputQueue> queues;
     private NetworkNode node;

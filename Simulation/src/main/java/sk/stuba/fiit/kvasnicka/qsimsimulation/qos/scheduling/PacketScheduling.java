@@ -28,6 +28,7 @@ import java.util.Map;
  * @author Igor Kvasnicka
  */
 public abstract class PacketScheduling implements Serializable {
+    private static final long serialVersionUID = - 7724658919812873308L;
     protected Map<String, Object> parameters;
 
     public PacketScheduling() {

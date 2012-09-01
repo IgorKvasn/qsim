@@ -40,6 +40,7 @@ public class Edge implements Serializable {
 
     private static Logger logg = Logger.getLogger(Edge.class);
     private static final double EDGE_SPEED_INCREMENT = (double) 3 / 2; //speed is multiplied with this
+    private static final long serialVersionUID = - 6445317212124772953L;
     private long maxSpeed;   //bit/s
     private int length;
     private NetworkNode node1, node2;

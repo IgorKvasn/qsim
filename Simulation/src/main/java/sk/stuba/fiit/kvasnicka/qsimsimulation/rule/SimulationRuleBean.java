@@ -94,6 +94,7 @@ public class SimulationRuleBean {
      * do not forget to set route
      * <p/>
      *
+     *
      * @param source
      * @param destination
      * @param numberOfPackets
@@ -102,7 +103,7 @@ public class SimulationRuleBean {
      * @param packetTypeEnum
      * @see #setRoute(java.util.List)
      */
-    public SimulationRuleBean(String name, NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, double activeDelay, PacketTypeEnum packetTypeEnum, Layer4TypeEnum layer4Type, boolean ping) {
+    public SimulationRuleBean(String name, NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, double activeDelay, PacketTypeEnum packetTypeEnum, Layer4TypeEnum layer4Type) {
         this.name = name;
         this.activationTime = activeDelay;
         this.packetTypeEnum = packetTypeEnum;
