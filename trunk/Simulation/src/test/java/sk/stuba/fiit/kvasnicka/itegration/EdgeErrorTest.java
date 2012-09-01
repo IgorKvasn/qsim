@@ -114,7 +114,7 @@ public class EdgeErrorTest {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2), new SimulationLogUtils());
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP, false);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP);
         rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);

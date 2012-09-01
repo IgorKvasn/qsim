@@ -28,6 +28,8 @@ import java.util.List;
  * @author Igor Kvasnicka
  */
 public class Blue extends ActiveQueueManagement {
+    private static final long serialVersionUID = 6833529473099239424L;
+
     public Blue() {
     }
 

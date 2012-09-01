@@ -35,6 +35,7 @@ import java.util.List;
 
 
 public class QosMechanism implements Serializable {
+    private static final long serialVersionUID = - 2761566613214031952L;
     @Setter
     private PacketScheduling packetScheduling;
     @Setter

@@ -32,6 +32,8 @@ import java.util.List;
 public class WeightedFairQueuingScheduling extends PacketScheduling {
 
 
+    private static final long serialVersionUID = - 6069973570631001883L;
+
     @Override
     public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, List<List<Packet>> outputQueuePackets) {
         if (outputQueuePackets == null) throw new IllegalArgumentException("outputQueuePackets is NULL");

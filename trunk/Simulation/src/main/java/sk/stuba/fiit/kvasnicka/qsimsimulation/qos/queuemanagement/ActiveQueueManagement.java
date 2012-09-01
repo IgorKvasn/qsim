@@ -27,6 +27,9 @@ import java.util.Map;
  * @author Igor Kvasnicka
  */
 public abstract class ActiveQueueManagement implements Serializable {
+
+    private static final long serialVersionUID = - 876488938244873514L;
+
     protected Map<String, Object> parameters;
 
     public ActiveQueueManagement() {

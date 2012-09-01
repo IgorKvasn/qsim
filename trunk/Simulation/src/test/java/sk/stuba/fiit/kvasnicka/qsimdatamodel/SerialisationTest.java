@@ -143,7 +143,7 @@ public class SerialisationTest implements Serializable {
         //there is some problem with edgeList in topology manager - serialisation is OK, but EqualsBuilder seems to be unable to handle it
         //but TopologyManager is tested separately and it is OK
 
-        assertTrue(EqualsBuilder.reflectionEquals(node, copy, new String[]{"outputQueueManager", "qosMechanism", "topologyManager", "inputQueue"}));
+        assertTrue(EqualsBuilder.reflectionEquals(node, copy, "outputQueueManager", "qosMechanism", "topologyManager", "inputQueue"));
     }
 
     @Test

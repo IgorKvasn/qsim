@@ -35,6 +35,7 @@ import java.util.List;
 @EqualsAndHashCode
 @Getter
 public class OutputQueue implements UsageStatistics, Serializable {
+    private static final long serialVersionUID = - 7880238363156637629L;
     private int maxCapacity = - 1;
     private String queueLabel;
     private int qosNumber = - 1;

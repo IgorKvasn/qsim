@@ -29,6 +29,8 @@ import java.util.List;
  */
 public class PriorityQueuingScheduling extends PacketScheduling {
 
+    private static final long serialVersionUID = 4229734531506100660L;
+
     @Override
     public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, List<List<Packet>> outputQueuePackets) {
         if (outputQueuePackets == null) throw new IllegalArgumentException("outputQueuePackets is NULL");

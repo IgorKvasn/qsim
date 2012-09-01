@@ -30,6 +30,8 @@ import java.util.List;
  */
 public class FifoScheduling extends PacketScheduling {
 
+    private static final long serialVersionUID = - 5010671441508269651L;
+
     public FifoScheduling() {
     }
 
