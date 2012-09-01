@@ -30,10 +30,10 @@ import java.util.Map;
  */
 public class ClassBasedWFQScheduling extends PacketScheduling {
 
-    private int currentClassNumber = 0; //number of currently processing class
+    private transient int currentClassNumber = 0; //number of currently processing class
 
-    private int[] unprocessedPacketsInClass;
-    private int[][] savedBits; //first parameter is class number, second is queue number within the class
+    private transient int[] unprocessedPacketsInClass;
+    private transient int[][] savedBits; //first parameter is class number, second is queue number within the class
     /**
      * parameter of this packet scheduling defining
      * <b>number of classes</b>
@@ -50,12 +50,12 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
         if (! (parameters.get(CLASS_COUNT) instanceof Integer)) {
             throw new IllegalArgumentException("class count parameter must has Integer as value - actual value of defined parameter is " + parameters.get(CLASS_COUNT).getClass());
         }
-
-        unprocessedPacketsInClass = new int[(Integer) parameters.get(CLASS_COUNT)];
     }
 
     @Override
     public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, List<List<Packet>> outputQueuePackets) {
+        unprocessedPacketsInClass = new int[(Integer) parameters.get(CLASS_COUNT)];
+
         if (outputQueuePackets == null) throw new IllegalArgumentException("outputQueuePackets is NULL");
 
         if (outputQueuePackets.isEmpty()) {//there are no output queues??? are you serious????

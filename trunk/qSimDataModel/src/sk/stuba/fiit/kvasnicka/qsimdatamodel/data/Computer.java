@@ -42,11 +42,6 @@ public class Computer extends NetworkNode {
         super(name, qosMechanism, queues, maxTxBufferSize, maxRxBufferSize, maxIntputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay);
     }
 
-    /**
-     * for JAXB purposes only
-     */
-    public Computer() {
-    }
 
     @Override
     protected void fillForbiddenRoutingRules(Map<Class, Integer> routingRules) {

@@ -151,7 +151,7 @@ public class TcpCongestionOutputQueueTest {
         node2.movePacketsFromProcessingToOutputQueue(100);
 
         //the second packet should be dropped
-        OutputQueueManager outputQueue = node2.getOutputQueues();
+        OutputQueueManager outputQueue = node2.getOutputQueueManager();
         assertNotNull(outputQueue);
         assertEquals(1, outputQueue.getAllUsage()); //only one packet in output queue
 
@@ -163,7 +163,7 @@ public class TcpCongestionOutputQueueTest {
         node2.addPacketToProcessing(p4);
         node2.movePacketsFromProcessingToOutputQueue(500);
 
-        outputQueue = node2.getOutputQueues();
+        outputQueue = node2.getOutputQueueManager();
         assertNotNull(outputQueue);
         assertEquals(1, outputQueue.getAllUsage()); //only one packet in output queue
 
@@ -207,7 +207,7 @@ public class TcpCongestionOutputQueueTest {
         node2.movePacketsFromProcessingToOutputQueue(100);
 
         //the second packet should be dropped
-        OutputQueueManager outputQueue = node2.getOutputQueues();
+        OutputQueueManager outputQueue = node2.getOutputQueueManager();
         assertNotNull(outputQueue);
         assertEquals(1, outputQueue.getAllUsage()); //only one packet in output queue
 
@@ -219,7 +219,7 @@ public class TcpCongestionOutputQueueTest {
         node2.addPacketToProcessing(p4);
         node2.movePacketsFromProcessingToOutputQueue(500);
 
-        outputQueue = node2.getOutputQueues();
+        outputQueue = node2.getOutputQueueManager();
         assertNotNull(outputQueue);
         assertEquals(1, outputQueue.getAllUsage()); //only one packet in output queue
 
@@ -238,7 +238,7 @@ public class TcpCongestionOutputQueueTest {
         node2.addPacketToProcessing(p6);
         node2.movePacketsFromProcessingToOutputQueue(660);
 
-        outputQueue = node2.getOutputQueues();
+        outputQueue = node2.getOutputQueueManager();
         assertNotNull(outputQueue);
         assertEquals(2, outputQueue.getAllUsage()); //packet should be added to output queue
 
@@ -341,7 +341,7 @@ public class TcpCongestionOutputQueueTest {
         node2.movePacketsFromProcessingToOutputQueue(100);
 
         //the second packet should be dropped
-        OutputQueueManager outputQueue = node2.getOutputQueues();
+        OutputQueueManager outputQueue = node2.getOutputQueueManager();
         assertNotNull(outputQueue);
         assertEquals(1, outputQueue.getAllUsage()); //only one packet in output queue
 
@@ -353,7 +353,7 @@ public class TcpCongestionOutputQueueTest {
         node2.addPacketToProcessing(p5);
         node2.movePacketsFromProcessingToOutputQueue(500);
 
-        outputQueue = node2.getOutputQueues();
+        outputQueue = node2.getOutputQueueManager();
         assertNotNull(outputQueue);
         assertEquals(1, outputQueue.getAllUsage()); //only one packet in output queue
 

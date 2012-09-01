@@ -20,15 +20,15 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
-import java.util.HashMap;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 /**
  * @author Igor Kvasnicka
  */
-public abstract class PacketScheduling {
-    protected Map<String, Object> parameters = new HashMap<String, Object>();
+public abstract class PacketScheduling implements Serializable {
+    protected Map<String, Object> parameters;
 
     public PacketScheduling() {
     }
@@ -37,5 +37,13 @@ public abstract class PacketScheduling {
         this.parameters = parameters;
     }
 
+    /**
+     * decides ORDER of packets that will be moved from output queue to TX buffer
+     * note that this method DOES NOT remove packets from output queue
+     *
+     * @param networkNode
+     * @param outputQueuePackets
+     * @return
+     */
     public abstract List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, List<List<Packet>> outputQueuePackets);
 }

@@ -35,7 +35,7 @@ public class RandomEarlyDetection extends ActiveQueueManagement {
      * key = queue number (packet.getQosQueue)
      * value = average queue size
      */
-    private Map<Integer, Double> previousAverageQueueSize;
+    private transient Map<Integer, Double> previousAverageQueueSize;
 
     public RandomEarlyDetection(Map<String, Object> parameters) {
         super(parameters);
@@ -46,12 +46,13 @@ public class RandomEarlyDetection extends ActiveQueueManagement {
         if (! (parameters.get(EXPONENTIAL_WEIGHT_FACTOR) instanceof Double)) {
             throw new IllegalArgumentException("EXPONENTIAL_WEIGHT_FACTOR parameter must has Double as value - actual value of defined parameter is " + parameters.get(EXPONENTIAL_WEIGHT_FACTOR).getClass());
         }
-
-        previousAverageQueueSize = new TreeMap<Integer, Double>();
     }
 
     @Override
     public boolean manageQueue(List<Packet> queue, Packet newPacket) {
+        if (previousAverageQueueSize == null) {
+            previousAverageQueueSize = new TreeMap<Integer, Double>();
+        }
         double averageQueueSize = calculateAverageQueueSize((Double) parameters.get(EXPONENTIAL_WEIGHT_FACTOR), newPacket.getQosQueue(), queue.size());
 
         return false;

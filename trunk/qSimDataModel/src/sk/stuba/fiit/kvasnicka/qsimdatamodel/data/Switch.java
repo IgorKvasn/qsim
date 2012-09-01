@@ -44,11 +44,6 @@ public class Switch extends NetworkNode {
         super(name, qosMechanism, queues, maxTxBufferSize, maxRxBufferSize, maxIntputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay);
     }
 
-    /**
-     * for JAXB purposes only
-     */
-    public Switch() {
-    }
 
     @Override
     protected void fillForbiddenRoutingRules(Map<Class, Integer> routingRules) {

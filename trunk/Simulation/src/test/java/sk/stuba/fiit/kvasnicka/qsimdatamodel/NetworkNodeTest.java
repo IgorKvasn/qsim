@@ -318,7 +318,7 @@ public class NetworkNodeTest {
         assertEquals(p1.getPacketSize() / MTU, fragments);
 
         //the second packet has got not enough space in TX, so it will be put into output queue
-        OutputQueueManager outputQueue = node1.getOutputQueues();
+        OutputQueueManager outputQueue = node1.getOutputQueueManager();
         assertNotNull(outputQueue);
         assertEquals(1, outputQueue.getAllUsage());
     }
@@ -404,7 +404,7 @@ public class NetworkNodeTest {
         //pre-test check: there should be 0 fragments in TX and 2 packets in output queue
         assertNull(node1.getTxInterfaces().get(node2));
 
-        OutputQueueManager outputQueue = node1.getOutputQueues();
+        OutputQueueManager outputQueue = node1.getOutputQueueManager();
         assertNotNull(outputQueue);
         assertEquals(2, outputQueue.getAllUsage());
 
@@ -452,7 +452,7 @@ public class NetworkNodeTest {
         assertEquals(MAX_TX_SIZE - 1, fragments);
 
 
-        OutputQueueManager outputQueue = node1.getOutputQueues();
+        OutputQueueManager outputQueue = node1.getOutputQueueManager();
         assertNotNull(outputQueue);
         assertEquals(2, outputQueue.getAllUsage());
 
@@ -462,7 +462,7 @@ public class NetworkNodeTest {
 
         //one packets should be in TX queue and one should left in output queue
 
-        outputQueue = node1.getOutputQueues();
+        outputQueue = node1.getOutputQueueManager();
         assertNotNull(outputQueue);
         assertEquals(1, outputQueue.getAllUsage());
 
@@ -488,7 +488,7 @@ public class NetworkNodeTest {
         node1.addNewPacketsToOutputQueue(p2);
 
         //assert
-        OutputQueueManager outputQueue = node1.getOutputQueues();
+        OutputQueueManager outputQueue = node1.getOutputQueueManager();
         assertNotNull(outputQueue);
         assertEquals(0, outputQueue.getAllUsage());
 
@@ -514,7 +514,7 @@ public class NetworkNodeTest {
         node1.addNewPacketsToOutputQueue(p2);
 
         //assert
-        OutputQueueManager outputQueue = node1.getOutputQueues();
+        OutputQueueManager outputQueue = node1.getOutputQueueManager();
         assertNotNull(outputQueue);
         assertEquals(1, outputQueue.getAllUsage());
 
@@ -532,7 +532,7 @@ public class NetworkNodeTest {
         Packet p1 = new Packet(10, layer4, packetManager, null, 10);
         Packet p2 = new Packet(10, layer4, packetManager, null, 30);
 
-        InputQueue inputQueueSetter = new InputQueue();
+        InputQueue inputQueueSetter = new InputQueue(100);
 
         List<Packet> list = new LinkedList<Packet>(Arrays.asList(p1, p2));
 
@@ -570,7 +570,7 @@ public class NetworkNodeTest {
 
         List<Packet> list = new LinkedList<Packet>(Arrays.asList(p1, p2, p3, p4, p5));
 
-        InputQueue inputQueueSetter = new InputQueue();
+        InputQueue inputQueueSetter = new InputQueue(100);
 
         Field f = InputQueue.class.getDeclaredField("inputQueue");
         f.setAccessible(true);
@@ -608,7 +608,7 @@ public class NetworkNodeTest {
         privateStringMethod.invoke(node1, p2);
 
         //assert
-        OutputQueueManager outputQueue = node1.getOutputQueues();
+        OutputQueueManager outputQueue = node1.getOutputQueueManager();
         assertNotNull(outputQueue);
         assertEquals(2, outputQueue.getAllUsage());
     }
@@ -649,7 +649,7 @@ public class NetworkNodeTest {
 
 
         //assert
-        OutputQueueManager outputQueue = node1.getOutputQueues();
+        OutputQueueManager outputQueue = node1.getOutputQueueManager();
         assertNotNull(outputQueue);
         assertEquals(2, outputQueue.getAllUsage());
     }

@@ -382,9 +382,9 @@ public class IntegrationTest {
         timer.actionPerformed(null);
 
         timer.actionPerformed(null);
-        assertEquals(0, node1.getOutputQueues().getAllUsage());
+        assertEquals(0, node1.getOutputQueueManager().getAllUsage());
         setWithoutSetter(Edge.class, edge1, "packetErrorRate", 0);
-        assertEquals(0, node1.getOutputQueues().getAllUsage());
+        assertEquals(0, node1.getOutputQueueManager().getAllUsage());
         timer.actionPerformed(null);
 
         assertEquals(1, packetDelivered); //assert that packet has been delivered

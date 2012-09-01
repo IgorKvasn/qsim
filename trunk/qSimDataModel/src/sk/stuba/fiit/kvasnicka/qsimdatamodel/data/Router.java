@@ -22,11 +22,13 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author Igor Kvasnicka
  */
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement
 public class Router extends NetworkNode {
     private static final long serialVersionUID = 1L;
 
@@ -37,9 +39,5 @@ public class Router extends NetworkNode {
      */
     public Router(String name, QosMechanism qosMechanism, OutputQueueManager queues, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
         super(name, qosMechanism, queues, maxTxBufferSize, maxRxBufferSize, maxIntputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay);
-    }
-
-
-    public Router() {
     }
 }
