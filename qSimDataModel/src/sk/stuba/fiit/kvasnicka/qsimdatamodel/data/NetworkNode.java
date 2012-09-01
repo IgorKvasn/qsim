@@ -44,10 +44,8 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlTransient;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -62,18 +60,15 @@ import java.util.Map;
  * @author Igor Kvasnicka
  */
 
-//todo porozmyslat, co ma byt JAXB transient
 //todo Cav, future me: potom nezabudni, ze ak max size TX alebo RX je -1, tak sa to berie ako nekonecno - uz to je nakodene, len v GUI na to nezabudni ;)
 
 
 @EqualsAndHashCode(of = {"name"})
-@XmlSeeAlso({Router.class, Switch.class, Computer.class})
-@XmlAccessorType(XmlAccessType.FIELD)
 public abstract class NetworkNode implements Serializable {
+
     private static Logger logg = Logger.getLogger(NetworkNode.class);
     @SimLog
-    @XmlTransient
-    private SimulationLogUtils simulLog;
+    private transient SimulationLogUtils simulLog;
 
     @Getter
     @Setter
@@ -93,23 +88,21 @@ public abstract class NetworkNode implements Serializable {
     private QosMechanism qosMechanism;
 
 
-    @XmlTransient
-    private List<Packet> processingPackets;
+    private transient List<Packet> processingPackets;
+
     @Getter
-    private OutputQueueManager outputQueues;
+    private OutputQueueManager outputQueueManager;
 
     /**
      * map of all output interfaces - this is used as TX buffers
      */
-    @XmlTransient
     @Getter
-    private Map<NetworkNode, TxBuffer> txInterfaces;
+    private transient Map<NetworkNode, TxBuffer> txInterfaces;
     /**
      * map of all input interfaces - this is used as RX buffers
      */
-    @XmlTransient
     @Getter
-    private Map<NetworkNode, RxBuffer> rxInterfaces;
+    private transient Map<NetworkNode, RxBuffer> rxInterfaces;
     @Getter
     private int maxTxBufferSize;
     @Getter
@@ -133,26 +126,40 @@ public abstract class NetworkNode implements Serializable {
     private double maxProcessingDelay;
     @Getter
     private int maxIntputQueueSize;
+
     @Getter
-    private UsageStatistics allRXBuffers;
+    private transient UsageStatistics allRXBuffers;
+
     @Getter
-    private UsageStatistics allTXBuffers;
+    private transient UsageStatistics allTXBuffers;
+
     @Getter
-    private UsageStatistics allOutputQueues;
+    private transient UsageStatistics allOutputQueues;
+
     @Getter
-    private UsageStatistics allProcessingPackets;
+    private transient UsageStatistics allProcessingPackets;
 
 
-    /**
-     * this constructor is used only during deserialisation process
-     */
-    public NetworkNode() {
+    protected NetworkNode(String name, QosMechanism qosMechanism, OutputQueueManager outputQueueManager, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
+        if (outputQueueManager == null) throw new IllegalArgumentException("outputQueueManager is NULL");
+        this.name = name;
+        this.outputQueueManager = outputQueueManager;
+        this.qosMechanism = qosMechanism;
+        this.maxTxBufferSize = maxTxBufferSize;
+        this.maxRxBufferSize = maxRxBufferSize;
+        this.maxIntputQueueSize = maxIntputQueueSize;
+        inputQueue = new InputQueue(maxIntputQueueSize);
+        this.maxProcessingPackets = maxProcessingPackets;
+        this.tcpDelay = tcpDelay;
+        this.minProcessingDelay = minProcessingDelay;
+        this.maxProcessingDelay = maxProcessingDelay;
+        this.outputQueueManager.initNode(this);
+
         routingRules = new HashMap<Class, Integer>();
         fillForbiddenRoutingRules(routingRules);
         processingPackets = new LinkedList<Packet>();
         txInterfaces = new HashMap<NetworkNode, TxBuffer>();
         rxInterfaces = new HashMap<NetworkNode, RxBuffer>();
-        inputQueue = new InputQueue();
 
         allOutputQueues = new UsageStatistics() {
             @Override
@@ -183,21 +190,42 @@ public abstract class NetworkNode implements Serializable {
         };
     }
 
-    protected NetworkNode(String name, QosMechanism qosMechanism, OutputQueueManager swQueues, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
-        this();
-        this.name = name;
-        this.outputQueues = swQueues;
-        this.qosMechanism = qosMechanism;
-        this.maxTxBufferSize = maxTxBufferSize;
-        this.maxRxBufferSize = maxRxBufferSize;
-        this.maxIntputQueueSize = maxIntputQueueSize;
-        inputQueue.setMaxSize(maxIntputQueueSize);
-        this.maxProcessingPackets = maxProcessingPackets;
-        this.tcpDelay = tcpDelay;
-        this.minProcessingDelay = minProcessingDelay;
-        this.maxProcessingDelay = maxProcessingDelay;
-        outputQueues.setNode(this);
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+
+        processingPackets = new LinkedList<Packet>();
+        txInterfaces = new HashMap<NetworkNode, TxBuffer>();
+        rxInterfaces = new HashMap<NetworkNode, RxBuffer>();
+
+        allOutputQueues = new UsageStatistics() {
+            @Override
+            public int getUsage() {
+                return getAllOutputQueueUsage();
+            }
+        };
+
+        allRXBuffers = new UsageStatistics() {
+            @Override
+            public int getUsage() {
+                return getRXUsage();
+            }
+        };
+
+        allTXBuffers = new UsageStatistics() {
+            @Override
+            public int getUsage() {
+                return getTXUsage();
+            }
+        };
+
+        allProcessingPackets = new UsageStatistics() {
+            @Override
+            public int getUsage() {
+                return getProcessingPackets();
+            }
+        };
     }
+
 
     /**
      * defines forbidden NetworkNodes that cannot be neighbours with this
@@ -214,7 +242,7 @@ public abstract class NetworkNode implements Serializable {
      * @return
      */
     public int getAllOutputQueueUsage() {
-        return outputQueues.getAllUsage();
+        return outputQueueManager.getAllUsage();
     }
 
     /**
@@ -286,8 +314,8 @@ public abstract class NetworkNode implements Serializable {
      */
     public int getMaxOutputQueueSize() {
         int total = 0;
-        for (int i = 0; i < outputQueues.getQueueCount(); i++) {
-            total += outputQueues.getQueueMaxCapacity(i);
+        for (int i = 0; i < outputQueueManager.getQueueCount(); i++) {
+            total += outputQueueManager.getQueueMaxCapacity(i);
         }
         return total;
     }
@@ -364,11 +392,11 @@ public abstract class NetworkNode implements Serializable {
 
     private void addToOutputQueue(Packet packet) throws NotEnoughBufferSpaceException {
         //add packet to output queue
-        if (! outputQueues.isOutputQueueAvailable(packet.getQosQueue())) {        //first check if there is enough space in output queue
+        if (! outputQueueManager.isOutputQueueAvailable(packet.getQosQueue())) {        //first check if there is enough space in output queue
             throw new NotEnoughBufferSpaceException("There is not enough space in output queue for packet with QoS queue: " + packet.getQosQueue());
         }
         packet.setTimeWhenCameToQueue(packet.getSimulationTime());
-        outputQueues.addPacket(packet);
+        outputQueueManager.addPacket(packet);
     }
 
 
@@ -460,13 +488,13 @@ public abstract class NetworkNode implements Serializable {
      * @param time current simulation time
      */
     public void moveFromOutputQueueToTxBuffer(double time) {
-        List<List<Packet>> eligiblePackets = outputQueues.getPacketsInOutputQueue(time);
+        List<List<Packet>> eligiblePackets = outputQueueManager.getPacketsInOutputQueue(time);
         List<Packet> packetsToSend = qosMechanism.decitePacketsToMoveFromOutputQueue(this, eligiblePackets);
         for (Packet p : packetsToSend) {
             int mtu = topologyManager.findEdge(getName(), p.getNextHopNetworkNode(this).getName()).getMtu();
             try {
                 addToTxBuffer(p, mtu); //add packet to TX buffer
-                outputQueues.removePacket(p); //remove packet from output queue
+                outputQueueManager.removePacket(p); //remove packet from output queue
             } catch (NotEnoughBufferSpaceException e) {
                 //there is not enough space in TX, so packet stays in output queue
                 break;//no need to continue
@@ -552,10 +580,16 @@ public abstract class NetworkNode implements Serializable {
         }
         if (packet != null) {//this was the last fragment to complete a whole packet - now I can place this packet into input queue
             if (isProcessingAvailable()) {//packet can be processed
+                if (Layer4TypeEnum.TCP == packet.getLayer4()) {
+                    nodeCongestedNot(packet);
+                }
                 addPacketToProcessing(packet);
             } else {//there is no CPU left for this packet to be processed - it is placed into input queue
                 packet.setTimeWhenCameToQueue(packet.getSimulationTime()); //packet.getSimulationTime() is a time, when packet was de-fragmented
                 if (inputQueue.isAvailable()) {
+                    if (Layer4TypeEnum.TCP == packet.getLayer4()) {
+                        nodeCongestedNot(packet);
+                    }
                     inputQueue.addPacket(packet);
                 } else {    //there is not enough space in input queue - packet is dropped
                     if (logg.isDebugEnabled()) {
@@ -683,7 +717,7 @@ public abstract class NetworkNode implements Serializable {
             if (! inputInterface.isEmpty()) return false;
         }
         if (! inputQueue.isEmpty()) return false;
-        if (! outputQueues.isEmpty()) return false;
+        if (! outputQueueManager.isEmpty()) return false;
         return true;
     }
 }

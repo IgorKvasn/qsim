@@ -22,6 +22,8 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,25 +33,29 @@ import java.util.List;
  * @author Igor Kvasnicka
  */
 
-//todo cela trieda ma byt JAXB serializovatelna
-
-public class OutputQueueManager {
+public class OutputQueueManager implements Serializable {
     @Getter
-    private OutputQueue[] queues;
+    private List<OutputQueue> queues;
     private NetworkNode node;
 
+
     public OutputQueueManager(OutputQueue[] queues) {
-        this.queues = new OutputQueue[queues.length];
-        System.arraycopy(queues, 0, this.queues, 0, queues.length); //http://pmd.sourceforge.net/rules/java/sunsecure.html - ArrayIsStoredDirectly
+        this.queues = Arrays.asList(queues);
 
         //finish output queues initialisation - each queue needs to know it qos number (order)
         for (int i = 0; i < queues.length; i++) {
             queues[i].setQosNumber(i);
-            queues[i].setQueueManager(this);
+            queues[i].initQueueManager(this);
         }
     }
 
-    public void setNode(NetworkNode node) {
+    /**
+     * when creating new output queue manager object
+     * this will create parent-reference to NetworkNode that owns this manager
+     *
+     * @param node
+     */
+    public void initNode(NetworkNode node) {
         if (this.node == null) {
             this.node = node;
         } else {
@@ -58,12 +64,11 @@ public class OutputQueueManager {
     }
 
     public NetworkNode getNode() {
-        if (node == null) throw new IllegalStateException("network node has not been set - call setNode() first!");
         return node;
     }
 
     public int getQueueCount() {
-        return queues.length;
+        return queues.size();
     }
 
     /**
@@ -75,7 +80,7 @@ public class OutputQueueManager {
     public boolean isOutputQueueAvailable(int qosQueue) {
         checkQosQueueNumberOk(qosQueue);
 
-        return queues[qosQueue].isAvailable();
+        return queues.get(qosQueue).isAvailable();
     }
 
     /**
@@ -110,7 +115,7 @@ public class OutputQueueManager {
     public int getQueueMaxCapacity(int queueNumber) {
         checkQosQueueNumberOk(queueNumber);
 
-        return queues[queueNumber].getMaxCapacity();
+        return queues.get(queueNumber).getMaxCapacity();
     }
 
     /**
@@ -122,7 +127,7 @@ public class OutputQueueManager {
     public int getQueueUsedCapacity(int queueNumber) {
         checkQosQueueNumberOk(queueNumber);
 
-        return queues[queueNumber].getUsage();
+        return queues.get(queueNumber).getUsage();
     }
 
     /**
@@ -145,7 +150,7 @@ public class OutputQueueManager {
     public void removePacket(Packet p) {
         checkQosQueueNumberOk(p.getQosQueue());
 
-        queues[p.getQosQueue()].removePacket(p);
+        queues.get(p.getQosQueue()).removePacket(p);
     }
 
     /**
@@ -161,15 +166,15 @@ public class OutputQueueManager {
         List<Packet> queue = getPacketsInOutputQueue(p.getSimulationTime()).get(p.getQosQueue());
         node.getQosMechanism().performActiveQueueManagement(queue, p);
 
-        queues[p.getQosQueue()].addPacket(p);
+        queues.get(p.getQosQueue()).addPacket(p);
     }
 
     private void checkQosQueueNumberOk(int qosNumber) {         //todo test
         if (qosNumber < 0) {
             throw new IllegalStateException("qos number is negative: " + qosNumber);
         }
-        if (qosNumber >= queues.length) {
-            throw new IllegalArgumentException("Invalid queueNumber - max number of QoS queue: " + queues.length + " (max allowed qos number is " + (queues.length - 1) + "), but method argument was queue number " + qosNumber);
+        if (qosNumber >= queues.size()) {
+            throw new IllegalArgumentException("Invalid queueNumber - max number of QoS queue: " + queues.size() + " (max allowed qos number is " + (queues.size() - 1) + "), but method argument was queue number " + qosNumber);
         }
     }
 

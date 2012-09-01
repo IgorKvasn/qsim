@@ -20,9 +20,11 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
+import java.io.Serializable;
+
 /**
  * @author Igor Kvasnicka
  */
-public interface PacketClassificationInterf {
+public interface PacketClassificationInterf extends Serializable {
     int classifyAndMarkPacket(NetworkNode networkNode, Packet packet);
 }

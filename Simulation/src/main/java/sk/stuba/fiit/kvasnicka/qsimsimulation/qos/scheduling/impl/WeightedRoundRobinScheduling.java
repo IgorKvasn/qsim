@@ -35,10 +35,10 @@ import java.util.Map;
  */
 public class WeightedRoundRobinScheduling extends PacketScheduling {
 
-    private int currentClassNumber = 0; //number of currently processing class
-    private int[] currentQueues;//currently processing queue for each class
+    private transient int currentClassNumber = 0; //number of currently processing class
+    private transient int[] currentQueues;//currently processing queue for each class
 
-    private int[] unprocessedPacketsInClass;
+    private transient int[] unprocessedPacketsInClass;
     /**
      * parameter of this packet scheduling defining
      * <b>number of classes</b>
@@ -55,9 +55,6 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
         if (! (parameters.get(CLASS_COUNT) instanceof Integer)) {
             throw new IllegalArgumentException("class count parameter must has Integer as value - actual value of defined parameter is " + parameters.get(CLASS_COUNT).getClass());
         }
-
-        currentQueues = new int[(Integer) parameters.get(CLASS_COUNT)];
-        unprocessedPacketsInClass = new int[(Integer) parameters.get(CLASS_COUNT)];
     }
 
     @Override
@@ -67,6 +64,9 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
         if (outputQueuePackets.isEmpty()) {//there are no output queues??? are you serious????
             throw new IllegalStateException("no output queues defined - cannot perform packet scheduling");
         }
+
+        currentQueues = new int[(Integer) parameters.get(CLASS_COUNT)];
+        unprocessedPacketsInClass = new int[(Integer) parameters.get(CLASS_COUNT)];
 
         for (int i = 0; i < unprocessedPacketsInClass.length; i++) {
             unprocessedPacketsInClass[i] = Integer.MAX_VALUE;//it is difficult and useless to calculate unprocessed packets - this will guarantee, that at least one round robin will be done

@@ -22,6 +22,9 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -32,7 +35,7 @@ import java.util.TreeSet;
 /**
  * @author Igor Kvasnicka
  */
-public class Edge {       //todo preco edge nie je serialisable ale vsetky network nody (computer, router, switch) su?
+public class Edge implements Serializable {
 
     private static Logger logg = Logger.getLogger(Edge.class);
     private static final double EDGE_SPEED_INCREMENT = (double) 3 / 2; //speed is multiplied with this
@@ -44,7 +47,7 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
     /**
      * all fragments that are on the wire
      */
-    private List<Fragment> fragments = new LinkedList<Fragment>();
+    private transient List<Fragment> fragments;
     /**
      * probability that packet will be erroneous
      * its value is from 0 (included) to 1 (included)
@@ -55,11 +58,11 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
     /**
      * each TCP simulation rule (= TCP flow) has its own speed because of TCP congestion avoidance
      */
-    private Map<SimulationRuleBean, Long> speedMap;
+    private transient Map<SimulationRuleBean, Long> speedMap;
 
     private static final long MIN_SPEED = 1;
 
-    private TreeSet<CongestedInfo> congestedInfoSet;
+    private transient TreeSet<CongestedInfo> congestedInfoSet;
 
     /**
      * creates new instance of Edge object with maxSpeed parameter defined do not
@@ -74,8 +77,19 @@ public class Edge {       //todo preco edge nie je serialisable ale vsetky netwo
         this.packetErrorRate = packetErrorRate;
         this.node1 = node1;
         this.node2 = node2;
+
         speedMap = new HashMap<SimulationRuleBean, Long>();
         congestedInfoSet = new TreeSet<CongestedInfo>();
+        fragments = new LinkedList<Fragment>();
+    }
+
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+
+        speedMap = new HashMap<SimulationRuleBean, Long>();
+        congestedInfoSet = new TreeSet<CongestedInfo>();
+        fragments = new LinkedList<Fragment>();
     }
 
 

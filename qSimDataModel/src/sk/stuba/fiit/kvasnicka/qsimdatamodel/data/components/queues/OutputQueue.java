@@ -23,6 +23,9 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,14 +34,22 @@ import java.util.List;
  */
 @EqualsAndHashCode
 @Getter
-
-public class OutputQueue implements UsageStatistics {
-
-    private int maxCapacity;
+public class OutputQueue implements UsageStatistics, Serializable {
+    private int maxCapacity = - 1;
     private String queueLabel;
     private int qosNumber = - 1;
-    private OutputQueueManager queueManager = null;
-    private List<Packet> packets;
+
+    private OutputQueueManager queueManager;
+
+    private transient List<Packet> packets;
+
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+
+        packets = new LinkedList<Packet>();
+    }
+
 
     /**
      * creates new QoS queue
@@ -61,7 +72,13 @@ public class OutputQueue implements UsageStatistics {
         }
     }
 
-    public void setQueueManager(OutputQueueManager queueManager) {
+    /**
+     * when creating new output queue  object
+     * this will create parent-reference to OutputQueueManager that owns this queue
+     *
+     * @param queueManager
+     */
+    public void initQueueManager(OutputQueueManager queueManager) {
         if (this.queueManager == null) {
             this.queueManager = queueManager;
         } else {

@@ -18,10 +18,13 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation.managers;
 
 import lombok.EqualsAndHashCode;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.WeakHashMap;
@@ -32,14 +35,23 @@ import java.util.WeakHashMap;
  *
  * @author Igor Kvasnicka
  */
-public class TopologyManager {
-    private final List<Edge> edgeList;
-    private final List<NetworkNode> nodeList;
-    private WeakHashMap<CacheKey, Edge> edgeCache;
+public class TopologyManager implements Serializable {
+
+    private List<Edge> edgeList;
+    private List<NetworkNode> nodeList;
+
+    private transient WeakHashMap<CacheKey, Edge> edgeCache;
+
 
     public TopologyManager(List<Edge> edgeList, List<NetworkNode> nodeList) {
         this.nodeList = Collections.unmodifiableList(nodeList);
         this.edgeList = Collections.unmodifiableList(edgeList);
+
+        edgeCache = new WeakHashMap<CacheKey, Edge>();
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
         edgeCache = new WeakHashMap<CacheKey, Edge>();
     }
 

@@ -30,7 +30,7 @@ import java.util.List;
  * @author Igor Kvasnicka
  */
 public class RoundRobinScheduling extends PacketScheduling {
-    private int currentQueue = 0;
+    private transient int currentQueue = 0;
 
     @Override
     public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, List<List<Packet>> outputQueuePackets) {

@@ -21,21 +21,30 @@ import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @author Igor Kvasnicka
  */
-public class InputQueue implements UsageStatistics {
+public class InputQueue implements UsageStatistics, Serializable {
     @Getter
-    private List<Packet> inputQueue;
-    private int maxSize;
+    private transient List<Packet> inputQueue;
+    private int maxSize = - 1;
 
-    public InputQueue() {
-        this.maxSize = - 1;
+    public InputQueue(int maxSize) {
+        this.maxSize = maxSize;
         inputQueue = new LinkedList<Packet>();
     }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        inputQueue = new LinkedList<Packet>();
+    }
+
 
     @Override
     public int getUsage() {
@@ -51,12 +60,8 @@ public class InputQueue implements UsageStatistics {
         return inputQueue.isEmpty();
     }
 
-    public void setMaxSize(int maxIntputQueueSize) {
-        if (this.maxSize == - 1) {
-            this.maxSize = maxIntputQueueSize;
-        } else {
-            throw new IllegalStateException("max input qeueue size is already set to value: " + maxSize + "; proposed new value is " + maxIntputQueueSize);
-        }
+    public int getMaxSize() {
+        return maxSize;
     }
 
     public void addPacket(Packet packet) {
@@ -73,7 +78,3 @@ public class InputQueue implements UsageStatistics {
         return inputQueue.size() != maxSize;
     }
 }
-//
-//if (Layer4TypeEnum.TCP == fragment.getOriginalPacket().getLayer4()) {
-//           nodeCongested(fragment.getOriginalPacket());
-//       }

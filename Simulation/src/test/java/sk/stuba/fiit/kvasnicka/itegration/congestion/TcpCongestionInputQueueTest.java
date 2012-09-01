@@ -48,6 +48,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
 import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
+import static sk.stuba.fiit.kvasnicka.TestUtils.setWithoutSetter;
 
 /**
  * this is a single and simple test of input queue & congestion avoidance mechanism to see if it is enabled on input queue
@@ -137,15 +138,17 @@ public class TcpCongestionInputQueueTest {
      * so it will be added to output queue
      */
     @Test
-    public void testMoveFromProcessingToInputQueue_overflow() {
+    public void testMoveFromRxToInputQueue_overflow() {
         //create packets
         Packet p1 = new Packet(100, Layer4TypeEnum.TCP, packetManager, null, 10);
         Packet p2 = new Packet(100, Layer4TypeEnum.TCP, packetManager, null, 30);
         Packet p3 = new Packet(100, Layer4TypeEnum.TCP, packetManager, null, 330);//this creation time is important, because this is time when edge congestion happens
         Packet p4 = new Packet(100, Layer4TypeEnum.TCP, packetManager, null, 350);
         Packet p5 = new Packet(100, Layer4TypeEnum.TCP, packetManager, null, 850);//this creation time is important, because this is time when edge congestion happens
-
-        initRoute(p1, p2, p3, p4, p5);
+        Packet p6 = new Packet(100, Layer4TypeEnum.TCP, packetManager, null, 890);
+        Packet p7 = new Packet(100, Layer4TypeEnum.TCP, packetManager, null, 900);
+        Packet p8 = new Packet(100, Layer4TypeEnum.TCP, packetManager, null, 950);
+        initRoute(p1, p2, p3, p4, p5, p6, p7, p8);
 
         Fragment[] f1 = QueueingHelper.createFragments(p1, 20, node1, node2);
 
@@ -183,6 +186,33 @@ public class TcpCongestionInputQueueTest {
         TreeSet set = (TreeSet) getPropertyWithoutGetter(Edge.class, edge1, "congestedInfoSet");
         assertNotNull(set);
         assertTrue(set.isEmpty());
+
+
+        //===========TCP congestion recovery============
+
+        setWithoutSetter(NetworkNode.class, node2, "maxProcessingPackets", 100);
+
+        Fragment[] f4 = QueueingHelper.createFragments(p6, 20, node1, node2);
+        for (Fragment f : f4) {
+            node2.addToRxBuffer(f);
+        }
+
+
+        Fragment[] f5 = QueueingHelper.createFragments(p7, 20, node1, node2);
+        for (Fragment f : f5) {
+            node2.addToRxBuffer(f);
+        }
+
+        for (Fragment f : f5) {
+            node2.addToRxBuffer(f);
+        }
+
+        for (Fragment f : f5) {
+            node2.addToRxBuffer(f);
+        }
+
+        speed = edge1.getSpeed(p8);
+        assertEquals(edge1.getMaxSpeed(), speed);   //at this point I should reach max Speed
     }
 
 

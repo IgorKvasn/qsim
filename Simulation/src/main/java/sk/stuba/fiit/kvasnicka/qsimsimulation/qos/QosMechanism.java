@@ -24,6 +24,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassific
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.ActiveQueueManagement;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -33,10 +34,7 @@ import java.util.List;
  */
 
 
-//todo urobit serializaciu do jaxb rovnako ako funguje netowrk node a router/switch/computer - @XmlSeeAlso
-
-
-public class QosMechanism {
+public class QosMechanism implements Serializable {
     @Setter
     private PacketScheduling packetScheduling;
     @Setter

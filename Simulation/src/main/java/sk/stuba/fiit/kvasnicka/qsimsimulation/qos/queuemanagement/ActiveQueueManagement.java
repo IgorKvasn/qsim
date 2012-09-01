@@ -19,15 +19,15 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement;
 
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
-import java.util.HashMap;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 /**
  * @author Igor Kvasnicka
  */
-public abstract class ActiveQueueManagement {
-    protected Map<String, Object> parameters = new HashMap<String, Object>();
+public abstract class ActiveQueueManagement implements Serializable {
+    protected Map<String, Object> parameters;
 
     public ActiveQueueManagement() {
     }

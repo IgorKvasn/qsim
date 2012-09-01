@@ -90,11 +90,18 @@
     </properties>
 
     <dependencies>
+        <!--<dependency>-->
+            <!--<groupId>org.mod4j.org.apache.commons</groupId>-->
+            <!--<artifactId>lang</artifactId>-->
+            <!--<version>2.1.0</version>-->
+        <!--</dependency>-->
+
         <dependency>
-            <groupId>org.mod4j.org.apache.commons</groupId>
-            <artifactId>lang</artifactId>
-            <version>2.1.0</version>
+        	<groupId>org.apache.commons</groupId>
+        	<artifactId>commons-lang3</artifactId>
+        	<version>3.0</version>
         </dependency>
+
 
         <dependency>
             <groupId>log4j</groupId>
@@ -129,6 +136,13 @@
             <version>${powermock.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>commons-beanutils</groupId>-->
+            <!--<artifactId>commons-beanutils</artifactId>-->
+            <!--<version>1.8.3</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.commons</groupId>
