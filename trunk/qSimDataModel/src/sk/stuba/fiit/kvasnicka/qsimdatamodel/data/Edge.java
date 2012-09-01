@@ -18,6 +18,7 @@
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data;
 
 import org.apache.log4j.Logger;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
@@ -115,6 +116,10 @@ public class Edge implements Serializable {
     public long getSpeed(Packet packet) {
         if (packet == null) throw new IllegalArgumentException("packet is NULL");
         if (packet.getSimulationRule() == null) throw new IllegalStateException("simulation rule in packet is NULL");
+
+        if (Layer4TypeEnum.TCP != packet.getLayer4()) {//only TCP packets has got complicated edge speed calculations
+            return maxSpeed;
+        }
 
         //apply congestion information
         applyCongestion(packet.getSimulationTime());
