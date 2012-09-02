@@ -15,26 +15,15 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl;
-
-import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.ActiveQueueManagement;
-
-import java.util.List;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils;
 
 /**
- * http://en.wikipedia.org/wiki/Blue_(queue_management_algorithm)
+ * there is something wrong with parameter map
  *
  * @author Igor Kvasnicka
  */
-public class Blue extends ActiveQueueManagement {
-    private static final long serialVersionUID = 6833529473099239424L;
-
-    public Blue() {
-    }
-
-    @Override
-    public boolean manageQueue(List<Packet> queue, Packet newPacket) {
-        return false;
+public class ParameterException extends Exception {
+    public ParameterException(String s) {
+        super(s);
     }
 }
