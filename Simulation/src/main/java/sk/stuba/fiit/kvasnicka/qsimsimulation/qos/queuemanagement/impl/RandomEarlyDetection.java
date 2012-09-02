@@ -19,7 +19,10 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl;
 
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.ActiveQueueManagement;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ParameterException;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.QosUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -29,8 +32,14 @@ import java.util.TreeMap;
  */
 public class RandomEarlyDetection extends ActiveQueueManagement {
 
+    private static final long serialVersionUID = - 162267636428656655L;
+
     public static final String EXPONENTIAL_WEIGHT_FACTOR = "exponential_weight_factor";
-    private static final long serialVersionUID = 1566117576697050626L;
+    public static final String MIN_THRESHOLD = "min_threshlod";
+    public static final String MAX_THRESHOLD = "max_threshlod";
+    public static final String MAX_PROBABILITY = "max_probability";
+
+
     /**
      * map of previous average queue sizes
      * key = queue number (packet.getQosQueue)
@@ -38,41 +47,61 @@ public class RandomEarlyDetection extends ActiveQueueManagement {
      */
     private transient Map<Integer, Double> previousAverageQueueSize;
 
-    public RandomEarlyDetection(Map<String, Object> parameters) {
+    public RandomEarlyDetection(HashMap<String, Object> parameters) {
         super(parameters);
-        if (parameters == null) throw new IllegalArgumentException("no parameters defined - parameter Map is NULL");
-        if (! parameters.containsKey(EXPONENTIAL_WEIGHT_FACTOR)) {
-            throw new IllegalArgumentException("EXPONENTIAL_WEIGHT_FACTOR was not defined in parameters");
+
+        try {
+            QosUtils.checkParameter(parameters, Double.class, EXPONENTIAL_WEIGHT_FACTOR);
+            QosUtils.checkParameter(parameters, Double.class, MIN_THRESHOLD);
+            QosUtils.checkParameter(parameters, Double.class, MAX_THRESHOLD);
+            QosUtils.checkParameter(parameters, Double.class, MAX_PROBABILITY);
+        } catch (ParameterException e) {
+            throw new IllegalStateException(e.getMessage());
         }
-        if (! (parameters.get(EXPONENTIAL_WEIGHT_FACTOR) instanceof Double)) {
-            throw new IllegalArgumentException("EXPONENTIAL_WEIGHT_FACTOR parameter must has Double as value - actual value of defined parameter is " + parameters.get(EXPONENTIAL_WEIGHT_FACTOR).getClass());
+
+        if ((Double) parameters.get(EXPONENTIAL_WEIGHT_FACTOR) > 1) {
+            throw new IllegalArgumentException("EXPONENTIAL_WEIGHT_FACTOR must not be greater than 1");
         }
     }
 
     @Override
     public boolean manageQueue(List<Packet> queue, Packet newPacket) {
+        HashMap<String, Object> parameters = getParameters();
+        if (newPacket == null) {
+            throw new IllegalStateException("packet is NULL");
+        }
+        if (newPacket.getQosQueue() == - 1) {
+            throw new IllegalStateException("unknown qos queue for packet: " + newPacket.getQosQueue());
+        }
+        if (queue == null) throw new IllegalArgumentException("queue is NULL");
+
         if (previousAverageQueueSize == null) {
             previousAverageQueueSize = new TreeMap<Integer, Double>();
         }
+
         double averageQueueSize = calculateAverageQueueSize((Double) parameters.get(EXPONENTIAL_WEIGHT_FACTOR), newPacket.getQosQueue(), queue.size());
 
+        double threshMin = (Double) parameters.get(MIN_THRESHOLD);
+        double threshMax = (Double) parameters.get(MAX_THRESHOLD);
+
+        if (averageQueueSize <= threshMin) return true;//no packet dropping
+        if (averageQueueSize > threshMax) return false;//everything is dropped
+
+        double pmax = (Double) parameters.get(MAX_PROBABILITY);
+        double q = (Double) parameters.get(EXPONENTIAL_WEIGHT_FACTOR);
+
+        double pb = pmax * (averageQueueSize - threshMin) / (threshMax - threshMin);
+        double probability = pb / (1 - q * pb);
+        if (probability > 1) {
+            throw new IllegalStateException("drop probability is more then 1 - somethong is wrong with your formula; probability = " + probability);
+        }
+
+        if (Math.random() <= probability) return true;
         return false;
     }
 
     /**
-     * Pb = PMAX * ( (AVG - MINthres) / (MAXthres - MINthres) )
-     * where:
-     * PMAX = max probability of packet drop (when AVG = MAXthres)
-     * AVG = average queue size
-     * MINthres = minumum treshold
-     *
-     * @return
-     */
-    private double calculatePacketDropProbability() {
-        throw new UnsupportedOperationException("not yet implemented"); //CRITICAL finish this
-    }
-
-    /**
+     * calculates and stores current average queue size
      * AVGk = (1-w) * AVGk-1 + w*q
      * where:
      * w = exponential weight factor

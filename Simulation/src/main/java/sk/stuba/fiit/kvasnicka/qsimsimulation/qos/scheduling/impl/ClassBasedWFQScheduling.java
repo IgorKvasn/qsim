@@ -20,6 +20,8 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ParameterException;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.QosUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -44,12 +46,10 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
 
     public ClassBasedWFQScheduling(Map<String, Object> parameters) {
         super(parameters);
-        if (parameters == null) throw new IllegalArgumentException("no parameters defined - parameter Map is NULL");
-        if (! parameters.containsKey(CLASS_COUNT)) {
-            throw new IllegalArgumentException("class count was not defined in parameters - use CLASS_COUNT constant");
-        }
-        if (! (parameters.get(CLASS_COUNT) instanceof Integer)) {
-            throw new IllegalArgumentException("class count parameter must has Integer as value - actual value of defined parameter is " + parameters.get(CLASS_COUNT).getClass());
+        try {
+            QosUtils.checkParameter(parameters, Integer.class, CLASS_COUNT);
+        } catch (ParameterException e) {
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 

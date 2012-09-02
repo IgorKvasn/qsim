@@ -20,8 +20,8 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Igor Kvasnicka
@@ -30,13 +30,21 @@ public abstract class ActiveQueueManagement implements Serializable {
 
     private static final long serialVersionUID = - 876488938244873514L;
 
-    protected Map<String, Object> parameters;
+    private HashMap<String, Object> parameters;
 
     public ActiveQueueManagement() {
     }
 
-    public ActiveQueueManagement(Map<String, Object> parameters) {
+    public ActiveQueueManagement(HashMap<String, Object> parameters) {
         this.parameters = parameters;
+    }
+
+    public void setParameters(HashMap<String, Object> parameters) {
+        this.parameters = parameters;
+    }
+
+    public HashMap<String, Object> getParameters() {
+        return parameters;
     }
 
     /**
