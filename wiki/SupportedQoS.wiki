@@ -12,6 +12,7 @@ Algorithms to determine the order in which packets are to be sent.
   * WeightedFairQueing (WFQ)
   * Class-Based WFQ
 
+
 == Packet classification & marking ==
 
 Algoritms to determine packet priority (and thus its output queue).
@@ -19,6 +20,13 @@ Algoritms to determine packet priority (and thus its output queue).
   * Best efford (no QoS)
 
 
+== Active queue management ==
+
+  * Random early detection (RED)
+  * Weighted random early detection (WRED)
+
+
 ==Other QoS related features==
+
   * simplified TCP acknowledgement model
   * TCP congestion avoidance
