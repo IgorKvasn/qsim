@@ -20,6 +20,7 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ParameterException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.QosUtils;
 
@@ -36,36 +37,42 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
     private transient int currentClassNumber = 0; //number of currently processing class
 
     private transient int[] unprocessedPacketsInClass;
-    private transient int[][] savedBits; //first parameter is class number, second is queue number within the class
-    /**
-     * parameter of this packet scheduling defining
-     * <b>number of classes</b>
-     * value must be int (Integer)
-     */
-    public static final String CLASS_COUNT = "class_count";
+    private transient List<List<Integer>> savedBits; //first parameter is class number, second is queue number within the class
+
+    public static final String CLASS_DEFINITIONS = "class_definitions";
 
     public ClassBasedWFQScheduling(Map<String, Object> parameters) {
         super(parameters);
         try {
-            QosUtils.checkParameter(parameters, Integer.class, CLASS_COUNT);
+            QosUtils.checkParameter(parameters, ClassDefinition[].class, CLASS_DEFINITIONS);
+            QosUtils.checkClassDefinition((ClassDefinition[]) parameters.get(CLASS_DEFINITIONS));
         } catch (ParameterException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
     }
 
+
     @Override
     public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, List<List<Packet>> outputQueuePackets) {
-        unprocessedPacketsInClass = new int[(Integer) parameters.get(CLASS_COUNT)];
+        ClassDefinition[] classDefinitions = (ClassDefinition[]) parameters.get(CLASS_DEFINITIONS);
+
+        unprocessedPacketsInClass = new int[classDefinitions.length];
 
         if (outputQueuePackets == null) throw new IllegalArgumentException("outputQueuePackets is NULL");
 
         if (outputQueuePackets.isEmpty()) {//there are no output queues??? are you serious????
             throw new IllegalStateException("no output queues defined - cannot perform packet scheduling");
         }
-        int classCount = (Integer) parameters.get(CLASS_COUNT);
-        int classSize = getClassSize(outputQueuePackets.size(), classCount);
+        int classCount = classDefinitions.length;
 
-        savedBits = new int[(Integer) parameters.get(CLASS_COUNT)][classSize];
+        savedBits = new LinkedList<List<Integer>>();
+        for (int i = 0; i < classCount; i++) {
+            List<Integer> qClass = new LinkedList<Integer>();
+            for (int j = 0; j < classDefinitions[i].getQueueNumbers().size(); j++) {
+                qClass.add(j);
+            }
+            savedBits.add(qClass);
+        }
 
         for (int i = 0; i < unprocessedPacketsInClass.length; i++) {
             unprocessedPacketsInClass[i] = Integer.MAX_VALUE;//it is difficult and useless to calculate unprocessed packets - this will guarantee, that at least one round robin will be done
@@ -85,9 +92,9 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
                 inactiveQueue++;
             } else {
                 //-----------perform inner WFQ
-                List<List<Packet>> outputQueuePacketsSubList = outputQueuePacketsCopy.subList(currentClassNumber * classSize, getEndOfClass(currentClassNumber, classSize, outputQueuePacketsCopy.size()));
+                List<List<Packet>> qosClass = extractQosClass(classDefinitions[currentClassNumber], outputQueuePacketsCopy);
 
-                performClassWFQ(currentClassNumber, outputQueuePacketsSubList, packets, packetsToProcess, classCount);
+                performClassWFQ(currentClassNumber, qosClass, packets, packetsToProcess, classCount);
                 //--------------------------------------
             }
             currentClassNumber++;
@@ -103,6 +110,21 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
         }
 
         return packets;
+    }
+
+    /**
+     * returns all queues within same class
+     *
+     * @param classDefinition
+     * @param allQueues
+     * @return
+     */
+    private List<List<Packet>> extractQosClass(ClassDefinition classDefinition, List<List<Packet>> allQueues) {
+        List<List<Packet>> result = new LinkedList<List<Packet>>();
+        for (int queue : classDefinition.getQueueNumbers()) {
+            result.add(allQueues.get(queue));
+        }
+        return result;
     }
 
     /**
@@ -159,36 +181,6 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
     }
 
     /**
-     * calculates index number of last queue in class
-     *
-     * @param currentClassNumber
-     * @param classSize
-     * @param numberOfQueues
-     * @return
-     */
-    private int getEndOfClass(int currentClassNumber, int classSize, int numberOfQueues) {
-        int result = (currentClassNumber + 1) * classSize;
-        if (result > numberOfQueues) {
-            return numberOfQueues;
-        }
-        return result;
-    }
-
-    /**
-     * calculates class size
-     *
-     * @param queueCount
-     * @param classCount
-     * @return
-     */
-    private int getClassSize(int queueCount, int classCount) {
-        if (queueCount % classCount != 0) {
-            return (queueCount / classCount) + 1;
-        }
-        return (queueCount / classCount);
-    }
-
-    /**
      * round robin over one class
      *
      * @return
@@ -198,7 +190,7 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
         List<Packet> firstPackets = new LinkedList<Packet>();//here are first packet from all queues
         int[] bitsToProcess = new int[outputQueuePackets.size()]; //how many bits can be processed within this run; all unused bits will be stored in "savedBits"
         for (int i = 0; i < bitsToProcess.length; i++) {
-            bitsToProcess[i] = savedBits[classNumber][i] + bitsToProcessAll; //I can process given number of bits (by outer round-robin) + bits that I have saved from previous run
+            bitsToProcess[i] = savedBits.get(classNumber).get(i) + bitsToProcessAll; //I can process given number of bits (by outer round-robin) + bits that I have saved from previous run
         }
 
         boolean end = false;
@@ -214,7 +206,7 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
                     continue;
                 }
                 if (queue.get(0).getPacketSize() > bitsToProcess[queueNumber]) {//there is no time for this packet to be processed
-                    savedBits[classNumber][queueNumber] = bitsToProcess[queueNumber];
+                    savedBits.get(classNumber).set(queueNumber, bitsToProcess[queueNumber]);
                     continue;
                 }
                 end = false;//I have added at least one packet to packet to be scheduled, so maybe there is time for the next WFQ cycle - if not, I simply made one circle more, but never mind that
@@ -227,7 +219,7 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
             }
             List<Packet> toSchedule = findSmallestPacket(firstPackets);
 
-            removePackets(toSchedule, outputQueuePackets, classCount);//remove them from output queue so they no longer will be first
+            removePackets(toSchedule, outputQueuePackets, classNumber);//remove them from output queue so they no longer will be first
             result.addAll(toSchedule);
             firstPackets.clear();
         }
@@ -246,15 +238,19 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
      * @param toSchedule
      * @param outputQueue
      */
-    private void removePackets(List<Packet> toSchedule, List<List<Packet>> outputQueue, int classCount) {
+    private void removePackets(List<Packet> toSchedule, List<List<Packet>> outputQueue, int classNumber) {
         for (Packet p : toSchedule) {
-            if (p.getQosQueue() == - 1) {
-                throw new IllegalStateException("packet has not been marked - how is this possible????");
-            }
-            if (! outputQueue.get(p.getQosQueue() % classCount).remove(p)) {
-                throw new IllegalStateException("unable to remove packet from output queue - it was not found there");
+            removePacketFromClass(p, outputQueue);
+        }
+    }
+
+    private void removePacketFromClass(Packet packet, List<List<Packet>> outputQueue) {
+        for (List<Packet> list : outputQueue) {
+            if (list.remove(packet)) {
+                return;//packet was removed
             }
         }
+        throw new IllegalStateException("unable to remove packet from output queue - it was not found there");
     }
 
     /**
