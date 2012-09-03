@@ -19,26 +19,66 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl;
 
 import org.junit.Before;
 import org.junit.Test;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Igor Kvasnicka
  */
 public class WeightedREDTest {
     WeightedRED wred;
+    Packet packet1, packet2;
 
     @Before
     public void before() {
 
-    }
+        packet1 = new Packet(15, null, null, null, 1);
+        packet1.setQosQueue(0);
 
-    @Test
-    public void testManageQueue_parameters() throws Exception {
+        packet2 = new Packet(15, null, null, null, 1);
+        packet2.setQosQueue(1);
+
+        final WeightedRED.WredDefinition[] defs = new WeightedRED.WredDefinition[2];
+        defs[0] = new WeightedRED.WredDefinition(0, .02, .2, .1, .9);
+        defs[1] = new WeightedRED.WredDefinition(1, .2, .2, .1, .9);
+
         wred = new WeightedRED(new HashMap<String, Object>() {{
-            put(WeightedRED.WRED_DEFINITION, new WeightedRED.WredDefinition[]{});
+            put(WeightedRED.WRED_DEFINITION, defs);
         }});
     }
 
-    //todo finish
+    @Test
+    public void testManageQueue() throws Exception {
+        List<Packet> queue = new LinkedList<Packet>();
+        for (int i = 0; i < 16; i++) {
+            Packet p = new Packet(150, null, null, null, 1);
+            p.setQosQueue(0);
+            queue.add(p);
+        }
+
+        assertFalse(wred.manageQueue(queue, packet1));//over maximumu threshold
+
+        List<Packet> queue2 = new LinkedList<Packet>();
+        assertTrue(wred.manageQueue(queue2, packet2));//below minimum threshold
+    }
+
+    @Test
+    public void testManageQueue_wrong_queue() {
+        List<Packet> queue2 = new LinkedList<Packet>();
+        Packet p = new Packet(15, null, null, null, 1);
+        p.setQosQueue(10);
+        try {
+            wred.manageQueue(queue2, p);
+            fail("undefined queue number - exception should be thrown");
+        } catch (IllegalStateException e) {
+            //ok
+        }
+    }
 }
