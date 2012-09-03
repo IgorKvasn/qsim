@@ -18,6 +18,8 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author Igor Kvasnicka
@@ -49,6 +51,27 @@ public final class QosUtils {
 
         if (! parameterClass.isInstance(map.get(parameterKey))) {
             throw new ParameterException(parameterKey + " parameter must has " + parameterClass.getSimpleName() + " as value - actual value of defined parameter is " + map.get(parameterKey).getClass().getSimpleName());
+        }
+    }
+
+    /**
+     * one queue cannot be in multiple classes
+     *
+     * @throws ParameterException if queue is in multiple classes
+     */
+    public static void checkClassDefinition(ClassDefinition[] classes) throws ParameterException {
+        if (classes == null) {
+            throw new IllegalArgumentException("class definitions is NULL; this should be already taken care of");
+        }
+        Set<Integer> set = new TreeSet<Integer>();
+        for (ClassDefinition def : classes) {
+            if (def == null) throw new ParameterException("class definition is NULL");
+            for (int queue : def.getQueueNumbers()) {
+                if (set.contains(queue)) {
+                    throw new ParameterException("queue: " + queue + " is multiple classes");
+                }
+                set.add(queue);
+            }
         }
     }
 }

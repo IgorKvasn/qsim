@@ -95,4 +95,36 @@ public class QosUtilsTest {
             //OK
         }
     }
+
+    @Test
+    public void testClassDefinition_definition_null() throws Exception {
+        ClassDefinition[] classes = new ClassDefinition[2];
+        try {
+            QosUtils.checkClassDefinition(classes);
+            fail("class definition is null - exception should be thrown");
+        } catch (ParameterException e) {
+            //OK
+        }
+    }
+
+    @Test
+    public void testClassDefinition_ok() throws Exception {
+        ClassDefinition[] classes = new ClassDefinition[2];
+        classes[0] = new ClassDefinition(0, 1);
+        classes[1] = new ClassDefinition(2, 3, 4);
+        QosUtils.checkClassDefinition(classes);
+    }
+
+    @Test
+    public void testClassDefinition_wrong() throws Exception {
+        ClassDefinition[] classes = new ClassDefinition[2];
+        classes[0] = new ClassDefinition(0, 1);
+        classes[1] = new ClassDefinition(2, 0, 4);
+        try {
+            QosUtils.checkClassDefinition(classes);
+            fail("parameter exception should be thrown - one queue is in multiple classes");
+        } catch (ParameterException e) {
+            //OK
+        }
+    }
 }

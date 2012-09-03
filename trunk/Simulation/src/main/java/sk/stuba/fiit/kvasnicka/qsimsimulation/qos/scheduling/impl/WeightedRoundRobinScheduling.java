@@ -20,6 +20,7 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ParameterException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.QosUtils;
 
@@ -28,11 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * note that implementation requires that queues that should be in the same class must be "near" each other
- * e.g. if 2 queues are in each class, queues no. 1 and 5 will be in different classes
- * if you want them to be in one class, you must "move" queues (e.g. queue 5 swap with queue no.2)
- * but do this BEFORE you run simulation - changing order of queues on runtime may produce some strange behaviour.... however in theory it may work...
- *
  * @author Igor Kvasnicka
  */
 public class WeightedRoundRobinScheduling extends PacketScheduling {
@@ -42,17 +38,14 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
     private transient int[] currentQueues;//currently processing queue for each class
 
     private transient int[] unprocessedPacketsInClass;
-    /**
-     * parameter of this packet scheduling defining
-     * <b>number of classes</b>
-     * value must be int (Integer)
-     */
-    public static final String CLASS_COUNT = "class_count";
+
+    public static final String CLASS_DEFINITIONS = "class_definitions";
 
     public WeightedRoundRobinScheduling(Map<String, Object> parameters) {
         super(parameters);
         try {
-            QosUtils.checkParameter(parameters, Integer.class, CLASS_COUNT);
+            QosUtils.checkParameter(parameters, ClassDefinition[].class, CLASS_DEFINITIONS);
+            QosUtils.checkClassDefinition((ClassDefinition[]) parameters.get(CLASS_DEFINITIONS));
         } catch (ParameterException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -66,8 +59,11 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
             throw new IllegalStateException("no output queues defined - cannot perform packet scheduling");
         }
 
-        currentQueues = new int[(Integer) parameters.get(CLASS_COUNT)];
-        unprocessedPacketsInClass = new int[(Integer) parameters.get(CLASS_COUNT)];
+        ClassDefinition[] classDefinitions = (ClassDefinition[]) parameters.get(CLASS_DEFINITIONS);
+
+
+        currentQueues = new int[classDefinitions.length];
+        unprocessedPacketsInClass = new int[classDefinitions.length];
 
         for (int i = 0; i < unprocessedPacketsInClass.length; i++) {
             unprocessedPacketsInClass[i] = Integer.MAX_VALUE;//it is difficult and useless to calculate unprocessed packets - this will guarantee, that at least one round robin will be done
@@ -75,8 +71,8 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
 
         List<List<Packet>> outputQueuePacketsCopy = outputQueueMakeCopy(outputQueuePackets);
 
-        int classCount = (Integer) parameters.get(CLASS_COUNT);
-        int classSize = getClassSize(outputQueuePacketsCopy.size(), classCount);
+        int classCount = classDefinitions.length;
+//        int classSize = getClassSize(outputQueuePacketsCopy.size(), classCount);
 
         List<Packet> packets = new LinkedList<Packet>();
         int inactiveQueue = 0;
@@ -89,9 +85,9 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
                 inactiveQueue++;
             } else {
                 //-----------perform inner round robin
-                List<List<Packet>> outputQueuePacketsSubList = outputQueuePacketsCopy.subList(currentClassNumber * classSize, getEndOfClass(currentClassNumber, classSize, outputQueuePacketsCopy.size()));
+                List<List<Packet>> qosClass = extractQosClass(classDefinitions[currentClassNumber], outputQueuePacketsCopy);
 
-                performClassRoundRobin(currentClassNumber, outputQueuePacketsSubList, packets, packetsToProcess);
+                performClassRoundRobin(currentClassNumber, qosClass, packets, packetsToProcess);
                 //--------------------------------------
             }
             currentClassNumber++;
@@ -107,6 +103,21 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
         }
 
         return packets;
+    }
+
+    /**
+     * returns all queues within same class
+     *
+     * @param classDefinition
+     * @param allQueues
+     * @return
+     */
+    private List<List<Packet>> extractQosClass(ClassDefinition classDefinition, List<List<Packet>> allQueues) {
+        List<List<Packet>> result = new LinkedList<List<Packet>>();
+        for (int queue : classDefinition.getQueueNumbers()) {
+            result.add(allQueues.get(queue));
+        }
+        return result;
     }
 
     /**

@@ -18,7 +18,6 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling;
 
 import org.junit.Test;
-import sk.stuba.fiit.kvasnicka.TestUtils;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
@@ -27,12 +26,13 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.ClassBasedWFQScheduling;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -46,65 +46,20 @@ public class ClassBasedWFQSchedulingTest {
     @Test
     public void testConstructor_ok() {
         new ClassBasedWFQScheduling(new HashMap<String, Object>() {{
-            put(ClassBasedWFQScheduling.CLASS_COUNT, 1);
+            put(ClassBasedWFQScheduling.CLASS_DEFINITIONS, new ClassDefinition[]{});
         }});
     }
 
 
     @Test
-    public void testGetClassSize() {
-        classBasedWFQScheduling = new ClassBasedWFQScheduling(new HashMap<String, Object>() {
-            {
-                put(ClassBasedWFQScheduling.CLASS_COUNT, 2);
-            }
-        });
-        int result = (Integer) TestUtils.callPrivateMethod(ClassBasedWFQScheduling.class, classBasedWFQScheduling, "getClassSize", new Class[]{int.class, int.class}, new Object[]{5, 2});
-        assertEquals(3, result);
-
-        classBasedWFQScheduling = new ClassBasedWFQScheduling(new HashMap<String, Object>() {
-            {
-                put(ClassBasedWFQScheduling.CLASS_COUNT, 2);
-            }
-        });
-
-        int result2 = (Integer) TestUtils.callPrivateMethod(ClassBasedWFQScheduling.class, classBasedWFQScheduling, "getClassSize", new Class[]{int.class, int.class}, new Object[]{4, 2});
-        assertEquals(2, result2);
-    }
-
-    @Test
-    public void testGetEndOfClass() {
-        classBasedWFQScheduling = new ClassBasedWFQScheduling(new HashMap<String, Object>() {
-            {
-                put(ClassBasedWFQScheduling.CLASS_COUNT, 2);
-            }
-        });
-        int result = (Integer) TestUtils.callPrivateMethod(ClassBasedWFQScheduling.class, classBasedWFQScheduling, "getEndOfClass", new Class[]{int.class, int.class, int.class}, new Object[]{0, 2, 5});
-        assertEquals(2, result);
-
-        classBasedWFQScheduling = new ClassBasedWFQScheduling(new HashMap<String, Object>() {
-            {
-                put(ClassBasedWFQScheduling.CLASS_COUNT, 2);
-            }
-        });
-
-        int result2 = (Integer) TestUtils.callPrivateMethod(ClassBasedWFQScheduling.class, classBasedWFQScheduling, "getEndOfClass", new Class[]{int.class, int.class, int.class}, new Object[]{1, 2, 5});
-        assertEquals(4, result2);
-
-        classBasedWFQScheduling = new ClassBasedWFQScheduling(new HashMap<String, Object>() {
-            {
-                put(ClassBasedWFQScheduling.CLASS_COUNT, 2);
-            }
-        });
-
-        int result3 = (Integer) TestUtils.callPrivateMethod(ClassBasedWFQScheduling.class, classBasedWFQScheduling, "getEndOfClass", new Class[]{int.class, int.class, int.class}, new Object[]{1, 2, 3});
-        assertEquals(3, result3);
-    }
-
-    @Test
     public void testDecitePacketsToMoveFromOutputQueue_three_queues() {
+        final ClassDefinition[] classDef = new ClassDefinition[2];
+        classDef[0] = new ClassDefinition(0, 1);
+        classDef[1] = new ClassDefinition(2);
+
         classBasedWFQScheduling = new ClassBasedWFQScheduling(new HashMap<String, Object>() {
             {
-                put(ClassBasedWFQScheduling.CLASS_COUNT, 2);
+                put(ClassBasedWFQScheduling.CLASS_DEFINITIONS, classDef);
             }
         });
 

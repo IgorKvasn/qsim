@@ -19,7 +19,6 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling;
 
 import org.junit.Before;
 import org.junit.Test;
-import sk.stuba.fiit.kvasnicka.TestUtils;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
@@ -27,7 +26,9 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.ClassBasedWFQScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedRoundRobinScheduling;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -74,7 +75,7 @@ public class WeightedRoundRobinSchedulingTest {
     public void testConstructor_wrong_parameter_value_type() {
         try {
             new WeightedRoundRobinScheduling(new HashMap<String, Object>() {{
-                put(WeightedRoundRobinScheduling.CLASS_COUNT, "test");
+                put(WeightedRoundRobinScheduling.CLASS_DEFINITIONS, "test");
             }});
             fail("parameter class count should has integer value - exception should be thrown");
         } catch (IllegalArgumentException e) {
@@ -85,65 +86,21 @@ public class WeightedRoundRobinSchedulingTest {
     @Test
     public void testConstructor_ok() {
         new WeightedRoundRobinScheduling(new HashMap<String, Object>() {{
-            put(WeightedRoundRobinScheduling.CLASS_COUNT, 1);
+            put(WeightedRoundRobinScheduling.CLASS_DEFINITIONS, new ClassDefinition[]{});
         }});
     }
 
 
     @Test
-    public void testGetClassSize() {
-        weightedRoundRobinScheduling = new WeightedRoundRobinScheduling(new HashMap<String, Object>() {
-            {
-                put(WeightedRoundRobinScheduling.CLASS_COUNT, 2);
-            }
-        });
-        int result = (Integer) TestUtils.callPrivateMethod(WeightedRoundRobinScheduling.class, weightedRoundRobinScheduling, "getClassSize", new Class[]{int.class, int.class}, new Object[]{5, 2});
-        assertEquals(3, result);
-
-        weightedRoundRobinScheduling = new WeightedRoundRobinScheduling(new HashMap<String, Object>() {
-            {
-                put(WeightedRoundRobinScheduling.CLASS_COUNT, 2);
-            }
-        });
-
-        int result2 = (Integer) TestUtils.callPrivateMethod(WeightedRoundRobinScheduling.class, weightedRoundRobinScheduling, "getClassSize", new Class[]{int.class, int.class}, new Object[]{4, 2});
-        assertEquals(2, result2);
-    }
-
-    @Test
-    public void testGetEndOfClass() {
-        weightedRoundRobinScheduling = new WeightedRoundRobinScheduling(new HashMap<String, Object>() {
-            {
-                put(WeightedRoundRobinScheduling.CLASS_COUNT, 2);
-            }
-        });
-        int result = (Integer) TestUtils.callPrivateMethod(WeightedRoundRobinScheduling.class, weightedRoundRobinScheduling, "getEndOfClass", new Class[]{int.class, int.class, int.class}, new Object[]{0, 2, 5});
-        assertEquals(2, result);
-
-        weightedRoundRobinScheduling = new WeightedRoundRobinScheduling(new HashMap<String, Object>() {
-            {
-                put(WeightedRoundRobinScheduling.CLASS_COUNT, 2);
-            }
-        });
-
-        int result2 = (Integer) TestUtils.callPrivateMethod(WeightedRoundRobinScheduling.class, weightedRoundRobinScheduling, "getEndOfClass", new Class[]{int.class, int.class, int.class}, new Object[]{1, 2, 5});
-        assertEquals(4, result2);
-
-        weightedRoundRobinScheduling = new WeightedRoundRobinScheduling(new HashMap<String, Object>() {
-            {
-                put(WeightedRoundRobinScheduling.CLASS_COUNT, 2);
-            }
-        });
-
-        int result3 = (Integer) TestUtils.callPrivateMethod(WeightedRoundRobinScheduling.class, weightedRoundRobinScheduling, "getEndOfClass", new Class[]{int.class, int.class, int.class}, new Object[]{1, 2, 3});
-        assertEquals(3, result3);
-    }
-
-    @Test
     public void testDecitePacketsToMoveFromOutputQueue_three_queues() {
+        final ClassDefinition[] classDef = new ClassDefinition[2];
+        classDef[0] = new ClassDefinition(0, 1);
+        classDef[1] = new ClassDefinition(2);
+
+
         weightedRoundRobinScheduling = new WeightedRoundRobinScheduling(new HashMap<String, Object>() {
             {
-                put(WeightedRoundRobinScheduling.CLASS_COUNT, 2);
+                put(ClassBasedWFQScheduling.CLASS_DEFINITIONS, classDef);
             }
         });
 
@@ -183,9 +140,13 @@ public class WeightedRoundRobinSchedulingTest {
 
     @Test
     public void testDecitePacketsToMoveFromOutputQueue_four_queues() {
+        final ClassDefinition[] classDef = new ClassDefinition[2];
+        classDef[0] = new ClassDefinition(0, 1);
+        classDef[1] = new ClassDefinition(2, 3);
+
         weightedRoundRobinScheduling = new WeightedRoundRobinScheduling(new HashMap<String, Object>() {
             {
-                put(WeightedRoundRobinScheduling.CLASS_COUNT, 2);
+                put(ClassBasedWFQScheduling.CLASS_DEFINITIONS, classDef);
             }
         });
 
@@ -226,9 +187,12 @@ public class WeightedRoundRobinSchedulingTest {
 
     @Test
     public void testDecitePacketsToMoveFromOutputQueue_two_queues() {
+        final ClassDefinition[] classDef = new ClassDefinition[1];
+        classDef[0] = new ClassDefinition(0, 1, 2);
+
         weightedRoundRobinScheduling = new WeightedRoundRobinScheduling(new HashMap<String, Object>() {
             {
-                put(WeightedRoundRobinScheduling.CLASS_COUNT, 1);
+                put(WeightedRoundRobinScheduling.CLASS_DEFINITIONS, classDef);
             }
         });
         OutputQueue q1 = new OutputQueue(50, "queue 1");
