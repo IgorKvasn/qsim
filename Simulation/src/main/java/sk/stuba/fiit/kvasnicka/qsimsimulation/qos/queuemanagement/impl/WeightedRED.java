@@ -48,7 +48,7 @@ public class WeightedRED extends ActiveQueueManagement {
         try {
             QosUtils.checkParameter(parameters, WredDefinition[].class, WRED_DEFINITION);
         } catch (ParameterException e) {
-            throw new IllegalArgumentException(e.getMessage());
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -85,16 +85,7 @@ public class WeightedRED extends ActiveQueueManagement {
                 throw new IllegalStateException("duplicate queue definition for queue: " + def.qosNumber);
             }
 
-            RandomEarlyDetection red = new RandomEarlyDetection(new HashMap<String, Object>() {
-                {
-                    put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, def.exponentialWeightFactor);
-                    put(RandomEarlyDetection.MAX_PROBABILITY, def.maxProbability);
-                    put(RandomEarlyDetection.MAX_THRESHOLD, def.maxThreshold);
-                    put(RandomEarlyDetection.MIN_THRESHOLD, def.minThreshold);
-                }
-
-                private static final long serialVersionUID = 2244842184862300699L;
-            });
+            RandomEarlyDetection red = new RandomEarlyDetection(new WRedToRed(def));
 
             reds.put(def.qosNumber, red);
         }
@@ -115,6 +106,18 @@ public class WeightedRED extends ActiveQueueManagement {
             this.maxThreshold = maxThreshold;
             this.minThreshold = minThreshold;
             this.maxProbability = maxProbability;
+        }
+    }
+
+    private static class WRedToRed extends HashMap<String, Object> {
+
+        private static final long serialVersionUID = 2244842184862300699L;
+
+        public WRedToRed(WredDefinition def) {
+            put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, def.exponentialWeightFactor);
+            put(RandomEarlyDetection.MAX_PROBABILITY, def.maxProbability);
+            put(RandomEarlyDetection.MAX_THRESHOLD, def.maxThreshold);
+            put(RandomEarlyDetection.MIN_THRESHOLD, def.minThreshold);
         }
     }
 }

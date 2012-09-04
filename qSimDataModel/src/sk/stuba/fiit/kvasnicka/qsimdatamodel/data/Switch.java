@@ -23,6 +23,7 @@ package sk.stuba.fiit.kvasnicka.qsimdatamodel.data;
 
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpManager;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -37,11 +38,13 @@ public class Switch extends NetworkNode {
 
     /**
      * creates new Switch instance
+     * <p/>
+     * see NetworkNode javadoc for more explanation
      *
-     * @param name default name of the switch
+     * @see NetworkNode#NetworkNode(String, sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism, sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager, int, int, int, int, double, double, double, sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpManager)
      */
-    public Switch(String name, QosMechanism qosMechanism, OutputQueueManager queues, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
-        super(name, qosMechanism, queues, maxTxBufferSize, maxRxBufferSize, maxIntputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay);
+    public Switch(String name, QosMechanism qosMechanism, OutputQueueManager queues, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay, DscpManager dscpManager) {
+        super(name, qosMechanism, queues, maxTxBufferSize, maxRxBufferSize, maxIntputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay, dscpManager);
     }
 
 

@@ -104,9 +104,9 @@ public class TcpCongestionOutputQueueTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, MAX_TX_SIZE, 10, 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
-        node2 = new Router("node2", qosMechanism, outputQueueManager2, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0);
-        node3 = new Router("node3", qosMechanism, outputQueueManager3, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, MAX_TX_SIZE, 10, 10, MAX_PROCESSING_PACKETS, 100, 0, 0, null);
+        node2 = new Router("node2", qosMechanism, outputQueueManager2, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0, null);
+        node3 = new Router("node3", qosMechanism, outputQueueManager3, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0, null);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);

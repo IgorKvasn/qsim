@@ -72,7 +72,7 @@ public class ClassBasedWFQSchedulingTest {
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         QosMechanism qosMechanism = new QosMechanism(null, null, null);
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0, null);
 
 
         Packet p1 = new Packet(10, null, null, 0);
@@ -110,7 +110,7 @@ public class ClassBasedWFQSchedulingTest {
         OutputQueue q1 = new OutputQueue(50, "queue 1");
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         QosMechanism qosMechanism = new QosMechanism(null, null, null);
-        NetworkNode node2 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
+        NetworkNode node2 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));

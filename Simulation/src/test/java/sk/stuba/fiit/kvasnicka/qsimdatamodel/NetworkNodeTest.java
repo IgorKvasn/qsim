@@ -115,8 +115,8 @@ public class NetworkNodeTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, MAX_TX_SIZE, 10, 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
-        node2 = new Router("node2", qosMechanism, outputQueueManager2, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, MAX_TX_SIZE, 10, 10, MAX_PROCESSING_PACKETS, 100, 0, 0, null);
+        node2 = new Router("node2", qosMechanism, outputQueueManager2, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0, null);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -222,8 +222,8 @@ public class NetworkNodeTest {
         outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1, q11});
         outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 3, 10, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", qosMechanism, outputQueueManager2, 0, 10, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, 3, 10, 10, 10, 100, 0, 0, null);
+        node2 = new Router("node2", qosMechanism, outputQueueManager2, 0, 10, 10, 10, 100, 0, 0, null);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -713,8 +713,8 @@ public class NetworkNodeTest {
         outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1, q11});
         outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 3, 1, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", qosMechanism, outputQueueManager2, 0, 3, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, 3, 1, 10, 10, 100, 0, 0, null);
+        node2 = new Router("node2", qosMechanism, outputQueueManager2, 0, 3, 10, 10, 100, 0, 0, null);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -770,8 +770,8 @@ public class NetworkNodeTest {
         outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1, q11});
         outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 3, 300, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", qosMechanism, outputQueueManager2, 0, 300, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, 3, 300, 10, 10, 100, 0, 0, null);
+        node2 = new Router("node2", qosMechanism, outputQueueManager2, 0, 300, 10, 10, 100, 0, 0, null);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);

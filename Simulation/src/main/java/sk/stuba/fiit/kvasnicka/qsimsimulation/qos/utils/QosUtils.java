@@ -25,6 +25,11 @@ import java.util.TreeSet;
  * @author Igor Kvasnicka
  */
 public final class QosUtils {
+
+    private QosUtils() {
+
+    }
+
     /**
      * check whether parameter map contains desired parameter
      * checks for:

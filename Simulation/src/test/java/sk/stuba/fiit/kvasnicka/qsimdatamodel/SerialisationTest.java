@@ -79,11 +79,11 @@ public class SerialisationTest implements Serializable {
 
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1, q11});
 
-        NetworkNode testNode1 = new Computer("comp", null, new OutputQueueManager(new OutputQueue[]{}), 10, 11, 12, 13, 14, 15, 16);
-        NetworkNode testNode2 = new Computer("comp2", null, new OutputQueueManager(new OutputQueue[]{}), 10, 11, 12, 13, 14, 15, 16);
+        NetworkNode testNode1 = new Computer("comp", null, new OutputQueueManager(new OutputQueue[]{}), 10, 11, 12, 13, 14, 15, 16, null);
+        NetworkNode testNode2 = new Computer("comp2", null, new OutputQueueManager(new OutputQueue[]{}), 10, 11, 12, 13, 14, 15, 16, null);
         edge = new Edge(100, 101, 102, 103, testNode1, testNode2);
 
-        node = new Router("node1", qosMechanism, outputQueueManager1, 10, 10, 1, 0, 100, 0, 0);
+        node = new Router("node1", qosMechanism, outputQueueManager1, 10, 10, 1, 0, 100, 0, 0, null);
 
         topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(testNode1, testNode2));
 

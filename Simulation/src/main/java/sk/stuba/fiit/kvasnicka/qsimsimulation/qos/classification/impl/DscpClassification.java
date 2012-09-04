@@ -24,11 +24,22 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassific
 /**
  * @author Igor Kvasnicka
  */
-public class BestEffordClassification implements PacketClassificationInterf {
-    private static final long serialVersionUID = - 570855006019224631L;
+public class DscpClassification implements PacketClassificationInterf {
+
+    private static final long serialVersionUID = 7683972655898905067L;
 
     @Override
     public int classifyAndMarkPacket(NetworkNode networkNode, Packet packet) {
-        return 0;
+        if (networkNode == null) {
+            throw new IllegalArgumentException("network node is NULL");
+        }
+        if (packet == null) {
+            throw new IllegalArgumentException("packet is NULL");
+        }
+        if (networkNode.getDscpManager() == null) {
+            throw new IllegalStateException("network node: " + networkNode.getName() + "is using DSCP classification, but no DSCP definitions have been made");
+        }
+
+        return networkNode.getDscpManager().determineMarkingByDscpDefinitions(packet);
     }
 }

@@ -15,28 +15,27 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.qsimsimulation.enums;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl;
+
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassificationInterf;
 
 /**
  * @author Igor Kvasnicka
  */
-public enum IpPrecedence {
-    IP_PRECEDENCE_0(0),
-    IP_PRECEDENCE_1(1),
-    IP_PRECEDENCE_2(2),
-    IP_PRECEDENCE_3(3),
-    IP_PRECEDENCE_4(4),
-    IP_PRECEDENCE_5(5),
-    IP_PRECEDENCE_6(6),
-    IP_PRECEDENCE_7(7);
+public class IpPrecedenceClassification implements PacketClassificationInterf {
 
-    private final int ipPrecedence;
+    private static final long serialVersionUID = - 7675085772268903474L;
 
-    private IpPrecedence(int ipPrecedence) {
-        this.ipPrecedence = ipPrecedence;
-    }
-
-    public int getIpPrecedence() {
-        return ipPrecedence;
+    @Override
+    public int classifyAndMarkPacket(NetworkNode networkNode, Packet packet) {
+        if (packet == null) {
+            throw new IllegalArgumentException("packet is NULL");
+        }
+        if (packet.getIpPrecedence() == null) {
+            throw new IllegalStateException("there is no IP precedence defined in packet");
+        }
+        return packet.getIpPrecedence().getIpPrecedence();
     }
 }

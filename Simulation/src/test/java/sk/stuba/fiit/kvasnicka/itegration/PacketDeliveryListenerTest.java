@@ -87,9 +87,9 @@ public class PacketDeliveryListenerTest {
         }).times(100);
         EasyMock.replay(qosMechanism);
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", qosMechanism, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
-        node3 = new Router("node3", qosMechanism, outputQueueManager3, 10, 10, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
+        node2 = new Router("node2", qosMechanism, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
+        node3 = new Router("node3", qosMechanism, outputQueueManager3, 10, 10, 10, 10, 100, 0, 0, null);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
 

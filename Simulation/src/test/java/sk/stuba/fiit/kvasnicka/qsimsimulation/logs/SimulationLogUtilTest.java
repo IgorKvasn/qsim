@@ -85,8 +85,8 @@ public class SimulationLogUtilTest {
         }).times(100);
         EasyMock.replay(qosMechanism);
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", qosMechanism, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
+        node2 = new Router("node2", qosMechanism, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
 
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -145,10 +145,10 @@ public class SimulationLogUtilTest {
         OutputQueueManager outputQueueManager22 = new OutputQueueManager(new OutputQueue[]{q22});
 
 
-        NetworkNode node11 = new Router("node11", qosMechanism, outputQueueManager11, 10, 10, 10, 10, 100, 0, 0);
-        NetworkNode node12 = new Router("node12", qosMechanism, outputQueueManager12, 10, 10, 10, 10, 100, 0, 0);
-        NetworkNode node21 = new Router("node21", qosMechanism, outputQueueManager21, 10, 10, 10, 10, 100, 0, 0);
-        NetworkNode node22 = new Router("node22", qosMechanism, outputQueueManager22, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node11 = new Router("node11", qosMechanism, outputQueueManager11, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node12 = new Router("node12", qosMechanism, outputQueueManager12, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node21 = new Router("node21", qosMechanism, outputQueueManager21, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node22 = new Router("node22", qosMechanism, outputQueueManager22, 10, 10, 10, 10, 100, 0, 0, null);
 
 
         Edge edge1 = new Edge(100, 100, 2, 0, node11, node12);
