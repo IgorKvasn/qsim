@@ -21,6 +21,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.RoutingException;
@@ -64,7 +65,6 @@ public class Packet {
      * creates new Packet object
      *
      * @param size          size in Bytes
-     * @param layer4        TCP/IP layer 4 protocol
      * @param packetManager reference to packet manager class
      * @param creationTime  simulation time, when this packet changes its state
      */
@@ -109,6 +109,10 @@ public class Packet {
         return simulationRule.getPacketTypeEnum();
     }
 
+    public IpPrecedence getIpPrecedence(){
+        return simulationRule.getIpPrecedence();
+    }
+
     public NetworkNode getDestination() {
         return simulationRule.getDestination();
     }
@@ -132,7 +136,6 @@ public class Packet {
     public int getSize() {
         return simulationRule.getPacketSize();
     }
-
 
     /**
      * answers the question: Is this packet finally delivered to his destination?

@@ -43,6 +43,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpManager;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -139,9 +140,26 @@ public abstract class NetworkNode implements Serializable {
 
     @Getter
     private transient UsageStatistics allProcessingPackets;
+    @Getter
+    private DscpManager dscpManager;
 
-
-    protected NetworkNode(String name, QosMechanism qosMechanism, OutputQueueManager outputQueueManager, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
+    /**
+     * creates new network node
+     *
+     * @param name                 name (unique)
+     * @param qosMechanism         set of QoS mechanism used
+     * @param outputQueueManager   output queues
+     * @param maxTxBufferSize      max TX size
+     * @param maxRxBufferSize      max RX size
+     * @param maxIntputQueueSize   max Input queue size
+     * @param maxProcessingPackets max number of packets being concurrently processed
+     * @param tcpDelay             TCP delay (time after retransmission happens when no ACK was retrieved)
+     * @param minProcessingDelay   minimum time processing of one packet takes
+     * @param maxProcessingDelay   maximum time processing of one packet takes
+     * @param dscpManager          manager of DSCP marking (may be null, if no DSCP is applied in this network node)
+     */
+    protected NetworkNode(String name, QosMechanism qosMechanism, OutputQueueManager outputQueueManager, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay, DscpManager dscpManager) {
+        this.dscpManager = dscpManager;
         if (outputQueueManager == null) throw new IllegalArgumentException("outputQueueManager is NULL");
         this.name = name;
         this.outputQueueManager = outputQueueManager;

@@ -54,8 +54,8 @@ public class PingManagerTest {
         OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
 
-        node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
+        node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
     }
 
     @Test

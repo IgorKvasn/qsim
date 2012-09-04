@@ -46,8 +46,8 @@ public class ClassificationUtilTest {
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -68,8 +68,8 @@ public class ClassificationUtilTest {
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -91,8 +91,8 @@ public class ClassificationUtilTest {
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -117,8 +117,8 @@ public class ClassificationUtilTest {
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -140,8 +140,8 @@ public class ClassificationUtilTest {
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -163,8 +163,8 @@ public class ClassificationUtilTest {
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -189,8 +189,8 @@ public class ClassificationUtilTest {
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -212,8 +212,8 @@ public class ClassificationUtilTest {
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -235,8 +235,8 @@ public class ClassificationUtilTest {
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));

@@ -129,8 +129,8 @@ public class QueueingHelperTest {
         EasyMock.replay(qosMechanism);
 
 
-        NetworkNode node1 = new Router("node1", qosMechanism, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", qosMechanism, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", qosMechanism, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", qosMechanism, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
 
 
         Edge edge = new Edge(100, 10, 2, 0, node1, node2);

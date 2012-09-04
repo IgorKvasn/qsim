@@ -54,7 +54,7 @@ public class PriorityQueuingSchedulingTest {
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         QosMechanism qosMechanism = new QosMechanism(null, null, null);
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0, null);
 
         Packet p1 = new Packet(10, null, null, 0);
         Packet p2 = new Packet(10, null, null, 0);
@@ -79,7 +79,7 @@ public class PriorityQueuingSchedulingTest {
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         QosMechanism qosMechanism = new QosMechanism(null, null, null);
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0, null);
 
         Packet p1 = new Packet(10, null, null, 0);
         Packet p2 = new Packet(10, null, null, 0);
@@ -105,7 +105,7 @@ public class PriorityQueuingSchedulingTest {
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         QosMechanism qosMechanism = new QosMechanism(null, null, null);
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0, null);
 
         Packet p1 = new Packet(10, null, null, 0);
         Packet p2 = new Packet(10, null, null, 0);

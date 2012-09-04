@@ -47,7 +47,7 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
             QosUtils.checkParameter(parameters, ClassDefinition[].class, CLASS_DEFINITIONS);
             QosUtils.checkClassDefinition((ClassDefinition[]) parameters.get(CLASS_DEFINITIONS));
         } catch (ParameterException e) {
-            throw new IllegalArgumentException(e.getMessage());
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -72,7 +72,6 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
         List<List<Packet>> outputQueuePacketsCopy = outputQueueMakeCopy(outputQueuePackets);
 
         int classCount = classDefinitions.length;
-//        int classSize = getClassSize(outputQueuePacketsCopy.size(), classCount);
 
         List<Packet> packets = new LinkedList<Packet>();
         int inactiveQueue = 0;
@@ -155,36 +154,6 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
      */
     private int calculatePacketsToProcess(int queueCount, int classCount) {
         return queueCount / classCount;
-    }
-
-    /**
-     * calculates index of last queue in a class
-     *
-     * @param currentClassNumber
-     * @param classSize
-     * @param numberOfQueues
-     * @return
-     */
-    private int getEndOfClass(int currentClassNumber, int classSize, int numberOfQueues) {
-        int result = (currentClassNumber + 1) * classSize;
-        if (result > numberOfQueues) {
-            return numberOfQueues;
-        }
-        return result;
-    }
-
-    /**
-     * calculates class size (how many queues are in the class)
-     *
-     * @param queueCount
-     * @param classCount
-     * @return
-     */
-    private int getClassSize(int queueCount, int classCount) {
-        if (queueCount % classCount != 0) {
-            return (queueCount / classCount) + 1;
-        }
-        return (queueCount / classCount);
     }
 
     /**

@@ -35,23 +35,24 @@ public class ClassDefinition implements Serializable {
     private static final long serialVersionUID = 4352954903028246499L;
 
     private List<Integer> queueNumbers;
-    private String name = "N/A";
+    private String name;
 
     public ClassDefinition(List<Integer> queueNumbers, String name) {
 
-        if (queueNumbers == null) throw new IllegalArgumentException("queueNumbers is NULL");
-        if (queueNumbers.isEmpty()) throw new IllegalArgumentException("queueNumbers is empty");
-        if (name == null) name = "";
+        if (queueNumbers == null) throw new IllegalArgumentException("queue numbers is NULL");
+        if (queueNumbers.isEmpty()) throw new IllegalArgumentException("queue numbers is empty");
+
+        if (name == null) {
+            this.name = "";
+        } else {
+            this.name = name;
+        }
 
         this.queueNumbers = queueNumbers;
-        this.name = name;
     }
 
     public ClassDefinition(List<Integer> queueNumbers) {
-        if (queueNumbers == null) throw new IllegalArgumentException("queueNumbers is NULL");
-        if (queueNumbers.isEmpty()) throw new IllegalArgumentException("queueNumbers is empty");
-
-        this.queueNumbers = queueNumbers;
+        this(queueNumbers, "N/A");
     }
 
     public ClassDefinition(Integer... queueNumbers) {
@@ -62,8 +63,11 @@ public class ClassDefinition implements Serializable {
     }
 
     public ClassDefinition(String name, Integer... queueNumbers) {
-        if (name == null) name = "";
-        this.name = name;
+        if (name == null) {
+            this.name = "";
+        } else {
+            this.name = name;
+        }
 
         if (queueNumbers == null) throw new IllegalArgumentException("queueNumbers is NULL");
         if (queueNumbers.length == 0) throw new IllegalArgumentException("queueNumbers is empty");

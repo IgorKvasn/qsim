@@ -15,22 +15,33 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp;
 
-import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.ActiveQueueManagement;
-
-import java.util.List;
+import java.io.Serializable;
 
 /**
  * @author Igor Kvasnicka
  */
-public class BestEffort extends ActiveQueueManagement {
-    public BestEffort() {
+public class DscpDefinition implements Serializable {
+
+    private static final long serialVersionUID = - 5681956667334834337L;
+    private final String query;
+    private int queueNumber;
+
+    public DscpDefinition(String query, int queueNumber) {
+        if (queueNumber < 0) {
+            throw new IllegalArgumentException("queue number is below 0");
+        }
+        this.query = query;
+        this.queueNumber = queueNumber;
     }
 
-    @Override
-    public boolean manageQueue(List<Packet> queue, Packet newPacket) {
-        return true;
+
+    public int getQueueNumber() {
+        return queueNumber;
+    }
+
+    public String getQuery() {
+        return query;
     }
 }

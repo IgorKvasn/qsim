@@ -55,8 +55,8 @@ public class SimulationFacadeTest {
         OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
 
-        node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
+        node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -83,7 +83,7 @@ public class SimulationFacadeTest {
         OutputQueue q3 = new OutputQueue(50, "queue 3");
         OutputQueueManager outputQueueManager3 = new OutputQueueManager(new OutputQueue[]{q3});
 
-        NetworkNode node3 = new Router("node3", null, outputQueueManager3, 10, 10, 10, 10, 100, 0, 0);
+        NetworkNode node3 = new Router("node3", null, outputQueueManager3, 10, 10, 10, 10, 100, 0, 0, null);
         List<SimulationRuleBean> rules = facade.getSimulRulesThatContainsNode(node3);
         assertNotNull(rules);
         assertEquals(0, rules.size());

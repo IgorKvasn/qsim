@@ -47,7 +47,7 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
             QosUtils.checkParameter(parameters, ClassDefinition[].class, CLASS_DEFINITIONS);
             QosUtils.checkClassDefinition((ClassDefinition[]) parameters.get(CLASS_DEFINITIONS));
         } catch (ParameterException e) {
-            throw new IllegalArgumentException(e.getMessage());
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -94,7 +94,7 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
                 //-----------perform inner WFQ
                 List<List<Packet>> qosClass = extractQosClass(classDefinitions[currentClassNumber], outputQueuePacketsCopy);
 
-                performClassWFQ(currentClassNumber, qosClass, packets, packetsToProcess, classCount);
+                performClassWFQ(currentClassNumber, qosClass, packets, packetsToProcess);
                 //--------------------------------------
             }
             currentClassNumber++;
@@ -185,7 +185,7 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
      *
      * @return
      */
-    private void performClassWFQ(int classNumber, List<List<Packet>> outputQueuePackets, List<Packet> result, int bitsToProcessAll, int classCount) {
+    private void performClassWFQ(int classNumber, List<List<Packet>> outputQueuePackets, List<Packet> result, int bitsToProcessAll) {
 
         List<Packet> firstPackets = new LinkedList<Packet>();//here are first packet from all queues
         int[] bitsToProcess = new int[outputQueuePackets.size()]; //how many bits can be processed within this run; all unused bits will be stored in "savedBits"
@@ -219,7 +219,7 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
             }
             List<Packet> toSchedule = findSmallestPacket(firstPackets);
 
-            removePackets(toSchedule, outputQueuePackets, classNumber);//remove them from output queue so they no longer will be first
+            removePackets(toSchedule, outputQueuePackets);//remove them from output queue so they no longer will be first
             result.addAll(toSchedule);
             firstPackets.clear();
         }
@@ -238,7 +238,7 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
      * @param toSchedule
      * @param outputQueue
      */
-    private void removePackets(List<Packet> toSchedule, List<List<Packet>> outputQueue, int classNumber) {
+    private void removePackets(List<Packet> toSchedule, List<List<Packet>> outputQueue) {
         for (Packet p : toSchedule) {
             removePacketFromClass(p, outputQueue);
         }

@@ -15,28 +15,24 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.qsimsimulation.enums;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl;
+
+import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.ActiveQueueManagement;
+
+import java.util.List;
 
 /**
  * @author Igor Kvasnicka
  */
-public enum IpPrecedence {
-    IP_PRECEDENCE_0(0),
-    IP_PRECEDENCE_1(1),
-    IP_PRECEDENCE_2(2),
-    IP_PRECEDENCE_3(3),
-    IP_PRECEDENCE_4(4),
-    IP_PRECEDENCE_5(5),
-    IP_PRECEDENCE_6(6),
-    IP_PRECEDENCE_7(7);
+public class BestEffortQueueManagement extends ActiveQueueManagement {
+    private static final long serialVersionUID = 354147096054376871L;
 
-    private final int ipPrecedence;
-
-    private IpPrecedence(int ipPrecedence) {
-        this.ipPrecedence = ipPrecedence;
+    public BestEffortQueueManagement() {
     }
 
-    public int getIpPrecedence() {
-        return ipPrecedence;
+    @Override
+    public boolean manageQueue(List<Packet> queue, Packet newPacket) {
+        return true;
     }
 }
