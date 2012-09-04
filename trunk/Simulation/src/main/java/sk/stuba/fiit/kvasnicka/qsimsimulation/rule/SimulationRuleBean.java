@@ -84,6 +84,10 @@ public class SimulationRuleBean {
     private String name;
     @Getter
     private IpPrecedence ipPrecedence;
+    @Getter
+    private int srcPort;
+    @Getter
+    private int destPort;
     /**
      * list of all who wants to be notified, when packet is delivered
      * especially useful when waiting for a ping to be delivered
@@ -98,20 +102,25 @@ public class SimulationRuleBean {
      * <p/>
      *
      *
+     *
      * @param source
      * @param destination
      * @param numberOfPackets
      * @param packetSize
      * @param activeDelay
      * @param packetTypeEnum
+     * @param srcPort
+     * @param destPort
      * @see #setRoute(java.util.List)
      */
-    public SimulationRuleBean(String name, NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, double activeDelay, PacketTypeEnum packetTypeEnum, Layer4TypeEnum layer4Type, IpPrecedence ipPrecedence) {
+    public SimulationRuleBean(String name, NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, double activeDelay, PacketTypeEnum packetTypeEnum, Layer4TypeEnum layer4Type, IpPrecedence ipPrecedence, int srcPort, int destPort) {
         this.name = name;
         this.activationTime = activeDelay;
         this.packetTypeEnum = packetTypeEnum;
         this.layer4Type = layer4Type;
         this.ipPrecedence = ipPrecedence;
+        this.srcPort = srcPort;
+        this.destPort = destPort;
         this.active = false;
         this.source = source;
         this.destination = destination;
