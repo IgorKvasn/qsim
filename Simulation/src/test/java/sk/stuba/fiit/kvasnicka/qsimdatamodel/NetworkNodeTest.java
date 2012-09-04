@@ -38,6 +38,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.InputQueue;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.PacketGenerator;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
@@ -145,8 +146,8 @@ public class NetworkNodeTest {
      */
     @Test
     public void testAddToTxBuffer() throws Exception {
-        Packet p1 = new Packet(64, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(64, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(64, packetManager, null, 10);
+        Packet p2 = new Packet(64, packetManager, null, 30);
 
         initRoute(p1, p2);
 
@@ -168,7 +169,7 @@ public class NetworkNodeTest {
      */
     @Test
     public void testAddToTxBuffer_multifragment() throws Exception {
-        Packet p1 = new Packet(150, layer4, packetManager, null, 10);
+        Packet p1 = new Packet(150, packetManager, null, 10);
 
         initRoute(p1);
 
@@ -191,7 +192,7 @@ public class NetworkNodeTest {
      */
     @Test
     public void testAddToTxBuffer_multifragment_2() throws Exception {
-        Packet p1 = new Packet(200, layer4, packetManager, null, 10);
+        Packet p1 = new Packet(200, packetManager, null, 10);
 
         initRoute(p1);
 
@@ -234,12 +235,9 @@ public class NetworkNodeTest {
         node2.setTopologyManager(topologyManager);
 
 
-//        node1.setRoute("node2", "node2");
-//        node2.setRoute("node1", "node1");
-
         //create packets
-        Packet p1 = new Packet(200, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(101, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(200, packetManager, null, 10);
+        Packet p2 = new Packet(101, packetManager, null, 30);
 
         initRoute(p1, p2);
 
@@ -264,8 +262,8 @@ public class NetworkNodeTest {
     @Test
     public void testMoveFromProcessingToOutputQueue() {
         //create packets
-        Packet p1 = new Packet(19000, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(1000, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(19000, packetManager, null, 10);
+        Packet p2 = new Packet(1000, packetManager, null, 30);
 
         initRoute(p1, p2);
 
@@ -295,8 +293,12 @@ public class NetworkNodeTest {
     @Test
     public void testMoveFromProcessingToOutputQueue_overflow() {
         //create packets
-        Packet p1 = new Packet(19000, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(1001, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(19000, packetManager, null, 10);
+        Packet p2 = new Packet(1001, packetManager, null, 30);
+
+        p1.setQosQueue(0);
+        p2.setQosQueue(0);
+
 
         initRoute(p1, p2);
 
@@ -335,8 +337,8 @@ public class NetworkNodeTest {
         PowerMock.replay(DelayHelper.class);
 
         //create packets
-        Packet p1 = new Packet(100, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(200, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(100, packetManager, null, 10);
+        Packet p2 = new Packet(200, packetManager, null, 30);
 
         initRoute(p1, p2);
 
@@ -364,8 +366,8 @@ public class NetworkNodeTest {
         PowerMock.replay(DelayHelper.class);
 
         //create packets
-        Packet p1 = new Packet(100, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(200, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(100, packetManager, null, 10);
+        Packet p2 = new Packet(200, packetManager, null, 30);
 
         initRoute(p1, p2);
 
@@ -385,8 +387,8 @@ public class NetworkNodeTest {
     @Test
     public void testMoveFromOutputQueueToTxBuffer() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         //preparation
-        Packet p1 = new Packet(MTU, layer4, packetManager, null, 10);//note that every packet is one 1 fragment big
-        Packet p2 = new Packet(MTU, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(MTU, packetManager, null, 10);//note that every packet is one 1 fragment big
+        Packet p2 = new Packet(MTU, packetManager, null, 30);
 
         initRoute(p1, p2);
 
@@ -425,9 +427,9 @@ public class NetworkNodeTest {
     @Test
     public void testMoveFromOutputQueueToTxBuffer_overflow() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         //preparation
-        Packet p1 = new Packet(MTU, layer4, packetManager, null, 10);//note that every packet is one 1 fragment big
-        Packet p2 = new Packet(MTU, layer4, packetManager, null, 30);
-        Packet p3 = new Packet(MTU * (MAX_TX_SIZE - 1), layer4, packetManager, null, 30);//this packet is very big - it will be put into TX
+        Packet p1 = new Packet(MTU, packetManager, null, 10);//note that every packet is one 1 fragment big
+        Packet p2 = new Packet(MTU, packetManager, null, 30);
+        Packet p3 = new Packet(MTU * (MAX_TX_SIZE - 1), packetManager, null, 30);//this packet is very big - it will be put into TX
 
         initRoute(p1, p2, p3);
 
@@ -478,8 +480,8 @@ public class NetworkNodeTest {
     @Test
     public void testAddNewPacketsToOutputQueue() {
         //preparation
-        Packet p1 = new Packet(MTU, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(MTU, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(MTU, packetManager, null, 10);
+        Packet p2 = new Packet(MTU, packetManager, null, 30);
 
         initRoute(p1, p2);
 
@@ -504,8 +506,11 @@ public class NetworkNodeTest {
     @Test
     public void testAddNewPacketsToOutputQueue_overflow() {
         //preparation
-        Packet p1 = new Packet(MTU * (MAX_TX_SIZE - 1), layer4, packetManager, null, 10);
-        Packet p2 = new Packet(MTU * 2, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(MTU * (MAX_TX_SIZE - 1), packetManager, null, 10);
+        Packet p2 = new Packet(MTU * 2, packetManager, null, 30);
+
+        p1.setQosQueue(0);
+        p2.setQosQueue(0);
 
         initRoute(p1, p2);
 
@@ -529,8 +534,8 @@ public class NetworkNodeTest {
     @Test
     public void testMoveFromInputQueueToProcessing() throws NoSuchFieldException, IllegalAccessException {
         //prepare some packets into input queue
-        Packet p1 = new Packet(10, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(10, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(10, packetManager, null, 10);
+        Packet p2 = new Packet(10, packetManager, null, 30);
 
         InputQueue inputQueueSetter = new InputQueue(100);
 
@@ -562,11 +567,11 @@ public class NetworkNodeTest {
     @Test
     public void testMoveFromInputQueueToProcessing_overflow() throws NoSuchFieldException, IllegalAccessException {
         //prepare some packets into input queue
-        Packet p1 = new Packet(10, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(10, layer4, packetManager, null, 30);
-        Packet p3 = new Packet(10, layer4, packetManager, null, 30);
-        Packet p4 = new Packet(10, layer4, packetManager, null, 30);
-        Packet p5 = new Packet(10, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(10, packetManager, null, 10);
+        Packet p2 = new Packet(10, packetManager, null, 30);
+        Packet p3 = new Packet(10, packetManager, null, 30);
+        Packet p4 = new Packet(10, packetManager, null, 30);
+        Packet p5 = new Packet(10, packetManager, null, 30);
 
         List<Packet> list = new LinkedList<Packet>(Arrays.asList(p1, p2, p3, p4, p5));
 
@@ -595,8 +600,8 @@ public class NetworkNodeTest {
      */
     @Test
     public void testAddToOutputQueue() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Packet p1 = new Packet(10, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(10, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(10, packetManager, null, 10);
+        Packet p2 = new Packet(10, packetManager, null, 30);
 
         p1.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p1));
         p2.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p2));
@@ -620,9 +625,9 @@ public class NetworkNodeTest {
      */
     @Test
     public void testAddToOutputQueue_overflow() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Packet p1 = new Packet(10, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(10, layer4, packetManager, null, 30);
-        Packet p3 = new Packet(10, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(10, packetManager, null, 10);
+        Packet p2 = new Packet(10, packetManager, null, 30);
+        Packet p3 = new Packet(10, packetManager, null, 30);
 
 
         p1.setQosQueue(1);
@@ -664,7 +669,7 @@ public class NetworkNodeTest {
         EasyMock.expect(DelayHelper.calculatePacketCreationDelay(EasyMock.anyObject(NetworkNode.class), EasyMock.anyInt(), EasyMock.anyObject(PacketTypeEnum.class))).andReturn(SimulationTimer.TIME_QUANTUM / 2).times(2);
         PowerMock.replayAll();
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 2, 50, 0, null, Layer4TypeEnum.UDP);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 2, 50, 0, null, layer4, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2), new SimulationLogUtils());
@@ -722,8 +727,8 @@ public class NetworkNodeTest {
 
 
         //create packets
-        Packet p1 = new Packet(200, Layer4TypeEnum.TCP, packetManager, null, 10);
-        Packet p2 = new Packet(101, Layer4TypeEnum.TCP, packetManager, null, 30);
+        Packet p1 = new Packet(200, packetManager, null, 10);
+        Packet p2 = new Packet(101, packetManager, null, 30);
 
         initRoute(p1, p2);
 
@@ -779,8 +784,8 @@ public class NetworkNodeTest {
 
 
         //create packets
-        Packet p1 = new Packet(200, Layer4TypeEnum.TCP, packetManager, null, 10);
-        Packet p2 = new Packet(101, Layer4TypeEnum.TCP, packetManager, null, 30);
+        Packet p1 = new Packet(200, packetManager, null, 10);
+        Packet p2 = new Packet(101, packetManager, null, 30);
 
         initRoute(p1, p2);
 
@@ -803,7 +808,7 @@ public class NetworkNodeTest {
 
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {

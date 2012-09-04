@@ -23,7 +23,6 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.ClassBasedWFQScheduling;
@@ -110,16 +109,16 @@ public class WeightedRoundRobinSchedulingTest {
 
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
 
-        Packet p1 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p2 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p3 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p4 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p5 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p6 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p7 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p8 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p9 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p10 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
+        Packet p1 = new Packet(10, null, null, 0);
+        Packet p2 = new Packet(10, null, null, 0);
+        Packet p3 = new Packet(10, null, null, 0);
+        Packet p4 = new Packet(10, null, null, 0);
+        Packet p5 = new Packet(10, null, null, 0);
+        Packet p6 = new Packet(10, null, null, 0);
+        Packet p7 = new Packet(10, null, null, 0);
+        Packet p8 = new Packet(10, null, null, 0);
+        Packet p9 = new Packet(10, null, null, 0);
+        Packet p10 = new Packet(10, null, null, 0);
 
         List<List<Packet>> outputPackets = Arrays.asList(Arrays.asList(p1, p2), Arrays.asList(p3, p4), Arrays.asList(p5, p6)); //3 queues
 
@@ -156,16 +155,16 @@ public class WeightedRoundRobinSchedulingTest {
 
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
 
-        Packet p1 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p2 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p3 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p4 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p5 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p6 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p7 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p8 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p9 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p10 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
+        Packet p1 = new Packet(10, null, null, 0);
+        Packet p2 = new Packet(10, null, null, 0);
+        Packet p3 = new Packet(10, null, null, 0);
+        Packet p4 = new Packet(10, null, null, 0);
+        Packet p5 = new Packet(10, null, null, 0);
+        Packet p6 = new Packet(10, null, null, 0);
+        Packet p7 = new Packet(10, null, null, 0);
+        Packet p8 = new Packet(10, null, null, 0);
+        Packet p9 = new Packet(10, null, null, 0);
+        Packet p10 = new Packet(10, null, null, 0);
 
         List<List<Packet>> outputPackets = Arrays.asList(Arrays.asList(p1, p2), Arrays.asList(p3, p4), Arrays.asList(p5, p6), Arrays.asList(p7, p8)); //4 queues
 
@@ -201,16 +200,16 @@ public class WeightedRoundRobinSchedulingTest {
 
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
 
-        Packet p1 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p2 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p3 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p4 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p5 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p6 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p7 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p8 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p9 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p10 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
+        Packet p1 = new Packet(10, null, null, 0);
+        Packet p2 = new Packet(10, null, null, 0);
+        Packet p3 = new Packet(10, null, null, 0);
+        Packet p4 = new Packet(10, null, null, 0);
+        Packet p5 = new Packet(10, null, null, 0);
+        Packet p6 = new Packet(10, null, null, 0);
+        Packet p7 = new Packet(10, null, null, 0);
+        Packet p8 = new Packet(10, null, null, 0);
+        Packet p9 = new Packet(10, null, null, 0);
+        Packet p10 = new Packet(10, null, null, 0);
 
         List<List<Packet>> outputPackets = Arrays.asList(Arrays.asList(p1, p2), Arrays.asList(p3, p4, p7), Arrays.asList(p5, p6)); //3 queues
 

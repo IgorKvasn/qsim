@@ -22,6 +22,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
@@ -48,10 +49,10 @@ public class ClassificationUtilTest {
         NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
         NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
 
-        Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
+        Packet packet = new Packet(10, null, rule, 10);
 
         boolean result = ClassificationUtil.isClassificationRuleApplied("destination(['a','node2','c','d'])", packet);
         assertTrue(result);
@@ -70,10 +71,10 @@ public class ClassificationUtilTest {
         NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
         NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
 
-        Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
+        Packet packet = new Packet(10, null, rule, 10);
 
         boolean result = ClassificationUtil.isClassificationRuleApplied("destination('node2')", packet);
         assertTrue(result);
@@ -93,10 +94,10 @@ public class ClassificationUtilTest {
         NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
         NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
 
-        Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
+        Packet packet = new Packet(10, null, rule, 10);
 
         boolean result = ClassificationUtil.isClassificationRuleApplied("notdestination(['a','node2','c','d'])", packet);
         assertFalse(result);
@@ -119,10 +120,10 @@ public class ClassificationUtilTest {
         NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
         NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
 
-        Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
+        Packet packet = new Packet(10, null, rule, 10);
 
         boolean result = ClassificationUtil.isClassificationRuleApplied("source(['a','node1','c','d'])", packet);
         assertTrue(result);
@@ -142,10 +143,10 @@ public class ClassificationUtilTest {
         NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
         NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
 
-        Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
+        Packet packet = new Packet(10, null, rule, 10);
 
         boolean result = ClassificationUtil.isClassificationRuleApplied("source('node1')", packet);
         assertTrue(result);
@@ -165,10 +166,10 @@ public class ClassificationUtilTest {
         NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
         NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
 
-        Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
+        Packet packet = new Packet(10, null, rule, 10);
 
         boolean result = ClassificationUtil.isClassificationRuleApplied("notsource(['a','node1','c','d'])", packet);
         assertFalse(result);
@@ -191,10 +192,10 @@ public class ClassificationUtilTest {
         NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
         NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
 
-        Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
+        Packet packet = new Packet(10, null, rule, 10);
 
         boolean result = ClassificationUtil.isClassificationRuleApplied("size = 50", packet);
         assertTrue(result);
@@ -214,10 +215,10 @@ public class ClassificationUtilTest {
         NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
         NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
 
-        Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
+        Packet packet = new Packet(10, null, rule, 10);
 
         boolean result = ClassificationUtil.isClassificationRuleApplied("size >= 50", packet);
         assertTrue(result);
@@ -237,10 +238,10 @@ public class ClassificationUtilTest {
         NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0);
         NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0);
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
 
-        Packet packet = new Packet(10, Layer4TypeEnum.UDP, null, rule, 10);
+        Packet packet = new Packet(10, null, rule, 10);
 
         boolean result = ClassificationUtil.isClassificationRuleApplied("(size = 50) AND (source('node1'))", packet);
         assertTrue(result);

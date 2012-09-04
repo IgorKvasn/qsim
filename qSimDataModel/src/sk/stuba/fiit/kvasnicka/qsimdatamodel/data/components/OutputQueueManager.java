@@ -170,7 +170,7 @@ public class OutputQueueManager implements Serializable {
         queues.get(p.getQosQueue()).addPacket(p);
     }
 
-    private void checkQosQueueNumberOk(int qosNumber) {         //todo test
+    private void checkQosQueueNumberOk(int qosNumber) {
         if (qosNumber < 0) {
             throw new IllegalStateException("qos number is negative: " + qosNumber);
         }

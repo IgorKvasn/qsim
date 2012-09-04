@@ -32,6 +32,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.TxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
@@ -123,8 +124,8 @@ public class TxBufferTest {
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(2);
         PowerMock.replay(DelayHelper.class);
 
-        Packet p1 = new Packet(64, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(64, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(64, packetManager, null, 10);
+        Packet p2 = new Packet(64, packetManager, null, 30);
 
         initRoute(p1, p2);
 
@@ -158,9 +159,9 @@ public class TxBufferTest {
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(2);
         PowerMock.replay(DelayHelper.class);
 
-        Packet p1 = new Packet(MTU / 2, layer4, packetManager, null, 10);//OK
-        Packet p2 = new Packet(MTU / 2, layer4, packetManager, null, 12); //OK;packet will be ready to serialise after previous serialisation ends
-        Packet p3 = new Packet(MTU / 2, layer4, packetManager, null, 50); //packet will be ready to serialise some after simulation time
+        Packet p1 = new Packet(MTU / 2, packetManager, null, 10);//OK
+        Packet p2 = new Packet(MTU / 2, packetManager, null, 12); //OK;packet will be ready to serialise after previous serialisation ends
+        Packet p3 = new Packet(MTU / 2, packetManager, null, 50); //packet will be ready to serialise some after simulation time
 
         initRoute(p1, p2, p3);
 
@@ -195,8 +196,8 @@ public class TxBufferTest {
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(2);
         PowerMock.replay(DelayHelper.class);
 
-        Packet p1 = new Packet(MTU / 2, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(MTU / 2, layer4, packetManager, null, 12);
+        Packet p1 = new Packet(MTU / 2, packetManager, null, 10);
+        Packet p2 = new Packet(MTU / 2, packetManager, null, 12);
 
         initRoute(p1, p2);
 
@@ -236,9 +237,9 @@ public class TxBufferTest {
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(3);
         PowerMock.replay(DelayHelper.class);
 
-        Packet p1 = new Packet(MTU / 2, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(MTU / 2, layer4, packetManager, null, 9);
-        Packet p3 = new Packet(MTU / 2, layer4, packetManager, null, 25);
+        Packet p1 = new Packet(MTU / 2, packetManager, null, 10);
+        Packet p2 = new Packet(MTU / 2, packetManager, null, 9);
+        Packet p3 = new Packet(MTU / 2, packetManager, null, 25);
 
         initRoute(p1, p2, p3);
 
@@ -274,9 +275,9 @@ public class TxBufferTest {
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(3);
         PowerMock.replay(DelayHelper.class);
 
-        Packet p1 = new Packet(MTU / 2, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(MTU / 2, layer4, packetManager, null, 9);
-        Packet p3 = new Packet(MTU / 2, layer4, packetManager, null, 25);
+        Packet p1 = new Packet(MTU / 2, packetManager, null, 10);
+        Packet p2 = new Packet(MTU / 2, packetManager, null, 9);
+        Packet p3 = new Packet(MTU / 2, packetManager, null, 25);
 
         initRoute(p1, p2, p3);
 
@@ -314,9 +315,9 @@ public class TxBufferTest {
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(3);
         PowerMock.replay(DelayHelper.class);
 
-        Packet p1 = new Packet(MTU / 2, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(MTU / 2, layer4, packetManager, null, 9);
-        Packet p3 = new Packet(MTU / 2, layer4, packetManager, null, 25);
+        Packet p1 = new Packet(MTU / 2, packetManager, null, 10);
+        Packet p2 = new Packet(MTU / 2, packetManager, null, 9);
+        Packet p3 = new Packet(MTU / 2, packetManager, null, 25);
 
         initRoute(p1, p2, p3);
 
@@ -340,7 +341,7 @@ public class TxBufferTest {
     }
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 10, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 10, PacketTypeEnum.AUDIO_PACKET, layer4, IpPrecedence.IP_PRECEDENCE_0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
         for (Packet p : packets) {
             Field f = null;

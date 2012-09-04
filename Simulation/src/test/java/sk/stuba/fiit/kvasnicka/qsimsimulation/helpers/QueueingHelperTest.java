@@ -26,7 +26,6 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
@@ -146,7 +145,7 @@ public class QueueingHelperTest {
 
         PacketManager packetManager = new PacketManager(timer);
 
-        Packet p1 = new Packet(10, Layer4TypeEnum.UDP, packetManager, null, 10);
+        Packet p1 = new Packet(10, packetManager, null, 10);
 
         //test method... finally ... and test it on multiple test cases
 

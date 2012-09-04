@@ -29,7 +29,9 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.RxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.InputQueue;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.PacketCrcErrorException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.QueueingHelper;
@@ -39,7 +41,9 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
@@ -122,7 +126,8 @@ public class RxBufferTest {
     public void testFragmentReceived() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
         RxBuffer inputInterface = new RxBuffer(edge, 10);//I do not care about max RX size
-        Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
+        Packet p1 = new Packet(14, packetManager, null, 10); //3 fragments will be created
+        initRoute(p1);
 
         //test method
         Fragment[] fragments = QueueingHelper.createFragments(p1, 5, node2, node1); //MTU = 5
@@ -145,8 +150,9 @@ public class RxBufferTest {
     public void testFragmentReceived_multipacket() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
         RxBuffer inputInterface = new RxBuffer(edge, 10);//I do not care about max RX size
-        Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
-        Packet p2 = new Packet(16, layer4, packetManager, null, 10); //4 fragments will be created
+        Packet p1 = new Packet(14, packetManager, null, 10); //3 fragments will be created
+        Packet p2 = new Packet(16, packetManager, null, 10); //4 fragments will be created
+        initRoute(p1,p2);
 
 
         //test method
@@ -179,7 +185,8 @@ public class RxBufferTest {
     public void testFragmentReceived_packet_created() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
         RxBuffer inputInterface = new RxBuffer(edge, 10);//I do not care about max RX size
-        Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
+        Packet p1 = new Packet(14, packetManager, null, 10); //3 fragments will be created
+        initRoute(p1);
 
         //test method
         Fragment[] fragments = QueueingHelper.createFragments(p1, 5, node2, node1); //MTU = 5
@@ -187,6 +194,7 @@ public class RxBufferTest {
         assertNull(inputInterface.fragmentReceived(fragments[0]));
         assertNull(inputInterface.fragmentReceived(fragments[1]));
         Packet p = inputInterface.fragmentReceived(fragments[2]);//now a packet should be created
+        initRoute(p);
         assertNotNull(p);
 
         assertTrue(p == p1); //these should be EXACT objects, so I am comparing references
@@ -213,7 +221,8 @@ public class RxBufferTest {
     public void testFragmentReceived_packet_created__simulation_time() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
         RxBuffer inputInterface = new RxBuffer(edge, 10);//I do not care about max RX size
-        Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
+        Packet p1 = new Packet(14, packetManager, null, 10); //3 fragments will be created
+        initRoute(p1);
 
         //test method
         Fragment[] fragments = QueueingHelper.createFragments(p1, 5, node2, node1); //MTU = 5
@@ -224,6 +233,7 @@ public class RxBufferTest {
         assertNull(inputInterface.fragmentReceived(fragments[0]));
         assertNull(inputInterface.fragmentReceived(fragments[1]));
         Packet p = inputInterface.fragmentReceived(fragments[2]);//now a packet should be created
+        initRoute(p);
         assertNotNull(p);
 
         assertTrue(p == p1); //these should be EXACT objects, so I am comparing references
@@ -250,8 +260,9 @@ public class RxBufferTest {
     public void testFragmentReceived_packet_created__multiple_packets() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
         RxBuffer inputInterface = new RxBuffer(edge, 10);//I do not care about max RX size
-        Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
-        Packet p2 = new Packet(9, layer4, packetManager, null, 10); //2 fragments will be created
+        Packet p1 = new Packet(14, packetManager, null, 10); //3 fragments will be created
+        Packet p2 = new Packet(9, packetManager, null, 10); //2 fragments will be created
+        initRoute(p1, p2);
 
         //test method
         Fragment[] fragments1 = QueueingHelper.createFragments(p1, 5, node2, node1); //MTU = 5
@@ -263,9 +274,11 @@ public class RxBufferTest {
         assertNull(inputInterface.fragmentReceived(fragments1[0]));//1. packet
 
         Packet pp = inputInterface.fragmentReceived(fragments2[1]); //2. packet; now a packet should be created
+        initRoute(pp);
         assertNotNull(pp);
 
         Packet p = inputInterface.fragmentReceived(fragments1[2]);//1. packet; now a packet should be created
+        initRoute(p);
         assertNotNull(p);
 
         assertTrue(p == p1); //these should be EXACT objects, so I am comparing references
@@ -292,7 +305,8 @@ public class RxBufferTest {
         //prepare
         int MAX_RX_SIZE = 2;
         RxBuffer inputInterface = new RxBuffer(edge, MAX_RX_SIZE);//max 2 fragments in RX
-        Packet p1 = new Packet(14, layer4, packetManager, null, 10); //3 fragments will be created
+        Packet p1 = new Packet(14, packetManager, null, 10); //3 fragments will be created
+        initRoute(p1);
 
         //test method
         Fragment[] fragments = QueueingHelper.createFragments(p1, 5, node2, node1); //MTU = 5
@@ -313,5 +327,23 @@ public class RxBufferTest {
 
         //assert - all fragments should be removed, because all were received, although only 2 were not dropped
         assertEquals(0, inputInterface.getNumberOfFragments());
+    }
+
+    private void initRoute(Packet... packets) {
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, layer4, IpPrecedence.IP_PRECEDENCE_0);
+        simulationRuleBean.setRoute(Arrays.asList(node1, node2));
+
+        for (Packet p : packets) {
+            Field f = null;
+            try {
+                f = Packet.class.getDeclaredField("simulationRule");
+                f.setAccessible(true);
+                f.set(p, simulationRuleBean);
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

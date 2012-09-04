@@ -25,6 +25,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent;
@@ -81,6 +82,8 @@ public class SimulationRuleBean {
     private List<NetworkNode> route;
     @Getter
     private String name;
+    @Getter
+    private IpPrecedence ipPrecedence;
     /**
      * list of all who wants to be notified, when packet is delivered
      * especially useful when waiting for a ping to be delivered
@@ -103,11 +106,12 @@ public class SimulationRuleBean {
      * @param packetTypeEnum
      * @see #setRoute(java.util.List)
      */
-    public SimulationRuleBean(String name, NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, double activeDelay, PacketTypeEnum packetTypeEnum, Layer4TypeEnum layer4Type) {
+    public SimulationRuleBean(String name, NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, double activeDelay, PacketTypeEnum packetTypeEnum, Layer4TypeEnum layer4Type, IpPrecedence ipPrecedence) {
         this.name = name;
         this.activationTime = activeDelay;
         this.packetTypeEnum = packetTypeEnum;
         this.layer4Type = layer4Type;
+        this.ipPrecedence = ipPrecedence;
         this.active = false;
         this.source = source;
         this.destination = destination;

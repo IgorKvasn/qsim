@@ -43,10 +43,8 @@ public class Packet {
      * <p/>
      * the lowest value is 0
      */
-    @Setter
     private int qosQueue;
-    @Getter
-    private Layer4TypeEnum layer4;
+
 
     private PacketManager packetManager;
     /**
@@ -70,9 +68,8 @@ public class Packet {
      * @param packetManager reference to packet manager class
      * @param creationTime  simulation time, when this packet changes its state
      */
-    public Packet(int size, Layer4TypeEnum layer4, PacketManager packetManager, SimulationRuleBean simulationRule, double creationTime) {
+    public Packet(int size, PacketManager packetManager, SimulationRuleBean simulationRule, double creationTime) {
         this.packetSize = size;
-        this.layer4 = layer4;
         this.packetManager = packetManager;
         this.simulationRule = simulationRule;
         this.simulationTime = creationTime;
@@ -81,11 +78,22 @@ public class Packet {
         this.creationTime = creationTime;
     }
 
+    public Layer4TypeEnum getLayer4() {
+        return simulationRule.getLayer4Type();
+    }
+
     public void setSimulationTime(double simulationTime) {
         if (this.simulationTime > simulationTime) {
             throw new IllegalStateException("new packet simulation time is lower then current simulation time: " + this.simulationTime + ">" + simulationTime);
         }
         this.simulationTime = simulationTime;
+    }
+
+    public void setQosQueue(int queue) {
+        if (qosQueue == - 1) {
+            if (queue <= - 1) throw new IllegalArgumentException("queue number cannot be set to -1 or below");
+            this.qosQueue = queue;
+        }
     }
 
     /**

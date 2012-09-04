@@ -39,10 +39,10 @@ public class WeightedREDTest {
     @Before
     public void before() {
 
-        packet1 = new Packet(15, null, null, null, 1);
+        packet1 = new Packet(15, null, null, 1);
         packet1.setQosQueue(0);
 
-        packet2 = new Packet(15, null, null, null, 1);
+        packet2 = new Packet(15, null, null, 1);
         packet2.setQosQueue(1);
 
         final WeightedRED.WredDefinition[] defs = new WeightedRED.WredDefinition[2];
@@ -58,7 +58,7 @@ public class WeightedREDTest {
     public void testManageQueue() throws Exception {
         List<Packet> queue = new LinkedList<Packet>();
         for (int i = 0; i < 16; i++) {
-            Packet p = new Packet(150, null, null, null, 1);
+            Packet p = new Packet(150, null, null, 1);
             p.setQosQueue(0);
             queue.add(p);
         }
@@ -72,7 +72,7 @@ public class WeightedREDTest {
     @Test
     public void testManageQueue_wrong_queue() {
         List<Packet> queue2 = new LinkedList<Packet>();
-        Packet p = new Packet(15, null, null, null, 1);
+        Packet p = new Packet(15, null, null, 1);
         p.setQosQueue(10);
         try {
             wred.manageQueue(queue2, p);

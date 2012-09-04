@@ -18,7 +18,6 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation;
 
 import org.apache.log4j.Logger;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
@@ -107,7 +106,7 @@ public class PacketGenerator {
         while (timeSpent <= creationTime && (rule.getNumberOfPackets() > 0 || rule.getNumberOfPackets() == - 1)) {
             double creationDelay = DelayHelper.calculatePacketCreationDelay(rule.getSource(), rule.getPacketSize(), rule.getPacketTypeEnum());
             if (timeSpent + creationDelay > timeQuantum) break; //no time left to spent
-            packets.add(createPacket(rule.getPacketSize(), rule, rule.getLayer4Type(), rule.getActivationTime() + timeSpent + simulationTime));
+            packets.add(createPacket(rule, rule.getActivationTime() + timeSpent + simulationTime));
             timeSpent += creationDelay;//I have spent some time
             rule.decreaseNumberOfPackets();
 
@@ -122,16 +121,15 @@ public class PacketGenerator {
     /**
      * creates one packet
      *
-     * @param packetSize   size of packet in bytes
      * @param rule         simulation rule that is associated with this packet
      * @param creationTime simulation time, when this packet was created
      * @return a new packet
      */
-    private Packet createPacket(int packetSize, SimulationRuleBean rule, Layer4TypeEnum layer4, double creationTime) {
+    private Packet createPacket(SimulationRuleBean rule, double creationTime) {
         if (rule.isPing()) {
-            return new PingPacket(pingManager, packetSize, packetManager, rule, creationTime);
+            return new PingPacket(pingManager, rule.getPacketSize(), packetManager, rule, creationTime);
         }
-        return new Packet(packetSize, layer4, packetManager, rule, creationTime);
+        return new Packet(rule.getPacketSize(), packetManager, rule, creationTime);
     }
 
     public void addSimulationRuleActivationListener(SimulationRuleActivationListener listener) {

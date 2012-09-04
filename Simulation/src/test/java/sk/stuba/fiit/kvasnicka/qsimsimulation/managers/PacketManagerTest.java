@@ -30,6 +30,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
@@ -93,9 +94,6 @@ public class PacketManagerTest {
         node2.setTopologyManager(topologyManager);
 
 
-//        node1.setRoute("node2", "node2");
-//        node2.setRoute("node1", "node1");
-
         timer = EasyMock.createMock(SimulationTimer.class);
         EasyMock.expect(timer.getTopologyManager()).andReturn(topologyManager).times(100);
         EasyMock.replay(timer);
@@ -107,8 +105,8 @@ public class PacketManagerTest {
     public void testInitPackets() throws Exception {
         //--------prepare
 
-        Packet p1 = new Packet(10, Layer4TypeEnum.UDP, packetManager, null, simulationTime);
-        Packet p2 = new Packet(10, Layer4TypeEnum.UDP, packetManager, null, simulationTime);
+        Packet p1 = new Packet(10, packetManager, null, simulationTime);
+        Packet p2 = new Packet(10, packetManager, null, simulationTime);
 
         initRoute(p1, p2);
 
@@ -123,7 +121,7 @@ public class PacketManagerTest {
     }
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 10, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 10, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {

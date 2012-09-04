@@ -19,7 +19,6 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.packet;
 
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
@@ -36,7 +35,7 @@ public class PingPacket extends Packet {
 
 
     public PingPacket(PingManager pingManager, int size, PacketManager packetManager, SimulationRuleBean simulationRule, double creationTime) {
-        super(size, Layer4TypeEnum.ICMP, packetManager, simulationRule, creationTime);
+        super(size, packetManager, simulationRule, creationTime);
         this.pingManager = pingManager;
         originalSourceNetworknode = simulationRule.getSource();
         originalSimulRuleID = simulationRule.getUniqueID();
@@ -83,7 +82,7 @@ public class PingPacket extends Packet {
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return super.hashCode();
     }
 }
