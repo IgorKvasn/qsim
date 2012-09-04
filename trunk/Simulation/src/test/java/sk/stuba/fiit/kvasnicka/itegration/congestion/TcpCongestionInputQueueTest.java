@@ -27,6 +27,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.QueueingHelper;
@@ -140,14 +141,14 @@ public class TcpCongestionInputQueueTest {
     @Test
     public void testMoveFromRxToInputQueue_overflow() {
         //create packets
-        Packet p1 = new Packet(100, Layer4TypeEnum.TCP, packetManager, null, 10);
-        Packet p2 = new Packet(100, Layer4TypeEnum.TCP, packetManager, null, 30);
-        Packet p3 = new Packet(100, Layer4TypeEnum.TCP, packetManager, null, 330);//this creation time is important, because this is time when edge congestion happens
-        Packet p4 = new Packet(100, Layer4TypeEnum.TCP, packetManager, null, 350);
-        Packet p5 = new Packet(100, Layer4TypeEnum.TCP, packetManager, null, 850);//this creation time is important, because this is time when edge congestion happens
-        Packet p6 = new Packet(100, Layer4TypeEnum.TCP, packetManager, null, 890);
-        Packet p7 = new Packet(100, Layer4TypeEnum.TCP, packetManager, null, 900);
-        Packet p8 = new Packet(100, Layer4TypeEnum.TCP, packetManager, null, 950);
+        Packet p1 = new Packet(100, packetManager, null, 10);
+        Packet p2 = new Packet(100, packetManager, null, 30);
+        Packet p3 = new Packet(100, packetManager, null, 330);//this creation time is important, because this is time when edge congestion happens
+        Packet p4 = new Packet(100, packetManager, null, 350);
+        Packet p5 = new Packet(100, packetManager, null, 850);//this creation time is important, because this is time when edge congestion happens
+        Packet p6 = new Packet(100, packetManager, null, 890);
+        Packet p7 = new Packet(100, packetManager, null, 900);
+        Packet p8 = new Packet(100, packetManager, null, 950);
         initRoute(p1, p2, p3, p4, p5, p6, p7, p8);
 
         Fragment[] f1 = QueueingHelper.createFragments(p1, 20, node1, node2);
@@ -217,7 +218,7 @@ public class TcpCongestionInputQueueTest {
 
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node3, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node3, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2, node3));
 
         for (Packet p : packets) {
@@ -236,7 +237,7 @@ public class TcpCongestionInputQueueTest {
 
 
     private void initRoute2(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node3, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node3, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2, node3));
 
         for (Packet p : packets) {

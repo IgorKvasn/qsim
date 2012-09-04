@@ -95,7 +95,7 @@ public class PingManager implements PingPacketDeliveredListener {
         }
 
         //just switch source and destination nodes
-        SimulationRuleBean rule = new SimulationRuleBean(simulationRule.getName(), simulationRule.getDestination(), simulationRule.getSource(), simulationRule.getNumberOfPackets(), simulationRule.getPacketSize(), 0, simulationRule.getPacketTypeEnum(), simulationRule.getLayer4Type());
+        SimulationRuleBean rule = new SimulationRuleBean(simulationRule.getName(), simulationRule.getDestination(), simulationRule.getSource(), simulationRule.getNumberOfPackets(), simulationRule.getPacketSize(), 0, simulationRule.getPacketTypeEnum(), simulationRule.getLayer4Type(), simulationRule.getIpPrecedence());
         List<NetworkNode> newRoute = new LinkedList<NetworkNode>(simulationRule.getRoute());
         Collections.reverse(newRoute);//also switch route
         rule.setRoute(newRoute);

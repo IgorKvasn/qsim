@@ -365,7 +365,7 @@ public abstract class NetworkNode implements Serializable {
      */
     private void moveFromProcessingToOutputQueue(Packet packet) {
         //classify and mark packet first
-        packet.setQosQueue(qosMechanism.classifyAndMarkPacket(this, packet)); //todo toto ma bt este pred processingom, po prijati paketu, aby som zistil, ci to ma byt fast switching
+//        packet.setQosQueue(qosMechanism.classifyAndMarkPacket(this, packet)); //todo toto ma bt este pred processingom, po prijati paketu, aby som zistil, ci to ma byt fast switching
         //add as much packets (fragments) as possible to TX buffer - packet can be put into TX only if there is enough space for ALL its fragments
         int mtu = topologyManager.findEdge(getName(), packet.getNextHopNetworkNode(this).getName()).getMtu();
         try {
@@ -580,6 +580,10 @@ public abstract class NetworkNode implements Serializable {
             return;
         }
         if (packet != null) {//this was the last fragment to complete a whole packet - now I can place this packet into input queue
+
+            //mark and classify packet right after it was received
+            packet.setQosQueue(qosMechanism.classifyAndMarkPacket(this, packet));
+
             if (isProcessingAvailable()) {//packet can be processed
                 if (Layer4TypeEnum.TCP == packet.getLayer4()) {
                     nodeCongestedNot(packet);

@@ -23,6 +23,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
@@ -59,7 +60,7 @@ public class PingManagerTest {
 
     @Test
     public void testPingAdd() {
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.ICMP);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0);
         setWithoutSetter(SimulationRuleBean.class, rule, "route", Arrays.asList(node1, node2));
         pingManager.addPing(rule, 1);
 

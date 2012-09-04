@@ -27,6 +27,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogEvent;
@@ -96,7 +97,7 @@ public class PingTest {
     @Test
     public void testSinglePacketSimulation() throws NoSuchFieldException, IllegalAccessException {
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.ICMP);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         SimulationFacade simulationFacade = new SimulationFacade();
@@ -124,7 +125,7 @@ public class PingTest {
     @Test
     public void testSinglePacket_3Nodes() throws NoSuchFieldException, IllegalAccessException {
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node3, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.ICMP);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node3, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0);
         rule.setRoute(Arrays.asList(node1, node2, node3));
 
         SimulationFacade simulationFacade = new SimulationFacade();
@@ -155,7 +156,7 @@ public class PingTest {
      */
     @Test
     public void testSinglePacketSimulation_infinitePing() throws NoSuchFieldException, IllegalAccessException {
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, - 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.ICMP);    //notice this -1
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, - 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0);    //notice this -1
         rule.setRoute(Arrays.asList(node1, node2));
 
         SimulationFacade simulationFacade = new SimulationFacade();

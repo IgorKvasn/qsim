@@ -23,7 +23,6 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.PriorityQueuingScheduling;
@@ -57,9 +56,9 @@ public class PriorityQueuingSchedulingTest {
 
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
 
-        Packet p1 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p2 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p3 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
+        Packet p1 = new Packet(10, null, null, 0);
+        Packet p2 = new Packet(10, null, null, 0);
+        Packet p3 = new Packet(10, null, null, 0);
 
         List<List<Packet>> outputPackets = Arrays.asList(Arrays.asList(p1, p2, p3));
 
@@ -82,10 +81,10 @@ public class PriorityQueuingSchedulingTest {
 
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
 
-        Packet p1 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p2 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p3 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p4 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
+        Packet p1 = new Packet(10, null, null, 0);
+        Packet p2 = new Packet(10, null, null, 0);
+        Packet p3 = new Packet(10, null, null, 0);
+        Packet p4 = new Packet(10, null, null, 0);
 
         List<List<Packet>> outputPackets = Arrays.asList(Arrays.asList(p1, p2), Arrays.asList(p3, p4));
 
@@ -108,9 +107,9 @@ public class PriorityQueuingSchedulingTest {
 
         node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0);
 
-        Packet p1 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p2 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
-        Packet p3 = new Packet(10, Layer4TypeEnum.UDP, null, null, 0);
+        Packet p1 = new Packet(10, null, null, 0);
+        Packet p2 = new Packet(10, null, null, 0);
+        Packet p3 = new Packet(10, null, null, 0);
 
         List<List<Packet>> outputPackets = new LinkedList<List<Packet>>();
         try {

@@ -27,6 +27,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
@@ -135,11 +136,16 @@ public class TcpCongestionOutputQueueTest {
     @Test
     public void testMoveFromProcessingToOutputQueue_overflow() {
         //create packets
-        Packet p1 = new Packet(19000, Layer4TypeEnum.TCP, packetManager, null, 10);
-        Packet p2 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 30);
-        Packet p3 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 330);//this creation time is important, because this is time when edge congestion happens
-        Packet p4 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 350);
-        Packet p5 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 550);//this creation time is important, because this is time when edge congestion happens
+        Packet p1 = new Packet(19000, packetManager, null, 10);
+        p1.setQosQueue(0);
+        Packet p2 = new Packet(1001, packetManager, null, 30);
+        p2.setQosQueue(0);
+        Packet p3 = new Packet(1001, packetManager, null, 330);//this creation time is important, because this is time when edge congestion happens
+        p3.setQosQueue(0);
+        Packet p4 = new Packet(1001, packetManager, null, 350);
+        p4.setQosQueue(0);
+        Packet p5 = new Packet(1001, packetManager, null, 550);//this creation time is important, because this is time when edge congestion happens
+        p5.setQosQueue(0);
 
         initRoute(p1, p2, p3, p4, p5);
 
@@ -185,16 +191,27 @@ public class TcpCongestionOutputQueueTest {
     @Test
     public void testMoveFromProcessingToOutputQueue_congestion_and_recovery() {
         //create packets
-        Packet p1 = new Packet(19000, Layer4TypeEnum.TCP, packetManager, null, 10);
-        Packet p2 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 30);
-        Packet p3 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 330);//this creation time is important, because this is time when edge congestion happens
-        Packet p4 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 350);
-        Packet p5 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 550);//this creation time is important, because this is time when edge congestion happens
-        Packet p6 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 350);
-        Packet p7 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 350);
-        Packet p8 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 350);
-        Packet p9 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 350);
-        Packet p10 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 350);
+        Packet p1 = new Packet(19000, packetManager, null, 10);
+        Packet p2 = new Packet(1001, packetManager, null, 30);
+        Packet p3 = new Packet(1001, packetManager, null, 330);//this creation time is important, because this is time when edge congestion happens
+        Packet p4 = new Packet(1001, packetManager, null, 350);
+        Packet p5 = new Packet(1001, packetManager, null, 550);//this creation time is important, because this is time when edge congestion happens
+        Packet p6 = new Packet(1001, packetManager, null, 350);
+        Packet p7 = new Packet(1001, packetManager, null, 350);
+        Packet p8 = new Packet(1001, packetManager, null, 350);
+        Packet p9 = new Packet(1001, packetManager, null, 350);
+        Packet p10 = new Packet(1001, packetManager, null, 350);
+
+        p1.setQosQueue(0);
+        p2.setQosQueue(0);
+        p3.setQosQueue(0);
+        p4.setQosQueue(0);
+        p5.setQosQueue(0);
+        p6.setQosQueue(0);
+        p7.setQosQueue(0);
+        p8.setQosQueue(0);
+        p9.setQosQueue(0);
+        p10.setQosQueue(0);
 
 
         initRoute(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
@@ -270,17 +287,27 @@ public class TcpCongestionOutputQueueTest {
     @Test
     public void testMoveFromProcessingToOutputQueue_congestion_minimum() {
         //create packets
-        Packet p1 = new Packet(19000, Layer4TypeEnum.TCP, packetManager, null, 10);
-        Packet p2 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 30);
-        Packet p3 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 330);
-        Packet p4 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 350);
-        Packet p5 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 550);
-        Packet p6 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 350);
-        Packet p7 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 350);
-        Packet p8 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 350);
-        Packet p9 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 350);
-        Packet p10 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 750);
+        Packet p1 = new Packet(19000, packetManager, null, 10);
+        Packet p2 = new Packet(1001, packetManager, null, 30);
+        Packet p3 = new Packet(1001, packetManager, null, 330);
+        Packet p4 = new Packet(1001, packetManager, null, 350);
+        Packet p5 = new Packet(1001, packetManager, null, 550);
+        Packet p6 = new Packet(1001, packetManager, null, 350);
+        Packet p7 = new Packet(1001, packetManager, null, 350);
+        Packet p8 = new Packet(1001, packetManager, null, 350);
+        Packet p9 = new Packet(1001, packetManager, null, 350);
+        Packet p10 = new Packet(1001, packetManager, null, 750);
 
+        p1.setQosQueue(0);
+        p2.setQosQueue(0);
+        p3.setQosQueue(0);
+        p4.setQosQueue(0);
+        p5.setQosQueue(0);
+        p6.setQosQueue(0);
+        p7.setQosQueue(0);
+        p8.setQosQueue(0);
+        p9.setQosQueue(0);
+        p10.setQosQueue(0);
 
         initRoute(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
 
@@ -321,13 +348,21 @@ public class TcpCongestionOutputQueueTest {
     @Test
     public void testMoveFromProcessingToOutputQueue_overflow_two_rules() {
         //create packets
-        Packet p1 = new Packet(19000, Layer4TypeEnum.TCP, packetManager, null, 10);//this packet will fill up output queue
+        Packet p1 = new Packet(19000, packetManager, null, 10);//this packet will fill up output queue
 
-        Packet p2 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 10);
-        Packet p3 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 30);
-        Packet p4 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 330);//this creation time is important, because this is time when edge congestion happens
-        Packet p5 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 350);
-        Packet p6 = new Packet(1001, Layer4TypeEnum.TCP, packetManager, null, 580);//this creation time is important, because this is time when edge congestion happens
+        Packet p2 = new Packet(1001, packetManager, null, 10);
+        Packet p3 = new Packet(1001, packetManager, null, 30);
+        Packet p4 = new Packet(1001, packetManager, null, 330);//this creation time is important, because this is time when edge congestion happens
+        Packet p5 = new Packet(1001, packetManager, null, 350);
+        Packet p6 = new Packet(1001, packetManager, null, 580);//this creation time is important, because this is time when edge congestion happens
+
+        p1.setQosQueue(0);
+        p2.setQosQueue(0);
+        p3.setQosQueue(0);
+        p4.setQosQueue(0);
+        p5.setQosQueue(0);
+        p6.setQosQueue(0);
+
 
         initRoute(p1, p2, p3, p4);
         initRoute2(p5, p6);
@@ -370,7 +405,7 @@ public class TcpCongestionOutputQueueTest {
 
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node3, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node3, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2, node3));
 
         for (Packet p : packets) {
@@ -389,7 +424,7 @@ public class TcpCongestionOutputQueueTest {
 
 
     private void initRoute2(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node3, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node3, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2, node3));
 
         for (Packet p : packets) {

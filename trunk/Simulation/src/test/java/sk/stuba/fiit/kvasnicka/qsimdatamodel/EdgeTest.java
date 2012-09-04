@@ -30,6 +30,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.TxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.InputQueue;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
@@ -125,8 +126,8 @@ public class EdgeTest {
     @Test
     public void testMoveFragmentsToNetworkNode() throws NotEnoughBufferSpaceException {
         //prepare - add two packets on the edge
-        Packet p1 = new Packet(64, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(64, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(64, packetManager, null, 10);
+        Packet p2 = new Packet(64, packetManager, null, 30);
 
         initRoute(p1, p2);
 
@@ -159,9 +160,9 @@ public class EdgeTest {
     @Test
     public void testMoveFragmentsToNetworkNode_multifragment() throws NotEnoughBufferSpaceException {
         //prepare - add two packets on the edge
-        Packet p1 = new Packet(64, layer4, packetManager, null, 10);
-        Packet p2 = new Packet(64, layer4, packetManager, null, 30);
-        Packet p3 = new Packet(64, layer4, packetManager, null, 30);
+        Packet p1 = new Packet(64, packetManager, null, 10);
+        Packet p2 = new Packet(64, packetManager, null, 30);
+        Packet p3 = new Packet(64, packetManager, null, 30);
 
         initRoute(p1, p2, p3);
 
@@ -188,7 +189,7 @@ public class EdgeTest {
 
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 10, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 10, PacketTypeEnum.AUDIO_PACKET, layer4, IpPrecedence.IP_PRECEDENCE_0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {
