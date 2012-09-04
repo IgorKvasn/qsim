@@ -20,6 +20,7 @@ Algoritms to determine packet priority (and thus its output queue).
   * Best efford (no QoS)
   * IP precedence
   * classification according to Differentiated Services Code Point (DSCP)
+  * flow based classification 
 
 
 == Active queue management ==
