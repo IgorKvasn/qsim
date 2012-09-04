@@ -189,7 +189,7 @@ public class EdgeTest {
 
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 10, PacketTypeEnum.AUDIO_PACKET, layer4, IpPrecedence.IP_PRECEDENCE_0);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 10, PacketTypeEnum.AUDIO_PACKET, layer4, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {

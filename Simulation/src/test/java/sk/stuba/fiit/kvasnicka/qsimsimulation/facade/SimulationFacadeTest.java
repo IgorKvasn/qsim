@@ -61,15 +61,15 @@ public class SimulationFacadeTest {
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
 
-        SimulationRuleBean rule1 = new SimulationRuleBean("", node1, node2, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
+        SimulationRuleBean rule1 = new SimulationRuleBean("", node1, node2, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule1.setRoute(Arrays.asList(node1, node2));
         facade.addSimulationRule(rule1);
 
-        SimulationRuleBean rule2 = new SimulationRuleBean("", node1, node2, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
+        SimulationRuleBean rule2 = new SimulationRuleBean("", node1, node2, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule2.setRoute(Arrays.asList(node1, node2));
         facade.addSimulationRule(rule2);
 
-        SimulationRuleBean rule3 = new SimulationRuleBean("", node2, node1, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0);
+        SimulationRuleBean rule3 = new SimulationRuleBean("", node2, node1, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule3.setRoute(Arrays.asList(node2, node1));
         facade.addSimulationRule(rule3);
     }
