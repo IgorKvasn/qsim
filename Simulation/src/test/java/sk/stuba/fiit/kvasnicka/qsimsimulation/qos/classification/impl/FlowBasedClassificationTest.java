@@ -21,8 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
@@ -45,10 +43,7 @@ public class FlowBasedClassificationTest {
     @Before
     public void before() {
         classification = new FlowBasedClassification();
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-
-        node1 = new Router("node1", null, outputQueueManager1, 100, 10, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", null, 100, 10, 50, 10, 10, 100, 0, 0, null);
 
         packet = new Packet(14, null, null, 10);
         initRoute(packet);
@@ -58,10 +53,8 @@ public class FlowBasedClassificationTest {
     public void testClassifyAndMarkPacket() throws Exception {
 
         Packet packet1 = new Packet(14, null, null, 10);
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 100, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, 100, 10, 50, 10, 10, 100, 0, 0, null);
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, null, 1, 2);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
@@ -77,10 +70,8 @@ public class FlowBasedClassificationTest {
         }
 
         Packet packet2 = new Packet(14, null, null, 10);
-        OutputQueue q3 = new OutputQueue(50, "queue 2");
-        OutputQueueManager outputQueueManager3 = new OutputQueueManager(new OutputQueue[]{q3});
 
-        NetworkNode node3 = new Router("node3", null, outputQueueManager3, 100, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node3 = new Router("node3", null, 100, 10, 50, 10, 10, 100, 0, 0, null);
         SimulationRuleBean simulationRuleBean2 = new SimulationRuleBean("", node1, node3, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, null, 1, 2);
         simulationRuleBean2.setRoute(Arrays.asList(node1, node3));
 
@@ -131,12 +122,7 @@ public class FlowBasedClassificationTest {
     }
 
     private void initRoute(Packet... packets) {
-        NetworkNode node2;
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-
-
-        node2 = new Router("node2", null, outputQueueManager2, 100, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, 100, 10, 50, 10, 10, 100, 0, 0, null);
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, null, 10, 11);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 

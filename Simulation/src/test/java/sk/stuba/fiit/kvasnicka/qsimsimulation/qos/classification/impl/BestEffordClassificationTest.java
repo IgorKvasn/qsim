@@ -21,8 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
@@ -44,10 +42,7 @@ public class BestEffordClassificationTest {
     @Before
     public void before() {
         classification = new BestEffordClassification();
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-
-        node1 = new Router("node1", null, outputQueueManager1, 100, 10, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", null, 100, 10, 50, 10, 10, 100, 0, 0, null);
     }
 
     @Test
@@ -60,12 +55,7 @@ public class BestEffordClassificationTest {
     }
 
     private void initRoute(Packet... packets) {
-        NetworkNode node2;
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-
-
-        node2 = new Router("node2", null, outputQueueManager2, 100, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, 100, 10, 50, 10, 10, 100, 0, 0, null);
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 

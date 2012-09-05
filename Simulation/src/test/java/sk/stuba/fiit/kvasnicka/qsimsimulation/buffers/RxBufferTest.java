@@ -24,10 +24,8 @@ import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.RxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.InputQueue;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
@@ -45,7 +43,9 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -78,23 +78,21 @@ public class RxBufferTest {
         qosMechanism = EasyMock.createMock(QosMechanism.class);
 
 
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
-        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(List.class))).andAnswer(new IAnswer<List<Packet>>() {
+        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
             @Override
             public List<Packet> answer() throws Throwable {
-                return ((List<List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
+                if (((Map<Integer, List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0) == null) {
+                    return new LinkedList<Packet>();
+                }
+                return ((Map<Integer, List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
             }
         }).times(100);
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0, null);
-        node2 = new Router("node2", qosMechanism, outputQueueManager2, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", qosMechanism, MAX_TX_SIZE, 10, 50, 10, 10, 100, 0, 0, null);
+        node2 = new Router("node2", qosMechanism, MAX_TX_SIZE, 10, 50, 10, 10, 100, 0, 0, null);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -152,7 +150,7 @@ public class RxBufferTest {
         RxBuffer inputInterface = new RxBuffer(edge, 10);//I do not care about max RX size
         Packet p1 = new Packet(14, packetManager, null, 10); //3 fragments will be created
         Packet p2 = new Packet(16, packetManager, null, 10); //4 fragments will be created
-        initRoute(p1,p2);
+        initRoute(p1, p2);
 
 
         //test method

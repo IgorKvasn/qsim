@@ -26,7 +26,6 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
@@ -47,6 +46,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -69,27 +69,27 @@ public class PacketDeliveryListenerTest {
 
     @Before
     public void before() {
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        OutputQueue q3 = new OutputQueue(50, "queue 3");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-        OutputQueueManager outputQueueManager3 = new OutputQueueManager(new OutputQueue[]{q3});
+        OutputQueueManager outputQueueManager1 = new OutputQueueManager(50);
+        OutputQueueManager outputQueueManager2 = new OutputQueueManager(50);
+        OutputQueueManager outputQueueManager3 = new OutputQueueManager(50);
 
 
         qosMechanism = EasyMock.createMock(QosMechanism.class);
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
-        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(List.class))).andAnswer(new IAnswer<List<Packet>>() {
+        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
             @Override
             public List<Packet> answer() throws Throwable {
-                return ((List<List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
+                if (((Map<Integer, List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0) == null) {
+                    return new LinkedList<Packet>();
+                }
+                return ((Map<Integer, List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
             }
         }).times(100);
         EasyMock.replay(qosMechanism);
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
-        node2 = new Router("node2", qosMechanism, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
-        node3 = new Router("node3", qosMechanism, outputQueueManager3, 10, 10, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        node2 = new Router("node2", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        node3 = new Router("node3", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
 
@@ -149,7 +149,7 @@ public class PacketDeliveryListenerTest {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP,IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         TestListenerClass testListenerClass = new TestListenerClass();

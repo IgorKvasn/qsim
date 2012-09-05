@@ -26,7 +26,6 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
@@ -44,6 +43,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -69,24 +69,22 @@ public class SimulationLogUtilTest {
         listener = new ListenerClass();
         simulationLogUtils = new SimulationLogUtils();
 
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-
 
         qosMechanism = EasyMock.createMock(QosMechanism.class);
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
-        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(List.class))).andAnswer(new IAnswer<List<Packet>>() {
+        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
             @Override
             public List<Packet> answer() throws Throwable {
-                return ((List<List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
+                if (((Map<Integer, List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0) == null) {
+                    return new LinkedList<Packet>();
+                }
+                return ((Map<Integer, List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
             }
         }).times(100);
         EasyMock.replay(qosMechanism);
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
-        node2 = new Router("node2", qosMechanism, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        node2 = new Router("node2", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
 
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -135,20 +133,16 @@ public class SimulationLogUtilTest {
     @Test
     public void testMultipleSimulationLogs() {
 
-        OutputQueue q11 = new OutputQueue(50, "queue 11");
-        OutputQueue q12 = new OutputQueue(50, "queue 12");
-        OutputQueue q21 = new OutputQueue(50, "queue 21");
-        OutputQueue q22 = new OutputQueue(50, "queue 22");
-        OutputQueueManager outputQueueManager11 = new OutputQueueManager(new OutputQueue[]{q11});
-        OutputQueueManager outputQueueManager12 = new OutputQueueManager(new OutputQueue[]{q12});
-        OutputQueueManager outputQueueManager21 = new OutputQueueManager(new OutputQueue[]{q21});
-        OutputQueueManager outputQueueManager22 = new OutputQueueManager(new OutputQueue[]{q22});
+        OutputQueueManager outputQueueManager11 = new OutputQueueManager(50);
+        OutputQueueManager outputQueueManager12 = new OutputQueueManager(50);
+        OutputQueueManager outputQueueManager21 = new OutputQueueManager(50);
+        OutputQueueManager outputQueueManager22 = new OutputQueueManager(50);
 
 
-        NetworkNode node11 = new Router("node11", qosMechanism, outputQueueManager11, 10, 10, 10, 10, 100, 0, 0, null);
-        NetworkNode node12 = new Router("node12", qosMechanism, outputQueueManager12, 10, 10, 10, 10, 100, 0, 0, null);
-        NetworkNode node21 = new Router("node21", qosMechanism, outputQueueManager21, 10, 10, 10, 10, 100, 0, 0, null);
-        NetworkNode node22 = new Router("node22", qosMechanism, outputQueueManager22, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node11 = new Router("node11", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node12 = new Router("node12", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node21 = new Router("node21", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node22 = new Router("node22", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
 
 
         Edge edge1 = new Edge(100, 100, 2, 0, node11, node12);

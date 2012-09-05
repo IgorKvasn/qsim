@@ -25,8 +25,6 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Computer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.BestEffordClassification;
@@ -61,8 +59,7 @@ public class SerialisationTest implements Serializable {
 
     @Before
     public void before() {
-        OutputQueue q1 = new OutputQueue(10, "queue 1");
-        OutputQueue q11 = new OutputQueue(10, "queue 11");
+
 
         final ClassDefinition[] classDef = new ClassDefinition[2];
         classDef[0] = new ClassDefinition(0, 1);
@@ -77,13 +74,12 @@ public class SerialisationTest implements Serializable {
             put(RandomEarlyDetection.MAX_THRESHOLD, .8);
         }}));
 
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1, q11});
 
-        NetworkNode testNode1 = new Computer("comp", null, new OutputQueueManager(new OutputQueue[]{}), 10, 11, 12, 13, 14, 15, 16, null);
-        NetworkNode testNode2 = new Computer("comp2", null, new OutputQueueManager(new OutputQueue[]{}), 10, 11, 12, 13, 14, 15, 16, null);
+        NetworkNode testNode1 = new Computer("comp", null, 10, 11, 10, 12, 13, 14, 15, 16, null);
+        NetworkNode testNode2 = new Computer("comp2", null, 10, 11, 10, 12, 13, 14, 15, 16, null);
         edge = new Edge(100, 101, 102, 103, testNode1, testNode2);
 
-        node = new Router("node1", qosMechanism, outputQueueManager1, 10, 10, 1, 0, 100, 0, 0, null);
+        node = new Router("node1", qosMechanism, 10, 10, 10, 1, 0, 100, 0, 0, null);
 
         topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(testNode1, testNode2));
 

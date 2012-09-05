@@ -22,6 +22,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * can be applied only if there is only one queue
@@ -36,7 +37,7 @@ public class FifoScheduling extends PacketScheduling {
     }
 
     @Override
-    public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode node, List<List<Packet>> outputQueuePackets) {
+    public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode node, Map<Integer, List<Packet>> outputQueuePackets) {
         if (node == null) throw new IllegalArgumentException("node is NULL");
         if (outputQueuePackets == null) throw new IllegalArgumentException("outputQueuePackets is NULL");
 

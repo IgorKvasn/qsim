@@ -21,8 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
@@ -47,9 +45,6 @@ public class DscpClassificationTest {
     @Before
     public void before() {
         classification = new DscpClassification();
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-
 
         DscpDefinition[] dscpDefinitions = new DscpDefinition[]{
                 new DscpDefinition("destination('node2')", 1),
@@ -58,7 +53,7 @@ public class DscpClassificationTest {
 
         DscpManager dscpManager = new DscpManager(dscpDefinitions, 0);
 
-        node1 = new Router("node1", null, outputQueueManager1, 100, 10, 10, 10, 100, 0, 0, dscpManager);
+        node1 = new Router("node1", null, 100, 10, 50, 10, 10, 100, 0, 0, dscpManager);
         packet = new Packet(14, null, null, 10);
         initRoute(packet);
     }
@@ -72,9 +67,7 @@ public class DscpClassificationTest {
     @Test
     public void testClassifyAndMarkPacket_no_definition_satisfied() throws Exception {
 
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-        NetworkNode node2 = new Router("this is not node2", null, outputQueueManager2, 100, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("this is not node2", null, 100, 10, 50, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         Packet packet2 = new Packet(1, null, simulationRuleBean, 10);
@@ -84,9 +77,7 @@ public class DscpClassificationTest {
 
     private void initRoute(Packet... packets) {
 
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 100, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, 100, 10, 50, 10, 10, 100, 0, 0, null);
 
 
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);

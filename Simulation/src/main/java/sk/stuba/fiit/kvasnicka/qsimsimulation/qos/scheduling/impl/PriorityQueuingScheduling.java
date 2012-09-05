@@ -23,6 +23,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Igor Kvasnicka
@@ -32,7 +33,7 @@ public class PriorityQueuingScheduling extends PacketScheduling {
     private static final long serialVersionUID = 4229734531506100660L;
 
     @Override
-    public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, List<List<Packet>> outputQueuePackets) {
+    public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, Map<Integer, List<Packet>> outputQueuePackets) {
         if (outputQueuePackets == null) throw new IllegalArgumentException("outputQueuePackets is NULL");
 
         if (outputQueuePackets.isEmpty()) {//there are no output queues??? are you serious????

@@ -39,7 +39,10 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import static org.junit.Assert.assertEquals;
@@ -54,6 +57,7 @@ import static sk.stuba.fiit.kvasnicka.TestUtils.setWithoutSetter;
  *
  * @author Igor Kvasnicka
  */
+@SuppressWarnings("unchecked")
 public class TcpCongestionOutputQueueTest {
     PacketManager packetManager;
     SimulationTimer timer;
@@ -65,7 +69,6 @@ public class TcpCongestionOutputQueueTest {
     private final int MAX_TX_SIZE = 0;
     private final int MTU = 100;
     private static final int MAX_PROCESSING_PACKETS = 3;
-    private OutputQueueManager outputQueueManager1, outputQueueManager2, outputQueueManager3;
     private OutputQueue q2;
 
     @Before
@@ -75,38 +78,43 @@ public class TcpCongestionOutputQueueTest {
         qosMechanism = EasyMock.createMock(QosMechanism.class);
 
 
-        OutputQueue q1 = new OutputQueue(10, "queue 1");
-        OutputQueue q11 = new OutputQueue(10, "queue 11");
-        q2 = new OutputQueue(1, "queue 2");
-        OutputQueue q3 = new OutputQueue(10, "queue 3");
-
-        outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1, q11});
-        outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-        outputQueueManager3 = new OutputQueueManager(new OutputQueue[]{q3});
+        OutputQueueManager outputQueueManager1 = new OutputQueueManager(10);
+        OutputQueueManager outputQueueManager2 = new OutputQueueManager(1);
+        OutputQueueManager outputQueueManager3 = new OutputQueueManager(10);
 
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
-        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(List.class))).andAnswer(new IAnswer<List<Packet>>() {
+        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
             @Override
             public List<Packet> answer() throws Throwable {
-                return ((List<List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
+                if (((Map<Integer, List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0) == null) {
+                    return new LinkedList<Packet>();
+                }
+                return ((Map<Integer, List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
             }
         }).times(100);
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
 
 
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, MAX_TX_SIZE, 10, 10, MAX_PROCESSING_PACKETS, 100, 0, 0, null);
-        node2 = new Router("node2", qosMechanism, outputQueueManager2, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0, null);
-        node3 = new Router("node3", qosMechanism, outputQueueManager3, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", qosMechanism, MAX_TX_SIZE, 10, 10, 10, MAX_PROCESSING_PACKETS, 100, 0, 0, null);
+        node2 = new Router("node2", qosMechanism, MAX_TX_SIZE, 10, 1, 10, 10, 100, 0, 0, null);
+        node3 = new Router("node3", qosMechanism, MAX_TX_SIZE, 10, 10, 10, 10, 100, 0, 0, null);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
@@ -251,7 +259,10 @@ public class TcpCongestionOutputQueueTest {
         assertTrue(set.isEmpty());
 
         //----------- now increase edge speed by enlarging output queue and adding packets to it
-        setWithoutSetter(OutputQueue.class, q2, "maxCapacity", 100);
+        HashMap<Integer, OutputQueue> queues = (HashMap<Integer, OutputQueue>) getPropertyWithoutGetter(OutputQueueManager.class, node2.getOutputQueueManager(), "queues");
+        OutputQueue outputQueue_1 = queues.get(0);
+        setWithoutSetter(OutputQueue.class, outputQueue_1, "maxCapacity", 100);
+
         node2.addPacketToProcessing(p6);
         node2.movePacketsFromProcessingToOutputQueue(660);
 
@@ -409,7 +420,7 @@ public class TcpCongestionOutputQueueTest {
         simulationRuleBean.setRoute(Arrays.asList(node1, node2, node3));
 
         for (Packet p : packets) {
-            Field f = null;
+            Field f;
             try {
                 f = Packet.class.getDeclaredField("simulationRule");
                 f.setAccessible(true);
@@ -428,7 +439,7 @@ public class TcpCongestionOutputQueueTest {
         simulationRuleBean.setRoute(Arrays.asList(node1, node2, node3));
 
         for (Packet p : packets) {
-            Field f = null;
+            Field f;
             try {
                 f = Packet.class.getDeclaredField("simulationRule");
                 f.setAccessible(true);

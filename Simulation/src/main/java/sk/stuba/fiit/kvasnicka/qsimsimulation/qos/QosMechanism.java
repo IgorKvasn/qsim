@@ -26,6 +26,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * here all the QoS stuff happens
@@ -71,7 +72,7 @@ public class QosMechanism implements Serializable {
      * @param outputQueuePackets all packets in all output queues (it does not matter what priority ar what queue are they in)
      * @return list of packets to send
      */
-    public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, List<List<Packet>> outputQueuePackets) {
+    public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, Map<Integer, List<Packet>> outputQueuePackets) {
         if (packetScheduling == null) throw new IllegalStateException("packetScheduling is NULL");
         return packetScheduling.decitePacketsToMoveFromOutputQueue(networkNode, outputQueuePackets);
     }
@@ -82,10 +83,11 @@ public class QosMechanism implements Serializable {
      *
      * @param queue     single output queue
      * @param newPacket packet to be added
+     * @return true if packet can be added into queue; false if it should be dropped
      */
-    public void performActiveQueueManagement(List<Packet> queue, Packet newPacket) {
+    public boolean performActiveQueueManagement(List<Packet> queue, Packet newPacket) {
         if (activeQueueManagement == null) throw new IllegalStateException("activeQueueManagement is NULL");
         if (newPacket == null) throw new IllegalStateException("newPacket is NULL");
-        activeQueueManagement.manageQueue(queue, newPacket);
+        return activeQueueManagement.manageQueue(queue, newPacket);
     }
 }

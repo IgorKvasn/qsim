@@ -43,8 +43,8 @@ public abstract class PacketScheduling implements Serializable {
      * note that this method DOES NOT remove packets from output queue
      *
      * @param networkNode
-     * @param outputQueuePackets
+     * @param outputQueuePackets map of packets in output queues; key = output queue number; value = list of packets
      * @return
      */
-    public abstract List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, List<List<Packet>> outputQueuePackets);
+    public abstract List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, Map<Integer, List<Packet>> outputQueuePackets);
 }

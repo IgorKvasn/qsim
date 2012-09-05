@@ -22,14 +22,14 @@ import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.TestUtils;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedFairQueuingScheduling;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -87,20 +87,20 @@ public class WeightedFairQueuingSchedulingTest {
      * for one queue it has got no effect
      */
     public void testDecitePacketsToMoveFromOutputQueue_one_queue() {
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         QosMechanism qosMechanism = new QosMechanism(null, null, null);
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0, null);
 
-        Packet p1 = new Packet(10, null, null, 0);
+        final Packet p1 = new Packet(10, null, null, 0);
         p1.setQosQueue(0);
-        Packet p2 = new Packet(16, null, null, 0);
+        final Packet p2 = new Packet(16, null, null, 0);
         p2.setQosQueue(0);
-        Packet p3 = new Packet(12, null, null, 0);
+        final Packet p3 = new Packet(12, null, null, 0);
         p3.setQosQueue(0);
 
-        List<List<Packet>> outputPackets = Arrays.asList(Arrays.asList(p1, p2, p3));
+        Map<Integer, List<Packet>> outputPackets = new HashMap<Integer, List<Packet>>() {{
+            put(0, Arrays.asList(p1, p2, p3));
+        }};
 
         List<Packet> packetList = weightedFairQueuingScheduling.decitePacketsToMoveFromOutputQueue(node1, outputPackets);
 
@@ -114,26 +114,27 @@ public class WeightedFairQueuingSchedulingTest {
 
     @Test
     public void testDecitePacketsToMoveFromOutputQueue_multiple_queues() {
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         QosMechanism qosMechanism = new QosMechanism(null, null, null);
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0, null);
 
-        Packet p1 = new Packet(10, null, null, 0);
+        final Packet p1 = new Packet(10, null, null, 0);
         p1.setQosQueue(0);
-        Packet p2 = new Packet(16, null, null, 0);
+        final Packet p2 = new Packet(16, null, null, 0);
         p2.setQosQueue(0);
-        Packet p3 = new Packet(12, null, null, 0);
+        final Packet p3 = new Packet(12, null, null, 0);
         p3.setQosQueue(0);
 
-        Packet p4 = new Packet(8, null, null, 0);
+        final Packet p4 = new Packet(8, null, null, 0);
         p4.setQosQueue(1);
-        Packet p5 = new Packet(15, null, null, 0);
+        final Packet p5 = new Packet(15, null, null, 0);
         p5.setQosQueue(1);
 
 
-        List<List<Packet>> outputPackets = Arrays.asList(Arrays.asList(p1, p2, p3), Arrays.asList(p4, p5));
+        Map<Integer, List<Packet>> outputPackets = new HashMap<Integer, List<Packet>>() {{
+            put(0, Arrays.asList(p1, p2, p3));
+            put(1, Arrays.asList(p4, p5));
+        }};
 
         List<Packet> packetList = weightedFairQueuingScheduling.decitePacketsToMoveFromOutputQueue(node1, outputPackets);
 
