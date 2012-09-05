@@ -23,6 +23,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Fair-Queuing
@@ -34,7 +35,7 @@ public class RoundRobinScheduling extends PacketScheduling {
     private transient int currentQueue = 0;
 
     @Override
-    public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, List<List<Packet>> outputQueuePackets) {
+    public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, Map<Integer, List<Packet>> outputQueuePackets) {
         if (outputQueuePackets == null) throw new IllegalArgumentException("outputQueuePackets is NULL");
 
         if (outputQueuePackets.isEmpty()) {//there are no output queues??? are you serious????

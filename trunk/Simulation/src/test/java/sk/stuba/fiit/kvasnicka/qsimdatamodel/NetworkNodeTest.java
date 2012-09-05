@@ -59,8 +59,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -87,7 +89,6 @@ public class NetworkNodeTest {
     private final int MAX_OUTPUT_QUEUE_SIZE = 10;
     private static final int MAX_PROCESSING_PACKETS = 3;
     private final Layer4TypeEnum layer4 = Layer4TypeEnum.UDP;
-    private OutputQueueManager outputQueueManager1, outputQueueManager2;
 
     @Before
     public void before() {
@@ -96,27 +97,27 @@ public class NetworkNodeTest {
         qosMechanism = EasyMock.createMock(QosMechanism.class);
 
 
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueue q11 = new OutputQueue(1, "queue 11");
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1, q11});
-        outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
-        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(List.class))).andAnswer(new IAnswer<List<Packet>>() {
+        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
             @Override
             public List<Packet> answer() throws Throwable {
-                return ((List<List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
+                if (((Map<Integer, List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0) == null) {
+                    return new LinkedList<Packet>();
+                }
+
+                return ((Map<Integer, List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
             }
         }).times(100);
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
 
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, MAX_TX_SIZE, 10, 10, MAX_PROCESSING_PACKETS, 100, 0, 0, null);
-        node2 = new Router("node2", qosMechanism, outputQueueManager2, MAX_TX_SIZE, 10, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", qosMechanism, MAX_TX_SIZE, 10, 50, 10, MAX_PROCESSING_PACKETS, 100, 0, 0, null);
+        node2 = new Router("node2", qosMechanism, MAX_TX_SIZE, 10, 50, 10, 10, 100, 0, 0, null);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -127,10 +128,6 @@ public class NetworkNodeTest {
         topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(node1, node2));
         node1.setTopologyManager(topologyManager);
         node2.setTopologyManager(topologyManager);
-
-
-//        node1.setRoute("node2", "node2");
-//        node2.setRoute("node1", "node1");
 
         timer = EasyMock.createMock(SimulationTimer.class);
         EasyMock.expect(timer.getTopologyManager()).andReturn(topologyManager).times(100);
@@ -214,16 +211,9 @@ public class NetworkNodeTest {
      */
     @Test
     public void testAddToTxBuffer_overflow() throws Exception {
-
         //redefine nodes, to make maxTxSize smaller number
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueue q11 = new OutputQueue(1, "queue 11");
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1, q11});
-        outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 3, 10, 10, 10, 100, 0, 0, null);
-        node2 = new Router("node2", qosMechanism, outputQueueManager2, 0, 10, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", qosMechanism, 3, 10, 50, 10, 10, 100, 0, 0, null);
+        node2 = new Router("node2", qosMechanism, 0, 10, 50, 10, 10, 100, 0, 0, null);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -254,6 +244,7 @@ public class NetworkNodeTest {
         assertNotNull(node1.getTxInterfaces());
         assertNotNull(node1.getTxInterfaces().get(node2));
         assertEquals(2, node1.getTxInterfaces().get(node2).getFragmentsCount()); //there should be no packets on the wire yet
+        assertEquals(0, edge.getFragments().size());
     }
 
     /**
@@ -537,7 +528,7 @@ public class NetworkNodeTest {
         Packet p1 = new Packet(10, packetManager, null, 10);
         Packet p2 = new Packet(10, packetManager, null, 30);
 
-        InputQueue inputQueueSetter = new InputQueue(100);
+        InputQueue inputQueueSetter = new InputQueue(100, node1);
 
         List<Packet> list = new LinkedList<Packet>(Arrays.asList(p1, p2));
 
@@ -575,7 +566,7 @@ public class NetworkNodeTest {
 
         List<Packet> list = new LinkedList<Packet>(Arrays.asList(p1, p2, p3, p4, p5));
 
-        InputQueue inputQueueSetter = new InputQueue(100);
+        InputQueue inputQueueSetter = new InputQueue(100, node1);
 
         Field f = InputQueue.class.getDeclaredField("inputQueue");
         f.setAccessible(true);
@@ -639,11 +630,20 @@ public class NetworkNodeTest {
         privateStringMethod.setAccessible(true);
         privateStringMethod.invoke(node1, p1);
         privateStringMethod.invoke(node1, p2);
+
+        //now both queues should be created, so I will change max queue size in queue number 1 (where next packet will be added)
+        node1.getOutputQueueManager().getQueues().toArray();
+
+        HashMap<Integer, OutputQueue> queues = (HashMap<Integer, OutputQueue>) getPropertyWithoutGetter(OutputQueueManager.class, node1.getOutputQueueManager(), "queues");
+        OutputQueue outputQueue_1 = queues.get(1);
+        setWithoutSetter(OutputQueue.class, outputQueue_1, "maxCapacity", 1);
+
+        //now add another packet - it should be dropped
         try {
             privateStringMethod.invoke(node1, p3);
             fail("buffer NotEnoughBufferSpaceException should be thrown");
         } catch (InvocationTargetException e) {
-            //seems ok
+            //seems ok, so far
             if (e.getCause() instanceof NotEnoughBufferSpaceException) {
                 //ok
             } else {
@@ -705,16 +705,9 @@ public class NetworkNodeTest {
      */
     @Test
     public void testAddToRxBuffer_overflow_fragments_remove() throws Exception {
-
         //redefine nodes, to make maxTxSize smaller number
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueue q11 = new OutputQueue(1, "queue 11");
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1, q11});
-        outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 3, 1, 10, 10, 100, 0, 0, null);
-        node2 = new Router("node2", qosMechanism, outputQueueManager2, 0, 3, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", qosMechanism, 3, 1, 50, 10, 10, 100, 0, 0, null);
+        node2 = new Router("node2", qosMechanism, 0, 3, 50, 10, 10, 100, 0, 0, null);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -763,15 +756,8 @@ public class NetworkNodeTest {
     @Test
     public void testAddToRxBuffer_overflow_fragments_remove_last_fragment_dropped() throws Exception {
 
-        //redefine nodes, to make maxTxSize smaller number
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueue q11 = new OutputQueue(1, "queue 11");
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1, q11});
-        outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 3, 300, 10, 10, 100, 0, 0, null);
-        node2 = new Router("node2", qosMechanism, outputQueueManager2, 0, 300, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", qosMechanism, 3, 300, 50, 10, 10, 100, 0, 0, null);
+        node2 = new Router("node2", qosMechanism, 0, 300, 50, 10, 10, 100, 0, 0, null);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);

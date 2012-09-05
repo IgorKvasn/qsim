@@ -21,8 +21,10 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * to put all the theory in one sentence: smaller packets has got higher priority
@@ -35,7 +37,7 @@ public class WeightedFairQueuingScheduling extends PacketScheduling {
     private static final long serialVersionUID = - 6069973570631001883L;
 
     @Override
-    public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, List<List<Packet>> outputQueuePackets) {
+    public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, Map<Integer, List<Packet>> outputQueuePackets) {
         if (outputQueuePackets == null) throw new IllegalArgumentException("outputQueuePackets is NULL");
 
         if (outputQueuePackets.isEmpty()) {//there are no output queues??? are you serious????
@@ -43,11 +45,11 @@ public class WeightedFairQueuingScheduling extends PacketScheduling {
         }
 
         List<Packet> result = new LinkedList<Packet>();
-        List<List<Packet>> outputQueuePacketsCopy = outputQueueMakeCopy(outputQueuePackets);
+        Map<Integer, List<Packet>> outputQueuePacketsCopy = outputQueueMakeCopy(outputQueuePackets);
         List<Packet> firstPackets = new LinkedList<Packet>();//here are first packet from all queues
 
         for (; ; ) {
-            for (List<Packet> queue : outputQueuePacketsCopy) {
+            for (List<Packet> queue : outputQueuePacketsCopy.values()) {
                 if (queue.isEmpty()) {//no more packets in this queue
                     continue;
                 }
@@ -73,7 +75,7 @@ public class WeightedFairQueuingScheduling extends PacketScheduling {
      * @param toSchedule
      * @param outputQueue
      */
-    private void removePackets(List<Packet> toSchedule, List<List<Packet>> outputQueue) {
+    private void removePackets(List<Packet> toSchedule, Map<Integer, List<Packet>> outputQueue) {
         for (Packet p : toSchedule) {
             if (p.getQosQueue() == - 1) {
                 throw new IllegalStateException("packet has not been marked - how is this possible????");
@@ -110,12 +112,18 @@ public class WeightedFairQueuingScheduling extends PacketScheduling {
         return smallest;
     }
 
-    private List<List<Packet>> outputQueueMakeCopy(List<List<Packet>> outputQueuePackets) {
-        List<List<Packet>> result = new LinkedList<List<Packet>>();
-        for (List<Packet> q : outputQueuePackets) {
+    /**
+     * copies output queues to new List so that I can remove packets from it
+     *
+     * @param outputQueuePackets
+     * @return
+     */
+    private Map<Integer, List<Packet>> outputQueueMakeCopy(Map<Integer, List<Packet>> outputQueuePackets) {
+        Map<Integer, List<Packet>> result = new HashMap<Integer, List<Packet>>();
+        for (Map.Entry<Integer, List<Packet>> q : outputQueuePackets.entrySet()) {
             List<Packet> list = new LinkedList<Packet>();
-            list.addAll(q);
-            result.add(list);
+            list.addAll(q.getValue());
+            result.put(q.getKey(), list);
         }
         return result;
     }

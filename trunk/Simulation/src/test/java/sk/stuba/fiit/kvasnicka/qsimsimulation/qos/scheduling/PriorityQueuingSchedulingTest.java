@@ -21,15 +21,14 @@ import org.junit.Before;
 import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.PriorityQueuingScheduling;
 
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -50,17 +49,17 @@ public class PriorityQueuingSchedulingTest {
 
     @Test
     public void testDecitePacketsToMoveFromOutputQueue_one_queue() {
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         QosMechanism qosMechanism = new QosMechanism(null, null, null);
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0, null);
 
-        Packet p1 = new Packet(10, null, null, 0);
-        Packet p2 = new Packet(10, null, null, 0);
-        Packet p3 = new Packet(10, null, null, 0);
+        final Packet p1 = new Packet(10, null, null, 0);
+        final Packet p2 = new Packet(10, null, null, 0);
+        final Packet p3 = new Packet(10, null, null, 0);
 
-        List<List<Packet>> outputPackets = Arrays.asList(Arrays.asList(p1, p2, p3));
+        Map<Integer, List<Packet>> outputPackets = new HashMap<Integer, List<Packet>>() {{
+            put(0, Arrays.asList(p1, p2, p3));
+        }};
 
         List<Packet> packetList = roundRobinScheduling.decitePacketsToMoveFromOutputQueue(node1, outputPackets);
 
@@ -75,18 +74,19 @@ public class PriorityQueuingSchedulingTest {
 
     @Test
     public void testDecitePacketsToMoveFromOutputQueue_multiple_queues() {
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         QosMechanism qosMechanism = new QosMechanism(null, null, null);
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0, null);
 
-        Packet p1 = new Packet(10, null, null, 0);
-        Packet p2 = new Packet(10, null, null, 0);
-        Packet p3 = new Packet(10, null, null, 0);
-        Packet p4 = new Packet(10, null, null, 0);
+        final Packet p1 = new Packet(10, null, null, 0);
+        final Packet p2 = new Packet(10, null, null, 0);
+        final Packet p3 = new Packet(10, null, null, 0);
+        final Packet p4 = new Packet(10, null, null, 0);
 
-        List<List<Packet>> outputPackets = Arrays.asList(Arrays.asList(p1, p2), Arrays.asList(p3, p4));
+        Map<Integer, List<Packet>> outputPackets = new HashMap<Integer, List<Packet>>() {{
+            put(0, Arrays.asList(p1, p2));
+            put(1, Arrays.asList(p3, p4));
+        }};
 
         List<Packet> packetList = roundRobinScheduling.decitePacketsToMoveFromOutputQueue(node1, outputPackets);
 
@@ -101,17 +101,15 @@ public class PriorityQueuingSchedulingTest {
 
     @Test
     public void testDecitePacketsToMoveFromOutputQueue_no_queues() {
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         QosMechanism qosMechanism = new QosMechanism(null, null, null);
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0, null);
 
         Packet p1 = new Packet(10, null, null, 0);
         Packet p2 = new Packet(10, null, null, 0);
         Packet p3 = new Packet(10, null, null, 0);
 
-        List<List<Packet>> outputPackets = new LinkedList<List<Packet>>();
+        Map<Integer, List<Packet>> outputPackets = new HashMap<Integer, List<Packet>>();
         try {
             List<Packet> packetList = roundRobinScheduling.decitePacketsToMoveFromOutputQueue(node1, outputPackets);
             fail("exception should be thrown");

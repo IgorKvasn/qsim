@@ -20,8 +20,6 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils;
 import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
@@ -41,13 +39,9 @@ public class ClassificationUtilTest {
     @Test
     public void testIsClassificationRuleApplied_destination_IN_list() throws ClassificationException {
 
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node1 = new Router("node1", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -63,13 +57,9 @@ public class ClassificationUtilTest {
 
     @Test
     public void testIsClassificationRuleApplied_destination_single() throws ClassificationException {
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
 
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node1 = new Router("node1", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -86,13 +76,8 @@ public class ClassificationUtilTest {
     @Test
     public void testIsClassificationRuleApplied_destination_negation() throws ClassificationException {
 
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node1 = new Router("node1", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -112,13 +97,8 @@ public class ClassificationUtilTest {
     @Test
     public void testIsClassificationRuleApplied_source_IN_list() throws ClassificationException {
 
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node1 = new Router("node1", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -135,13 +115,8 @@ public class ClassificationUtilTest {
     @Test
     public void testIsClassificationRuleApplied_source_single() throws ClassificationException {
 
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node1 = new Router("node1", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -157,14 +132,8 @@ public class ClassificationUtilTest {
 
     @Test
     public void testIsClassificationRuleApplied_source_negation() throws ClassificationException {
-
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node1 = new Router("node1", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -184,13 +153,8 @@ public class ClassificationUtilTest {
     @Test
     public void testIsClassificationRuleApplied_packet_size() throws ClassificationException {
 
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node1 = new Router("node1", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -207,13 +171,8 @@ public class ClassificationUtilTest {
     @Test
     public void testIsClassificationRuleApplied_packet_size_compare() throws ClassificationException {
 
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node1 = new Router("node1", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -230,13 +189,8 @@ public class ClassificationUtilTest {
     @Test
     public void testIsClassificationRuleApplied_multiple_conditions() throws ClassificationException {
 
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueue q2 = new OutputQueue(50, "queue 2");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-
-        NetworkNode node1 = new Router("node1", null, outputQueueManager1, 10, 10, 10, 10, 100, 0, 0, null);
-        NetworkNode node2 = new Router("node2", null, outputQueueManager2, 10, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node1 = new Router("node1", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));

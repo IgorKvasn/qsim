@@ -20,8 +20,6 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling;
 import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
@@ -35,6 +33,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -68,29 +67,31 @@ public class ClassBasedWFQSchedulingTest {
         });
 
 
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         QosMechanism qosMechanism = new QosMechanism(null, null, null);
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0, null);
 
 
-        Packet p1 = new Packet(10, null, null, 0);
+        final Packet p1 = new Packet(10, null, null, 0);
         p1.setQosQueue(0);
-        Packet p2 = new Packet(10, null, null, 0);
+        final Packet p2 = new Packet(10, null, null, 0);
         p2.setQosQueue(0);
-        Packet p3 = new Packet(10, null, null, 0);
+        final Packet p3 = new Packet(10, null, null, 0);
         p3.setQosQueue(1);
-        Packet p4 = new Packet(10, null, null, 0);
+        final Packet p4 = new Packet(10, null, null, 0);
         p4.setQosQueue(1);
-        Packet p5 = new Packet(10, null, null, 0);
+        final Packet p5 = new Packet(10, null, null, 0);
         p5.setQosQueue(2);
-        Packet p6 = new Packet(10, null, null, 0);
+        final Packet p6 = new Packet(10, null, null, 0);
         p6.setQosQueue(2);
 
         initRoute(p1, p2, p3, p4, p5, p6);
 
-        List<List<Packet>> outputPackets = Arrays.asList(Arrays.asList(p1, p2), Arrays.asList(p3, p4), Arrays.asList(p5, p6)); //3 queues
+        Map<Integer, List<Packet>> outputPackets = new HashMap<Integer, List<Packet>>() {{
+            put(0, Arrays.asList(p1, p2));
+            put(1, Arrays.asList(p3, p4));
+            put(2, Arrays.asList(p5, p6));
+        }};
 
         List<Packet> packetList = classBasedWFQScheduling.decitePacketsToMoveFromOutputQueue(node1, outputPackets);
 
@@ -107,10 +108,8 @@ public class ClassBasedWFQSchedulingTest {
     }
 
     private void initRoute(Packet... packets) {
-        OutputQueue q1 = new OutputQueue(50, "queue 1");
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1});
         QosMechanism qosMechanism = new QosMechanism(null, null, null);
-        NetworkNode node2 = new Router("node1", qosMechanism, outputQueueManager1, 200, 10, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node1", qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0, null);
 
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));

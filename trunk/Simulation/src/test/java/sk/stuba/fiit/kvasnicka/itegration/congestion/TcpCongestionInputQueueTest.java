@@ -41,7 +41,9 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import static org.junit.Assert.assertEquals;
@@ -78,40 +80,45 @@ public class TcpCongestionInputQueueTest {
         qosMechanism = EasyMock.createMock(QosMechanism.class);
 
 
-        OutputQueue q1 = new OutputQueue(10, "queue 1");
-        OutputQueue q11 = new OutputQueue(10, "queue 11");
-        q2 = new OutputQueue(1, "queue 2");
-        OutputQueue q3 = new OutputQueue(10, "queue 3");
-
-        outputQueueManager1 = new OutputQueueManager(new OutputQueue[]{q1, q11});
-        outputQueueManager2 = new OutputQueueManager(new OutputQueue[]{q2});
-        outputQueueManager3 = new OutputQueueManager(new OutputQueue[]{q3});
+        outputQueueManager1 = new OutputQueueManager(10);
+        outputQueueManager2 = new OutputQueueManager(10);
+        outputQueueManager3 = new OutputQueueManager(10);
 
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
-        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(List.class))).andAnswer(new IAnswer<List<Packet>>() {
+        EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
             @Override
             public List<Packet> answer() throws Throwable {
-                return ((List<List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
+                if (((Map<Integer, List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0) == null) {
+                    return new LinkedList<Packet>();
+                }
+                return ((Map<Integer, List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
             }
         }).times(100);
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
-        qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class));
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
+
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true);
 
 
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, outputQueueManager1, MAX_TX_SIZE, 10, 1, 0, 100, 0, 0, null);//notice, that 0 packets should be in processing - all will be placed into input queue
-        node2 = new Router("node2", qosMechanism, outputQueueManager2, MAX_TX_SIZE, 10, 1, 0, 100, 0, 0, null);
-        node3 = new Router("node3", qosMechanism, outputQueueManager3, MAX_TX_SIZE, 10, 1, 0, 100, 0, 0, null);
+        node1 = new Router("node1", qosMechanism, MAX_TX_SIZE, 10, 10, 1, 0, 100, 0, 0, null);//notice, that 0 packets should be in processing - all will be placed into input queue
+        node2 = new Router("node2", qosMechanism, MAX_TX_SIZE, 10, 10, 1, 0, 100, 0, 0, null);
+        node3 = new Router("node3", qosMechanism, MAX_TX_SIZE, 10, 10, 1, 0, 100, 0, 0, null);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);

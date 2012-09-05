@@ -24,6 +24,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ParameterException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.QosUtils;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +54,7 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
 
 
     @Override
-    public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, List<List<Packet>> outputQueuePackets) {
+    public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, Map<Integer, List<Packet>> outputQueuePackets) {
         ClassDefinition[] classDefinitions = (ClassDefinition[]) parameters.get(CLASS_DEFINITIONS);
 
         unprocessedPacketsInClass = new int[classDefinitions.length];
@@ -78,7 +79,7 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
             unprocessedPacketsInClass[i] = Integer.MAX_VALUE;//it is difficult and useless to calculate unprocessed packets - this will guarantee, that at least one round robin will be done
         }
 
-        List<List<Packet>> outputQueuePacketsCopy = outputQueueMakeCopy(outputQueuePackets);
+        Map<Integer, List<Packet>> outputQueuePacketsCopy = outputQueueMakeCopy(outputQueuePackets);
 
 
         List<Packet> packets = new LinkedList<Packet>();
@@ -119,7 +120,7 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
      * @param allQueues
      * @return
      */
-    private List<List<Packet>> extractQosClass(ClassDefinition classDefinition, List<List<Packet>> allQueues) {
+    private List<List<Packet>> extractQosClass(ClassDefinition classDefinition, Map<Integer, List<Packet>> allQueues) {
         List<List<Packet>> result = new LinkedList<List<Packet>>();
         for (int queue : classDefinition.getQueueNumbers()) {
             result.add(allQueues.get(queue));
@@ -133,9 +134,9 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
      * @param outputQueues
      * @return
      */
-    private int calculateAllPacketsSize(List<List<Packet>> outputQueues) {
+    private int calculateAllPacketsSize(Map<Integer, List<Packet>> outputQueues) {
         int size = 0;
-        for (List<Packet> queue : outputQueues) {
+        for (List<Packet> queue : outputQueues.values()) {
             for (Packet p : queue) {
                 size += p.getPacketSize();
             }
@@ -149,12 +150,12 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
      * @param outputQueuePackets
      * @return
      */
-    private List<List<Packet>> outputQueueMakeCopy(List<List<Packet>> outputQueuePackets) {
-        List<List<Packet>> result = new LinkedList<List<Packet>>();
-        for (List<Packet> q : outputQueuePackets) {
+    private Map<Integer, List<Packet>> outputQueueMakeCopy(Map<Integer, List<Packet>> outputQueuePackets) {
+        Map<Integer, List<Packet>> result = new HashMap<Integer, List<Packet>>();
+        for (Map.Entry<Integer, List<Packet>> q : outputQueuePackets.entrySet()) {
             List<Packet> list = new LinkedList<Packet>();
-            list.addAll(q);
-            result.add(list);
+            list.addAll(q.getValue());
+            result.put(q.getKey(), list);
         }
         return result;
     }
