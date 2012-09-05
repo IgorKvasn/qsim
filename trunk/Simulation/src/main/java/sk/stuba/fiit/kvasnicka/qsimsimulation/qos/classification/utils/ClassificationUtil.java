@@ -22,7 +22,7 @@ import org.josql.Query;
 import org.josql.QueryExecutionException;
 import org.josql.QueryParseException;
 import org.josql.QueryResults;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.PacketDscpClassificationInterf;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.josql.MyFunctionHandler;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.josql.NegativeMyFunctionHandler;
 
@@ -35,7 +35,7 @@ public abstract class ClassificationUtil {
 
     private static Logger logg = Logger.getLogger(ClassificationUtil.class);
     private static Query q = new Query();
-    public static final String JO_SQL_PREFIX = "SELECT * FROM sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet WHERE ";
+    public static final String JO_SQL_PREFIX = "SELECT * FROM sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.PacketDscpClassificationInterf WHERE ";
 
     static {
         q.addFunctionHandler(new MyFunctionHandler());
@@ -50,7 +50,7 @@ public abstract class ClassificationUtil {
      * @param packet packet to be classified
      * @return true/false
      */
-    public static boolean isClassificationRuleApplied(String rule, Packet packet) throws ClassificationException {
+    public static boolean isClassificationRuleApplied(String rule, PacketDscpClassificationInterf packet) throws ClassificationException {
         String josqlRule = JO_SQL_PREFIX + rule;
 
         try {

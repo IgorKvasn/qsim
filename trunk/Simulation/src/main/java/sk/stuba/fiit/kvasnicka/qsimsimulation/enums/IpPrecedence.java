@@ -36,7 +36,7 @@ public enum IpPrecedence {
         this.ipPrecedence = ipPrecedence;
     }
 
-    public int getIpPrecedence() {
+    public int getIntRepresentation() {
         return ipPrecedence;
     }
 }

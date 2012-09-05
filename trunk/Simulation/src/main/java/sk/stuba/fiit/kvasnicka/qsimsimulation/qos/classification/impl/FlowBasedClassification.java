@@ -72,11 +72,11 @@ public class FlowBasedClassification implements PacketClassificationInterf {
         return queue;
     }
 
-    private static class Flow {
-        int srcPort;
-        int destPort;
-        NetworkNode srcNode;
-        NetworkNode destNode;
+    private static final class Flow {
+        private int srcPort;
+        private int destPort;
+        private NetworkNode srcNode;
+        private NetworkNode destNode;
 
         private Flow(SimulationRuleBean rule) {
             this.srcPort = rule.getSrcPort();
