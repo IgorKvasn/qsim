@@ -26,6 +26,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.RoutingException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.PacketDscpClassificationInterf;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 /**
@@ -33,7 +34,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
  */
 @Getter
 @EqualsAndHashCode
-public class Packet {
+public class Packet implements PacketDscpClassificationInterf {
 
     private int packetSize;
 
@@ -109,12 +110,24 @@ public class Packet {
         return simulationRule.getPacketTypeEnum();
     }
 
-    public IpPrecedence getIpPrecedence(){
+    public IpPrecedence getIpPrecedenceEnum(){
         return simulationRule.getIpPrecedence();
+    }
+
+    public int getIpPrecedence() {
+        return simulationRule.getIpPrecedence().getIntRepresentation();
     }
 
     public NetworkNode getDestination() {
         return simulationRule.getDestination();
+    }
+
+    public int getSrcPort() {
+        return simulationRule.getSrcPort();
+    }
+
+    public int getDestPort() {
+        return simulationRule.getDestPort();
     }
 
     /**

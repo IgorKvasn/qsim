@@ -209,4 +209,18 @@ public class ClassificationUtilTest {
         boolean result4 = ClassificationUtil.isClassificationRuleApplied("((size != 50) AND (source('node1'))) OR packetType='AUDIO' AND  layer4 !='TCP'", packet);
         assertTrue(result4);
     }
+
+    @Test
+    public void testIsClassificationRuleApplied_ip_preference() throws ClassificationException {
+        NetworkNode node1 = new Router("node1", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
+
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_1, 0, 0);
+        rule.setRoute(Arrays.asList(node1, node2));
+
+        Packet packet = new Packet(10, null, rule, 10);
+
+        boolean result = ClassificationUtil.isClassificationRuleApplied("ipPrecedence = 1", packet);
+        assertTrue(result);
+    }
 }

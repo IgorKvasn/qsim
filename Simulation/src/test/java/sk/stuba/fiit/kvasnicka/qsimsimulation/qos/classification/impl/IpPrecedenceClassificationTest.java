@@ -70,7 +70,7 @@ public class IpPrecedenceClassificationTest {
         TestUtils.setWithoutSetter(SimulationRuleBean.class, packet.getSimulationRule(), "ipPrecedence", precedence);
 
         int queue = classification.classifyAndMarkPacket(node1, packet);
-        assertEquals(precedence.getIpPrecedence(), queue);
+        assertEquals(precedence.getIntRepresentation(), queue);
     }
 
     private void initRoute(Packet... packets) {
