@@ -21,6 +21,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +39,8 @@ public class RoundRobinScheduling extends PacketScheduling {
     public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, Map<Integer, List<Packet>> outputQueuePackets) {
         if (outputQueuePackets == null) throw new IllegalArgumentException("outputQueuePackets is NULL");
 
-        if (outputQueuePackets.isEmpty()) {//there are no output queues??? are you serious????
-            throw new IllegalStateException("no output queues defined - cannot perform packet scheduling");
+        if (outputQueuePackets.isEmpty()) {//there are no output queues
+            return Collections.emptyList();
         }
 
         List<Packet> packets = new LinkedList<Packet>();

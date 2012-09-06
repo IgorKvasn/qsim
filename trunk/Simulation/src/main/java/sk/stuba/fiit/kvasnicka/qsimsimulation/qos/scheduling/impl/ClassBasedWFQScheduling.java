@@ -24,6 +24,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ParameterException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.QosUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,8 +62,8 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
 
         if (outputQueuePackets == null) throw new IllegalArgumentException("outputQueuePackets is NULL");
 
-        if (outputQueuePackets.isEmpty()) {//there are no output queues??? are you serious????
-            throw new IllegalStateException("no output queues defined - cannot perform packet scheduling");
+        if (outputQueuePackets.isEmpty()) {//there are no output queues
+            return Collections.emptyList();
         }
         int classCount = classDefinitions.length;
 

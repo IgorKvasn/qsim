@@ -18,6 +18,7 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos;
 
 import lombok.Setter;
+import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassificationInterf;
@@ -36,6 +37,7 @@ import java.util.Map;
 
 
 public class QosMechanism implements Serializable {
+    private static Logger logg = Logger.getLogger(QosMechanism.class);
     private static final long serialVersionUID = - 2761566613214031952L;
     @Setter
     private PacketScheduling packetScheduling;
@@ -60,6 +62,8 @@ public class QosMechanism implements Serializable {
      */
 
     public int classifyAndMarkPacket(NetworkNode networkNode, Packet packet) {
+        logg.debug("classifyAndMarkPacket - node " + networkNode.getName());
+
         if (packetClassification == null) throw new IllegalStateException("packetClassification is NULL");
         return packetClassification.classifyAndMarkPacket(networkNode, packet);
     }
@@ -73,6 +77,8 @@ public class QosMechanism implements Serializable {
      * @return list of packets to send
      */
     public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, Map<Integer, List<Packet>> outputQueuePackets) {
+        logg.debug("decitePacketsToMoveFromOutputQueue - " + networkNode.getName());
+
         if (packetScheduling == null) throw new IllegalStateException("packetScheduling is NULL");
         return packetScheduling.decitePacketsToMoveFromOutputQueue(networkNode, outputQueuePackets);
     }
@@ -86,6 +92,8 @@ public class QosMechanism implements Serializable {
      * @return true if packet can be added into queue; false if it should be dropped
      */
     public boolean performActiveQueueManagement(List<Packet> queue, Packet newPacket) {
+        logg.debug("performActiveQueueManagement");
+
         if (activeQueueManagement == null) throw new IllegalStateException("activeQueueManagement is NULL");
         if (newPacket == null) throw new IllegalStateException("newPacket is NULL");
         return activeQueueManagement.manageQueue(queue, newPacket);
