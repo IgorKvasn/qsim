@@ -28,7 +28,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
@@ -74,11 +73,6 @@ public class IntegrationTest {
     public void before() {
 
         packetDelivered = 0;
-
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(50);
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(50);
-        OutputQueueManager outputQueueManager3 = new OutputQueueManager(50);
-
 
         qosMechanism = EasyMock.createMock(QosMechanism.class);
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
