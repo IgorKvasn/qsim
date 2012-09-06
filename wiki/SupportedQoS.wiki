@@ -21,6 +21,7 @@ Algoritms to determine packet priority (and thus its output queue).
   * IP precedence
   * classification according to Differentiated Services Code Point (DSCP)
   * flow based classification 
+  * no marking (e.g. when marking should be applied only on edge routers, but not on core routers)
 
 
 == Active queue management ==
