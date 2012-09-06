@@ -17,7 +17,7 @@ Algorithms to determine the order in which packets are to be sent.
 
 Algoritms to determine packet priority (and thus its output queue).
 
-  * Best efford (no QoS)
+  * Best efford (no QoS - all packets has the same marking)
   * IP precedence
   * classification according to Differentiated Services Code Point (DSCP)
   * flow based classification 
@@ -28,6 +28,7 @@ Algoritms to determine packet priority (and thus its output queue).
 
   * Random early detection (RED)
   * Weighted random early detection (WRED)
+  * no active queue management
 
 
 ==Other QoS related features==
