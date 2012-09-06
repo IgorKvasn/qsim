@@ -51,7 +51,7 @@ public class InputQueue implements UsageStatistics, Serializable {
 
 
     @Override
-    public int getUsage() {
+    public double getUsage() {
         return inputQueue.size();
     }
 

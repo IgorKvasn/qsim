@@ -60,11 +60,13 @@ public class Fragment {
      */
     @Setter
     private double receivedTime;
+    private int fragmentSize;
 
-    public Fragment(Packet originalPacket, int fragmentNumber, int fragmentCountTotal, String fragmentID, NetworkNode from, NetworkNode to) {
+    public Fragment(Packet originalPacket, int fragmentNumber, int fragmentCountTotal, int fragmentSize, String fragmentID, NetworkNode from, NetworkNode to) {
         if (fragmentNumber > fragmentCountTotal) {
             throw new IllegalArgumentException("fragmentNumber is bigger than total fragment count");
         }
+        this.fragmentSize = fragmentSize;
         this.originalPacket = originalPacket;
         this.fragmentNumber = fragmentNumber;
         this.fragmentCountTotal = fragmentCountTotal;

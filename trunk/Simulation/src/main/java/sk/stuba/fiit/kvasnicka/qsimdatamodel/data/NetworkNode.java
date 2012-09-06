@@ -180,28 +180,28 @@ public abstract class NetworkNode implements Serializable {
 
         allOutputQueues = new UsageStatistics() {
             @Override
-            public int getUsage() {
+            public double getUsage() {
                 return getAllOutputQueueUsage();
             }
         };
 
         allRXBuffers = new UsageStatistics() {
             @Override
-            public int getUsage() {
+            public double getUsage() {
                 return getRXUsage();
             }
         };
 
         allTXBuffers = new UsageStatistics() {
             @Override
-            public int getUsage() {
+            public double getUsage() {
                 return getTXUsage();
             }
         };
 
         allProcessingPackets = new UsageStatistics() {
             @Override
-            public int getUsage() {
+            public double getUsage() {
                 return getProcessingPackets();
             }
         };
@@ -216,28 +216,28 @@ public abstract class NetworkNode implements Serializable {
 
         allOutputQueues = new UsageStatistics() {
             @Override
-            public int getUsage() {
+            public double getUsage() {
                 return getAllOutputQueueUsage();
             }
         };
 
         allRXBuffers = new UsageStatistics() {
             @Override
-            public int getUsage() {
+            public double getUsage() {
                 return getRXUsage();
             }
         };
 
         allTXBuffers = new UsageStatistics() {
             @Override
-            public int getUsage() {
+            public double getUsage() {
                 return getTXUsage();
             }
         };
 
         allProcessingPackets = new UsageStatistics() {
             @Override
-            public int getUsage() {
+            public double getUsage() {
                 return getProcessingPackets();
             }
         };
@@ -267,7 +267,7 @@ public abstract class NetworkNode implements Serializable {
      *
      * @return
      */
-    public int getInputQueueUsage() {
+    public double getInputQueueUsage() {
         return inputQueue.getUsage();
     }
 
@@ -499,7 +499,7 @@ public abstract class NetworkNode implements Serializable {
      * @param time current simulation time
      */
     public void moveFromOutputQueueToTxBuffer(double time) {
-        Map<Integer,List<Packet>> eligiblePackets = outputQueueManager.getPacketsInOutputQueues(time);
+        Map<Integer, List<Packet>> eligiblePackets = outputQueueManager.getPacketsInOutputQueues(time);
         List<Packet> packetsToSend = qosMechanism.decitePacketsToMoveFromOutputQueue(this, eligiblePackets);
         for (Packet p : packetsToSend) {
             int mtu = topologyManager.findEdge(getName(), p.getNextHopNetworkNode(this).getName()).getMtu();

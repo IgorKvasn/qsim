@@ -583,7 +583,7 @@ public class NetworkNodeTest {
         assertEquals(MAX_PROCESSING_PACKETS, node1.getPacketsInProcessing().size());
         InputQueue inputQueue = (InputQueue) getPropertyWithoutGetter(NetworkNode.class, node1, "inputQueue");
         assertNotNull(inputQueue);
-        assertEquals(2, inputQueue.getUsage());
+        assertEquals(2, inputQueue.getUsage(), 0);
     }
 
     /**

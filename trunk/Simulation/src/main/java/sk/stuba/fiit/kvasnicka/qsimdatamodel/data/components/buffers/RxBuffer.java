@@ -158,7 +158,7 @@ public class RxBuffer implements UsageStatistics {
     }
 
     @Override
-    public int getUsage() {
+    public double getUsage() {
         return getNumberOfFragments();
     }
 }

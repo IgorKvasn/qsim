@@ -28,5 +28,5 @@ public interface UsageStatistics {
      *
      * @return
      */
-    int getUsage();
+    double getUsage();
 }

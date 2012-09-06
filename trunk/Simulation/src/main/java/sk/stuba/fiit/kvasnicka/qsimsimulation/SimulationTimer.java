@@ -50,6 +50,7 @@ public class SimulationTimer implements ActionListener {
     private static Logger logg = Logger.getLogger(SimulationTimer.class);
     public static final double TIME_QUANTUM = DelayHelper.MIN_PROCESSING_DELAY + .1; //or also known as "timer delay" :) [msec]
     public static final int MILIS_IN_SECOND = 1000;
+    public static final int NANOS_IN_MILIS = 1000;
     private Timer timer;
     @Getter
     private PacketGenerator packetGenerator;

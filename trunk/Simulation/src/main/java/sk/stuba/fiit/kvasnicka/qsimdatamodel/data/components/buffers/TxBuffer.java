@@ -124,7 +124,7 @@ public class TxBuffer implements UsageStatistics {
     }
 
     @Override
-    public int getUsage() {
+    public double getUsage() {
         return getFragmentsCount();
     }
 }

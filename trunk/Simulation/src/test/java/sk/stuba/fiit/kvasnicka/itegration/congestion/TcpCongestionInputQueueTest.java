@@ -165,14 +165,14 @@ public class TcpCongestionInputQueueTest {
             node2.addToRxBuffer(f);
         }
 
-        assertEquals(1, node2.getInputQueueUsage());
+        assertEquals(1, node2.getInputQueueUsage(), 0);
 
         Fragment[] f2 = QueueingHelper.createFragments(p2, 20, node1, node2);
         //this packet will be dropped - indicating congestion
         for (Fragment f : f2) {
             node2.addToRxBuffer(f);
         }
-        assertEquals(1, node2.getInputQueueUsage());//still one packet
+        assertEquals(1, node2.getInputQueueUsage(), 0);//still one packet
 
         //get edge speed in some time in the future (edge speed is changed due to congestion with some delay - TCP timer delay)
         long speed = edge1.getSpeed(p3);

@@ -18,6 +18,8 @@
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data;
 
 import org.apache.log4j.Logger;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
@@ -36,7 +38,7 @@ import java.util.TreeSet;
 /**
  * @author Igor Kvasnicka
  */
-public class Edge implements Serializable {
+public class Edge implements Serializable, UsageStatistics {
 
     private static Logger logg = Logger.getLogger(Edge.class);
     private static final double EDGE_SPEED_INCREMENT = (double) 3 / 2; //speed is multiplied with this
@@ -65,6 +67,7 @@ public class Edge implements Serializable {
     private static final long MIN_SPEED = 1;
 
     private transient TreeSet<CongestedInfo> congestedInfoSet;
+    private static final int PERCENTAGE = 100;
 
     /**
      * creates new instance of Edge object with maxSpeed parameter defined do not
@@ -296,6 +299,27 @@ public class Edge implements Serializable {
             }
         }
     }
+
+    /**
+     * returns percentage usage of the edge during last simulation quantum
+     */
+    @Override
+    public double getUsage() {
+        //calculate size of fragments on the wire
+        long size = 0;
+        for (Fragment fragment : fragments) {
+            size += fragment.getFragmentSize();
+        }
+        double bytesPerSecond = size * (SimulationTimer.MILIS_IN_SECOND / (SimulationTimer.TIME_QUANTUM * SimulationTimer.NANOS_IN_MILIS));
+
+        if (bytesPerSecond > getMaxSpeed()) {
+            logg.error("edge usage is above 100% -> " + (bytesPerSecond / getMaxSpeed()) * PERCENTAGE);
+            return 100;
+        }
+
+        return (bytesPerSecond / getMaxSpeed()) * PERCENTAGE;
+    }
+
 
     private static final class CongestedInfo implements Comparable<CongestedInfo> {
         private final SimulationRuleBean rule;
