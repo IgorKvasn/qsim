@@ -116,7 +116,7 @@ public class OutputQueueManager implements Serializable {
      * @param queueNumber queue number
      * @return queue size
      */
-    public int getQueueUsedCapacity(int queueNumber) {
+    public double getQueueUsedCapacity(int queueNumber) {
         if (! queues.containsKey(queueNumber)) return 0;
         return queues.get(queueNumber).getUsage();
     }

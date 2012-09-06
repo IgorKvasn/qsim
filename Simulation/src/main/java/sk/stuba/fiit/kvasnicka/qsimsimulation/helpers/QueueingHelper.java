@@ -80,7 +80,8 @@ public abstract class QueueingHelper {
         Fragment[] fragments = new Fragment[QueueingHelper.calculateNumberOfFragments(packet.getPacketSize(), mtu)];
         String fragmentID = UUID.randomUUID().toString();
         for (int i = 0; i < fragments.length; i++) {
-            fragments[i] = new Fragment(packet, i + 1, fragments.length, fragmentID, currentNode, nextHop);
+            int fragmentSize = QueueingHelper.calculateFragmentSize(i, fragments.length, mtu, packet.getPacketSize());
+            fragments[i] = new Fragment(packet, i + 1, fragments.length, fragmentSize, fragmentID, currentNode, nextHop);
             fragments[i].setReceivedTime(packet.getSimulationTime());
         }
         return fragments;

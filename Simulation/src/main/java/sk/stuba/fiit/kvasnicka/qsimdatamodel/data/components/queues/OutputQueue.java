@@ -74,7 +74,7 @@ public class OutputQueue implements UsageStatistics, Serializable {
     }
 
     @Override
-    public int getUsage() {
+    public double getUsage() {
         return packets.size();
     }
 

@@ -24,7 +24,6 @@ import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.RxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.TxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.InputQueue;
@@ -36,6 +35,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceExc
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
@@ -52,6 +52,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
 import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
+import static sk.stuba.fiit.kvasnicka.TestUtils.setWithoutSetter;
 
 /**
  * @author Igor Kvasnicka
@@ -68,6 +69,7 @@ public class EdgeTest {
     private final int MAX_TX_SIZE = 200;
     private final int MTU = 100;
     private final Layer4TypeEnum layer4 = Layer4TypeEnum.UDP;
+    private long edgeSpeed = 100;
 
     @Before
     public void before() throws NotEnoughBufferSpaceException {
@@ -75,10 +77,6 @@ public class EdgeTest {
 
 
         qosMechanism = EasyMock.createMock(QosMechanism.class);
-
-
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(50);
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(50);
 
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
         EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
@@ -101,7 +99,7 @@ public class EdgeTest {
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
 
-        edge = new Edge(100, MTU, 2, 0, node1, node2);
+        edge = new Edge(edgeSpeed, MTU, 2, 0, node1, node2);
 
         topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(node1, node2));
         node1.setTopologyManager(topologyManager);
@@ -187,11 +185,37 @@ public class EdgeTest {
         assertEquals(0, inputInterface.getNumberOfFragments()); //all fragments are put directly into processing
         assertNull(node2.getRxInterfaces().get(node2));
         InputQueue inputQueue = (InputQueue) getPropertyWithoutGetter(NetworkNode.class, node2, "inputQueue");
-        assertEquals(1, inputQueue.getUsage());
+        assertEquals(1, inputQueue.getUsage(), 0);
 
         assertEquals(2, node2.getPacketsInProcessing().size());
     }
 
+    @Test
+    public void testEdgeUsage() {
+        List<Fragment> fragments = new LinkedList<Fragment>();
+        fragments.add(new Fragment(null, 0, 0, 50, null, null, null));
+
+
+        setWithoutSetter(Edge.class, edge, "maxSpeed", 100);
+        setWithoutSetter(Edge.class, edge, "fragments", fragments);
+
+        double usage = edge.getUsage();
+        assertEquals(83.33, usage, 0.1);
+    }
+
+
+    @Test
+    public void testEdgeUsage_2() {
+        List<Fragment> fragments = new LinkedList<Fragment>();
+        fragments.add(new Fragment(null, 0, 0, 1500, null, null, null));
+
+
+        setWithoutSetter(Edge.class, edge, "maxSpeed", 100000);
+        setWithoutSetter(Edge.class, edge, "fragments", fragments);
+
+        double usage = edge.getUsage();
+        assertEquals(2.5, usage, 0);
+    }
 
     private void initRoute(Packet... packets) {
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 10, PacketTypeEnum.AUDIO_PACKET, layer4, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
