@@ -33,7 +33,6 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * @author Igor Kvasnicka
@@ -83,11 +82,8 @@ public class FifoSchedulingTest {
         Packet p3 = new Packet(10, null, null, 0);
 
         Map<Integer, List<Packet>> outputPackets = new HashMap<Integer, List<Packet>>();
-        try {
-            List<Packet> packetList = fifoScheduling.decitePacketsToMoveFromOutputQueue(node1, outputPackets);
-            fail("IllegalStateException should be thrown");
-        } catch (IllegalStateException e) {
-            //OK
-        }
+
+        List<Packet> packetList = fifoScheduling.decitePacketsToMoveFromOutputQueue(node1, outputPackets);
+        assertTrue(packetList.isEmpty());
     }
 }
