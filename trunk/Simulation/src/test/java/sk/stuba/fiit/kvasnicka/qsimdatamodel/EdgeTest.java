@@ -37,7 +37,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.lang.reflect.Field;
@@ -61,7 +61,7 @@ public class EdgeTest {
 
     PacketManager packetManager;
     SimulationTimer timer;
-    QosMechanism qosMechanism;
+    QosMechanismDefinition qosMechanism;
     double simulationTime;
     TopologyManager topologyManager;
     NetworkNode node1, node2;
@@ -76,7 +76,7 @@ public class EdgeTest {
         simulationTime = 10L;
 
 
-        qosMechanism = EasyMock.createMock(QosMechanism.class);
+        qosMechanism = EasyMock.createMock(QosMechanismDefinition.class);
 
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
         EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
@@ -93,8 +93,8 @@ public class EdgeTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, MAX_TX_SIZE, 10, 50, 10, 2, 100, 0, 0, null);//max processing packets are set to 2
-        node2 = new Router("node2", qosMechanism, MAX_TX_SIZE, 10, 50, 10, 2, 100, 0, 0, null);
+        node1 = new Router("node1", null, qosMechanism, MAX_TX_SIZE, 10, 50, 10, 2, 100, 0, 0);//max processing packets are set to 2
+        node2 = new Router("node2", null, qosMechanism, MAX_TX_SIZE, 10, 50, 10, 2, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);

@@ -26,8 +26,8 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.BestEffordClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.BestEffortClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.ActiveQueueManagement;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.RandomEarlyDetection;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
@@ -55,7 +55,7 @@ public class SerialisationTest implements Serializable {
     NetworkNode node;
     Edge edge;
     TopologyManager topologyManager;
-    QosMechanism qosMechanism;
+    QosMechanismDefinition qosMechanism;
 
     @Before
     public void before() {
@@ -65,9 +65,9 @@ public class SerialisationTest implements Serializable {
         classDef[0] = new ClassDefinition(0, 1);
         classDef[1] = new ClassDefinition(2, 3);
 
-        qosMechanism = new QosMechanism(new ClassBasedWFQScheduling(new HashMap<String, Object>() {{
+        qosMechanism = new QosMechanismDefinition(new ClassBasedWFQScheduling(new HashMap<String, Object>() {{
             put(ClassBasedWFQScheduling.CLASS_DEFINITIONS, classDef);
-        }}), new BestEffordClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
+        }}), new BestEffortClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
             put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, .6);
             put(RandomEarlyDetection.MAX_PROBABILITY, 1.0);
             put(RandomEarlyDetection.MIN_THRESHOLD, .5);
@@ -75,11 +75,11 @@ public class SerialisationTest implements Serializable {
         }}));
 
 
-        NetworkNode testNode1 = new Computer("comp", null, 10, 11, 10, 12, 13, 14, 15, 16, null);
-        NetworkNode testNode2 = new Computer("comp2", null, 10, 11, 10, 12, 13, 14, 15, 16, null);
+        NetworkNode testNode1 = new Computer("comp", null, null, 10, 11, 10, 12, 13, 14, 15, 16);
+        NetworkNode testNode2 = new Computer("comp2", null, null, 10, 11, 10, 12, 13, 14, 15, 16);
         edge = new Edge(100, 101, 102, 103, testNode1, testNode2);
 
-        node = new Router("node1", qosMechanism, 10, 10, 10, 1, 0, 100, 0, 0, null);
+        node = new Router("node1", null, qosMechanism, 10, 10, 10, 1, 0, 100, 0, 0);
 
         topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(testNode1, testNode2));
 

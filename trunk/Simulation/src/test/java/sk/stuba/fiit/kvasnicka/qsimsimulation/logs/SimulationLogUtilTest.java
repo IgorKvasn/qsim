@@ -37,7 +37,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.util.Arrays;
@@ -54,7 +54,7 @@ import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
  * @author Igor Kvasnicka
  */
 public class SimulationLogUtilTest {
-    private QosMechanism qosMechanism;
+    private QosMechanismDefinition qosMechanism;
     private NetworkNode node1, node2;
     private Edge edge1;
     private SimulationManager simulationManager;
@@ -70,7 +70,7 @@ public class SimulationLogUtilTest {
         simulationLogUtils = new SimulationLogUtils();
 
 
-        qosMechanism = EasyMock.createMock(QosMechanism.class);
+        qosMechanism = EasyMock.createMock(QosMechanismDefinition.class);
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
         EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
             @Override
@@ -83,8 +83,8 @@ public class SimulationLogUtilTest {
         }).times(100);
         EasyMock.replay(qosMechanism);
 
-        node1 = new Router("node1", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
-        node2 = new Router("node2", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
 
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -139,10 +139,10 @@ public class SimulationLogUtilTest {
         OutputQueueManager outputQueueManager22 = new OutputQueueManager(50);
 
 
-        NetworkNode node11 = new Router("node11", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
-        NetworkNode node12 = new Router("node12", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
-        NetworkNode node21 = new Router("node21", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
-        NetworkNode node22 = new Router("node22", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node11 = new Router("node11", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node12 = new Router("node12", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node21 = new Router("node21", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node22 = new Router("node22", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
 
 
         Edge edge1 = new Edge(100, 100, 2, 0, node11, node12);

@@ -35,14 +35,14 @@ import static junit.framework.Assert.assertEquals;
 /**
  * @author Igor Kvasnicka
  */
-public class BestEffordClassificationTest {
-    BestEffordClassification classification;
+public class BestEffortClassificationTest {
+    BestEffortClassification classification;
     NetworkNode node1;
 
     @Before
     public void before() {
-        classification = new BestEffordClassification();
-        node1 = new Router("node1", null, 100, 10, 50, 10, 10, 100, 0, 0, null);
+        classification = new BestEffortClassification();
+        node1 = new Router("node1", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
     }
 
     @Test
@@ -55,7 +55,7 @@ public class BestEffordClassificationTest {
     }
 
     private void initRoute(Packet... packets) {
-        NetworkNode node2 = new Router("node2", null, 100, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 

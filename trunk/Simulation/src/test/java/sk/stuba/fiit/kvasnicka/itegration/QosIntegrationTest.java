@@ -33,7 +33,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.FlowBasedClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.RandomEarlyDetection;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.RoundRobinScheduling;
@@ -62,21 +62,21 @@ public class QosIntegrationTest {
     public void before() {
         packetDelivered = 0;
 
-        QosMechanism qosMechanism1 = new QosMechanism(new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
+        QosMechanismDefinition qosMechanism1 = new QosMechanismDefinition(new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
             put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, .02);
             put(RandomEarlyDetection.MAX_PROBABILITY, .9);
             put(RandomEarlyDetection.MAX_THRESHOLD, .2);
             put(RandomEarlyDetection.MIN_THRESHOLD, .1);
         }}));
 
-        QosMechanism qosMechanism2 = new QosMechanism(new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
+        QosMechanismDefinition qosMechanism2 = new QosMechanismDefinition(new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
             put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, .02);
             put(RandomEarlyDetection.MAX_PROBABILITY, .9);
             put(RandomEarlyDetection.MAX_THRESHOLD, .2);
             put(RandomEarlyDetection.MIN_THRESHOLD, .1);
         }}));
 
-        QosMechanism qosMechanism3 = new QosMechanism(new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
+        QosMechanismDefinition qosMechanism3 = new QosMechanismDefinition(new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
             put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, .02);
             put(RandomEarlyDetection.MAX_PROBABILITY, .9);
             put(RandomEarlyDetection.MAX_THRESHOLD, .2);
@@ -84,9 +84,9 @@ public class QosIntegrationTest {
         }}));
 
 
-        node1 = new Router("node1", qosMechanism1, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0, null);
-        node2 = new Router("node2", qosMechanism2, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0, null);
-        node3 = new Router("node3", qosMechanism3, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0, null);
+        node1 = new Router("node1", null, qosMechanism1, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node2 = new Router("node2", null, qosMechanism2, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node3 = new Router("node3", null, qosMechanism3, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);

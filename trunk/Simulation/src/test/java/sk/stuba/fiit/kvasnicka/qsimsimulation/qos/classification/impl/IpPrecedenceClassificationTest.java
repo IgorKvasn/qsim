@@ -26,7 +26,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassificationInterf;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.lang.reflect.Field;
@@ -39,7 +39,7 @@ import static junit.framework.Assert.fail;
  * @author Igor Kvasnicka
  */
 public class IpPrecedenceClassificationTest {
-    PacketClassificationInterf classification;
+    PacketClassification classification;
     NetworkNode node1;
     Packet packet;
 
@@ -47,7 +47,7 @@ public class IpPrecedenceClassificationTest {
     public void before() {
         classification = new IpPrecedenceClassification();
 
-        node1 = new Router("node1", null, 100, 10, 50, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
 
         packet = new Packet(14, null, null, 10);
         initRoute(packet);
@@ -74,7 +74,7 @@ public class IpPrecedenceClassificationTest {
     }
 
     private void initRoute(Packet... packets) {
-        NetworkNode node2 = new Router("node2", null, 100, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, null, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 

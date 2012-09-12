@@ -48,7 +48,7 @@ public class WeightedRED extends ActiveQueueManagement {
         try {
             QosUtils.checkParameter(parameters, WredDefinition[].class, WRED_DEFINITION);
         } catch (ParameterException e) {
-            throw new IllegalArgumentException(e);
+            throw new IllegalStateException(e);
         }
     }
 

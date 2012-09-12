@@ -19,18 +19,23 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl;
 
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassificationInterf;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
 
 /**
+ * uses previously classified packet settings
+ *
  * @author Igor Kvasnicka
  */
-public class NoClassification implements PacketClassificationInterf {
+public class NoClassification extends PacketClassification {
 
 
     private static final long serialVersionUID = - 1182135936949875862L;
 
     @Override
     public int classifyAndMarkPacket(NetworkNode networkNode, Packet packet) {
+        if (packet.getQosQueue() == - 1) {
+            return 0;
+        }
         return packet.getQosQueue();
     }
 }

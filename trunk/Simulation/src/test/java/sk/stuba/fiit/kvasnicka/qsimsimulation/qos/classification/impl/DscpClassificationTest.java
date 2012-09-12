@@ -31,6 +31,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -44,16 +45,19 @@ public class DscpClassificationTest {
 
     @Before
     public void before() {
-        classification = new DscpClassification();
 
-        DscpDefinition[] dscpDefinitions = new DscpDefinition[]{
+        final DscpDefinition[] dscpDefinitions = new DscpDefinition[]{
                 new DscpDefinition("destination('node2')", 1),
                 new DscpDefinition("size = 4", 2)
         };
 
-        DscpManager dscpManager = new DscpManager(dscpDefinitions, 0);
+        final DscpManager dscpManager = new DscpManager(dscpDefinitions, 0);
+        classification = new DscpClassification(new HashMap<String, Object>() {{
+            put(DscpClassification.DSCP_DEFINITIONS, dscpManager);
+        }});
 
-        node1 = new Router("node1", null, 100, 10, 50, 10, 10, 100, 0, 0, dscpManager);
+
+        node1 = new Router("node1", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
         packet = new Packet(14, null, null, 10);
         initRoute(packet);
     }
@@ -67,7 +71,7 @@ public class DscpClassificationTest {
     @Test
     public void testClassifyAndMarkPacket_no_definition_satisfied() throws Exception {
 
-        NetworkNode node2 = new Router("this is not node2", null, 100, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("this is not node2", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
 
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         Packet packet2 = new Packet(1, null, simulationRuleBean, 10);
@@ -77,7 +81,7 @@ public class DscpClassificationTest {
 
     private void initRoute(Packet... packets) {
 
-        NetworkNode node2 = new Router("node2", null, 100, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node2 = new Router("node2", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
 
 
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);

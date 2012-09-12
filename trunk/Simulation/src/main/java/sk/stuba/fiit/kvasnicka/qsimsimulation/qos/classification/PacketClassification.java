@@ -15,20 +15,47 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification;
 
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassificationInterf;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.QosMechanism;
+
+import java.util.HashMap;
 
 /**
  * @author Igor Kvasnicka
  */
-public class BestEffordClassification implements PacketClassificationInterf {
-    private static final long serialVersionUID = - 570855006019224631L;
+public abstract class PacketClassification implements QosMechanism {
+    private static final long serialVersionUID = 5049685251835322761L;
 
+    protected HashMap<String, Object> parameters;
+
+    protected PacketClassification(HashMap<String, Object> parameters) {
+        this.parameters = parameters;
+    }
+
+    protected PacketClassification() {
+
+    }
+
+    public abstract int classifyAndMarkPacket(NetworkNode networkNode, Packet packet);
+
+    /**
+     * identifies, if this QoS mechanism depends on some parameters that must be provided to properly configure mechanism
+     *
+     * @return
+     */
     @Override
-    public int classifyAndMarkPacket(NetworkNode networkNode, Packet packet) {
-        return 0;
+    public boolean hasParameters() {
+        return parameters != null;
+    }
+
+    public enum Available {
+        BEST_EFFORT,
+        DSCP,
+        FLOW_BASED,
+        IP_PRECEDENCE,
+        NONE
     }
 }

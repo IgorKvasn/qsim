@@ -21,7 +21,7 @@ import lombok.Setter;
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassificationInterf;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.ActiveQueueManagement;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
 
@@ -36,17 +36,17 @@ import java.util.Map;
  */
 
 
-public class QosMechanism implements Serializable {
-    private static Logger logg = Logger.getLogger(QosMechanism.class);
+public class QosMechanismDefinition implements Serializable {
+    private static Logger logg = Logger.getLogger(QosMechanismDefinition.class);
     private static final long serialVersionUID = - 2761566613214031952L;
     @Setter
     private PacketScheduling packetScheduling;
     @Setter
-    private PacketClassificationInterf packetClassification;
+    private PacketClassification packetClassification;
     @Setter
     private ActiveQueueManagement activeQueueManagement;
 
-    public QosMechanism(PacketScheduling packetScheduling, PacketClassificationInterf packetClassification, ActiveQueueManagement activeQueueManagement) {
+    public QosMechanismDefinition(PacketScheduling packetScheduling, PacketClassification packetClassification, ActiveQueueManagement activeQueueManagement) {
         this.packetScheduling = packetScheduling;
         this.packetClassification = packetClassification;
         this.activeQueueManagement = activeQueueManagement;

@@ -22,7 +22,7 @@ import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.FifoScheduling;
 
 import java.util.Arrays;
@@ -49,9 +49,9 @@ public class FifoSchedulingTest {
 
     @Test
     public void testDecitePacketsToMoveFromOutputQueue() {
-        QosMechanism qosMechanism = new QosMechanism(null, null, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null);
 
-        node1 = new Router("node1", qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", null, qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0);
 
         final Packet p1 = new Packet(10, null, null, 0);
         final Packet p2 = new Packet(10, null, null, 0);
@@ -73,9 +73,9 @@ public class FifoSchedulingTest {
 
     @Test
     public void testDecitePacketsToMoveFromOutputQueue_multiple_queues() {
-        QosMechanism qosMechanism = new QosMechanism(null, null, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null);
 
-        node1 = new Router("node1", qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", null, qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0);
 
         Packet p1 = new Packet(10, null, null, 0);
         Packet p2 = new Packet(10, null, null, 0);

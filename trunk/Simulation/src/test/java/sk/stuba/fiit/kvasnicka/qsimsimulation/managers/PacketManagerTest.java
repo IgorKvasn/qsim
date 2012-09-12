@@ -33,7 +33,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.lang.reflect.Field;
@@ -54,7 +54,7 @@ import static org.junit.Assert.assertNotNull;
 public class PacketManagerTest {
     PacketManager packetManager;
     SimulationTimer timer;
-    QosMechanism qosMechanism;
+    QosMechanismDefinition qosMechanism;
     double simulationTime;
     TopologyManager topologyManager;
     NetworkNode node1, node2;
@@ -65,7 +65,7 @@ public class PacketManagerTest {
     public void before() {
         simulationTime = 10L;
 
-        qosMechanism = EasyMock.createMock(QosMechanism.class);
+        qosMechanism = EasyMock.createMock(QosMechanismDefinition.class);
 
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
         EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
@@ -80,8 +80,8 @@ public class PacketManagerTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0, null);
-        node2 = new Router("node2", qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", null, qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0);
 
 
         edge = new Edge(100, 100, 0, 2, node1, node2);

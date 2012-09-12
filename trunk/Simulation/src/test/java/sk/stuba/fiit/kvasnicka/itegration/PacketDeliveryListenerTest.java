@@ -40,7 +40,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.util.Arrays;
@@ -61,7 +61,7 @@ import static sk.stuba.fiit.kvasnicka.TestUtils.setWithoutSetter;
  */
 public class PacketDeliveryListenerTest {
 
-    QosMechanism qosMechanism;
+    QosMechanismDefinition qosMechanism;
     NetworkNode node1, node2, node3;
     Edge edge1, edge2;
     SimulationManager simulationManager;
@@ -74,7 +74,7 @@ public class PacketDeliveryListenerTest {
         OutputQueueManager outputQueueManager3 = new OutputQueueManager(50);
 
 
-        qosMechanism = EasyMock.createMock(QosMechanism.class);
+        qosMechanism = EasyMock.createMock(QosMechanismDefinition.class);
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
         EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
             @Override
@@ -87,9 +87,9 @@ public class PacketDeliveryListenerTest {
         }).times(100);
         EasyMock.replay(qosMechanism);
 
-        node1 = new Router("node1", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
-        node2 = new Router("node2", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
-        node3 = new Router("node3", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
+        node3 = new Router("node3", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
 

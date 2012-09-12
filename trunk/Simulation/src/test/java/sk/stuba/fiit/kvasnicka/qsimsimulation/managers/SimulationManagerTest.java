@@ -41,8 +41,8 @@ public class SimulationManagerTest {
     public void before() {
         simulationManager = new SimulationManager();
 
-        node1 = new Router("node1", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
-        node2 = new Router("node2", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
     }
 
     @Test
