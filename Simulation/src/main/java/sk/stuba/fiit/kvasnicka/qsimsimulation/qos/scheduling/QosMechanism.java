@@ -15,27 +15,13 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling;
 
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
+import java.io.Serializable;
 
 /**
  * @author Igor Kvasnicka
  */
-public class IpPrecedenceClassification extends PacketClassification {
-
-    private static final long serialVersionUID = - 7675085772268903474L;
-
-    @Override
-    public int classifyAndMarkPacket(NetworkNode networkNode, Packet packet) {
-        if (packet == null) {
-            throw new IllegalArgumentException("packet is NULL");
-        }
-        if (packet.getIpPrecedenceEnum() == null) {
-            throw new IllegalStateException("there is no IP precedence defined in packet");
-        }
-        return packet.getIpPrecedenceEnum().getIntRepresentation();
-    }
+public interface QosMechanism extends Serializable {
+    boolean hasParameters();
 }

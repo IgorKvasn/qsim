@@ -34,7 +34,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.lang.reflect.Field;
@@ -61,7 +61,7 @@ import static sk.stuba.fiit.kvasnicka.TestUtils.setWithoutSetter;
 public class TcpCongestionOutputQueueTest {
     PacketManager packetManager;
     SimulationTimer timer;
-    QosMechanism qosMechanism;
+    QosMechanismDefinition qosMechanism;
     double simulationTime;
     TopologyManager topologyManager;
     NetworkNode node1, node2, node3;
@@ -75,7 +75,7 @@ public class TcpCongestionOutputQueueTest {
     public void before() {
         simulationTime = 10L;
 
-        qosMechanism = EasyMock.createMock(QosMechanism.class);
+        qosMechanism = EasyMock.createMock(QosMechanismDefinition.class);
 
 
         OutputQueueManager outputQueueManager1 = new OutputQueueManager(10);
@@ -112,9 +112,9 @@ public class TcpCongestionOutputQueueTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, MAX_TX_SIZE, 10, 10, 10, MAX_PROCESSING_PACKETS, 100, 0, 0, null);
-        node2 = new Router("node2", qosMechanism, MAX_TX_SIZE, 10, 1, 10, 10, 100, 0, 0, null);
-        node3 = new Router("node3", qosMechanism, MAX_TX_SIZE, 10, 10, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", null, qosMechanism, MAX_TX_SIZE, 10, 10, 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, MAX_TX_SIZE, 10, 1, 10, 10, 100, 0, 0);
+        node3 = new Router("node3", null, qosMechanism, MAX_TX_SIZE, 10, 10, 10, 10, 100, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);

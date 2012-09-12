@@ -42,8 +42,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -87,7 +86,7 @@ public abstract class NetworkNode implements Serializable {
      */
     protected Map<Class, Integer> routingRules;
     @Getter
-    private QosMechanism qosMechanism;
+    private QosMechanismDefinition qosMechanism;
 
 
     private transient List<Packet> processingPackets;
@@ -140,8 +139,6 @@ public abstract class NetworkNode implements Serializable {
 
     @Getter
     private transient UsageStatistics allProcessingPackets;
-    @Getter
-    private DscpManager dscpManager;
 
     /**
      * creates new network node
@@ -155,10 +152,9 @@ public abstract class NetworkNode implements Serializable {
      * @param tcpDelay             TCP delay (time after retransmission happens when no ACK was retrieved)
      * @param minProcessingDelay   minimum time processing of one packet takes
      * @param maxProcessingDelay   maximum time processing of one packet takes
-     * @param dscpManager          manager of DSCP marking (may be null, if no DSCP is applied in this network node)
      */
-    protected NetworkNode(String name, QosMechanism qosMechanism, int maxTxBufferSize, int maxRxBufferSize, int maxOutputQueueSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay, DscpManager dscpManager) {
-        this.dscpManager = dscpManager;
+    protected NetworkNode(String name, String description, QosMechanismDefinition qosMechanism, int maxTxBufferSize, int maxRxBufferSize, int maxOutputQueueSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
+        this.description = description;
         this.name = name;
         this.outputQueueManager = new OutputQueueManager(maxOutputQueueSize);
         this.qosMechanism = qosMechanism;

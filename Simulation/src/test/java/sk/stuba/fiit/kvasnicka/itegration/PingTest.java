@@ -33,7 +33,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.util.Arrays;
@@ -52,7 +52,7 @@ import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
  */
 public class PingTest {
     int packetsDelivered;
-    QosMechanism qosMechanism;
+    QosMechanismDefinition qosMechanism;
     NetworkNode node1, node2, node3;
     Edge edge1, edge2;
     ListenerClass listener;
@@ -69,7 +69,7 @@ public class PingTest {
         OutputQueueManager outputQueueManager3 = new OutputQueueManager(50);
 
 
-        qosMechanism = EasyMock.createMock(QosMechanism.class);
+        qosMechanism = EasyMock.createMock(QosMechanismDefinition.class);
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
         EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
             @Override
@@ -82,9 +82,9 @@ public class PingTest {
         }).times(100);
         EasyMock.replay(qosMechanism);
 
-        node1 = new Router("node1", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
-        node2 = new Router("node2", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
-        node3 = new Router("node3", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
+        node3 = new Router("node3", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
 
 
         edge1 = new Edge(100000000, 100, 2000, 0, node1, node2);

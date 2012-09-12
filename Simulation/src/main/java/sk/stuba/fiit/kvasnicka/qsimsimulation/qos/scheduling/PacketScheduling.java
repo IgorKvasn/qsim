@@ -20,14 +20,13 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 /**
  * @author Igor Kvasnicka
  */
-public abstract class PacketScheduling implements Serializable {
+public abstract class PacketScheduling implements QosMechanism {
     private static final long serialVersionUID = - 7724658919812873308L;
     protected Map<String, Object> parameters;
 
@@ -36,6 +35,11 @@ public abstract class PacketScheduling implements Serializable {
 
     public PacketScheduling(Map<String, Object> parameters) {
         this.parameters = parameters;
+    }
+
+    @Override
+    public boolean hasParameters() {
+        return parameters != null;
     }
 
     /**
@@ -47,4 +51,25 @@ public abstract class PacketScheduling implements Serializable {
      * @return
      */
     public abstract List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, Map<Integer, List<Packet>> outputQueuePackets);
+
+
+    public enum Available {
+        CB_WFQ(true),
+        WFQ(false),
+        FIFO(false),
+        PRIORITY_QUEUEING(false),
+        ROUND_ROBIN(false),
+        WEIGHTED_ROUND_ROBIN(true);
+
+        private boolean parameters;
+
+        private Available(boolean hasParameters) {
+
+            this.parameters = hasParameters;
+        }
+
+        public boolean hasParameters() {
+            return parameters;
+        }
+    }
 }

@@ -17,8 +17,7 @@
 
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data;
 
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -36,10 +35,10 @@ public class Computer extends NetworkNode {
      * <p/>
      * see NetworkNode javadoc for more explanation
      *
-     * @see NetworkNode#NetworkNode(String, sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism, int, int, int, int, int, double, double, double, sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpManager)
+     * @see NetworkNode#NetworkNode(String, String, sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition, int, int, int, int, int, double, double, double)
      */
-    public Computer(String name, QosMechanism qosMechanism, int maxTxBufferSize, int maxRxBufferSize, int maxOutputQueueSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay, DscpManager dscpManager) {
-        super(name, qosMechanism, maxTxBufferSize, maxRxBufferSize, maxOutputQueueSize, maxIntputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay, dscpManager);
+    public Computer(String name, String description, QosMechanismDefinition qosMechanism, int maxTxBufferSize, int maxRxBufferSize, int maxOutputQueueSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
+        super(name, description, qosMechanism, maxTxBufferSize, maxRxBufferSize, maxOutputQueueSize, maxIntputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay);
     }
 
 

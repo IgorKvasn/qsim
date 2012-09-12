@@ -19,7 +19,7 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl;
 
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassificationInterf;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ import java.util.Map;
  *
  * @author Igor Kvasnicka
  */
-public class FlowBasedClassification implements PacketClassificationInterf {
+public class FlowBasedClassification extends PacketClassification {
     private static final long serialVersionUID = 15345388523958772L;
     /**
      * key = flow

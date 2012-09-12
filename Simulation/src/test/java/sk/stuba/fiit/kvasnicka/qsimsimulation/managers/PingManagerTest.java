@@ -46,8 +46,8 @@ public class PingManagerTest {
     public void before() {
         pingManager = new PingManager();
 
-        node1 = new Router("node1", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
-        node2 = new Router("node2", null, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
     }
 
     @Test

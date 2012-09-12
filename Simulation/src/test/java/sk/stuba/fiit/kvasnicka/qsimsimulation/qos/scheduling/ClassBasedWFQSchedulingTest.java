@@ -24,7 +24,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.ClassBasedWFQScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
@@ -67,9 +67,9 @@ public class ClassBasedWFQSchedulingTest {
         });
 
 
-        QosMechanism qosMechanism = new QosMechanism(null, null, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null);
 
-        node1 = new Router("node1", qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", null, qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0);
 
 
         final Packet p1 = new Packet(10, null, null, 0);
@@ -108,8 +108,8 @@ public class ClassBasedWFQSchedulingTest {
     }
 
     private void initRoute(Packet... packets) {
-        QosMechanism qosMechanism = new QosMechanism(null, null, null);
-        NetworkNode node2 = new Router("node1", qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null);
+        NetworkNode node2 = new Router("node1", null, qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0);
 
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));

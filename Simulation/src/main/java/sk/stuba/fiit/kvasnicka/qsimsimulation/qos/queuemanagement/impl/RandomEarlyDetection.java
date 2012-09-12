@@ -56,7 +56,7 @@ public class RandomEarlyDetection extends ActiveQueueManagement {
             QosUtils.checkParameter(parameters, Double.class, MAX_THRESHOLD);
             QosUtils.checkParameter(parameters, Double.class, MAX_PROBABILITY);
         } catch (ParameterException e) {
-            throw new IllegalStateException(e.getMessage());
+            throw new IllegalStateException(e);
         }
 
         if ((Double) parameters.get(EXPONENTIAL_WEIGHT_FACTOR) > 1) {

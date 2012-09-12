@@ -28,7 +28,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 
 import java.util.Arrays;
 import java.util.List;
@@ -110,7 +110,7 @@ public class QueueingHelperTest {
         //prepare - I need network nodes, so that means I have to initialise the whole topology,...
 
 
-        QosMechanism qosMechanism = EasyMock.createMock(QosMechanism.class);
+        QosMechanismDefinition qosMechanism = EasyMock.createMock(QosMechanismDefinition.class);
 
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
         EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
@@ -122,8 +122,8 @@ public class QueueingHelperTest {
         EasyMock.replay(qosMechanism);
 
 
-        NetworkNode node1 = new Router("node1", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
-        NetworkNode node2 = new Router("node2", qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0, null);
+        NetworkNode node1 = new Router("node1", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node2 = new Router("node2", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
 
 
         Edge edge = new Edge(100, 10, 2, 0, node1, node2);

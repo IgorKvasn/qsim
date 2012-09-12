@@ -52,7 +52,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.lang.reflect.Field;
@@ -79,7 +79,7 @@ public class NetworkNodeTest {
 
     PacketManager packetManager;
     SimulationTimer timer;
-    QosMechanism qosMechanism;
+    QosMechanismDefinition qosMechanism;
     double simulationTime;
     TopologyManager topologyManager;
     NetworkNode node1, node2;
@@ -94,7 +94,7 @@ public class NetworkNodeTest {
     public void before() {
         simulationTime = 10L;
 
-        qosMechanism = EasyMock.createMock(QosMechanism.class);
+        qosMechanism = EasyMock.createMock(QosMechanismDefinition.class);
 
 
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
@@ -116,8 +116,8 @@ public class NetworkNodeTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", qosMechanism, MAX_TX_SIZE, 10, 50, 10, MAX_PROCESSING_PACKETS, 100, 0, 0, null);
-        node2 = new Router("node2", qosMechanism, MAX_TX_SIZE, 10, 50, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", null, qosMechanism, MAX_TX_SIZE, 10, 50, 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, MAX_TX_SIZE, 10, 50, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -212,8 +212,8 @@ public class NetworkNodeTest {
     @Test
     public void testAddToTxBuffer_overflow() throws Exception {
         //redefine nodes, to make maxTxSize smaller number
-        node1 = new Router("node1", qosMechanism, 3, 10, 50, 10, 10, 100, 0, 0, null);
-        node2 = new Router("node2", qosMechanism, 0, 10, 50, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", null, qosMechanism, 3, 10, 50, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 0, 10, 50, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -706,8 +706,8 @@ public class NetworkNodeTest {
     @Test
     public void testAddToRxBuffer_overflow_fragments_remove() throws Exception {
         //redefine nodes, to make maxTxSize smaller number
-        node1 = new Router("node1", qosMechanism, 3, 1, 50, 10, 10, 100, 0, 0, null);
-        node2 = new Router("node2", qosMechanism, 0, 3, 50, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", null, qosMechanism, 3, 1, 50, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 0, 3, 50, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -756,8 +756,8 @@ public class NetworkNodeTest {
     @Test
     public void testAddToRxBuffer_overflow_fragments_remove_last_fragment_dropped() throws Exception {
 
-        node1 = new Router("node1", qosMechanism, 3, 300, 50, 10, 10, 100, 0, 0, null);
-        node2 = new Router("node2", qosMechanism, 0, 300, 50, 10, 10, 100, 0, 0, null);
+        node1 = new Router("node1", null, qosMechanism, 3, 300, 50, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 0, 300, 50, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);

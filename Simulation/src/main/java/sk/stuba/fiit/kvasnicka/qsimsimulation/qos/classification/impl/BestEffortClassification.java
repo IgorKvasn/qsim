@@ -15,16 +15,22 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl;
 
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-
-import java.io.Serializable;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
 
 /**
+ * all packets are put into one queue
+ *
  * @author Igor Kvasnicka
  */
-public interface PacketClassificationInterf extends Serializable {
-    int classifyAndMarkPacket(NetworkNode networkNode, Packet packet);
+public class BestEffortClassification extends PacketClassification {
+    private static final long serialVersionUID = - 570855006019224631L;
+
+    @Override
+    public int classifyAndMarkPacket(NetworkNode networkNode, Packet packet) {
+        return 0;
+    }
 }

@@ -18,15 +18,15 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement;
 
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.QosMechanism;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
 /**
  * @author Igor Kvasnicka
  */
-public abstract class ActiveQueueManagement implements Serializable {
+public abstract class ActiveQueueManagement implements QosMechanism {
 
     private static final long serialVersionUID = - 876488938244873514L;
 
@@ -55,4 +55,20 @@ public abstract class ActiveQueueManagement implements Serializable {
      * @param newPacket packet to be added into queue
      */
     public abstract boolean manageQueue(List<Packet> queue, Packet newPacket);
+
+    /**
+     * identifies, if this QoS mechanism depends on some parameters that must be provided to properly configure mechanism
+     *
+     * @return
+     */
+    @Override
+    public boolean hasParameters() {
+        return parameters != null;
+    }
+
+    public enum Available {
+        RED,
+        WRED,
+        NONE
+    }
 }
