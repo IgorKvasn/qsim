@@ -132,8 +132,7 @@ public class SerialisationHelper {
             for (EdgeDTO eDTO : serProxy.getEdges()) {
                 NetworkNode n1 = findVertexNetworkNode(eDTO.getNode1());
                 NetworkNode n2 = findVertexNetworkNode(eDTO.getNode2());
-                Edge e = new Edge(eDTO.getSpeed(), n1, n2);
-                e.setLength(eDTO.getLength());
+                Edge e = new Edge(eDTO.getSpeed(), eDTO.getMtu(), eDTO.getLength(), eDTO.getPacketErrorRate(), n1, n2);
                 EdgeDescriptor descr = new EdgeDescriptor(e.getNode1().getName(), e.getNode2().getName());
                 if (edgeMap.containsKey(descr)) {
                     throw new IllegalStateException("Duplicate edge between: " + e.getNode1().getName() + " and " + e.getNode2().getName());
@@ -156,7 +155,6 @@ public class SerialisationHelper {
         Reader reader = new StringReader(s);
 
         Transformer<NodeMetadata, TopologyVertex> vtrans = new Transformer<NodeMetadata, TopologyVertex>() {
-
             @Override
             public TopologyVertex transform(NodeMetadata nmd) {
                 String imageT = nmd.getProperty("imageType");
@@ -170,7 +168,6 @@ public class SerialisationHelper {
             }
         };
         Transformer<EdgeMetadata, TopologyEdge> etrans = new Transformer<EdgeMetadata, TopologyEdge>() {
-
             @Override
             public TopologyEdge transform(EdgeMetadata emd) {
                 String v1_name = emd.getProperty("vertex1_name");
@@ -181,7 +178,6 @@ public class SerialisationHelper {
             }
         };
         Transformer<HyperEdgeMetadata, TopologyEdge> hetrans = new Transformer<HyperEdgeMetadata, TopologyEdge>() {
-
             @Override
             public TopologyEdge transform(HyperEdgeMetadata emd) {
                 String v1_name = emd.getProperty("vertex1_name");
@@ -192,7 +188,6 @@ public class SerialisationHelper {
             }
         };
         Transformer<GraphMetadata, UndirectedSparseGraph<TopologyVertex, TopologyEdge>> gtrans = new Transformer<GraphMetadata, UndirectedSparseGraph<TopologyVertex, TopologyEdge>>() {
-
             @Override
             public UndirectedSparseGraph<TopologyVertex, TopologyEdge> transform(GraphMetadata gmd) {
                 return new UndirectedSparseGraph<TopologyVertex, TopologyEdge>();

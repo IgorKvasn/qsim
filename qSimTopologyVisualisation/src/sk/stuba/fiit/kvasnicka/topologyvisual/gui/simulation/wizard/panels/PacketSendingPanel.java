@@ -17,6 +17,7 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels;
 
 import lombok.Getter;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
@@ -35,12 +36,25 @@ public class PacketSendingPanel extends PanelInterface {
     public PacketSendingPanel() {
         initComponents();
         initComboboxLayer4();
+        initIpPrecedence();
         errorLabel.setVisible(false);
+    }
+
+    private void initIpPrecedence() {
+        jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_0, "0 - lowest"));
+        jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_1, "1"));
+        jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_2, "2"));
+        jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_3, "3"));
+        jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_4, "4"));
+        jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_5, "5"));
+        jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_6, "6"));
+        jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_7, "7 - highest"));
     }
 
     private void initComboboxLayer4() {
         comboLayer4.addItem(new ComboItem(Layer4TypeEnum.TCP, "TCP"));
         comboLayer4.addItem(new ComboItem(Layer4TypeEnum.UDP, "UDP"));
+        comboLayer4.addItem(new ComboItem(Layer4TypeEnum.ICMP, "ICMP"));
     }
 
     @Override
@@ -52,11 +66,13 @@ public class PacketSendingPanel extends PanelInterface {
 
     @Override
     public boolean validateData() {
-        iterator.getStoredData().setLayer4protocol(((ComboItem) comboLayer4.getSelectedItem()).getValue());
+        iterator.getStoredData().setLayer4protocol((Layer4TypeEnum) (((ComboItem) comboLayer4.getSelectedItem()).getValue()));
         iterator.getStoredData().setPacketCount(((Integer) spinCount.getValue()).intValue());
         iterator.getStoredData().setPacketSize((Integer) spinSize.getValue());
-        iterator.getStoredData().setPing(checkPing.isSelected());
         iterator.getStoredData().setActivationDelay(getActivationDelay());
+        iterator.getStoredData().setSrcPort((Integer) spinSrcPort.getValue());
+        iterator.getStoredData().setDestPort((Integer) spinDestPort.getValue());
+        iterator.getStoredData().setIpPrecedence((IpPrecedence) ((ComboItem) jComboBox1.getSelectedItem()).getValue());
         return true;
     }
 
@@ -66,7 +82,9 @@ public class PacketSendingPanel extends PanelInterface {
         comboLayer4.setSelectedIndex(getSelectedIndexLayer4(data.getLayer4protocol()));
         spinCount.setValue(data.getPacketCount() == 0 ? 1 : data.getPacketCount());
         spinSize.setValue(data.getPacketSize() == 0 ? 1 : data.getPacketSize());
-        checkPing.setSelected(data.isPing());
+
+        spinSrcPort.setValue(data.getSrcPort() == 0 ? 1 : data.getSrcPort());
+        spinDestPort.setValue(data.getDestPort() == 0 ? 1 : data.getDestPort());
 
         //activation delay
         if (data.getActivationDelay() == 0) {
@@ -132,13 +150,16 @@ public class PacketSendingPanel extends PanelInterface {
         jLabel2 = new javax.swing.JLabel();
         spinCount = new javax.swing.JSpinner();
         jLabel3 = new javax.swing.JLabel();
-        comboQos = new javax.swing.JComboBox();
-        jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         comboLayer4 = new javax.swing.JComboBox();
-        checkPing = new javax.swing.JCheckBox();
         spinSize = new javax.swing.JSpinner();
         errorLabel = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        spinSrcPort = new javax.swing.JSpinner();
+        jLabel6 = new javax.swing.JLabel();
+        spinDestPort = new javax.swing.JSpinner();
+        jLabel4 = new javax.swing.JLabel();
+        jComboBox1 = new javax.swing.JComboBox();
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jPanel1.border.title"))); // NOI18N
 
@@ -164,12 +185,10 @@ public class PacketSendingPanel extends PanelInterface {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jRadioButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(spinActive, javax.swing.GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(radioActiveOnStart)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                        .addGap(18, 18, 18)
+                        .addComponent(spinActive, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(radioActiveOnStart))
+                .addContainerGap(149, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -188,18 +207,24 @@ public class PacketSendingPanel extends PanelInterface {
 
         jLabel3.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jLabel3.text")); // NOI18N
 
-        comboQos.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        jLabel4.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jLabel4.text")); // NOI18N
-
         jLabel5.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jLabel5.text")); // NOI18N
-
-        checkPing.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.checkPing.text_1")); // NOI18N
 
         spinSize.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
 
         errorLabel.setForeground(new java.awt.Color(255, 0, 0));
         errorLabel.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.errorLabel.text")); // NOI18N
+
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jLabel1.text")); // NOI18N
+
+        spinSrcPort.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
+
+        jLabel6.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jLabel6.text")); // NOI18N
+
+        spinDestPort.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
+
+        jLabel4.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jLabel4.text")); // NOI18N
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -210,25 +235,29 @@ public class PacketSendingPanel extends PanelInterface {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(checkPing)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel2)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jLabel4)
-                                    .addComponent(jLabel5))
-                                .addGap(21, 21, 21)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(comboQos, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(comboLayer4, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(spinCount)
-                                    .addComponent(spinSize, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(129, 129, 129)
-                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel6))
+                        .addGap(21, 21, 21)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(comboLayer4, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(spinCount)
+                            .addComponent(spinSize, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
+                            .addComponent(spinSrcPort)
+                            .addComponent(spinDestPort)))
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
+                        .addGap(26, 26, 26)
                         .addComponent(errorLabel)))
-                .addContainerGap(187, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 97, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(87, 87, 87))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -243,51 +272,58 @@ public class PacketSendingPanel extends PanelInterface {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel3)
                             .addComponent(spinSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(comboQos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel4))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(36, 36, 36)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel5)
-                            .addComponent(comboLayer4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(comboLayer4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(spinSrcPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel4)
+                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel6)
+                            .addComponent(spinDestPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(25, 25, 25)
+                        .addComponent(errorLabel))
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(checkPing)
-                .addGap(30, 30, 30)
-                .addComponent(errorLabel)
-                .addContainerGap(53, Short.MAX_VALUE))
+                .addContainerGap(46, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JCheckBox checkPing;
     private javax.swing.JComboBox comboLayer4;
-    private javax.swing.JComboBox comboQos;
     private javax.swing.JLabel errorLabel;
+    private javax.swing.JComboBox jComboBox1;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton radioActiveOnStart;
     private javax.swing.JSpinner spinActive;
     private javax.swing.JSpinner spinCount;
+    private javax.swing.JSpinner spinDestPort;
     private javax.swing.JSpinner spinSize;
+    private javax.swing.JSpinner spinSrcPort;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 
     public class ComboItem {
 
         @Getter
-        private Layer4TypeEnum value;
+        private Object value;
         @Getter
         private String label;
 
-        public ComboItem(Layer4TypeEnum value, String label) {
+        public ComboItem(Object value, String label) {
             this.value = value;
             this.label = label;
         }

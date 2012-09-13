@@ -92,7 +92,7 @@ public class NetworkNodeStatisticsBean implements SimulationTimerListener {
 
         //output queues
         for (int i = 0; i < outputTraceList.size(); i++) {
-            outputTraceList.get(i).trace.addPoint(x, node.getOutputQueues().getQueues()[i].getUsage());
+            outputTraceList.get(i).trace.addPoint(x, node.getOutputQueueManager().getQueueUsedCapacity(i));
         }
 
         //ptocessing packets

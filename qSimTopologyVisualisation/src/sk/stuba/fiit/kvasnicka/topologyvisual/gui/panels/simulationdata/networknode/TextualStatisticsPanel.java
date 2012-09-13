@@ -41,7 +41,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.Netw
  * @author Igor Kvasnicka
  */
 public class TextualStatisticsPanel extends javax.swing.JPanel implements SimulationTimerListener {
-    
+
     private static DecimalFormat twoDForm = new DecimalFormat("#.##");
     private DefaultListModel listModel;
     private RowFilter<ListModel, Object> listFilter;
@@ -57,12 +57,12 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
     public TextualStatisticsPanel(List<TopologyVertex> nodeList, NetworkNodeStatisticsTopComponent networkNodeStatisticsTopComponent) {
         this.nodeList = nodeList;
         this.networkNodeStatisticsTopComponent = networkNodeStatisticsTopComponent;
-        
+
         initComponents();
-        
+
         listModel = new DefaultListModel();
         listTextualNodes.setModel(listModel);
-        
+
         jXSearchField1.setSearchMode(JXSearchField.SearchMode.INSTANT);
         jXSearchField1.addActionListener(new ActionListener() {
             @Override
@@ -70,31 +70,31 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
                 filterList(e.getActionCommand());
             }
         });
-        
+
         initTextualNodesList();
-        
+
         jXTreeTable1.setCellSelectionEnabled(false);
         jXTreeTable1.setRowSelectionAllowed(false);
         jXTreeTable1.setColumnSelectionAllowed(false);
         jXTreeTable1.getColumnModel().getColumn(3).setCellRenderer(new ProgressRenderer(jXTreeTable1));
         treeTableModelCache = new HashMap<NetworkNode, MyTreeTableModel>();
     }
-    
+
     private void filterList(String text) {
         listFilter = RowFilter.regexFilter(text);
         listTextualNodes.setRowFilter(listFilter);
     }
-    
+
     private void initTextualNodesList() {
         jXSearchField1.setText("");
         listTextualNodes.setRowFilter(null);
-        
-        
+
+
         listModel.clear();
         for (TopologyVertex v : nodeList) {
             listModel.addElement(new ListItem(v.getName(), v.getDataModel()));
         }
-        
+
         listTextualNodes.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
@@ -102,13 +102,13 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             }
         });
     }
-    
+
     private void networkNodeSelectedChanged() {
         if (listTextualNodes.getSelectedIndex() == -1) {//nothing is selected
             return;
         }
         selectedNode = ((ListItem) listTextualNodes.getSelectedValue()).value;
-        
+
         if (treeTableModelCache.containsKey(selectedNode)) {
             tableModel = treeTableModelCache.get(selectedNode);
         } else {
@@ -118,12 +118,12 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
         jXTreeTable1.setTreeTableModel(tableModel);
         jXTreeTable1.repaint();
     }
-    
+
     @Override
     public void simulationTimerOccurred(SimulationTimerEvent ste) {
         updateStatistics();
     }
-    
+
     private void updateStatistics() {
         if (selectedNode == null) {
             return;
@@ -151,7 +151,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
         //update output queue nodes
         for (int i = 0; i < tableModel.outputNodes.size(); i++) {
             MyTreeNode treeNode = tableModel.outputNodes.get(i);
-            treeNode.setCurrentUsage(selectedNode.getOutputQueues().getQueueUsedCapacity(i, selectedNode.getOutputQueues().getOutputQueue()));
+            treeNode.setCurrentUsage(selectedNode.getOutputQueueManager().getQueueUsedCapacity(i));
         }
     }
 
@@ -188,15 +188,15 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
                 if (tNode.inChart) {
                     usages.add(tNode.getUsageStatistics());
                 }
-            }            
+            }
         }
-        
-        networkNodeStatisticsTopComponent.updateChart(usages);        
-        
+
+        networkNodeStatisticsTopComponent.updateChart(usages);
+
     }
-    
+
     private class MyTreeTableModel extends AbstractTreeTableModel {
-        
+
         private MyTreeNode myroot;
         private MyTreeNode inputQueueNode;
         private MyTreeNode processingNode;
@@ -206,7 +206,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
         private Map<NetworkNode, MyTreeNode> txNodes;
         private MyTreeNode outputRootNode;
         private List<MyTreeNode> outputNodes;
-        
+
         private MyTreeTableModel(NetworkNode node) {
             myroot = new MyTreeNode("root", 0, null);
 
@@ -217,7 +217,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             //init output nodes
             outputRootNode = new MyTreeNode("Output queue", node.getMaxOutputQueueSize(), node.getAllOutputQueues());
             myroot.getChildren().add(outputRootNode);
-            
+
             outputNodes = generateOutputNodes(node);
             for (MyTreeNode treeNode : outputNodes) {
                 outputRootNode.getChildren().add(treeNode);
@@ -226,9 +226,9 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             //init RX
             rxRootNode = new MyTreeNode("RX buffers", node.getMaxRxSizeTotal(), node.getAllRXBuffers());
             myroot.getChildren().add(rxRootNode);
-            
+
             rxNodes = generateRxNodes(node);
-            
+
             for (MyTreeNode treeNode : rxNodes.values()) {
                 rxRootNode.getChildren().add(treeNode);
             }
@@ -236,9 +236,9 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             //init TX
             txRootNode = new MyTreeNode("TX buffers", node.getMaxTxSizeTotal(), node.getAllTXBuffers());
             myroot.getChildren().add(txRootNode);
-            
+
             txNodes = generateTxNodes(node);
-            
+
             for (MyTreeNode treeNode : txNodes.values()) {
                 txRootNode.getChildren().add(treeNode);
             }
@@ -247,44 +247,44 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             processingNode = new MyTreeNode("Processing packets", node.getMaxProcessingPackets(), node.getAllProcessingPackets());
             myroot.getChildren().add(processingNode);
         }
-        
+
         private Map<NetworkNode, MyTreeNode> generateRxNodes(NetworkNode node) {
             Map<NetworkNode, MyTreeNode> map = new HashMap<NetworkNode, MyTreeNode>();
-            
+
             for (Map.Entry<NetworkNode, RxBuffer> e : node.getRxInterfaces().entrySet()) {
                 MyTreeNode treeNode = new MyTreeNode(e.getKey().getName(), node.getMaxRxBufferSize(), e.getValue());
                 map.put(e.getKey(), treeNode);
             }
-            
+
             return map;
         }
-        
+
         private Map<NetworkNode, MyTreeNode> generateTxNodes(NetworkNode node) {
             Map<NetworkNode, MyTreeNode> map = new HashMap<NetworkNode, MyTreeNode>();
-            
+
             for (Map.Entry<NetworkNode, TxBuffer> e : node.getTxInterfaces().entrySet()) {
                 MyTreeNode treeNode = new MyTreeNode(e.getKey().getName(), node.getMaxTxBufferSize(), e.getValue());
                 map.put(e.getKey(), treeNode);
             }
-            
+
             return map;
         }
-        
+
         private List<MyTreeNode> generateOutputNodes(NetworkNode node) {
             List<MyTreeNode> nodes = new LinkedList<MyTreeNode>();
-            OutputQueueManager outputQueues = node.getOutputQueues();
+            OutputQueueManager outputQueues = node.getOutputQueueManager();
             for (OutputQueue qDef : outputQueues.getQueues()) {
-                MyTreeNode n = new MyTreeNode(qDef.getQueueLabel(), qDef.getMaxCapacity(), qDef);
+                MyTreeNode n = new MyTreeNode("", qDef.getMaxCapacity(), qDef);
                 nodes.add(n);
             }
             return nodes;
         }
-        
+
         @Override
         public int getColumnCount() {
             return 5;
         }
-        
+
         @Override
         public String getColumnName(int column) {
             switch (column) {
@@ -302,7 +302,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
                     throw new IllegalStateException("unknown column number: " + column);
             }
         }
-        
+
         @Override
         public Object getValueAt(Object node, int column) {
             MyTreeNode treenode = (MyTreeNode) node;
@@ -321,7 +321,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
                     throw new IllegalStateException("unknown column number: " + column);
             }
         }
-        
+
         @Override
         public Class<?> getColumnClass(int column) {
             switch (column) {
@@ -339,7 +339,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
                     throw new IllegalStateException("unknown column number: " + column);
             }
         }
-        
+
         @Override
         public boolean isCellEditable(Object node, int column) {
             if (column == 4) {//only column with checkbox (Boolean) is editable
@@ -347,7 +347,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             }
             return false;
         }
-        
+
         @Override
         public void setValueAt(Object value, Object node, int column) {
             super.setValueAt(value, node, column);
@@ -355,19 +355,19 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
                 ((MyTreeNode) node).setInChart((Boolean) value);
             }
         }
-        
+
         @Override
         public Object getChild(Object node, int index) {
             MyTreeNode treenode = (MyTreeNode) node;
             return treenode.getChildren().get(index);
         }
-        
+
         @Override
         public int getChildCount(Object parent) {
             MyTreeNode treenode = (MyTreeNode) parent;
             return treenode.getChildren().size();
         }
-        
+
         @Override
         public int getIndexOfChild(Object parent, Object child) {
             MyTreeNode treenode = (MyTreeNode) parent;
@@ -376,10 +376,10 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
                     return i;
                 }
             }
-            
+
             return 0;
         }
-        
+
         @Override
         public boolean isLeaf(Object node) {
             MyTreeNode treenode = (MyTreeNode) node;
@@ -388,23 +388,23 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             }
             return true;
         }
-        
+
         @Override
         public Object getRoot() {
             return myroot;
         }
     }
-    
+
     private class MyTreeNode {
-        
+
         private String name;
-        private int currentUsage;
+        private double currentUsage;
         private int maxCapacity;
         private UsageStatistics usageStatistics;
         private List<MyTreeNode> children = new ArrayList<MyTreeNode>();
         private JProgressBar progressBar;
         private Boolean inChart;
-        
+
         private MyTreeNode(String name, int maxCapacity, UsageStatistics usageStatistics) {
             this.name = name;
             this.maxCapacity = maxCapacity;
@@ -412,59 +412,71 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             this.inChart = Boolean.FALSE;            //auto-boxing should work, but nevermind....
             this.usageStatistics = usageStatistics;
         }
-        
+
         public UsageStatistics getUsageStatistics() {
             return usageStatistics;
         }
-        
+
         private double calculateUsage() {
             return Double.valueOf(twoDForm.format((double) currentUsage / maxCapacity * 100));
         }
-        
+
         public Boolean getInChart() {
             return inChart;
         }
-        
+
         public void setInChart(Boolean inChart) {
             this.inChart = inChart;
         }
-        
-        public int getCurrentUsage() {
+
+        public double getCurrentUsage() {
             return currentUsage;
         }
-        
+
         public int getMaxCapacity() {
             return maxCapacity;
         }
-        
-        public void setCurrentUsage(int currentUsage) {
+
+        public void setCurrentUsage(double currentUsage) {
             this.currentUsage = currentUsage;
-            progressBar.setValue(currentUsage);
+            progressBar.setValue(safeLongToInt(Math.round(currentUsage)));
             progressBar.repaint();
         }
-        
+
+        private int safeLongToInt(long l) {
+            if (l < Integer.MIN_VALUE) {
+                return Integer.MIN_VALUE;
+            }
+
+            if (l > Integer.MAX_VALUE) {
+                return Integer.MAX_VALUE;
+            }
+
+            return (int) l;
+        }
+
         public String getName() {
             return name;
         }
-        
+
         public List<MyTreeNode> getChildren() {
             return children;
         }
-        
+
         public JProgressBar getProgressBar() {
             return progressBar;
         }
     }
-    
+
     private class ProgressRenderer extends JProgressBar implements TableCellRenderer {
-        
+
         private JXTreeTable table;
-        
+
         public ProgressRenderer(JXTreeTable table) {
             super();
             this.table = table;
         }
-        
+
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus,
@@ -573,10 +585,10 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
 
     @Getter
     private class ListItem {
-        
+
         private String label;
         private NetworkNode value;
-        
+
         public ListItem(String label, NetworkNode value) {
             this.label = label;
             this.value = value;

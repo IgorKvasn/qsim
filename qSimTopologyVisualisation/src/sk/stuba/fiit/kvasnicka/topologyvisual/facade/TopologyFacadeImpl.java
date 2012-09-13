@@ -60,7 +60,7 @@ public class TopologyFacadeImpl implements TopologyFacade {
                 @Override
                 public Double transform(TopologyEdge edge) {
                     //higher bitrate means that this edge has smaller weight according to Dijkstra algorithm                    
-                    return 1.0 / edge.getEdge().getSpeed();//this may produce some mathematical inaccuracy...
+                    return 1.0 / edge.getEdge().getMaxSpeed();//this may produce some mathematical inaccuracy...
                 }
             });
         }
