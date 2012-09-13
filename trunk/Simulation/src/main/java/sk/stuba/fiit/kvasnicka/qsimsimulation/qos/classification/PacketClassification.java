@@ -52,10 +52,19 @@ public abstract class PacketClassification implements QosMechanism {
     }
 
     public enum Available {
-        BEST_EFFORT,
-        DSCP,
-        FLOW_BASED,
-        IP_PRECEDENCE,
-        NONE
+        BEST_EFFORT(false),
+        DSCP(true),
+        FLOW_BASED(false),
+        IP_PRECEDENCE(false),
+        NONE(false);
+        private boolean parameters;
+
+        private Available(boolean hasParameters) {
+            this.parameters = hasParameters;
+        }
+
+        public boolean hasParameters() {
+            return parameters;
+        }
     }
 }

@@ -64,7 +64,6 @@ public abstract class PacketScheduling implements QosMechanism {
         private boolean parameters;
 
         private Available(boolean hasParameters) {
-
             this.parameters = hasParameters;
         }
 
