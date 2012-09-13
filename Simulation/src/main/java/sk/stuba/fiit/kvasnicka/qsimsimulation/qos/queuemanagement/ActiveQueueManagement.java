@@ -67,8 +67,19 @@ public abstract class ActiveQueueManagement implements QosMechanism {
     }
 
     public enum Available {
-        RED,
-        WRED,
-        NONE
+        RED(true),
+        WRED(true),
+        NONE(false);
+
+        private boolean parameters;
+
+        private Available(boolean hasParameters) {
+            this.parameters = hasParameters;
+        }
+
+        public boolean hasParameters() {
+            return parameters;
+        }
+
     }
 }
