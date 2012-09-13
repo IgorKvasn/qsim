@@ -29,9 +29,11 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.BlockingDialog;
 
 /**
@@ -41,21 +43,21 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.BlockingDialog;
  */
 public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDialog.ResultObject> {
 
-    private Edge edge;
     private JFormattedTextField txtSpeed;
     private JFormattedTextField txtLength;
 
     /**
      * creates new instance of dialog
      *
-     * @param edge      Edge object that is being configured; this object is read-only
+     * @param edge Edge object that is being configured; this object is
+     * read-only
      */
-    public EdgeConfigurationDialog(Edge edge) {
+    public EdgeConfigurationDialog(NetworkNode src, NetworkNode dest, long defaultSpeed) {
         super(null);
-        setTitle(NbBundle.getMessage(EdgeConfigurationDialog.class,"create.new.edge"));
-        this.edge = edge;
+        setTitle(NbBundle.getMessage(EdgeConfigurationDialog.class, "create.new.edge"));
 
         initGui();
+        txtSpeed.setValue(defaultSpeed);
     }
 
     private void initGui() {
@@ -71,14 +73,9 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
         NumberFormatter numberFormatter = new NumberFormatter(decimalFormat);
         txtSpeed = new JFormattedTextField(numberFormatter);
         txtSpeed.setColumns(10);
-        try {
-            txtSpeed.setText(String.valueOf(edge.getSpeed()));
-        } catch (IllegalStateException e) {
-            txtSpeed.setText("");
-        }
         txtSpeed.setToolTipText(NbBundle.getMessage(EdgeConfigurationDialog.class, "bitrate.must.be.decimal.number"));
 
-        JXLabel lblSpeed = new JXLabel(NbBundle.getMessage(EdgeConfigurationDialog.class,"bitrate.bit.s"));
+        JXLabel lblSpeed = new JXLabel(NbBundle.getMessage(EdgeConfigurationDialog.class, "bitrate.bit.s"));
         lblSpeed.setLabelFor(txtSpeed);
         speedPanel.add(lblSpeed);
         speedPanel.add(txtSpeed);
@@ -88,14 +85,9 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
         JPanel lengthPanel = new JPanel();
         txtLength = new JFormattedTextField(numberFormatter);
         txtLength.setColumns(10);
-        try {
-            txtLength.setText(String.valueOf(edge.getLength()));
-        } catch (IllegalStateException e) {
-            txtLength.setText("");
-        }
-        txtLength.setToolTipText(NbBundle.getMessage(EdgeConfigurationDialog.class,"length.must.be.decimal.number"));
+        txtLength.setToolTipText(NbBundle.getMessage(EdgeConfigurationDialog.class, "length.must.be.decimal.number"));
 
-        JXLabel lblLength = new JXLabel(NbBundle.getMessage(EdgeConfigurationDialog.class,"length.m"));
+        JXLabel lblLength = new JXLabel(NbBundle.getMessage(EdgeConfigurationDialog.class, "length.m"));
         lblLength.setLabelFor(txtLength);
         lengthPanel.add(lblLength);
         lengthPanel.add(txtLength);
@@ -103,24 +95,22 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
 
 
         JPanel bottomPanel = new JPanel();
-        JButton btnOk = new JButton(NbBundle.getMessage(EdgeConfigurationDialog.class,"ok"));
+        JButton btnOk = new JButton(NbBundle.getMessage(EdgeConfigurationDialog.class, "ok"));
         btnOk.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!validateInput()) {
                     return;
                 }
 
-                ResultObject resultObject = new ResultObject(Long.valueOf(txtSpeed.getText()), Integer.valueOf(txtLength.getText()));
-                //resultObject.setName(txtName.getText());
-                setUserInput(resultObject);
-                closeDialog();
+//                ResultObject resultObject = new ResultObject(Long.valueOf(txtSpeed.getText()), Integer.valueOf(txtLength.getText()));
+                throw new UnsupportedOperationException("not yet implemented"); //todo uncoment and fix code above and below
+//                setUserInput(resultObject);
+//                closeDialog();
             }
         });
-        JButton btnCancel = new JButton(NbBundle.getMessage(EdgeConfigurationDialog.class,"cancel"));
+        JButton btnCancel = new JButton(NbBundle.getMessage(EdgeConfigurationDialog.class, "cancel"));
         btnCancel.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 setUserInput(null);
@@ -165,22 +155,19 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
         return ok;
     }
 
+    @Getter
     public class ResultObject {
 
         private long speed;
         private int length;
+        private int mtu;
+        private double packetErrorRate;
 
-        public ResultObject(long speed, int length) {
+        public ResultObject(long speed, int length, int mtu, double packetErrorRate) {
             this.speed = speed;
             this.length = length;
-        }
-
-        public long getSpeed() {
-            return speed;
-        }
-
-        public int getLength() {
-            return length;
+            this.mtu = mtu;
+            this.packetErrorRate = packetErrorRate;
         }
     }
 }

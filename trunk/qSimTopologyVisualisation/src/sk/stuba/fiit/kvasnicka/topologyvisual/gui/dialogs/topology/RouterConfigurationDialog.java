@@ -17,19 +17,41 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology;
 
 import java.awt.Dimension;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import javax.swing.JOptionPane;
-import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableModel;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.netbeans.api.javahelp.Help;
+import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.BestEffortClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.DscpClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.FlowBasedClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.IpPrecedenceClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.NoClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpDefinition;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.ActiveQueueManagement;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.BestEffortQueueManagement;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.RandomEarlyDetection;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.WeightedRED;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.QosMechanism;
+import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.DscpClassificationDialog;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.RedQueueManagementDialog;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.WredQueueManagementDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.BlockingDialog;
 
 /**
@@ -41,6 +63,9 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
     private static Logger logg = Logger.getLogger(RouterConfigurationDialog.class);
     private String routerName;
     private DefaultTableModel tableModel;
+    private DscpClassificationDialog dscpClassificationDialog;
+    private RedQueueManagementDialog redQueueManagementDialog;
+    private WredQueueManagementDialog wredQueueManagementDialog;
 
     /**
      * Creates new form RouterConfigurationDialog
@@ -54,25 +79,198 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         ((SpinnerNumberModel) spinProcessingMin.getModel()).setValue(DelayHelper.MIN_PROCESSING_DELAY);
         ((SpinnerNumberModel) spinProcessingMax.getModel()).setMinimum(DelayHelper.MIN_PROCESSING_DELAY);
         ((SpinnerNumberModel) spinProcessingMax.getModel()).setValue(DelayHelper.MIN_PROCESSING_DELAY);
-        tableModel = (DefaultTableModel) jTable1.getModel();
-        jTable1.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);//this is a nice hack = user now need not to confirm (e.g. deselecting or pressing ENTER) entered text in cells
         txtName.setText(routerName);
         lblError.setVisible(false);
         this.setSize(489, 423);
         this.setMinimumSize(new Dimension(489, 423));
+        initQosComboboxes();
+    }
+
+    private void initQosComboboxes() {
+        comboQosQueue.addItem(new ComboItem(ActiveQueueManagement.Available.NONE, "None"));
+        comboQosQueue.addItem(new ComboItem(ActiveQueueManagement.Available.RED, "Random early detection (RED)"));
+        comboQosQueue.addItem(new ComboItem(ActiveQueueManagement.Available.WRED, "Weighted RED (WRED)"));
+
+
+        comboQosClassif.addItem(new ComboItem(PacketClassification.Available.BEST_EFFORT, "Best effort"));
+        comboQosClassif.addItem(new ComboItem(PacketClassification.Available.DSCP, "DSCP"));
+        comboQosClassif.addItem(new ComboItem(PacketClassification.Available.FLOW_BASED, "Flow based"));
+        comboQosClassif.addItem(new ComboItem(PacketClassification.Available.IP_PRECEDENCE, "IP precedence"));
+        comboQosClassif.addItem(new ComboItem(PacketClassification.Available.NONE, "Use previous"));
+
+        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.FIFO, "FIFO"));
+        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.PRIORITY_QUEUEING, "Priority queueing"));
+        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.ROUND_ROBIN, "Round robin"));
+        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.WEIGHTED_ROUND_ROBIN, "Weighted round robin"));
+        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.WFQ, "Weighted fair queueing (WFQ)"));
+        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.CB_WFQ, "Class based WFQ"));
     }
 
     /**
-     * selects row in jTable1 table
-     *
-     * @param rowNumber
+     * show appropriate configuration dialog for desired classification
      */
-    private void selectRow(int rowNumber) {
-        if (jTable1.getRowCount() - 1 < rowNumber) {//illegal row number - such row does not exist
-            rowNumber = jTable1.getRowCount() - 1; //last row
+    private void showConfigClassification() {
+        PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
+
+        if (!classEnum.hasParameters()) {
+            logg.warn("button for configuration of Qos classification mechanism with no parameters was pressed - this should not happen...");
+            return;
         }
-        ListSelectionModel selectionModel = jTable1.getSelectionModel();
-        selectionModel.setSelectionInterval(rowNumber, rowNumber);
+        switch (classEnum) {
+            case DSCP:
+                if (dscpClassificationDialog == null) {
+                    dscpClassificationDialog = new DscpClassificationDialog();
+                }
+                dscpClassificationDialog.setVisible(true);
+                break;
+            default:
+                throw new IllegalStateException("undefined dialog for classification " + classEnum);
+        }
+    }
+
+    /**
+     * show appropriate configuration dialog for desired classification
+     */
+    private void showConfigQueueManagement() {
+        ActiveQueueManagement.Available classEnum = ((ActiveQueueManagement.Available) ((ComboItem) comboQosQueue.getSelectedItem()).getValue());
+
+        if (!classEnum.hasParameters()) {
+            logg.warn("button for configuration of Qos active queuemanagement mechanism with no parameters was pressed - this should not happen...");
+            return;
+        }
+        switch (classEnum) {
+            case RED:
+                if (redQueueManagementDialog == null) {
+                    redQueueManagementDialog = new RedQueueManagementDialog();
+                }
+                redQueueManagementDialog.setVisible(true);
+                break;
+
+            case WRED:
+                int queueCount = calculateQueueCountByClassification();
+                if (wredQueueManagementDialog == null) {
+                    wredQueueManagementDialog = new WredQueueManagementDialog(queueCount);
+                } else {
+                    wredQueueManagementDialog.setQueueCount(queueCount);
+                }
+                wredQueueManagementDialog.setVisible(true);
+                break;
+            default:
+                throw new IllegalStateException("undefined dialog for queue management " + classEnum);
+        }
+    }
+
+    /**
+     * determines, how many queues will be created according to selected
+     * classification
+     *
+     * @return -1 if unable to determine (e.g. flow based classification)
+     */
+    private int calculateQueueCountByClassification() {
+        PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
+
+        switch (classEnum) {
+            case BEST_EFFORT:
+                return 1;
+            case DSCP:
+                Set<Integer> queues = new TreeSet<Integer>();
+                for (DscpDefinition def : dscpClassificationDialog.getDscpDefinitions()) {
+                    queues.add(def.getQueueNumber());
+                }
+                return queues.size() + 1;
+            case FLOW_BASED:
+                return -1;
+            case IP_PRECEDENCE:
+                return 8;
+            case NONE:
+                return -1;
+            default:
+                throw new IllegalStateException("unable to predict numbe rof output queues for classification: " + classEnum);
+        }
+    }
+
+    /**
+     * creates QosMechanismDefinition object according to user input user input
+     * should be already validated before calling this method
+     *
+     * @return non-null string if some QoS mechanism was not configured at all
+     */
+    private QosMechanismDefinition createQosMechanismDefinition() throws QosCreationException {
+        //packet classifiation
+        PacketClassification packetClassification = createPacketClassification();
+
+        //active queue management
+        ActiveQueueManagement activeQueueManagement = createActiveQueueManagement();
+
+        return null;
+    }
+
+    private ActiveQueueManagement createActiveQueueManagement() throws QosCreationException {
+        ActiveQueueManagement queueManagement;
+        ActiveQueueManagement.Available classEnum = ((ActiveQueueManagement.Available) ((ComboItem) comboQosQueue.getSelectedItem()).getValue());
+        switch (classEnum) {
+            case NONE:
+                queueManagement = new BestEffortQueueManagement();
+                break;
+            case RED:
+                if (redQueueManagementDialog == null) {
+                    throw new QosCreationException(NbBundle.getMessage(RouterConfigurationDialog.class, "queue_management_not_configured"));
+                }
+
+                queueManagement = new RandomEarlyDetection(new HashMap<String, Object>() {
+                    {
+                        put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, redQueueManagementDialog.getExponentialWeightFactor());
+                        put(RandomEarlyDetection.MAX_PROBABILITY, redQueueManagementDialog.getMaxProbability());
+                        put(RandomEarlyDetection.MIN_THRESHOLD, redQueueManagementDialog.getMinThreshlod());
+                        put(RandomEarlyDetection.MAX_THRESHOLD, redQueueManagementDialog.getMaxThreshlod());
+                    }
+                });
+                break;
+            case WRED:
+               //todo queueManagement = new WeightedRED();
+                return null; //todo uncomment above and below and delete this line
+                //break;
+            default:
+                throw new IllegalStateException("unknown enum for active queue management: " + classEnum);
+        }
+
+        return queueManagement;
+    }
+
+    private PacketClassification createPacketClassification() throws QosCreationException {
+        PacketClassification classification;
+        PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
+        switch (classEnum) {
+            case BEST_EFFORT:
+                classification = new BestEffortClassification();
+                break;
+            case DSCP:
+                if (dscpClassificationDialog == null) {
+                    throw new QosCreationException(NbBundle.getMessage(RouterConfigurationDialog.class, "classfication_not_configured"));
+                }
+                List<DscpDefinition> result = dscpClassificationDialog.getDscpDefinitions();
+                final DscpManager dscpManager = new DscpManager(result.toArray(new DscpDefinition[result.size()]), dscpClassificationDialog.getDefaultQueueNumber());
+
+                classification = new DscpClassification(new HashMap<String, Object>() {
+                    {
+                        put(DscpClassification.DSCP_DEFINITIONS, dscpManager);
+                    }
+                });
+                break;
+            case FLOW_BASED:
+                classification = new FlowBasedClassification();
+                break;
+            case IP_PRECEDENCE:
+                classification = new IpPrecedenceClassification();
+                break;
+            case NONE:
+                classification = new NoClassification();
+                break;
+            default:
+                throw new IllegalStateException("unknown enum for classification: " + classEnum);
+        }
+
+        return classification;
     }
 
     /**
@@ -91,14 +289,6 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         jLabel6 = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         txtDescription = new org.jdesktop.swingx.JXTextArea();
-        jPanel2 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
-        jLabel12 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         spinProcessing = new javax.swing.JSpinner();
@@ -117,6 +307,19 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         spinTcpTimeout = new javax.swing.JSpinner();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        spinOutputQueue = new javax.swing.JSpinner();
+        jPanel5 = new javax.swing.JPanel();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel13 = new javax.swing.JLabel();
+        comboQosQueue = new javax.swing.JComboBox();
+        jLabel14 = new javax.swing.JLabel();
+        comboQosScheduling = new javax.swing.JComboBox();
+        jLabel15 = new javax.swing.JLabel();
+        comboQosClassif = new javax.swing.JComboBox();
+        btnConfigQueue = new javax.swing.JButton();
+        btnConfigScheduling = new javax.swing.JButton();
+        btnConfigClassif = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jButton7 = new javax.swing.JButton();
@@ -147,7 +350,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 436, Short.MAX_VALUE)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel3Layout.createSequentialGroup()
@@ -173,117 +376,6 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         );
 
         jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jPanel3.TabConstraints.tabTitle"), jPanel3); // NOI18N
-
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                { new Integer(1), "Default",  new Integer(10)}
-            },
-            new String [] {
-                "#", "Label (optional)", "Size"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class
-            };
-            boolean[] canEdit = new boolean [] {
-                false, true, true
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        jTable1.setColumnSelectionAllowed(true);
-        jScrollPane1.setViewportView(jTable1);
-        jTable1.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        jTable1.getColumnModel().getColumn(0).setHeaderValue(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jTable1.columnModel.title0")); // NOI18N
-        jTable1.getColumnModel().getColumn(1).setHeaderValue(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jTable1.columnModel.title1")); // NOI18N
-        jTable1.getColumnModel().getColumn(2).setHeaderValue(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jTable1.columnModel.title2")); // NOI18N
-
-        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/add.png"))); // NOI18N
-        jButton1.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jButton1.text")); // NOI18N
-        jButton1.setToolTipText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jButton1.toolTipText")); // NOI18N
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/remove.png"))); // NOI18N
-        jButton2.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jButton2.text")); // NOI18N
-        jButton2.setToolTipText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jButton2.toolTipText")); // NOI18N
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-
-        jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/up.png"))); // NOI18N
-        jButton5.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jButton5.text")); // NOI18N
-        jButton5.setToolTipText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jButton5.toolTipText")); // NOI18N
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
-            }
-        });
-
-        jButton6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/down.png"))); // NOI18N
-        jButton6.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jButton6.text")); // NOI18N
-        jButton6.setToolTipText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jButton6.toolTipText")); // NOI18N
-        jButton6.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton6ActionPerformed(evt);
-            }
-        });
-
-        jLabel12.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel12.text")); // NOI18N
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 349, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton2)
-                            .addComponent(jButton1)
-                            .addComponent(jButton5)
-                            .addComponent(jButton6))
-                        .addGap(24, 24, 24))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(66, 66, 66)
-                        .addComponent(jButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2)
-                        .addGap(47, 47, 47)
-                        .addComponent(jButton5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton6))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(20, 20, 20)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jPanel2.TabConstraints.tabTitle"), jPanel2); // NOI18N
 
         jLabel2.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel2.text")); // NOI18N
 
@@ -347,6 +439,10 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
 
         jLabel11.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel11.text")); // NOI18N
 
+        jLabel12.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel12.text")); // NOI18N
+
+        spinOutputQueue.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -361,13 +457,15 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                             .addComponent(jLabel2)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGap(3, 3, 3)
-                                .addComponent(jLabel5)))
+                                .addComponent(jLabel5))
+                            .addComponent(jLabel12))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(spinInputQueue, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(spinRx, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(spinTx, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(spinProcessing, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(spinProcessing, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(spinOutputQueue, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel10)
@@ -377,7 +475,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                         .addComponent(jLabel9)
                         .addGap(153, 153, 153)
                         .addComponent(spinTcpTimeout, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(22, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -386,30 +484,146 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(spinProcessing, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(spinTx, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel10))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(spinRx, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel11))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(spinInputQueue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(spinOutputQueue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel12))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
                     .addComponent(spinTcpTimeout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jPanel1.TabConstraints.tabTitle"), jPanel1); // NOI18N
+
+        jLabel13.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel13.text")); // NOI18N
+
+        comboQosQueue.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboQosQueueActionPerformed(evt);
+            }
+        });
+
+        jLabel14.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel14.text")); // NOI18N
+
+        comboQosScheduling.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        comboQosScheduling.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboQosSchedulingActionPerformed(evt);
+            }
+        });
+
+        jLabel15.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel15.text")); // NOI18N
+
+        comboQosClassif.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        comboQosClassif.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboQosClassifActionPerformed(evt);
+            }
+        });
+
+        btnConfigQueue.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.btnConfigQueue.text")); // NOI18N
+        btnConfigQueue.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnConfigQueueActionPerformed(evt);
+            }
+        });
+
+        btnConfigScheduling.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.btnConfigScheduling.text")); // NOI18N
+
+        btnConfigClassif.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.btnConfigClassif.text")); // NOI18N
+        btnConfigClassif.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnConfigClassifActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                        .addGap(0, 33, Short.MAX_VALUE)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel6Layout.createSequentialGroup()
+                                .addComponent(comboQosClassif, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(37, 37, 37)
+                                .addComponent(btnConfigClassif, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap())
+                            .addGroup(jPanel6Layout.createSequentialGroup()
+                                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(comboQosScheduling, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(comboQosQueue, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(37, 37, 37)
+                                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(btnConfigQueue, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
+                                    .addComponent(btnConfigScheduling, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(77, 77, 77))))
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel14)
+                            .addComponent(jLabel13)
+                            .addComponent(jLabel15))
+                        .addContainerGap())))
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(13, 13, 13)
+                .addComponent(jLabel15)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(comboQosClassif, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnConfigClassif))
+                .addGap(18, 18, 18)
+                .addComponent(jLabel13)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(comboQosQueue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnConfigQueue))
+                .addGap(18, 18, 18)
+                .addComponent(jLabel14)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(comboQosScheduling, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnConfigScheduling))
+                .addContainerGap(71, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jPanel5.TabConstraints.tabTitle"), jPanel5); // NOI18N
 
         jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/help.png"))); // NOI18N
         jButton3.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jButton3.text")); // NOI18N
@@ -470,11 +684,11 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                         .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(29, 29, 29))))
             .addGroup(layout.createSequentialGroup()
-                .addGap(69, 69, 69)
+                .addGap(131, 131, 131)
                 .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 195, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -501,23 +715,6 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        tableModel.addRow(new Object[]{tableModel.getRowCount() + 1, null, null});
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        if (jTable1.getSelectedRowCount() == 0) {
-            JOptionPane.showMessageDialog(this,
-                    NbBundle.getMessage(RouterConfigurationDialog.class, "error_select_row"),
-                    NbBundle.getMessage(RouterConfigurationDialog.class, "error_title"),
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        int selected = jTable1.getSelectedRow();
-        tableModel.removeRow(selected);
-        selectRow(selected);
-    }//GEN-LAST:event_jButton2ActionPerformed
-
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         Help help = Lookup.getDefault().lookup(Help.class);
         help.showHelp(new HelpCtx("ahoj"));//todo router configuration - help
@@ -538,12 +735,20 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         Double tcptimeout = (Double) spinTcpTimeout.getValue();
         Integer processingPackets = (Integer) spinProcessing.getValue();
         Integer inputQueue = (Integer) spinInputQueue.getValue();
+        Integer outputQueue = (Integer) spinOutputQueue.getValue();
         Integer rxSize = (Integer) spinRx.getValue();
         Integer txSize = (Integer) spinTx.getValue();
-
-        RouterConfigurationDialog.ResultObject resultObject = new RouterConfigurationDialog.ResultObject(txtName.getText(), txtDescription.getText(), null, null, txSize, rxSize, inputQueue, processingPackets, tcptimeout, minProcessingDelay, maxProcessingDelay);
-        setUserInput(resultObject);
-        closeDialog();
+        try {
+            QosMechanismDefinition qosMechanismDefinition = createQosMechanismDefinition();
+            RouterConfigurationDialog.ResultObject resultObject = new RouterConfigurationDialog.ResultObject(txtName.getText(), txtDescription.getText(), null, txSize, rxSize, inputQueue, outputQueue, processingPackets, tcptimeout, minProcessingDelay, maxProcessingDelay);
+            setUserInput(resultObject);
+            closeDialog();
+        } catch (QosCreationException ex) {
+            JOptionPane.showMessageDialog(this,
+                    ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
 
     }//GEN-LAST:event_jButton7ActionPerformed
 
@@ -552,69 +757,43 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         cancelDialog();
     }//GEN-LAST:event_jButton8ActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        //move row up
-        int selected = jTable1.getSelectedRow();
-        if (selected == -1) {
-            JOptionPane.showMessageDialog(this,
-                    NbBundle.getMessage(RouterConfigurationDialog.class, "error_select_row"),
-                    NbBundle.getMessage(RouterConfigurationDialog.class, "error_title"),
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+    private void comboQosQueueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboQosQueueActionPerformed
+        btnConfigQueue.setEnabled(!((ActiveQueueManagement.Available) ((ComboItem) comboQosQueue.getSelectedItem()).getValue()).hasParameters());
+    }//GEN-LAST:event_comboQosQueueActionPerformed
 
-        if (selected == 0) {//selected row is at the top
-            return;
-        }
+    private void btnConfigQueueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfigQueueActionPerformed
+        showConfigQueueManagement();
+    }//GEN-LAST:event_btnConfigQueueActionPerformed
 
-        //change row numbering
-        tableModel.setValueAt(selected + 1, selected - 1, 0);
-        tableModel.setValueAt(selected, selected, 0);
+    private void comboQosSchedulingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboQosSchedulingActionPerformed
+        btnConfigScheduling.setEnabled(!((QosMechanism) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue()).hasParameters());
+    }//GEN-LAST:event_comboQosSchedulingActionPerformed
 
-        //move row
-        tableModel.moveRow(selected, selected, selected - 1);
+    private void comboQosClassifActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboQosClassifActionPerformed
+        btnConfigClassif.setEnabled(!((QosMechanism) ((ComboItem) comboQosClassif.getSelectedItem()).getValue()).hasParameters());
+    }//GEN-LAST:event_comboQosClassifActionPerformed
 
-        //select moved row
-        selectRow(selected - 1);
-    }//GEN-LAST:event_jButton5ActionPerformed
-
-    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        // move row down
-        int selected = jTable1.getSelectedRow();
-        if (selected == -1) {
-            JOptionPane.showMessageDialog(this,
-                    NbBundle.getMessage(RouterConfigurationDialog.class, "error_select_row"),
-                    NbBundle.getMessage(RouterConfigurationDialog.class, "error_title"),
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (selected == jTable1.getRowCount() - 1) {//selected row is at the top
-            return;
-        }
-        //change row numbering
-        tableModel.setValueAt(selected + 1, selected + 1, 0);
-        tableModel.setValueAt(selected + 2, selected, 0);
-
-        //move row
-        tableModel.moveRow(selected, selected, selected + 1);
-
-        //select moved row
-        selectRow(selected + 1);
-    }//GEN-LAST:event_jButton6ActionPerformed
+    private void btnConfigClassifActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfigClassifActionPerformed
+        showConfigClassification();
+    }//GEN-LAST:event_btnConfigClassifActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JButton btnConfigClassif;
+    private javax.swing.JButton btnConfigQueue;
+    private javax.swing.JButton btnConfigScheduling;
+    private javax.swing.JComboBox comboQosClassif;
+    private javax.swing.JComboBox comboQosQueue;
+    private javax.swing.JComboBox comboQosScheduling;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -624,15 +803,15 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JLabel lblError;
     private javax.swing.JSpinner spinInputQueue;
+    private javax.swing.JSpinner spinOutputQueue;
     private javax.swing.JSpinner spinProcessing;
     private javax.swing.JSpinner spinProcessingMax;
     private javax.swing.JSpinner spinProcessingMin;
@@ -657,18 +836,11 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             return false;
         }
 
-        //check if output queue table is properly filled
-        for (int i = 0; i < jTable1.getRowCount(); i++) {
-            if (tableModel.getValueAt(i, 2) == null) {
-                showError("Output queue size is not defined.");
-                return false;
-            }
-            if ((Integer) tableModel.getValueAt(i, 2) <= 0) {
-                showError("Output queue size must not be zero or negative.");
-                return false;
-            }
-        }
 
+        if ((Double) spinProcessingMin.getValue() > (Double) spinProcessingMax.getValue()) {
+            showError("Minimal processing delay must not be greater than maximal proc. delay.");
+            return false;
+        }
 
         //the rest of the validation is done by JSpinner components themself (see their model definitions, if you don't believe me)
 
@@ -683,76 +855,51 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
     /**
      * object that stores users input
      */
+    @Getter
     public static class ResultObject {
 
         private String name;
         private String description;
-        private QosMechanism qosMechanism;
-        private OutputQueueManager outputQueueManager;
+        private QosMechanismDefinition qosMechanismDefinition;
         private int maxTxBufferSize;
         private int maxIntputQueueSize;
+        private int maxOutputQueueSize;
         private int maxRxBufferSize;
         private int maxProcessingPackets;
         private double tcpDelay;
         private double minProcessingDelay;
         private double maxProcessingDelay;
 
-        public ResultObject(String name, String description, QosMechanism qosMechanism, OutputQueueManager outputQueueManager, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
+        public ResultObject(String name, String description, QosMechanismDefinition qosMechanismDefinition, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxOutputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
             this.name = name;
             this.description = description;
-            this.qosMechanism = qosMechanism;
-            this.outputQueueManager = outputQueueManager;
+            this.qosMechanismDefinition = qosMechanismDefinition;
             this.maxTxBufferSize = maxTxBufferSize;
-            this.maxRxBufferSize = maxRxBufferSize;
             this.maxIntputQueueSize = maxIntputQueueSize;
+            this.maxOutputQueueSize = maxOutputQueueSize;
+            this.maxRxBufferSize = maxRxBufferSize;
             this.maxProcessingPackets = maxProcessingPackets;
             this.tcpDelay = tcpDelay;
             this.minProcessingDelay = minProcessingDelay;
             this.maxProcessingDelay = maxProcessingDelay;
         }
+    }
 
-        public int getMaxRxBufferSize() {
-            return maxRxBufferSize;
+    private static class ComboItem {
+
+        @Getter
+        private Object value;
+        @Getter
+        private String label;
+
+        public ComboItem(Object value, String label) {
+            this.value = value;
+            this.label = label;
         }
 
-        public double getMaxProcessingDelay() {
-            return maxProcessingDelay;
-        }
-
-        public double getMinProcessingDelay() {
-            return minProcessingDelay;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public int getMaxIntputQueueSize() {
-            return maxIntputQueueSize;
-        }
-
-        public int getMaxProcessingPackets() {
-            return maxProcessingPackets;
-        }
-
-        public int getMaxTxBufferSize() {
-            return maxTxBufferSize;
-        }
-
-        public QosMechanism getQosMechanism() {
-            return qosMechanism;
-        }
-
-        public OutputQueueManager getSwQueues() {
-            return outputQueueManager;
-        }
-
-        public double getTcpDelay() {
-            return tcpDelay;
-        }
-
-        public String getName() {
-            return name;
+        @Override
+        public String toString() {
+            return label;
         }
     }
 }

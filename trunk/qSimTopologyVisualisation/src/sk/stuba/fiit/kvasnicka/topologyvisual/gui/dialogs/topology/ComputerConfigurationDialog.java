@@ -23,9 +23,13 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Computer;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.panels.ComputerPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.BlockingDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
@@ -58,22 +62,21 @@ public class ComputerConfigurationDialog extends BlockingDialog<ComputerConfigur
         txtName.setText(computerName);
 
         btnOk.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!validateInput()) {
                     return;
                 }
 
-                ResultObject resultObject = new ResultObject();
-                resultObject.setName(txtName.getText());
-                setUserInput(resultObject);
-                closeDialog();
+//                ResultObject resultObject = new ResultObject();
+//                resultObject.setName(txtName.getText());
+                throw new UnsupportedOperationException("not yet implemented"); //todo uncoment and fix code above and below
+//                setUserInput(resultObject);
+//                closeDialog();
             }
         });
 
         btnCancel.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 setUserInput(null);
@@ -106,16 +109,37 @@ public class ComputerConfigurationDialog extends BlockingDialog<ComputerConfigur
     /**
      * object that stores users input
      */
+    @Getter
     public static class ResultObject {
 
         private String name;
+        private String description;
+        private QosMechanismDefinition QosMechanismDefinition;
+        private OutputQueueManager outputQueueManager;
+        private int maxTxBufferSize;
+        private int maxIntputQueueSize;
+        private int maxOutputQueueSize;
+        private int maxRxBufferSize;
+        private int maxProcessingPackets;
+        private double tcpDelay;
+        private double minProcessingDelay;
+        private double maxProcessingDelay;
+        private DscpManager dscpManager;
 
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
+        public ResultObject(String name, String description, QosMechanismDefinition QosMechanismDefinition, OutputQueueManager outputQueueManager, int maxTxBufferSize, int maxIntputQueueSize, int maxOutputQueueSize, int maxRxBufferSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay, DscpManager dscpManager) {
             this.name = name;
+            this.description = description;
+            this.QosMechanismDefinition = QosMechanismDefinition;
+            this.outputQueueManager = outputQueueManager;
+            this.maxTxBufferSize = maxTxBufferSize;
+            this.maxIntputQueueSize = maxIntputQueueSize;
+            this.maxOutputQueueSize = maxOutputQueueSize;
+            this.maxRxBufferSize = maxRxBufferSize;
+            this.maxProcessingPackets = maxProcessingPackets;
+            this.tcpDelay = tcpDelay;
+            this.minProcessingDelay = minProcessingDelay;
+            this.maxProcessingDelay = maxProcessingDelay;
+            this.dscpManager = dscpManager;
         }
     }
 }

@@ -30,4 +30,6 @@ public class EdgeDTO {
     private long speed;
     private int length;
     private String node1, node2;
+    private double packetErrorRate;
+    private int mtu;
 }

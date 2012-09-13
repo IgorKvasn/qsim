@@ -19,6 +19,7 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils;
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Computer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Switch;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.VertexFactory;
@@ -57,7 +58,7 @@ public class DialogHandler {
             throw new IllegalStateException("user hit cancel");
         }
 
-        return new Router(resultObject.getName(), resultObject.getQosMechanism(), resultObject.getSwQueues(), resultObject.getMaxTxBufferSize(), resultObject.getMaxRxBufferSize(), resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay(), resultObject.getMinProcessingDelay(), resultObject.getMaxProcessingDelay());
+        return new Router(resultObject.getName(), resultObject.getDescription(), resultObject.getQosMechanismDefinition(), resultObject.getMaxTxBufferSize(), resultObject.getMaxRxBufferSize(), resultObject.getMaxOutputQueueSize(), resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay(), resultObject.getMinProcessingDelay(), resultObject.getMaxProcessingDelay());
     }
 
     /**
@@ -74,10 +75,7 @@ public class DialogHandler {
             throw new IllegalStateException("user hit cancel");
         }
 
-       // Computer computer = new Computer(resultObject.getName(), resultObject.getQosMechanism(), resultObject.getSwQueues(), resultObject.getMaxTxBufferSize(), resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay());
-        Computer computer = new Computer();//todo use constructor above instead
-
-        return computer;
+        return new Computer(resultObject.getName(), resultObject.getDescription(), resultObject.getQosMechanismDefinition(), resultObject.getMaxTxBufferSize(), resultObject.getMaxRxBufferSize(), resultObject.getMaxOutputQueueSize(), resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay(), resultObject.getMinProcessingDelay(), resultObject.getMaxProcessingDelay());
     }
 
     /**
@@ -97,27 +95,22 @@ public class DialogHandler {
 //            throw new IllegalStateException("user hit cancel");
 //        }
         //Switch sw = new Switch(resultObject.getName(), resultObject.getQosMechanism(), resultObject.getSwQueues(), resultObject.getMaxTxBufferSize(), resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay());
-        Switch sw = new Switch();//todo use constructor above instead
-        return sw;
+        //todo finish this
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     /**
      * shows dialog with router configuration
      *
-     * @param edge edge with default values depending on user choice
-     * (Ethernet/FastEthernet/GigabitEthernet/Custom)
      */
-    public Edge showEdgeConfigurationDialog(Edge edge) {
-        BlockingDialog bl = new EdgeConfigurationDialog(edge);
+    public Edge showEdgeConfigurationDialog(long defaultSpeed, NetworkNode node1, NetworkNode node2) {
+        BlockingDialog bl = new EdgeConfigurationDialog(node1, node2, defaultSpeed);
         bl.showDialog();
         EdgeConfigurationDialog.ResultObject resultObject = (EdgeConfigurationDialog.ResultObject) bl.getUserInput();
         if (resultObject == null) {
             throw new IllegalStateException("user hit cancel");
         }
 
-        edge.setLength(resultObject.getLength());
-        edge.setSpeed(resultObject.getSpeed());
-
-        return edge;
+        return new Edge(resultObject.getSpeed(), resultObject.getMtu(), resultObject.getLength(), resultObject.getPacketErrorRate(), node1, node2);
     }
 }

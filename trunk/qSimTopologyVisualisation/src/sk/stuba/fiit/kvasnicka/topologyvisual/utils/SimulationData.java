@@ -26,6 +26,7 @@ import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.openide.util.Exceptions;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
@@ -251,6 +252,8 @@ public class SimulationData {
     public static class Data {
 
         private String id = null;
+        private IpPrecedence ipPrecedence;
+        private int srcPort, destPort;
         private String name;
         private TopologyVertex sourceVertex, destinationVertex;
         private List<TopologyVertex> fixedVertices;
@@ -259,13 +262,16 @@ public class SimulationData {
         private int packetCount;
         private PacketTypeEnum packetType;
         private int activationDelay;
-        private boolean ping;
 
         private void setId() {
             if (id != null) {
                 throw new IllegalStateException("simulation data ID is already set");
             }
             id = UUID.randomUUID().toString();
+        }
+
+        public boolean isPing() {
+            return Layer4TypeEnum.ICMP == layer4protocol;
         }
     }
 }

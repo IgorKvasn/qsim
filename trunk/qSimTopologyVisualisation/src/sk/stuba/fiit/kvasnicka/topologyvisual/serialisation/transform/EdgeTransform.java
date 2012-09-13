@@ -28,11 +28,11 @@ public class EdgeTransform {
     public static EdgeDTO transformToDTO(Edge e) {
         EdgeDTO ed = new EdgeDTO();
         ed.setLength(e.getLength());
-        ed.setSpeed(e.getSpeed());
+        ed.setSpeed(e.getMaxSpeed());
         ed.setNode1(e.getNode1().getName());
         ed.setNode2(e.getNode2().getName());
+        ed.setPacketErrorRate(e.getPacketErrorRate());
+        ed.setMtu(e.getMtu());
         return ed;
     }
-    
-    
 }
