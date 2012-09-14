@@ -4,17 +4,22 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 import javax.swing.JOptionPane;
+import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.WeightedRED.WredDefinition;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
 
 /**
@@ -26,6 +31,7 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
     private DefaultTreeModel treeModel;
     private DefaultMutableTreeNode rootNode;
     private Map<Integer, Integer> queueMap;//key=queue number; value=tree node index
+    private Map<Integer, WredDefinition> configuration = new HashMap<Integer, WredDefinition>(); //key =queue number; value=WredDefinition
 
     /**
      * Creates new form WredQueueManagementDialog
@@ -35,7 +41,10 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
         initComponents();
         treeModel = (DefaultTreeModel) jTree1.getModel();
         queueMap = new HashMap<Integer, Integer>();
+        setQueueCountLabel(queueCount);
         createQueues(queueCount);
+        jTree1.addTreeSelectionListener(new SelectionListener());
+        selectTreeNode(0);
     }
 
     /**
@@ -44,13 +53,90 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
      * @param queueCount
      */
     private void createQueues(int queueCount) {
-        for (int i = 0; i < queueCount; i++) {
-            try {
-                addQueue(i);
-            } catch (QosCreationException ex) {
-                Exceptions.printStackTrace(ex);//this should not happen
+        try {
+            if (queueCount == -1) {
+                //create default queue
+                addQueue(-1);
+            } else {
+                for (int i = 0; i < queueCount; i++) {
+                    addQueue(i);
+                }
             }
+        } catch (QosCreationException ex) {
+            Exceptions.printStackTrace(ex);//this should not happen
         }
+    }
+
+    private void loadConfiguration() {
+        int queue = getSelectedQueue();
+        if (queue == -2) {//nothing is selected
+            return;
+        }
+        WredDefinition wredDefinition = configuration.get(queue);
+        if (wredDefinition == null) {//configuration was not saved before
+            jSpinner1.setValue(0.002d);
+            jSpinner2.setValue(0.2d);
+            jSpinner3.setValue(0.8d);
+            jSpinner4.setValue(0.2d);
+            return;
+        }
+        jSpinner1.setValue(wredDefinition.getExponentialWeightFactor());
+        jSpinner2.setValue(wredDefinition.getMinThreshold());
+        jSpinner3.setValue(wredDefinition.getMaxThreshold());
+        jSpinner4.setValue(wredDefinition.getMaxProbability());
+    }
+
+    private void selectTreeNode(int index) {
+        if (rootNode.getChildCount() == 0) {//nothing to select
+            return;
+        }
+        jTree1.setSelectionRow(index);
+    }
+
+    /**
+     * saves configuration for currently displayed queue
+     */
+    private void saveConfiguration() {
+        if (rootNode.getChildCount() == 0) {//nothing to save
+            return;
+        }
+        int queue = getSelectedQueue();
+        if (queue == -2) {//nothing is selected
+            return;
+        }
+        WredDefinition definition = new WredDefinition(queue, getExponenetial(), getMaxThresh(), getMinThresh(), getMaxProb());
+
+        configuration.put(queue, definition);
+    }
+
+    private double getExponenetial() {
+        return (Double) jSpinner1.getValue();
+    }
+
+    private double getMinThresh() {
+        return (Double) jSpinner2.getValue();
+    }
+
+    private double getMaxThresh() {
+        return (Double) jSpinner3.getValue();
+    }
+
+    private double getMaxProb() {
+        return (Double) jSpinner4.getValue();
+    }
+
+    /**
+     * returns selected queue in the tree
+     *
+     * @return -2 if nothing is selected
+     */
+    private int getSelectedQueue() {
+        if (jTree1.getLastSelectedPathComponent() == null) {
+            return -2;
+        }
+        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
+        String selectedNodeName = selectedNode.toString();
+        return Integer.parseInt(selectedNodeName);
     }
 
     /**
@@ -58,7 +144,7 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
      *
      * @param queueCount
      */
-    public void setQueueCount(int queueCount) {
+    public final void setQueueCountLabel(int queueCount) {
         if (queueCount == -1) {
             jLabel7.setText(NbBundle.getMessage(WredQueueManagementDialog.class, "unable_to_predict_queue_count"));
         } else {
@@ -81,6 +167,10 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
         treeModel.removeNodeFromParent((MutableTreeNode) rootNode.getChildAt(queueMap.get(queueNumber)));
         queueMap.remove(queueNumber);
 
+    }
+
+    public Collection<WredDefinition> getConfiguration() {
+        return configuration.values();
     }
 
     /**
@@ -108,6 +198,8 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
         jLabel7 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jLabel8 = new javax.swing.JLabel();
+        jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -169,7 +261,7 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 271, Short.MAX_VALUE)
+            .addGap(0, 247, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
                     .addGap(77, 77, 77)
@@ -190,7 +282,7 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
                         .addComponent(jLabel4)
                         .addComponent(jSpinner4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jLabel6))
-                    .addContainerGap(78, Short.MAX_VALUE)))
+                    .addContainerGap(54, Short.MAX_VALUE)))
         );
 
         javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("root");
@@ -214,6 +306,15 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
             }
         });
 
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel8, org.openide.util.NbBundle.getMessage(WredQueueManagementDialog.class, "WredQueueManagementDialog.jLabel8.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jButton3, org.openide.util.NbBundle.getMessage(WredQueueManagementDialog.class, "WredQueueManagementDialog.jButton3.text")); // NOI18N
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -226,29 +327,40 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
                             .addComponent(jScrollPane1)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jButton1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jButton2)))
+                                .addGap(18, 18, 18)
+                                .addComponent(jButton2)
+                                .addGap(0, 0, Short.MAX_VALUE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel7)
+                            .addComponent(jLabel8))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(196, 196, 196)
+                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabel7)
+                .addGap(9, 9, 9)
+                .addComponent(jLabel8)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jButton1)
                             .addComponent(jButton2))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButton3)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -266,10 +378,11 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
                 rootNode.getChildCount());
 
         try {
-            if (Integer.parseInt(s) < 0) {
+            if (Integer.parseInt(s) < -1) {
                 throw new NumberFormatException();
             }
             addQueue(Integer.parseInt(s));
+            selectTreeNode(rootNode.getChildCount() - 1);//select new node
         } catch (QosCreationException e) {
             JOptionPane.showMessageDialog(this,
                     "Configuration for this queue already exists.",
@@ -277,7 +390,7 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
                     JOptionPane.ERROR_MESSAGE);
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this,
-                    "Please enter number (positive integer value)",
+                    "Please enter number (positive integer value) or -1 or default settings",
                     "Numeric error",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -295,6 +408,7 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
 
         try {
             removeQueue(Integer.parseInt(s));
+            selectTreeNode(0);//select first node
         } catch (QosCreationException e) {
             JOptionPane.showMessageDialog(this,
                     "Configuration for this queue does not exist.",
@@ -306,9 +420,15 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
                     "Numeric error",
                     JOptionPane.ERROR_MESSAGE);
         }    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        saveConfiguration();
+        this.setVisible(false);
+    }//GEN-LAST:event_jButton3ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -316,6 +436,7 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSpinner jSpinner1;
@@ -324,4 +445,18 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
     private javax.swing.JSpinner jSpinner4;
     private javax.swing.JTree jTree1;
     // End of variables declaration//GEN-END:variables
+
+    class SelectionListener implements TreeSelectionListener {
+
+        @Override
+        public void valueChanged(TreeSelectionEvent se) {
+            JTree tree = (JTree) se.getSource();
+            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+            String selectedNodeName = selectedNode.toString();
+
+            saveConfiguration();
+            loadConfiguration();
+
+        }
+    }
 }

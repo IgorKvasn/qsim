@@ -17,6 +17,7 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology;
 
 import java.awt.Dimension;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -46,8 +47,15 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.ActiveQueueMan
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.BestEffortQueueManagement;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.RandomEarlyDetection;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.WeightedRED;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.WeightedRED.WredDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.ClassBasedWFQScheduling;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.FifoScheduling;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.PriorityQueuingScheduling;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.RoundRobinScheduling;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedFairQueuingScheduling;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedRoundRobinScheduling;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.DscpClassificationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.RedQueueManagementDialog;
@@ -151,7 +159,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 if (wredQueueManagementDialog == null) {
                     wredQueueManagementDialog = new WredQueueManagementDialog(queueCount);
                 } else {
-                    wredQueueManagementDialog.setQueueCount(queueCount);
+                    wredQueueManagementDialog.setQueueCountLabel(queueCount);
                 }
                 wredQueueManagementDialog.setVisible(true);
                 break;
@@ -202,7 +210,41 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         //active queue management
         ActiveQueueManagement activeQueueManagement = createActiveQueueManagement();
 
-        return null;
+        //packet scheduling
+        PacketScheduling packetScheduling = createPacketScheduling();
+
+        //finally create QoS mechanism definition
+        QosMechanismDefinition qosMechanismDefinition = new QosMechanismDefinition(packetScheduling, packetClassification, activeQueueManagement);
+        return qosMechanismDefinition;
+    }
+
+    private PacketScheduling createPacketScheduling() {
+        PacketScheduling packetScheduling;
+        PacketScheduling.Available classEnum = ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());
+        switch (classEnum) {
+            case FIFO:
+                packetScheduling = new FifoScheduling();
+                break;
+            case CB_WFQ:
+                packetScheduling = new ClassBasedWFQScheduling();
+                break;
+            case PRIORITY_QUEUEING:
+                packetScheduling = new PriorityQueuingScheduling();
+                break;
+            case ROUND_ROBIN:
+                packetScheduling = new RoundRobinScheduling();
+                break;
+            case WEIGHTED_ROUND_ROBIN:
+                packetScheduling = new WeightedRoundRobinScheduling();
+                break;
+            case WFQ:
+                packetScheduling = new WeightedFairQueuingScheduling();
+                break;
+            default:
+                throw new IllegalStateException("unknown enum for active queue management: " + classEnum);
+        }
+
+        return packetScheduling;
     }
 
     private ActiveQueueManagement createActiveQueueManagement() throws QosCreationException {
@@ -227,9 +269,19 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 });
                 break;
             case WRED:
-               //todo queueManagement = new WeightedRED();
-                return null; //todo uncomment above and below and delete this line
-                //break;
+                if (wredQueueManagementDialog == null) {
+                    throw new QosCreationException(NbBundle.getMessage(RouterConfigurationDialog.class, "queue_management_not_configured"));
+                }
+                Collection<WredDefinition> configuration = wredQueueManagementDialog.getConfiguration();
+
+                final WeightedRED.WredDefinition[] definitions = configuration.toArray(new WredDefinition[configuration.size()]);
+
+                queueManagement = new WeightedRED(new HashMap<String, Object>() {
+                    {
+                        put(WeightedRED.WRED_DEFINITION, definitions);
+                    }
+                });
+                break;
             default:
                 throw new IllegalStateException("unknown enum for active queue management: " + classEnum);
         }
