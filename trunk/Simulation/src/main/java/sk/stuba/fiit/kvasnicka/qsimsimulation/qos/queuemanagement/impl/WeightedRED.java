@@ -17,6 +17,7 @@
 
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl;
 
+import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.ActiveQueueManagement;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ParameterException;
@@ -36,7 +37,7 @@ public class WeightedRED extends ActiveQueueManagement {
     public static final String WRED_DEFINITION = "WRED_DEFINITION";
     private static final int DEFAULT_RED_DEFINITION = - 1;
     /**
-     * each queue hsa its own RED algorithm
+     * each queue has its own RED algorithm; if queue number is -1, it is a default RED
      * key = queue number
      * value = RED algorithm
      */
@@ -97,7 +98,7 @@ public class WeightedRED extends ActiveQueueManagement {
         }
     }
 
-
+    @Getter
     public static class WredDefinition {
 
         private int qosNumber;
