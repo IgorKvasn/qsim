@@ -34,6 +34,7 @@ public class WeightedRED extends ActiveQueueManagement {
 
     private static final long serialVersionUID = - 1483265147363980794L;
     public static final String WRED_DEFINITION = "WRED_DEFINITION";
+    private static final int DEFAULT_RED_DEFINITION = - 1;
     /**
      * each queue hsa its own RED algorithm
      * key = queue number
@@ -62,7 +63,12 @@ public class WeightedRED extends ActiveQueueManagement {
         if (newPacket == null) {
             throw new IllegalArgumentException("packet is NULL");
         }
-        if (! reds.containsKey(newPacket.getQosQueue())) {
+        if (! reds.containsKey(newPacket.getQosQueue())) {//could not find red definition for packet with this classification
+
+            if (reds.containsKey(DEFAULT_RED_DEFINITION)) {//is a default definition configured?
+                return reds.get(DEFAULT_RED_DEFINITION).manageQueue(queue, newPacket);
+            }
+
             throw new IllegalStateException("no WRED definition for queue: " + newPacket.getQosQueue());
         }
 

@@ -81,4 +81,21 @@ public class WeightedREDTest {
             //ok
         }
     }
+
+    @Test
+    public void testManageQueue_wrong_queue_deafult_red_definition() {
+        final WeightedRED.WredDefinition[] defs = new WeightedRED.WredDefinition[2];
+        defs[0] = new WeightedRED.WredDefinition(0, .02, .2, .1, .9);
+        defs[1] = new WeightedRED.WredDefinition(- 1, .2, .2, .1, .9);
+
+        wred = new WeightedRED(new HashMap<String, Object>() {{
+            put(WeightedRED.WRED_DEFINITION, defs);
+        }});
+
+
+        List<Packet> queue2 = new LinkedList<Packet>();
+        Packet p = new Packet(15, null, null, 1);
+        p.setQosQueue(10);
+        wred.manageQueue(queue2, p);//all I care about is if no exception is thrown
+    }
 }
