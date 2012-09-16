@@ -33,6 +33,7 @@ import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
+import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
@@ -57,6 +58,8 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.RoundRobinSche
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedFairQueuingScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedRoundRobinScheduling;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DisabledItemsComboBox;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.ClassDefinitionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.DscpClassificationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.RedQueueManagementDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.WredQueueManagementDialog;
@@ -74,12 +77,13 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
     private DscpClassificationDialog dscpClassificationDialog;
     private RedQueueManagementDialog redQueueManagementDialog;
     private WredQueueManagementDialog wredQueueManagementDialog;
+    private ClassDefinitionDialog classDefinitionDialog;
 
     /**
      * Creates new form RouterConfigurationDialog
      */
     public RouterConfigurationDialog(String routerName) {
-        super(null);
+        super(WindowManager.getDefault().getMainWindow());
         this.routerName = routerName;
         initComponents();
 
@@ -106,12 +110,12 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         comboQosClassif.addItem(new ComboItem(PacketClassification.Available.IP_PRECEDENCE, "IP precedence"));
         comboQosClassif.addItem(new ComboItem(PacketClassification.Available.NONE, "Use previous"));
 
-        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.FIFO, "FIFO"));
-        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.PRIORITY_QUEUEING, "Priority queueing"));
-        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.ROUND_ROBIN, "Round robin"));
-        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.WEIGHTED_ROUND_ROBIN, "Weighted round robin"));
-        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.WFQ, "Weighted fair queueing (WFQ)"));
-        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.CB_WFQ, "Class based WFQ"));
+        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.FIFO, "FIFO"));//0
+        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.PRIORITY_QUEUEING, "Priority queueing"));//1
+        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.ROUND_ROBIN, "Round robin"));//2
+        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.WEIGHTED_ROUND_ROBIN, "Weighted round robin"));//3
+        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.WFQ, "Weighted fair queueing (WFQ)"));//4
+        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.CB_WFQ, "Class based WFQ"));//5
     }
 
     /**
@@ -137,7 +141,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
     }
 
     /**
-     * show appropriate configuration dialog for desired classification
+     * show appropriate configuration dialog for desired active queue management
      */
     private void showConfigQueueManagement() {
         ActiveQueueManagement.Available classEnum = ((ActiveQueueManagement.Available) ((ComboItem) comboQosQueue.getSelectedItem()).getValue());
@@ -165,6 +169,38 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 break;
             default:
                 throw new IllegalStateException("undefined dialog for queue management " + classEnum);
+        }
+    }
+
+    /**
+     * show appropriate configuration dialog for desired packet scheduling
+     */
+    private void showConfigScheduling() {
+        PacketScheduling.Available classEnum = ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());
+
+        if (!classEnum.hasParameters()) {
+            logg.warn("button for configuration of Qos active queuemanagement mechanism with no parameters was pressed - this should not happen...");
+            return;
+        }
+        switch (classEnum) {
+            case CB_WFQ:
+            case WEIGHTED_ROUND_ROBIN:
+
+                if (calculateQueueCountByClassification() == -1) {//flow based classfication cannot use class based packet scheduling
+                    JOptionPane.showMessageDialog(this,
+                            "",
+                            "Inane error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (classDefinitionDialog == null) {
+                    classDefinitionDialog = new ClassDefinitionDialog();
+                }
+                classDefinitionDialog.showDialog(getDefinedQueues());
+                break;
+            default:
+                throw new IllegalStateException("undefined dialog for packet scheduling " + classEnum);
         }
     }
 
@@ -198,6 +234,40 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
     }
 
     /**
+     * returns queue numbers of all defined queues
+     *
+     * @return null if flow based classification
+     */
+    private Set<Integer> getDefinedQueues() {
+        PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
+        Set<Integer> queues = new TreeSet<Integer>();
+
+        switch (classEnum) {
+            case BEST_EFFORT:
+                queues.add(0);
+                break;
+            case DSCP:
+                for (DscpDefinition def : dscpClassificationDialog.getDscpDefinitions()) {
+                    queues.add(def.getQueueNumber());
+                }
+                break;
+            case FLOW_BASED:
+                queues = null;
+                break;
+            case IP_PRECEDENCE:
+                for (int i = 0; i < 8; i++) {
+                    queues.add(i);
+                }
+                break;
+            case NONE:
+                break;
+            default:
+                throw new IllegalStateException("unable to predict numbe rof output queues for classification: " + classEnum);
+        }
+        return queues;
+    }
+
+    /**
      * creates QosMechanismDefinition object according to user input user input
      * should be already validated before calling this method
      *
@@ -218,15 +288,46 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         return qosMechanismDefinition;
     }
 
-    private PacketScheduling createPacketScheduling() {
+    private PacketScheduling createPacketScheduling() throws QosCreationException {
         PacketScheduling packetScheduling;
-        PacketScheduling.Available classEnum = ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());
-        switch (classEnum) {
+        PacketScheduling.Available schedAvailableEnum = ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());
+        PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
+
+        //check for classes to be defined - if class based scheduling is selected
+        if ((PacketScheduling.Available.CB_WFQ == schedAvailableEnum) || (PacketScheduling.Available.WEIGHTED_ROUND_ROBIN == schedAvailableEnum)) {
+            if (areClassesDefined()) {
+                if (PacketClassification.Available.DSCP == classEnum) {
+
+                    JOptionPane.showMessageDialog(this,
+                            "No QoS classes defined. DSCP configuration dialog will be opened to let you configure classes.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    showConfigClassification();
+                }
+            } else {
+                if (classDefinitionDialog == null) {
+                    classDefinitionDialog = new ClassDefinitionDialog();
+                }
+                classDefinitionDialog.showDialog(getDefinedQueues());
+            }
+        }
+
+
+
+        switch (schedAvailableEnum) {
             case FIFO:
                 packetScheduling = new FifoScheduling();
                 break;
             case CB_WFQ:
-                packetScheduling = new ClassBasedWFQScheduling();
+                if (classDefinitionDialog == null) {
+                    throw new IllegalStateException("classDefinitionDialog is NULL - this should be taken care of");
+                }
+                packetScheduling = new ClassBasedWFQScheduling(new HashMap<String, Object>() {
+                    {
+                        put(ClassBasedWFQScheduling.CLASS_DEFINITIONS, classDefinitionDialog.getClasses());
+                    }
+                });
+
                 break;
             case PRIORITY_QUEUEING:
                 packetScheduling = new PriorityQueuingScheduling();
@@ -235,13 +336,20 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 packetScheduling = new RoundRobinScheduling();
                 break;
             case WEIGHTED_ROUND_ROBIN:
-                packetScheduling = new WeightedRoundRobinScheduling();
+                if (classDefinitionDialog == null) {
+                    throw new IllegalStateException("classDefinitionDialog is NULL - this should be taken care of");
+                }
+                packetScheduling = new WeightedRoundRobinScheduling(new HashMap<String, Object>() {
+                    {
+                        put(WeightedRoundRobinScheduling.CLASS_DEFINITIONS, classDefinitionDialog.getClasses());
+                    }
+                });
                 break;
             case WFQ:
                 packetScheduling = new WeightedFairQueuingScheduling();
                 break;
             default:
-                throw new IllegalStateException("unknown enum for active queue management: " + classEnum);
+                throw new IllegalStateException("unknown enum for active queue management: " + schedAvailableEnum);
         }
 
         return packetScheduling;
@@ -325,6 +433,16 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         return classification;
     }
 
+    private boolean areClassesDefined() {
+        if (classDefinitionDialog == null) {
+            return false;
+        }
+        if (classDefinitionDialog.getClasses() == null) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -366,12 +484,12 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         jLabel13 = new javax.swing.JLabel();
         comboQosQueue = new javax.swing.JComboBox();
         jLabel14 = new javax.swing.JLabel();
-        comboQosScheduling = new javax.swing.JComboBox();
         jLabel15 = new javax.swing.JLabel();
         comboQosClassif = new javax.swing.JComboBox();
         btnConfigQueue = new javax.swing.JButton();
         btnConfigScheduling = new javax.swing.JButton();
         btnConfigClassif = new javax.swing.JButton();
+        comboQosScheduling = new sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DisabledItemsComboBox();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jButton7 = new javax.swing.JButton();
@@ -402,7 +520,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 479, Short.MAX_VALUE)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel3Layout.createSequentialGroup()
@@ -527,7 +645,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                         .addComponent(jLabel9)
                         .addGap(153, 153, 153)
                         .addComponent(spinTcpTimeout, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(52, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -575,13 +693,6 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
 
         jLabel14.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel14.text")); // NOI18N
 
-        comboQosScheduling.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        comboQosScheduling.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                comboQosSchedulingActionPerformed(evt);
-            }
-        });
-
         jLabel15.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel15.text")); // NOI18N
 
         comboQosClassif.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
@@ -599,11 +710,22 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         });
 
         btnConfigScheduling.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.btnConfigScheduling.text")); // NOI18N
+        btnConfigScheduling.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnConfigSchedulingActionPerformed(evt);
+            }
+        });
 
         btnConfigClassif.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.btnConfigClassif.text")); // NOI18N
         btnConfigClassif.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnConfigClassifActionPerformed(evt);
+            }
+        });
+
+        comboQosScheduling.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboQosSchedulingActionPerformed(evt);
             }
         });
 
@@ -615,7 +737,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
-                        .addGap(0, 33, Short.MAX_VALUE)
+                        .addGap(0, 63, Short.MAX_VALUE)
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel6Layout.createSequentialGroup()
                                 .addComponent(comboQosClassif, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -623,8 +745,8 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                                 .addComponent(btnConfigClassif, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addContainerGap())
                             .addGroup(jPanel6Layout.createSequentialGroup()
-                                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(comboQosScheduling, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(comboQosScheduling, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(comboQosQueue, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(37, 37, 37)
                                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -657,8 +779,8 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 .addComponent(jLabel14)
                 .addGap(18, 18, 18)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(comboQosScheduling, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnConfigScheduling))
+                    .addComponent(btnConfigScheduling)
+                    .addComponent(comboQosScheduling, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(71, Short.MAX_VALUE))
         );
 
@@ -726,7 +848,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(jTabbedPane1)
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(lblError, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -792,7 +914,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         Integer txSize = (Integer) spinTx.getValue();
         try {
             QosMechanismDefinition qosMechanismDefinition = createQosMechanismDefinition();
-            RouterConfigurationDialog.ResultObject resultObject = new RouterConfigurationDialog.ResultObject(txtName.getText(), txtDescription.getText(), null, txSize, rxSize, inputQueue, outputQueue, processingPackets, tcptimeout, minProcessingDelay, maxProcessingDelay);
+            RouterConfigurationDialog.ResultObject resultObject = new RouterConfigurationDialog.ResultObject(txtName.getText(), txtDescription.getText(), qosMechanismDefinition, txSize, rxSize, inputQueue, outputQueue, processingPackets, tcptimeout, minProcessingDelay, maxProcessingDelay);
             setUserInput(resultObject);
             closeDialog();
         } catch (QosCreationException ex) {
@@ -817,24 +939,51 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         showConfigQueueManagement();
     }//GEN-LAST:event_btnConfigQueueActionPerformed
 
-    private void comboQosSchedulingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboQosSchedulingActionPerformed
-        btnConfigScheduling.setEnabled(!((QosMechanism) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue()).hasParameters());
-    }//GEN-LAST:event_comboQosSchedulingActionPerformed
-
     private void comboQosClassifActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboQosClassifActionPerformed
-        btnConfigClassif.setEnabled(!((QosMechanism) ((ComboItem) comboQosClassif.getSelectedItem()).getValue()).hasParameters());
+        PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
+
+        //flow based classification and class based packet scheduling dont work together
+        btnConfigClassif.setEnabled(!classEnum.hasParameters());
+        if (PacketClassification.Available.FLOW_BASED == classEnum) {//it is a flow based classification
+            comboQosScheduling.setItemEnabled(3, false);//WEIGHTED_ROUND_ROBIN
+            comboQosScheduling.setItemEnabled(5, false);//CB_WFQ
+        } else {
+            comboQosScheduling.setItemEnabled(3, true);
+            comboQosScheduling.setItemEnabled(5, true);
+        }
+
     }//GEN-LAST:event_comboQosClassifActionPerformed
 
     private void btnConfigClassifActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfigClassifActionPerformed
         showConfigClassification();
     }//GEN-LAST:event_btnConfigClassifActionPerformed
+
+    private void btnConfigSchedulingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfigSchedulingActionPerformed
+        showConfigScheduling();
+    }//GEN-LAST:event_btnConfigSchedulingActionPerformed
+
+    private void comboQosSchedulingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboQosSchedulingActionPerformed
+        PacketScheduling.Available schedEnum = ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());
+        btnConfigScheduling.setEnabled(!schedEnum.hasParameters());
+
+        if ((PacketScheduling.Available.WEIGHTED_ROUND_ROBIN == schedEnum) || (PacketScheduling.Available.CB_WFQ == schedEnum)) {
+            if (!areClassesDefined()) {//user selected one of class based scheduling mechanisms, but no classes are defined
+                JOptionPane.showMessageDialog(this,
+                        "To use class-based packet scheduling, you have to define classes first",
+                        "Warning",
+                        JOptionPane.WARNING_MESSAGE);
+
+            }
+        }
+
+    }//GEN-LAST:event_comboQosSchedulingActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConfigClassif;
     private javax.swing.JButton btnConfigQueue;
     private javax.swing.JButton btnConfigScheduling;
     private javax.swing.JComboBox comboQosClassif;
     private javax.swing.JComboBox comboQosQueue;
-    private javax.swing.JComboBox comboQosScheduling;
+    private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DisabledItemsComboBox comboQosScheduling;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton7;
