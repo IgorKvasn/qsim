@@ -26,6 +26,7 @@ import javax.swing.UIManager;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
+import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Computer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
@@ -46,7 +47,7 @@ public class ComputerConfigurationDialog extends BlockingDialog<ComputerConfigur
     private JTextField txtName;
 
     public ComputerConfigurationDialog(String computerName) {
-        super(null);
+        super(WindowManager.getDefault().getMainWindow());
         setTitle(NbBundle.getMessage(ComputerConfigurationDialog.class, "create.new.computer"));
         compPanel = new ComputerPanel();
         btnOk = compPanel.btnOK;

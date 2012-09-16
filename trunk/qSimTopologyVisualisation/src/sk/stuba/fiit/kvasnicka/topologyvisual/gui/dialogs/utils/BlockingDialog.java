@@ -16,6 +16,7 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils;
 
+import java.awt.Frame;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import javax.swing.JDialog;
@@ -41,7 +42,7 @@ public abstract class BlockingDialog<R> extends JDialog {
      *
      * @param owner owner of this dialog
      */
-    protected BlockingDialog(JFrame owner) {
+    protected BlockingDialog(Frame owner) {
         super(owner, true);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowListener() {

@@ -32,6 +32,7 @@ import java.text.DecimalFormat;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
+import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.BlockingDialog;
@@ -53,7 +54,7 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
      * read-only
      */
     public EdgeConfigurationDialog(NetworkNode src, NetworkNode dest, long defaultSpeed) {
-        super(null);
+        super(WindowManager.getDefault().getMainWindow());
         setTitle(NbBundle.getMessage(EdgeConfigurationDialog.class, "create.new.edge"));
 
         initGui();
