@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import javax.swing.JOptionPane;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.table.DefaultTableModel;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -50,7 +49,6 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.RandomEar
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.WeightedRED;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.WeightedRED.WredDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.QosMechanism;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.ClassBasedWFQScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.FifoScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.PriorityQueuingScheduling;
@@ -58,7 +56,6 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.RoundRobinSche
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedFairQueuingScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedRoundRobinScheduling;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DisabledItemsComboBox;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.ClassDefinitionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.DscpClassificationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.RedQueueManagementDialog;
@@ -73,11 +70,11 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
 
     private static Logger logg = Logger.getLogger(RouterConfigurationDialog.class);
     private String routerName;
-    private DefaultTableModel tableModel;
     private DscpClassificationDialog dscpClassificationDialog;
     private RedQueueManagementDialog redQueueManagementDialog;
     private WredQueueManagementDialog wredQueueManagementDialog;
     private ClassDefinitionDialog classDefinitionDialog;
+    private boolean creatingComboboxes; //all comboboxes are listening for changes, what is not good when creating (populating) comboboxes
 
     /**
      * Creates new form RouterConfigurationDialog
@@ -99,6 +96,8 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
     }
 
     private void initQosComboboxes() {
+        creatingComboboxes = true;
+
         comboQosQueue.addItem(new ComboItem(ActiveQueueManagement.Available.NONE, "None"));
         comboQosQueue.addItem(new ComboItem(ActiveQueueManagement.Available.RED, "Random early detection (RED)"));
         comboQosQueue.addItem(new ComboItem(ActiveQueueManagement.Available.WRED, "Weighted RED (WRED)"));
@@ -116,6 +115,8 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.WEIGHTED_ROUND_ROBIN, "Weighted round robin"));//3
         comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.WFQ, "Weighted fair queueing (WFQ)"));//4
         comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.CB_WFQ, "Class based WFQ"));//5
+
+        creatingComboboxes = false;
     }
 
     /**
@@ -159,13 +160,19 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 break;
 
             case WRED:
-                int queueCount = calculateQueueCountByClassification();
-                if (wredQueueManagementDialog == null) {
-                    wredQueueManagementDialog = new WredQueueManagementDialog(queueCount);
-                } else {
-                    wredQueueManagementDialog.setQueueCountLabel(queueCount);
+                int queueCount;
+                try {
+                    queueCount = calculateQueueCountByClassification();
+                    if (wredQueueManagementDialog == null) {
+                        wredQueueManagementDialog = new WredQueueManagementDialog(queueCount);
+                    } else {
+                        wredQueueManagementDialog.setQueueCountLabel(queueCount);
+                    }
+                    wredQueueManagementDialog.setVisible(true);
+                } catch (QosCreationException ex) {
+                    return;
                 }
-                wredQueueManagementDialog.setVisible(true);
+
                 break;
             default:
                 throw new IllegalStateException("undefined dialog for queue management " + classEnum);
@@ -185,20 +192,23 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         switch (classEnum) {
             case CB_WFQ:
             case WEIGHTED_ROUND_ROBIN:
+                try {
+                    if (calculateQueueCountByClassification() == -1) {//flow based classfication cannot use class based packet scheduling
+                        JOptionPane.showMessageDialog(this,
+                                "",
+                                "Inane error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
 
-                if (calculateQueueCountByClassification() == -1) {//flow based classfication cannot use class based packet scheduling
-                    JOptionPane.showMessageDialog(this,
-                            "",
-                            "Inane error",
-                            JOptionPane.ERROR_MESSAGE);
+                    if (classDefinitionDialog == null) {
+                        classDefinitionDialog = new ClassDefinitionDialog();
+                    }
+                    classDefinitionDialog.showDialog(getDefinedQueues());
+                    break;
+                } catch (QosCreationException ex) {
                     return;
                 }
-
-                if (classDefinitionDialog == null) {
-                    classDefinitionDialog = new ClassDefinitionDialog();
-                }
-                classDefinitionDialog.showDialog(getDefinedQueues());
-                break;
             default:
                 throw new IllegalStateException("undefined dialog for packet scheduling " + classEnum);
         }
@@ -210,7 +220,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
      *
      * @return -1 if unable to determine (e.g. flow based classification)
      */
-    private int calculateQueueCountByClassification() {
+    private int calculateQueueCountByClassification() throws QosCreationException {
         PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
 
         switch (classEnum) {
@@ -218,6 +228,14 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 return 1;
             case DSCP:
                 Set<Integer> queues = new TreeSet<Integer>();
+                if (dscpClassificationDialog == null) { //dscp is not defined yet
+                    JOptionPane.showMessageDialog(this,
+                            "DSCP is selected, but not configured, yet.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    throw new QosCreationException("dscp not configured");
+                }
+
                 for (DscpDefinition def : dscpClassificationDialog.getDscpDefinitions()) {
                     queues.add(def.getQueueNumber());
                 }
@@ -695,7 +713,6 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
 
         jLabel15.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel15.text")); // NOI18N
 
-        comboQosClassif.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         comboQosClassif.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comboQosClassifActionPerformed(evt);
@@ -932,7 +949,11 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void comboQosQueueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboQosQueueActionPerformed
-        btnConfigQueue.setEnabled(!((ActiveQueueManagement.Available) ((ComboItem) comboQosQueue.getSelectedItem()).getValue()).hasParameters());
+        if (creatingComboboxes) {
+            return;
+        }
+
+        btnConfigQueue.setEnabled(((ActiveQueueManagement.Available) ((ComboItem) comboQosQueue.getSelectedItem()).getValue()).hasParameters());
     }//GEN-LAST:event_comboQosQueueActionPerformed
 
     private void btnConfigQueueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfigQueueActionPerformed
@@ -940,10 +961,14 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
     }//GEN-LAST:event_btnConfigQueueActionPerformed
 
     private void comboQosClassifActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboQosClassifActionPerformed
+        if (creatingComboboxes) {
+            return;
+        }
+
         PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
 
         //flow based classification and class based packet scheduling dont work together
-        btnConfigClassif.setEnabled(!classEnum.hasParameters());
+        btnConfigClassif.setEnabled(classEnum.hasParameters());
         if (PacketClassification.Available.FLOW_BASED == classEnum) {//it is a flow based classification
             comboQosScheduling.setItemEnabled(3, false);//WEIGHTED_ROUND_ROBIN
             comboQosScheduling.setItemEnabled(5, false);//CB_WFQ
@@ -963,8 +988,12 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
     }//GEN-LAST:event_btnConfigSchedulingActionPerformed
 
     private void comboQosSchedulingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboQosSchedulingActionPerformed
+        if (creatingComboboxes) {
+            return;
+        }
+
         PacketScheduling.Available schedEnum = ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());
-        btnConfigScheduling.setEnabled(!schedEnum.hasParameters());
+        btnConfigScheduling.setEnabled(schedEnum.hasParameters());
 
         if ((PacketScheduling.Available.WEIGHTED_ROUND_ROBIN == schedEnum) || (PacketScheduling.Available.CB_WFQ == schedEnum)) {
             if (!areClassesDefined()) {//user selected one of class based scheduling mechanisms, but no classes are defined
@@ -1031,12 +1060,6 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             showError("Name is required.");
             return false;
         }
-
-        if (tableModel.getRowCount() == 0) {//at least one output queue must be defined
-            showError("At least one output queue must be defined.");
-            return false;
-        }
-
 
         if ((Double) spinProcessingMin.getValue() > (Double) spinProcessingMax.getValue()) {
             showError("Minimal processing delay must not be greater than maximal proc. delay.");
