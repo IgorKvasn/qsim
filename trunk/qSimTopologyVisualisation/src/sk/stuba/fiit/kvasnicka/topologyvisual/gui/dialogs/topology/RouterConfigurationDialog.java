@@ -93,6 +93,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         this.setSize(489, 423);
         this.setMinimumSize(new Dimension(489, 423));
         initQosComboboxes();
+        initQosConfigurationButtons();
     }
 
     private void initQosComboboxes() {
@@ -120,6 +121,25 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
     }
 
     /**
+     * when dialog is created, it is necessary to enable/disable configuration
+     * buttons
+     */
+    private void initQosConfigurationButtons() {
+
+        //classification configuration
+        PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
+        btnConfigClassif.setEnabled(classEnum.hasParameters());
+
+        //active queue management configuration
+        btnConfigQueue.setEnabled(((ActiveQueueManagement.Available) ((ComboItem) comboQosQueue.getSelectedItem()).getValue()).hasParameters());
+
+        //packet scheudling configuration
+        PacketScheduling.Available schedEnum = ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());
+        btnConfigScheduling.setEnabled(schedEnum.hasParameters());
+
+    }
+
+    /**
      * show appropriate configuration dialog for desired classification
      */
     private void showConfigClassification() {
@@ -132,6 +152,9 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         switch (classEnum) {
             case DSCP:
                 if (dscpClassificationDialog == null) {
+                    if (classDefinitionDialog == null) {
+                        classDefinitionDialog = new ClassDefinitionDialog();
+                    }
                     dscpClassificationDialog = new DscpClassificationDialog();
                 }
                 dscpClassificationDialog.setVisible(true);
@@ -192,23 +215,11 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         switch (classEnum) {
             case CB_WFQ:
             case WEIGHTED_ROUND_ROBIN:
-                try {
-                    if (calculateQueueCountByClassification() == -1) {//flow based classfication cannot use class based packet scheduling
-                        JOptionPane.showMessageDialog(this,
-                                "",
-                                "Inane error",
-                                JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    if (classDefinitionDialog == null) {
-                        classDefinitionDialog = new ClassDefinitionDialog();
-                    }
-                    classDefinitionDialog.showDialog(getDefinedQueues());
-                    break;
-                } catch (QosCreationException ex) {
-                    return;
+                if (classDefinitionDialog == null) {
+                    classDefinitionDialog = new ClassDefinitionDialog();
                 }
+                classDefinitionDialog.showDialog(getDefinedQueues());
+                break;
             default:
                 throw new IllegalStateException("undefined dialog for packet scheduling " + classEnum);
         }
@@ -247,7 +258,51 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             case NONE:
                 return -1;
             default:
-                throw new IllegalStateException("unable to predict numbe rof output queues for classification: " + classEnum);
+                throw new IllegalStateException("unable to predict number of output queues for classification: " + classEnum);
+        }
+    }
+
+    /**
+     * returns queues defined by selected classification
+     *
+     * @return null if unable to retrieve queue numbers (e.g. flow based
+     * classification)
+     */
+    private Set<Integer> getQueueNumbersByClassification() throws QosCreationException {
+        PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
+        Set<Integer> result = new TreeSet<Integer>();
+
+        switch (classEnum) {
+            case BEST_EFFORT:
+                result.add(0);
+                return result;
+            case DSCP:
+                if (dscpClassificationDialog == null) { //dscp is not defined yet
+                    JOptionPane.showMessageDialog(this,
+                            "DSCP is selected, but not configured, yet.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    throw new QosCreationException("dscp not configured");
+                }
+
+                for (DscpDefinition def : dscpClassificationDialog.getDscpDefinitions()) {
+                    result.add(def.getQueueNumber());
+                }
+
+                result.add(dscpClassificationDialog.getDefaultQueueNumber());
+
+                return result;
+            case FLOW_BASED:
+                return null;
+            case IP_PRECEDENCE:
+                for (int i = 0; i < 8; i++) {
+                    result.add(i);
+                }
+                return result;
+            case NONE:
+                return result;
+            default:
+                throw new IllegalStateException("unable to retrieve output queues for classification: " + classEnum);
         }
     }
 
@@ -308,21 +363,11 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
 
     private PacketScheduling createPacketScheduling() throws QosCreationException {
         PacketScheduling packetScheduling;
-        PacketScheduling.Available schedAvailableEnum = ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());
-        PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
+        PacketScheduling.Available schedAvailableEnum = ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());        
 
         //check for classes to be defined - if class based scheduling is selected
         if ((PacketScheduling.Available.CB_WFQ == schedAvailableEnum) || (PacketScheduling.Available.WEIGHTED_ROUND_ROBIN == schedAvailableEnum)) {
-            if (areClassesDefined()) {
-                if (PacketClassification.Available.DSCP == classEnum) {
-
-                    JOptionPane.showMessageDialog(this,
-                            "No QoS classes defined. DSCP configuration dialog will be opened to let you configure classes.",
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                    showConfigClassification();
-                }
-            } else {
+            if (!areClassesDefined()) {
                 if (classDefinitionDialog == null) {
                     classDefinitionDialog = new ClassDefinitionDialog();
                 }
@@ -330,6 +375,9 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             }
         }
 
+        if (!areClassesDefined()) {//user refused to define classes
+            throw new QosCreationException("No QoS classes defined");            
+        }
 
 
         switch (schedAvailableEnum) {
@@ -1006,6 +1054,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         }
 
     }//GEN-LAST:event_comboQosSchedulingActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConfigClassif;
     private javax.swing.JButton btnConfigQueue;
