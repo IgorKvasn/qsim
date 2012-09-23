@@ -259,7 +259,10 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
 
             //not draggable nodes
             for (TreePath path : tree.getSelectionPaths()) {
-                String userObject = (String) (((DefaultMutableTreeNode) path.getLastPathComponent()).getUserObject());
+                if ((((DefaultMutableTreeNode) path.getLastPathComponent())).getUserObject() instanceof DefaultMutableTreeNode) {
+                    System.out.println("");
+                }
+                String userObject = (String) ((DefaultMutableTreeNode) path.getLastPathComponent()).getUserObject();
                 if (userObject.equals(notDraggable)) {
                     return false;
                 }
@@ -272,7 +275,7 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
                 return false;
             }
 
-            if (target.isLeaf()) {
+            if (target.isLeaf() && (target.getParent().getParent() != null)) {
                 return false;
             }
 
@@ -397,11 +400,16 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
             DefaultMutableTreeNode[] nodes = null;
             try {
                 Transferable t = support.getTransferable();
-                nodes = (DefaultMutableTreeNode[]) t.getTransferData(nodesFlavor);
+                DefaultMutableTreeNode[] temp_nodes = (DefaultMutableTreeNode[]) t.getTransferData(nodesFlavor);
+                nodes = new DefaultMutableTreeNode[temp_nodes.length];
+                for (int i = 0; i < temp_nodes.length; i++) {
+                    nodes[i] = new DefaultMutableTreeNode(((DefaultMutableTreeNode) temp_nodes[i].getUserObject()).getUserObject());
+                }
+
             } catch (UnsupportedFlavorException ufe) {
-                throw new IllegalStateException(ufe);
+                System.out.println("UnsupportedFlavor: " + ufe.getMessage());
             } catch (java.io.IOException ioe) {
-                throw new IllegalStateException(ioe);
+                System.out.println("I/O error: " + ioe.getMessage());
             }
             // Get drop location info.
             JTree.DropLocation dl =
@@ -410,9 +418,8 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
             TreePath dest = dl.getPath();
 
 
-            DefaultMutableTreeNode parent =
-                    (DefaultMutableTreeNode) dest.getLastPathComponent();
-            if (parent.isLeaf()) {
+            DefaultMutableTreeNode parent = (DefaultMutableTreeNode) dest.getLastPathComponent();
+            if (parent.isLeaf() && (parent.getParent().getParent() != null)) {
                 return false;
             }
 
@@ -427,6 +434,10 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
             for (int i = 0; i < nodes.length; i++) {
                 model.insertNodeInto(nodes[i], parent, index++);
             }
+
+            //expand parent - useful when creating new direcory by move
+            int row = tree.getRowForPath(new TreePath(parent.getPath()));
+            tree.expandRow(row);
             return true;
         }
 
