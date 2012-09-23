@@ -73,7 +73,7 @@ public final class QosUtils {
             if (def == null) throw new ParameterException("class definition is NULL");
             for (int queue : def.getQueueNumbers()) {
                 if (set.contains(queue)) {
-                    throw new ParameterException("queue: " + queue + " is multiple classes");
+                    throw new ParameterException("Queue: " + queue + " is multiple classes");
                 }
                 set.add(queue);
             }
