@@ -218,11 +218,19 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 if (classDefinitionDialog == null) {
                     classDefinitionDialog = new ClassDefinitionDialog();
                 }
-                classDefinitionDialog.showDialog(getDefinedQueues());
+                classDefinitionDialog.showDialog(getDefinedQueues(), isDscpClassificationSelected());
                 break;
             default:
                 throw new IllegalStateException("undefined dialog for packet scheduling " + classEnum);
         }
+    }
+
+    private boolean isDscpClassificationSelected() {
+        PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
+        if (PacketClassification.Available.DSCP == classEnum) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -363,7 +371,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
 
     private PacketScheduling createPacketScheduling() throws QosCreationException {
         PacketScheduling packetScheduling;
-        PacketScheduling.Available schedAvailableEnum = ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());        
+        PacketScheduling.Available schedAvailableEnum = ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());
 
         //check for classes to be defined - if class based scheduling is selected
         if ((PacketScheduling.Available.CB_WFQ == schedAvailableEnum) || (PacketScheduling.Available.WEIGHTED_ROUND_ROBIN == schedAvailableEnum)) {
@@ -371,12 +379,12 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 if (classDefinitionDialog == null) {
                     classDefinitionDialog = new ClassDefinitionDialog();
                 }
-                classDefinitionDialog.showDialog(getDefinedQueues());
+                classDefinitionDialog.showDialog(getDefinedQueues(), isDscpClassificationSelected());
             }
         }
 
         if (!areClassesDefined()) {//user refused to define classes
-            throw new QosCreationException("No QoS classes defined");            
+            throw new QosCreationException("No QoS classes defined");
         }
 
 
@@ -1055,7 +1063,6 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         }
 
     }//GEN-LAST:event_comboQosSchedulingActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConfigClassif;
     private javax.swing.JButton btnConfigQueue;

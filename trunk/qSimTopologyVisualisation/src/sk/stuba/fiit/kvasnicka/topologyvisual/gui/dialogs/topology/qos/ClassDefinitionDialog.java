@@ -28,6 +28,7 @@ import lombok.Getter;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.DscpClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ParameterException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.QosUtils;
@@ -43,6 +44,7 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
     private MutableTreeNode rootNode;
     @Getter
     private ClassDefinition[] classes;
+    private boolean isDscp;
 
     /**
      * Creates new form ClassDefinitionDialog
@@ -57,13 +59,18 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
         jTree1.setRootVisible(false);
     }
 
-    public void showDialog(Set<Integer> queues) {
+    public void showDialog(Set<Integer> queues, boolean isDscp) {
+        this.isDscp = isDscp;
         fillTree(queues);
         expandTree(jTree1);
         setVisible(true);
     }
 
     private ClassDefinition[] makeClasses() throws ParameterException {
+        if (availableQueuesNode.getChildCount() != 0) {
+            throw new ParameterException("There are some queues that does not belong to any QoS class.");
+        }
+
         List<ClassDefinition> classesList = new LinkedList<ClassDefinition>();
 
         for (int i = 0; i < rootNode.getChildCount(); i++) {
@@ -209,7 +216,13 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
         treeModel.insertNodeInto(availableQueuesNode, rootNode, 0);
         int count = 0;
         for (int i : queues) {
-            treeModel.insertNodeInto(new DefaultMutableTreeNode(i), availableQueuesNode, count);
+            String label;
+            if (isDscp) {
+                label = DscpClassification.findDscpValueByQueueNumber(i).getTextName();
+            } else {
+                label = String.valueOf(i);
+            }
+            treeModel.insertNodeInto(new DefaultMutableTreeNode(label), availableQueuesNode, count);
             count++;
         }
         jTree1.setModel(treeModel);

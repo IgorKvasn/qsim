@@ -4,6 +4,7 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos;
 
+import com.sun.org.apache.bcel.internal.classfile.Code;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -21,8 +22,10 @@ import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.DscpClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.DscpClassification.DscpValuesEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpDefinition;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
+import sun.security.x509.OIDMap;
 
 /**
  *
@@ -42,22 +45,11 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
 
 
         TableColumn col = jTable1.getColumnModel().getColumn(0);
-        ComboItem[] items = new ComboItem[14];
-
-        items[0] = new ComboItem(0, "Best effort");
-        items[1] = new ComboItem(1, "AF11");
-        items[2] = new ComboItem(2, "AF12");
-        items[3] = new ComboItem(3, "AF13");
-        items[4] = new ComboItem(4, "AF21");
-        items[5] = new ComboItem(5, "AF22");
-        items[6] = new ComboItem(6, "AF23");
-        items[7] = new ComboItem(7, "AF31");
-        items[8] = new ComboItem(8, "AF32");
-        items[9] = new ComboItem(9, "AF33");
-        items[10] = new ComboItem(10, "AF41");
-        items[11] = new ComboItem(11, "AF42");
-        items[12] = new ComboItem(12, "AF43");
-        items[13] = new ComboItem(13, "EF");
+        ComboItem[] items = new ComboItem[DscpClassification.DscpValuesEnum.values().length];
+        for (int i = 0; i < items.length; i++) {
+            DscpValuesEnum dscpEn = DscpClassification.DscpValuesEnum.values()[i];
+            items[i] = new ComboItem(dscpEn.getQosQueue(), dscpEn.getTextName());
+        }
 
         col.setCellEditor(new MyComboBoxEditor(items));
 
