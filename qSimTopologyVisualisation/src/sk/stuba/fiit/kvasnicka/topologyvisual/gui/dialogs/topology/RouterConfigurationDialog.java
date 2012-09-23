@@ -576,6 +576,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         txtDescription.setColumns(20);
         txtDescription.setLineWrap(true);
         txtDescription.setRows(5);
+        txtDescription.setToolTipText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.txtDescription.toolTipText")); // NOI18N
         txtDescription.setPrompt(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.txtDescription.prompt")); // NOI18N
         jScrollPane3.setViewportView(txtDescription);
 

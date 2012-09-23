@@ -8,14 +8,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.DscpClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpDefinition;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
 
@@ -33,6 +38,29 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
         initComponents();
         errLabel.setVisible(false);
         tableModel = (DefaultTableModel) jTable1.getModel();
+
+
+
+        TableColumn col = jTable1.getColumnModel().getColumn(0);
+        ComboItem[] items = new ComboItem[14];
+
+        items[0] = new ComboItem(0, "Best effort");
+        items[1] = new ComboItem(1, "AF11");
+        items[2] = new ComboItem(2, "AF12");
+        items[3] = new ComboItem(3, "AF13");
+        items[4] = new ComboItem(4, "AF21");
+        items[5] = new ComboItem(5, "AF22");
+        items[6] = new ComboItem(6, "AF23");
+        items[7] = new ComboItem(7, "AF31");
+        items[8] = new ComboItem(8, "AF32");
+        items[9] = new ComboItem(9, "AF33");
+        items[10] = new ComboItem(10, "AF41");
+        items[11] = new ComboItem(11, "AF42");
+        items[12] = new ComboItem(12, "AF43");
+        items[13] = new ComboItem(13, "EF");
+
+        col.setCellEditor(new MyComboBoxEditor(items));
+
     }
 
     private void showQueryDialog(int row) {
@@ -62,7 +90,7 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
     public List<DscpDefinition> getDscpDefinitions() {
         List<DscpDefinition> result = new LinkedList<DscpDefinition>();
         for (int i = 0; i < tableModel.getRowCount(); i++) {
-            DscpDefinition res = new DscpDefinition((String) jTable1.getValueAt(i, 1), (Integer) tableModel.getValueAt(i, 0));
+            DscpDefinition res = new DscpDefinition((String) jTable1.getValueAt(i, 1), ((ComboItem) tableModel.getValueAt(i, 0)).getValue());
             result.add(res);
         }
         return result;
@@ -86,8 +114,11 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
 
         for (int i = 0; i < tableModel.getRowCount(); i++) {
             try {
-                int a = (Integer) tableModel.getValueAt(i, 0);
+                ComboItem a = (ComboItem) tableModel.getValueAt(i, 0);
                 String s = (String) jTable1.getValueAt(i, 1);
+                if (StringUtils.isEmpty(s)) {
+                    throw new ClassCastException();
+                }
             } catch (ClassCastException e) {
                 showErrorLabel(NbBundle.getMessage(DscpClassificationDialog.class, "invalid_dscp_setting"));
                 return false;
@@ -131,7 +162,7 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class
+                java.lang.Object.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
                 true, false
@@ -294,6 +325,31 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
 
         private String getInput() {
             return txtField.getText();
+        }
+    }
+
+    private static class ComboItem {
+
+        @Getter
+        private int value;
+        @Getter
+        private String label;
+
+        public ComboItem(int value, String label) {
+            this.value = value;
+            this.label = label;
+        }
+
+        @Override
+        public String toString() {
+            return label;
+        }
+    }
+
+    private class MyComboBoxEditor extends DefaultCellEditor {
+
+        private MyComboBoxEditor(ComboItem[] items) {
+            super(new JComboBox(items));
         }
     }
 }
