@@ -17,6 +17,7 @@
 
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl;
 
+import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
@@ -53,5 +54,54 @@ public class DscpClassification extends PacketClassification {
         }
         DscpManager dscpManager = (DscpManager) parameters.get(DSCP_DEFINITIONS);
         return dscpManager.determineMarkingByDscpDefinitions(packet);
+    }
+
+    /**
+     * for a given queue number, finds DSCP value (AF11,AF12,EF,..)
+     *
+     * @param queueNumber
+     * @return
+     * @throws ArrayIndexOutOfBoundsException if queueNumber is below 0 or higher than max defined value
+     */
+    public static DscpValuesEnum findDscpValueByQueueNumber(int queueNumber) {
+        if (queueNumber < 0) throw new ArrayIndexOutOfBoundsException("invalid queueNumber number: " + queueNumber);
+        for (DscpValuesEnum dscpValuesEnum : DscpValuesEnum.values()) {
+            if (dscpValuesEnum.getQosQueue() == queueNumber) {
+                return dscpValuesEnum;
+            }
+        }
+        throw new ArrayIndexOutOfBoundsException("invalid queueNumber number: " + queueNumber);
+    }
+
+    public enum DscpValuesEnum {
+        BEST_EFFORT(0) {
+            @Override
+            public String getTextName() {
+                return "Best effort";
+            }
+        },
+        AF11(1),
+        AF12(2),
+        AF13(3),
+        AF21(4),
+        AF22(5),
+        AF23(6),
+        AF31(7),
+        AF32(8),
+        AF33(9),
+        AF41(10),
+        AF42(11),
+        AF43(12),
+        EF(13);
+        @Getter
+        private int qosQueue;
+
+        private DscpValuesEnum(int qosQueue) {
+            this.qosQueue = qosQueue;
+        }
+
+        public String getTextName() {
+            return toString();
+        }
     }
 }
