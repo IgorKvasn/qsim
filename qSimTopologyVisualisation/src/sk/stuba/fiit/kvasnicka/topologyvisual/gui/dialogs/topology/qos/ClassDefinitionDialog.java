@@ -79,7 +79,7 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
                 List<Integer> list = new LinkedList<Integer>();
                 TreeNode child = (TreeNode) treeModel.getChild(rootNode, i);
                 for (int j = 0; j < child.getChildCount(); j++) {
-                    int q = (Integer) ((DefaultMutableTreeNode) child.getChildAt(j)).getUserObject();
+                    int q = (Integer) ((DefaultMutableTreeNode) child.getChildAt(j)).getUserObject();//fixme class cast exception
                     list.add(q);
                 }
                 if (list.isEmpty()) {//emtpy classes will be ignored
