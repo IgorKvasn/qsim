@@ -36,6 +36,7 @@ import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification.Available;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.BestEffortClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.DscpClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.FlowBasedClassification;
@@ -75,6 +76,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
     private WredQueueManagementDialog wredQueueManagementDialog;
     private ClassDefinitionDialog classDefinitionDialog;
     private boolean creatingComboboxes; //all comboboxes are listening for changes, what is not good when creating (populating) comboboxes
+    private PacketClassification.Available selectedPacketClassification; //to temporary store selected classification mechanism
 
     /**
      * Creates new form RouterConfigurationDialog
@@ -94,6 +96,8 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         this.setMinimumSize(new Dimension(489, 423));
         initQosComboboxes();
         initQosConfigurationButtons();
+
+        selectedPacketClassification = (Available) ((ComboItem) comboQosClassif.getItemAt(0)).getValue();
     }
 
     private void initQosComboboxes() {
@@ -1023,6 +1027,15 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         }
 
         PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
+
+        if (selectedPacketClassification == classEnum) {//user has selected the same item again
+            return;
+        }
+        if (classDefinitionDialog != null) {
+            //erase QoS class configuration
+            classDefinitionDialog.dispose();
+            classDefinitionDialog = null;
+        }
 
         //flow based classification and class based packet scheduling dont work together
         btnConfigClassif.setEnabled(classEnum.hasParameters());
