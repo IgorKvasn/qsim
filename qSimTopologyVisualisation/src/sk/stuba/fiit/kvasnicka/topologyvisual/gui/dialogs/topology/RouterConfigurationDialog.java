@@ -28,7 +28,8 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.netbeans.api.javahelp.Help;
-import org.openide.util.Exceptions;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -56,7 +57,9 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.PriorityQueuin
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.RoundRobinScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedFairQueuingScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedRoundRobinScheduling;
+import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.ConfirmDialogPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.ClassDefinitionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.DscpClassificationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.RedQueueManagementDialog;
@@ -380,14 +383,23 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         //check for classes to be defined - if class based scheduling is selected
         if ((PacketScheduling.Available.CB_WFQ == schedAvailableEnum) || (PacketScheduling.Available.WEIGHTED_ROUND_ROBIN == schedAvailableEnum)) {
             if (!areClassesDefined()) {
-                if (classDefinitionDialog == null) {
-                    classDefinitionDialog = new ClassDefinitionDialog();
+
+
+                int result = JOptionPane.showConfirmDialog(this, "Some of your QoS mechanisms require QoS classes to be configured."
+                        + "\nDo you want to configure them now?"
+                        + "\n(You will be not able to create a router without configuring them.)", "QoS classes", JOptionPane.YES_NO_OPTION);
+
+                if (result == JOptionPane.YES_OPTION) {
+                    if (classDefinitionDialog == null) {
+                        classDefinitionDialog = new ClassDefinitionDialog();
+                    }
+                    classDefinitionDialog.showDialog(getDefinedQueues(), isDscpClassificationSelected());
                 }
-                classDefinitionDialog.showDialog(getDefinedQueues(), isDscpClassificationSelected());
+
             }
         }
 
-        if (!areClassesDefined()) {//user refused to define classes
+        if ((PacketScheduling.Available.CB_WFQ == getSelectedPacketScheduling() || PacketScheduling.Available.WEIGHTED_ROUND_ROBIN == getSelectedPacketScheduling()) && !areClassesDefined()) {//user refused to define classes
             throw new QosCreationException("No QoS classes defined");
         }
 
@@ -519,6 +531,10 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             return false;
         }
         return true;
+    }
+
+    private PacketScheduling.Available getSelectedPacketScheduling() {
+        return ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());
     }
 
     /**
@@ -1035,18 +1051,27 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             //erase QoS class configuration
             classDefinitionDialog.dispose();
             classDefinitionDialog = null;
+
+            if (!PreferenciesHelper.isNeverShowQosClassDeletedConfirmation()) {
+                ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(RouterConfigurationDialog.class, "class_definition_erased"));
+                NotifyDescriptor descriptor = new NotifyDescriptor(
+                        panel, // instance of your panel
+                        NbBundle.getMessage(RouterConfigurationDialog.class, "info_title"), // title of the dialog
+                        NotifyDescriptor.YES_NO_OPTION, NotifyDescriptor.INFORMATION_MESSAGE, null,
+                        NotifyDescriptor.YES_OPTION // default option is "Yes"
+                        );
+
+                if (DialogDisplayer.getDefault().notify(descriptor) != NotifyDescriptor.YES_OPTION) {
+                    return;
+                }
+                if (panel.isNeverShow()) {
+                    PreferenciesHelper.setNeverShowQosClassDeletedConfirmation(panel.isNeverShow());
+                }
+            }
         }
 
         //flow based classification and class based packet scheduling dont work together
         btnConfigClassif.setEnabled(classEnum.hasParameters());
-        if (PacketClassification.Available.FLOW_BASED == classEnum) {//it is a flow based classification
-            comboQosScheduling.setItemEnabled(3, false);//WEIGHTED_ROUND_ROBIN
-            comboQosScheduling.setItemEnabled(5, false);//CB_WFQ
-        } else {
-            comboQosScheduling.setItemEnabled(3, true);
-            comboQosScheduling.setItemEnabled(5, true);
-        }
-
     }//GEN-LAST:event_comboQosClassifActionPerformed
 
     private void btnConfigClassifActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfigClassifActionPerformed
@@ -1067,10 +1092,22 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
 
         if ((PacketScheduling.Available.WEIGHTED_ROUND_ROBIN == schedEnum) || (PacketScheduling.Available.CB_WFQ == schedEnum)) {
             if (!areClassesDefined()) {//user selected one of class based scheduling mechanisms, but no classes are defined
-                JOptionPane.showMessageDialog(this,
-                        "To use class-based packet scheduling, you have to define classes first",
-                        "Warning",
-                        JOptionPane.WARNING_MESSAGE);
+                if (!PreferenciesHelper.isNeverShowQosClassConfirmation()) {
+                    ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(RouterConfigurationDialog.class, "class_definition_warning"));
+                    NotifyDescriptor descriptor = new NotifyDescriptor(
+                            panel, // instance of your panel
+                            NbBundle.getMessage(RouterConfigurationDialog.class, "warning_title"), // title of the dialog
+                            NotifyDescriptor.YES_NO_OPTION, NotifyDescriptor.WARNING_MESSAGE, null,
+                            NotifyDescriptor.YES_OPTION // default option is "Yes"
+                            );
+
+                    if (DialogDisplayer.getDefault().notify(descriptor) != NotifyDescriptor.YES_OPTION) {
+                        return;
+                    }
+                    if (panel.isNeverShow()) {
+                        PreferenciesHelper.setNeverShowQosClassConfirmation(panel.isNeverShow());
+                    }
+                }
 
             }
         }

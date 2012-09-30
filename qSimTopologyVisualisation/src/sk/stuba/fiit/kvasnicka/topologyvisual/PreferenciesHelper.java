@@ -48,6 +48,22 @@ public class PreferenciesHelper {
         NbPreferences.forModule(PreferenciesHelper.class).putBoolean("isNeverShowVertexDeleteConfirmation", never);
     }
 
+    public static void setNeverShowQosClassConfirmation(boolean never) {
+        NbPreferences.forModule(PreferenciesHelper.class).putBoolean("isNeverShowQosClassConfirmation", never);
+    }
+
+    public static void setNeverShowQosClassDeletedConfirmation(boolean never) {
+        NbPreferences.forModule(PreferenciesHelper.class).putBoolean("isNeverShowQosClassDeletedConfirmation", never);
+    }
+
+    public static boolean isNeverShowQosClassDeletedConfirmation() {
+        return NbPreferences.forModule(PreferenciesHelper.class).getBoolean("isNeverShowQosClassDeletedConfirmation", false);
+    }
+
+    public static boolean isNeverShowQosClassConfirmation() {
+        return NbPreferences.forModule(PreferenciesHelper.class).getBoolean("isNeverShowQosClassConfirmation", false);
+    }
+
     public static boolean isShowNodeNamesInTopology() {
         return NbPreferences.forModule(PreferenciesHelper.class).getBoolean("isShowNodeNamesInTopology", true);
     }
