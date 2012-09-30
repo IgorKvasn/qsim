@@ -4,6 +4,7 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos;
 
+import com.ctc.wstx.util.StringUtil;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -25,6 +26,8 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
@@ -45,6 +48,7 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
     @Getter
     private ClassDefinition[] classes;
     private boolean isDscp;
+    private Logger logg = Logger.getLogger(ClassDefinitionDialog.class);
 
     /**
      * Creates new form ClassDefinitionDialog
@@ -79,8 +83,15 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
                 List<Integer> list = new LinkedList<Integer>();
                 TreeNode child = (TreeNode) treeModel.getChild(rootNode, i);
                 for (int j = 0; j < child.getChildCount(); j++) {
-                    int q = (Integer) ((DefaultMutableTreeNode) child.getChildAt(j)).getUserObject();//fixme class cast exception
-                    list.add(q);
+                    String q = (String) ((DefaultMutableTreeNode) child.getChildAt(j)).getUserObject();
+                    if (StringUtils.isNumeric(q)) {//it is a plain number
+                        logg.debug("queue is integer");
+                        list.add(Integer.parseInt(q));
+                    } else {//it is a DSCP value
+                        logg.debug("queue is DSCP string value");
+                        list.add(DscpClassification.DscpValuesEnum.valueOf(q).getQosQueue());
+                    }
+
                 }
                 if (list.isEmpty()) {//emtpy classes will be ignored
                     continue;
@@ -188,7 +199,7 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
-            makeClasses();
+            classes = makeClasses();
             setVisible(false);
         } catch (ParameterException ex) {
             JOptionPane.showMessageDialog(this,
