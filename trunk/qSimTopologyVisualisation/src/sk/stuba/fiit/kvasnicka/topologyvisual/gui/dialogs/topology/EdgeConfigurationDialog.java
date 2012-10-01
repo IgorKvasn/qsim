@@ -1,51 +1,23 @@
 /*
- * This file is part of qSim.
- *
- * qSim is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * qSim is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology;
 
-import org.jdesktop.swingx.JXLabel;
-
-import javax.swing.JButton;
-import javax.swing.JFormattedTextField;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
-import javax.swing.text.NumberFormatter;
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.text.DecimalFormat;
+import javax.swing.UIManager;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.BlockingDialog;
 
 /**
- * provides dialog for initial configuration of edge
  *
  * @author Igor Kvasnicka
  */
 public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDialog.ResultObject> {
-
-    private JFormattedTextField txtSpeed;
-    private JFormattedTextField txtLength;
 
     /**
      * creates new instance of dialog
@@ -57,98 +29,312 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
         super(WindowManager.getDefault().getMainWindow());
         setTitle(NbBundle.getMessage(EdgeConfigurationDialog.class, "create.new.edge"));
 
-        initGui();
+        initComponents();
         txtSpeed.setValue(defaultSpeed);
-    }
-
-    private void initGui() {
-        setLayout(new BorderLayout());
-
-        JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new GridLayout(2, 1));
-        add(centerPanel, BorderLayout.CENTER);
-
-        JPanel speedPanel = new JPanel();
-
-        DecimalFormat decimalFormat = new DecimalFormat("#");
-        NumberFormatter numberFormatter = new NumberFormatter(decimalFormat);
-        txtSpeed = new JFormattedTextField(numberFormatter);
-        txtSpeed.setColumns(10);
-        txtSpeed.setToolTipText(NbBundle.getMessage(EdgeConfigurationDialog.class, "bitrate.must.be.decimal.number"));
-
-        JXLabel lblSpeed = new JXLabel(NbBundle.getMessage(EdgeConfigurationDialog.class, "bitrate.bit.s"));
-        lblSpeed.setLabelFor(txtSpeed);
-        speedPanel.add(lblSpeed);
-        speedPanel.add(txtSpeed);
-        centerPanel.add(speedPanel);
-
-
-        JPanel lengthPanel = new JPanel();
-        txtLength = new JFormattedTextField(numberFormatter);
-        txtLength.setColumns(10);
-        txtLength.setToolTipText(NbBundle.getMessage(EdgeConfigurationDialog.class, "length.must.be.decimal.number"));
-
-        JXLabel lblLength = new JXLabel(NbBundle.getMessage(EdgeConfigurationDialog.class, "length.m"));
-        lblLength.setLabelFor(txtLength);
-        lengthPanel.add(lblLength);
-        lengthPanel.add(txtLength);
-        centerPanel.add(lengthPanel);
-
-
-        JPanel bottomPanel = new JPanel();
-        JButton btnOk = new JButton(NbBundle.getMessage(EdgeConfigurationDialog.class, "ok"));
-        btnOk.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (!validateInput()) {
-                    return;
-                }
-
-//                ResultObject resultObject = new ResultObject(Long.valueOf(txtSpeed.getText()), Integer.valueOf(txtLength.getText()));
-                throw new UnsupportedOperationException("not yet implemented"); //todo uncoment and fix code above and below
-//                setUserInput(resultObject);
-//                closeDialog();
-            }
-        });
-        JButton btnCancel = new JButton(NbBundle.getMessage(EdgeConfigurationDialog.class, "cancel"));
-        btnCancel.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setUserInput(null);
-                closeDialog();
-            }
-        });
-        bottomPanel.add(btnOk);
-        bottomPanel.add(btnCancel);
-
-
-        add(bottomPanel, BorderLayout.PAGE_END);
         pack();
     }
 
+    private double calculateErrorRate() {
+        if (jRadioButton1.isSelected()) {//packet error rate is selected
+            return Double.parseDouble(txtPer.getText());
+        } else {//bit error rate is selected
+            return 1 - Math.pow(1 - Double.parseDouble(txtBer.getText()), Integer.valueOf(txtMTU.getText()));
+        }
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
+
+        buttonGroup1 = new javax.swing.ButtonGroup();
+        jLabel1 = new javax.swing.JLabel();
+        txtSpeed = new javax.swing.JFormattedTextField();
+        jLabel2 = new javax.swing.JLabel();
+        txtLength = new javax.swing.JFormattedTextField();
+        jPanel1 = new javax.swing.JPanel();
+        jRadioButton1 = new javax.swing.JRadioButton();
+        jRadioButton2 = new javax.swing.JRadioButton();
+        txtPer = new javax.swing.JFormattedTextField();
+        txtBer = new javax.swing.JFormattedTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        txtMTU = new javax.swing.JFormattedTextField();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "bitrate.bit.s")); // NOI18N
+
+        txtSpeed.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#"))));
+        txtSpeed.setToolTipText(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "bitrate.must.be.decimal.number")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "length.m")); // NOI18N
+
+        txtLength.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#"))));
+        txtLength.setText(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.txtLength.text")); // NOI18N
+        txtLength.setToolTipText(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "length.must.be.decimal.number")); // NOI18N
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.jPanel1.border.title"))); // NOI18N
+
+        buttonGroup1.add(jRadioButton1);
+        jRadioButton1.setSelected(true);
+        org.openide.awt.Mnemonics.setLocalizedText(jRadioButton1, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.jRadioButton1.text")); // NOI18N
+
+        buttonGroup1.add(jRadioButton2);
+        org.openide.awt.Mnemonics.setLocalizedText(jRadioButton2, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.jRadioButton2.text")); // NOI18N
+
+        txtPer.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#.#"))));
+
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jRadioButton1, org.jdesktop.beansbinding.ELProperty.create("${selected}"), txtPer, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
+        txtBer.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#.#"))));
+        txtBer.setText(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.txtBer.text")); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jRadioButton2, org.jdesktop.beansbinding.ELProperty.create("${selected}"), txtBer, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.jLabel4.text")); // NOI18N
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jRadioButton2)
+                            .addComponent(jRadioButton1))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(txtPer, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
+                            .addComponent(txtBer))))
+                .addContainerGap(23, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jRadioButton1)
+                    .addComponent(txtPer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jRadioButton2)
+                    .addComponent(txtBer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.jLabel3.text")); // NOI18N
+
+        txtMTU.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#"))));
+        txtMTU.setText(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.txtMTU.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.jButton1.text")); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        org.openide.awt.Mnemonics.setLocalizedText(jButton2, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.jButton2.text")); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(98, 98, 98)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(27, 27, 27)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(50, 50, 50)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel1)
+                                    .addComponent(jLabel2)
+                                    .addComponent(jLabel3))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(txtSpeed)
+                                    .addComponent(txtLength)
+                                    .addComponent(txtMTU, javax.swing.GroupLayout.DEFAULT_SIZE, 137, Short.MAX_VALUE))))))
+                .addContainerGap(33, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(31, 31, 31)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(txtSpeed, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(txtLength, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(txtMTU, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2))
+                .addGap(21, 21, 21))
+        );
+
+        bindingGroup.bind();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        if (!validateInput()) {
+            return;
+        }
+        int mtu = Integer.valueOf(txtMTU.getText()) * 8; //MTU is in Bytes, but in simulation I need it in bites
+        double errorRate = calculateErrorRate();
+
+        EdgeConfigurationDialog.ResultObject resultObject = new EdgeConfigurationDialog.ResultObject(Long.valueOf(txtSpeed.getText()), Integer.valueOf(txtSpeed.getText()), mtu, errorRate);
+
+        setUserInput(resultObject);
+        closeDialog();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        setUserInput(null);
+        closeDialog();
+    }//GEN-LAST:event_jButton2ActionPerformed
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JRadioButton jRadioButton1;
+    private javax.swing.JRadioButton jRadioButton2;
+    private javax.swing.JFormattedTextField txtBer;
+    private javax.swing.JFormattedTextField txtLength;
+    private javax.swing.JFormattedTextField txtMTU;
+    private javax.swing.JFormattedTextField txtPer;
+    private javax.swing.JFormattedTextField txtSpeed;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
+    // End of variables declaration//GEN-END:variables
+
     private boolean validateInput() {
         boolean ok = true;
-        if (!StringUtils.isNumeric(txtSpeed.getText()) || StringUtils.isEmpty(txtSpeed.getText())) { //speed is numeric and non-empty
-            txtSpeed.setBackground(new Color(249, 77, 77));
-            ok = false;
-        } else {
-            if (Long.valueOf(txtSpeed.getText()) <= 0) {//speed is not negative nor zero
+        try {
+            if (!StringUtils.isNumeric(txtSpeed.getText()) || StringUtils.isEmpty(txtSpeed.getText())) { //speed is numeric and non-empty
                 txtSpeed.setBackground(new Color(249, 77, 77));
                 ok = false;
             } else {
-                txtSpeed.setBackground(UIManager.getColor("JFormattedTextField.background"));
+                if (Long.valueOf(txtSpeed.getText()) <= 0) {//speed is not negative nor zero
+                    txtSpeed.setBackground(new Color(249, 77, 77));
+                    ok = false;
+                } else {
+                    txtSpeed.setBackground(UIManager.getColor("JFormattedTextField.background"));
+                }
             }
+        } catch (ClassCastException e) {
+            txtSpeed.setBackground(new Color(249, 77, 77));
+            ok = false;
         }
 
-        if (!StringUtils.isNumeric(txtLength.getText()) || StringUtils.isEmpty(txtLength.getText())) { //length is numeric and non-empty
-            txtLength.setBackground(new Color(249, 77, 77));
-            ok = false;
-        } else {
-            if (Long.valueOf(txtLength.getText()) <= 0) {//length is not negative nor zero
+        try {
+            if (!StringUtils.isNumeric(txtLength.getText()) || StringUtils.isEmpty(txtLength.getText())) { //length is numeric and non-empty
                 txtLength.setBackground(new Color(249, 77, 77));
                 ok = false;
             } else {
-                txtLength.setBackground(UIManager.getColor("JFormattedTextField.background"));
+                if (Long.valueOf(txtLength.getText()) <= 0) {//length is not negative nor zero
+                    txtLength.setBackground(new Color(249, 77, 77));
+                    ok = false;
+                } else {
+                    txtLength.setBackground(UIManager.getColor("JFormattedTextField.background"));
+                }
+            }
+        } catch (ClassCastException e) {
+            txtSpeed.setBackground(new Color(249, 77, 77));
+            ok = false;
+        }
+
+        try {
+            if (!StringUtils.isNumeric(txtMTU.getText()) || StringUtils.isEmpty(txtMTU.getText())) { //MTU is numeric and non-empty
+                txtMTU.setBackground(new Color(249, 77, 77));
+                ok = false;
+            } else {
+                if (Long.valueOf(txtMTU.getText()) <= 0) {//MTU is not negative nor zero
+                    txtMTU.setBackground(new Color(249, 77, 77));
+                    ok = false;
+                } else {
+                    txtMTU.setBackground(UIManager.getColor("JFormattedTextField.background"));
+                }
+            }
+        } catch (ClassCastException e) {
+            txtSpeed.setBackground(new Color(249, 77, 77));
+            ok = false;
+        }
+
+        txtPer.setBackground(UIManager.getColor("JFormattedTextField.background"));
+        txtBer.setBackground(UIManager.getColor("JFormattedTextField.background"));
+
+        if (jRadioButton1.isSelected()) {//packet error rate is selected
+            try {
+                if (!StringUtils.isNumeric(txtPer.getText()) || StringUtils.isEmpty(txtPer.getText())) { //PER is numeric and non-empty
+                    txtPer.setBackground(new Color(249, 77, 77));
+                    ok = false;
+                } else {
+                    if (Double.valueOf(txtPer.getText()) <= 0) {//PER is not negative nor zero
+                        txtPer.setBackground(new Color(249, 77, 77));
+                        ok = false;
+                    } else {
+                        txtPer.setBackground(UIManager.getColor("JFormattedTextField.background"));
+                    }
+                }
+            } catch (ClassCastException e) {
+                txtSpeed.setBackground(new Color(249, 77, 77));
+                ok = false;
+            }
+        } else {//bit error rate is selected
+            try {
+                if (!StringUtils.isNumeric(txtBer.getText()) || StringUtils.isEmpty(txtBer.getText())) { //PER is numeric and non-empty
+                    txtBer.setBackground(new Color(249, 77, 77));
+                    ok = false;
+                } else {
+                    if (Double.valueOf(txtBer.getText()) <= 0) {//PER is not negative nor zero
+                        txtBer.setBackground(new Color(249, 77, 77));
+                        ok = false;
+                    } else {
+                        txtBer.setBackground(UIManager.getColor("JFormattedTextField.background"));
+                    }
+                }
+            } catch (ClassCastException e) {
+                txtSpeed.setBackground(new Color(249, 77, 77));
+                ok = false;
             }
         }
 
