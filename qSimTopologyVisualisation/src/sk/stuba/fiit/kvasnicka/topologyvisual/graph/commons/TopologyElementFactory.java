@@ -72,14 +72,14 @@ public abstract class TopologyElementFactory {
         Edge edge = null;
         switch (action) {
             case NEW_EDGE_ETHERNET:
-                edge = dialogHandler.showEdgeConfigurationDialog(10485760, node1, node2);
+                edge = dialogHandler.showEdgeConfigurationDialog(10000000, node1, node2);
                 break;
             case NEW_EDGE_FAST_ETHERNET:
-                edge = dialogHandler.showEdgeConfigurationDialog(104857600, node1, node2);
+                edge = dialogHandler.showEdgeConfigurationDialog(100000000, node1, node2);
 
                 break;
             case NEW_EDGE_GIGA_ETHERNET:
-                edge = dialogHandler.showEdgeConfigurationDialog(1048576000, node1, node2);
+                edge = dialogHandler.showEdgeConfigurationDialog(1000000000, node1, node2);
 
                 break;
             case NEW_EDGE_CUSTOM:
