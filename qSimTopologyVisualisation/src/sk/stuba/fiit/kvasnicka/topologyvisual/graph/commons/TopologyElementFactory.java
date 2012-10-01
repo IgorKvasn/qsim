@@ -73,7 +73,7 @@ public abstract class TopologyElementFactory {
         switch (action) {
             case NEW_EDGE_ETHERNET:
                 edge = dialogHandler.showEdgeConfigurationDialog(10000000, node1, node2);
-                break;
+                break; 
             case NEW_EDGE_FAST_ETHERNET:
                 edge = dialogHandler.showEdgeConfigurationDialog(100000000, node1, node2);
 
