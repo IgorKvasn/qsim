@@ -27,7 +27,6 @@ import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredEvent;
@@ -54,7 +53,6 @@ public class SimulationRuleBean {
 
     @Setter
     private boolean active;
-    private PacketTypeEnum packetTypeEnum;
     private NetworkNode source;
     private NetworkNode destination;
     /**
@@ -101,22 +99,18 @@ public class SimulationRuleBean {
      * do not forget to set route
      * <p/>
      *
-     *
-     *
      * @param source
      * @param destination
      * @param numberOfPackets
      * @param packetSize
      * @param activeDelay
-     * @param packetTypeEnum
      * @param srcPort
      * @param destPort
      * @see #setRoute(java.util.List)
      */
-    public SimulationRuleBean(String name, NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, double activeDelay, PacketTypeEnum packetTypeEnum, Layer4TypeEnum layer4Type, IpPrecedence ipPrecedence, int srcPort, int destPort) {
+    public SimulationRuleBean(String name, NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, double activeDelay, Layer4TypeEnum layer4Type, IpPrecedence ipPrecedence, int srcPort, int destPort) {
         this.name = name;
         this.activationTime = activeDelay;
-        this.packetTypeEnum = packetTypeEnum;
         this.layer4Type = layer4Type;
         this.ipPrecedence = ipPrecedence;
         this.srcPort = srcPort;

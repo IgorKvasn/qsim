@@ -27,6 +27,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.josql.MyF
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.josql.NegativeMyFunctionHandler;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @author Igor Kvasnicka
@@ -40,6 +41,24 @@ public abstract class ClassificationUtil {
     static {
         q.addFunctionHandler(new MyFunctionHandler());
         q.addFunctionHandler(new NegativeMyFunctionHandler());
+    }
+
+    /**
+     * validates given DSCP query if it is correctly written and passable
+     *
+     * @param rule given DSCP query (rule)
+     * @throws ClassificationException any problem related to given rule
+     */
+    public static void validateClassificationRule(String rule) throws ClassificationException {
+        String josqlRule = JO_SQL_PREFIX + rule;
+        try {
+            q.parse(josqlRule);
+            q.execute(Collections.emptyList());//I will try to execute JoSQL
+        } catch (QueryParseException e) {
+            throw new ClassificationException(e.getMessage(), e);
+        } catch (QueryExecutionException e) {
+            throw new ClassificationException(e.getMessage(), e);
+        }
     }
 
 

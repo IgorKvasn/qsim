@@ -23,19 +23,19 @@ import java.util.List;
  * @author Igor Kvasnicka
  */
 public class NegativeMyFunctionHandler extends MyFunctionHandler {
-    public Boolean notdestination(List<String> nodesToSearch) {
-        return ! super.destination(nodesToSearch);
+    public Boolean notDestinationIn(List<String> nodesToSearch) {
+        return ! super.destinationIn(nodesToSearch);
     }
 
-    public Boolean notdestination(String node) {
+    public Boolean notDestination(String node) {
         return ! super.destination(node);
     }
 
-    public Boolean notsource(List<String> nodesToSearch) {
-        return ! super.source(nodesToSearch);
+    public Boolean notSourceIn(List<String> nodesToSearch) {
+        return ! super.sourceIn(nodesToSearch);
     }
 
-    public Boolean notsource(String node) {
+    public Boolean notSource(String node) {
         return ! super.source(node);
     }
 }

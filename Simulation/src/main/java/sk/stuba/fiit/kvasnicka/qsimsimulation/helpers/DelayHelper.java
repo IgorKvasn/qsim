@@ -24,7 +24,6 @@ import org.apache.commons.math.analysis.interpolation.UnivariateRealInterpolator
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
 /**
@@ -77,10 +76,9 @@ public abstract class DelayHelper {
      *
      * @param node           network node where packets are being created
      * @param packetSize
-     * @param packetTypeEnum
      * @return
      */
-    public static double calculatePacketCreationDelay(NetworkNode node, int packetSize, PacketTypeEnum packetTypeEnum) {
+    public static double calculatePacketCreationDelay(NetworkNode node, int packetSize) {
         return PACKET_CREATION_DELAY;
     }
 }
