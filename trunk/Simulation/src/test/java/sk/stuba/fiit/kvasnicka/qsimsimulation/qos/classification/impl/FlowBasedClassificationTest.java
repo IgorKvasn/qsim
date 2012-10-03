@@ -22,7 +22,6 @@ import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
@@ -55,7 +54,7 @@ public class FlowBasedClassificationTest {
         Packet packet1 = new Packet(14, null, null, 10);
 
         NetworkNode node2 = new Router("node2", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, null, 1, 2);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100,  Layer4TypeEnum.UDP, null, 1, 2);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
         Field f = null;
@@ -72,7 +71,7 @@ public class FlowBasedClassificationTest {
         Packet packet2 = new Packet(14, null, null, 10);
 
         NetworkNode node3 = new Router("node3", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
-        SimulationRuleBean simulationRuleBean2 = new SimulationRuleBean("", node1, node3, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, null, 1, 2);
+        SimulationRuleBean simulationRuleBean2 = new SimulationRuleBean("", node1, node3, 1, 1, 100,  Layer4TypeEnum.UDP, null, 1, 2);
         simulationRuleBean2.setRoute(Arrays.asList(node1, node3));
 
         Field f2 = null;
@@ -87,7 +86,7 @@ public class FlowBasedClassificationTest {
         }
 
         Packet packet3 = new Packet(14, null, null, 10);
-        SimulationRuleBean simulationRuleBean3 = new SimulationRuleBean("", node2, node1, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, null, 3, 2);
+        SimulationRuleBean simulationRuleBean3 = new SimulationRuleBean("", node2, node1, 1, 1, 100,  Layer4TypeEnum.UDP, null, 3, 2);
         simulationRuleBean3.setRoute(Arrays.asList(node1, node2));
 
         Field f3 = null;
@@ -123,7 +122,7 @@ public class FlowBasedClassificationTest {
 
     private void initRoute(Packet... packets) {
         NetworkNode node2 = new Router("node2", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, null, 10, 11);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100,  Layer4TypeEnum.UDP, null, 10, 11);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {

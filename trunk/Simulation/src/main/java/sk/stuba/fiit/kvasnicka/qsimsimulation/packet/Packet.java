@@ -23,7 +23,6 @@ import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.RoutingException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.PacketDscpClassificationInterf;
@@ -83,6 +82,10 @@ public class Packet implements PacketDscpClassificationInterf {
         return simulationRule.getLayer4Type();
     }
 
+    public Layer4TypeEnum getProtocol(){
+        return getLayer4();
+    }
+
     public void setSimulationTime(double simulationTime) {
         if (this.simulationTime > simulationTime) {
             throw new IllegalStateException("new packet simulation time is lower then current simulation time: " + this.simulationTime + ">" + simulationTime);
@@ -97,20 +100,7 @@ public class Packet implements PacketDscpClassificationInterf {
         }
     }
 
-    /**
-     * returns a type of packet - audio, video, data, ...
-     * <p/>
-     * this method is used by classification criteria to access getPacketType() method that is not accessible directly from Packet class,
-     * but indirectly using SimulationRule
-     *
-     * @return type of packet
-     */
-
-    public PacketTypeEnum getPacketType() {
-        return simulationRule.getPacketTypeEnum();
-    }
-
-    public IpPrecedence getIpPrecedenceEnum(){
+    public IpPrecedence getIpPrecedenceEnum() {
         return simulationRule.getIpPrecedence();
     }
 

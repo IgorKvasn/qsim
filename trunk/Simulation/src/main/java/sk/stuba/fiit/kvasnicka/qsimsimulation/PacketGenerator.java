@@ -104,7 +104,7 @@ public class PacketGenerator {
         double timeSpent = 0;
         double creationTime = rule.getActivationTime() % timeQuantum;
         while (timeSpent <= creationTime && (rule.getNumberOfPackets() > 0 || rule.getNumberOfPackets() == - 1)) {
-            double creationDelay = DelayHelper.calculatePacketCreationDelay(rule.getSource(), rule.getPacketSize(), rule.getPacketTypeEnum());
+            double creationDelay = DelayHelper.calculatePacketCreationDelay(rule.getSource(), rule.getPacketSize());
             if (timeSpent + creationDelay > timeQuantum) break; //no time left to spent
             packets.add(createPacket(rule, rule.getActivationTime() + timeSpent + simulationTime));
             timeSpent += creationDelay;//I have spent some time

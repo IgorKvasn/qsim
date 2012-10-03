@@ -19,7 +19,6 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp;
 
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 
 /**
  * this interface defines, what parameters can be used to classify packet by DSCP mechanism
@@ -32,6 +31,9 @@ public interface PacketDscpClassificationInterf {
 
     int getIpPrecedence();
 
+    //todo podla dscp
+
+
     NetworkNode getDestination();
 
     NetworkNode getSource();
@@ -40,7 +42,5 @@ public interface PacketDscpClassificationInterf {
 
     int getDestPort();
 
-    PacketTypeEnum getPacketType();
-
-    Layer4TypeEnum getLayer4();
+    Layer4TypeEnum getProtocol();
 }

@@ -28,7 +28,6 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
@@ -112,7 +111,7 @@ public class EdgeErrorTest {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2), new SimulationLogUtils());
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0,  Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);

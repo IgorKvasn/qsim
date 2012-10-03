@@ -32,7 +32,6 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.TxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
@@ -339,7 +338,7 @@ public class TxBufferTest {
     }
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 10, PacketTypeEnum.AUDIO_PACKET, layer4, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 10,  layer4, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
         for (Packet p : packets) {
             Field f = null;

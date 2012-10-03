@@ -31,7 +31,7 @@ public class MyFunctionHandler extends AbstractFunctionHandler implements NotFix
     public MyFunctionHandler() {
     }
 
-    public Boolean destination(List<String> nodesToSearch) {
+    public Boolean destinationIn(List<String> nodesToSearch) {
         Packet packet = (Packet) this.q.getCurrentObject();
         return isNodeInList(packet.getDestination().getName(), nodesToSearch);
     }
@@ -46,7 +46,7 @@ public class MyFunctionHandler extends AbstractFunctionHandler implements NotFix
         return false;
     }
 
-    public Boolean source(List<String> nodesToSearch) {
+    public Boolean sourceIn(List<String> nodesToSearch) {
         Packet packet = (Packet) this.q.getCurrentObject();
         return isNodeInList(packet.getSource().getName(), nodesToSearch);
     }

@@ -23,7 +23,6 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
@@ -53,15 +52,15 @@ public class SimulationFacadeTest {
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
 
-        SimulationRuleBean rule1 = new SimulationRuleBean("", node1, node2, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean rule1 = new SimulationRuleBean("", node1, node2, 0, 0, 0,  Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule1.setRoute(Arrays.asList(node1, node2));
         facade.addSimulationRule(rule1);
 
-        SimulationRuleBean rule2 = new SimulationRuleBean("", node1, node2, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean rule2 = new SimulationRuleBean("", node1, node2, 0, 0, 0,  Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule2.setRoute(Arrays.asList(node1, node2));
         facade.addSimulationRule(rule2);
 
-        SimulationRuleBean rule3 = new SimulationRuleBean("", node2, node1, 0, 0, 0, PacketTypeEnum.AUDIO_PACKET, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean rule3 = new SimulationRuleBean("", node2, node1, 0, 0, 0,  Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule3.setRoute(Arrays.asList(node2, node1));
         facade.addSimulationRule(rule3);
     }
