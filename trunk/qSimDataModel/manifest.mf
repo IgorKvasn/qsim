@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module: sk.stuba.fiit.kvasnicka.qsimdatamodel
-OpenIDE-Module-Localizing-Bundle: sk/stuba/fiit/kvasnicka/qsimdatamodel/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
-
