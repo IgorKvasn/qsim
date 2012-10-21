@@ -30,7 +30,7 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
         setTitle(NbBundle.getMessage(EdgeConfigurationDialog.class, "create.new.edge"));
 
         initComponents();
-        txtSpeed.setValue(defaultSpeed);
+        txtSpeed.setValue((double) defaultSpeed / 1000 / 1000);//conversion from bps to Mbps
         pack();
     }
 
@@ -70,7 +70,7 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "bitrate.bit.s")); // NOI18N
 
-        txtSpeed.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#"))));
+        txtSpeed.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#.#"))));
         txtSpeed.setToolTipText(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "bitrate.must.be.decimal.number")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "length.m")); // NOI18N
@@ -216,8 +216,9 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
         }
         int mtu = Integer.valueOf(txtMTU.getText()) * 8; //MTU is in Bytes, but in simulation I need it in bites
         double errorRate = calculateErrorRate();
+        long speed = Math.round(Double.valueOf(txtSpeed.getText()) * 1000 * 1000); //conversion from Mbs to bs
 
-        EdgeConfigurationDialog.ResultObject resultObject = new EdgeConfigurationDialog.ResultObject(Long.valueOf(txtSpeed.getText()), Integer.valueOf(txtSpeed.getText()), mtu, errorRate);
+        EdgeConfigurationDialog.ResultObject resultObject = new EdgeConfigurationDialog.ResultObject(speed, Integer.valueOf(txtSpeed.getText()), mtu, errorRate);
 
         setUserInput(resultObject);
         closeDialog();

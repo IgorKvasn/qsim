@@ -4,28 +4,21 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos;
 
-import com.sun.org.apache.bcel.internal.classfile.Code;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.DscpClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.DscpClassification.DscpValuesEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpDefinition;
-import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
-import sun.security.x509.OIDMap;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.supporting.DscpQueryDialog;
 
 /**
  *
@@ -53,20 +46,28 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
 
         col.setCellEditor(new MyComboBoxEditor(items));
 
+        //init default class
+        jComboBox1.removeAllItems();
+        for (int i = 0; i < DscpClassification.DscpValuesEnum.values().length; i++) {
+            DscpValuesEnum dscpEn = DscpClassification.DscpValuesEnum.values()[i];
+            jComboBox1.addItem(new ComboItem(dscpEn.getQosQueue(), dscpEn.getTextName()));
+        }
+
     }
 
     private void showQueryDialog(int row) {
-        QueryDialog queryDialog = new QueryDialog((String) jTable1.getValueAt(row, 1));
-        int result = JOptionPane.showConfirmDialog(this, queryDialog, "Enter DSCP query", JOptionPane.OK_CANCEL_OPTION);
-
-        if (result != JOptionPane.OK_OPTION) {//user hit cancel or closes the dialog
+        DscpQueryDialog queryDialog = new DscpQueryDialog((String) jTable1.getValueAt(row, 1));
+        queryDialog.setVisible(true);
+        
+        String result = queryDialog.getDscpQuery();
+        if (result == null) {//user hit cancel
             return;
         }
 
-        if (StringUtils.isEmpty(queryDialog.getInput())) {
+        if (StringUtils.isEmpty(result)) {
             setQueryString(row, "");
         } else {
-            setQueryString(row, queryDialog.getInput());
+            setQueryString(row, result);
         }
     }
 
@@ -88,8 +89,8 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
         return result;
     }
 
-    public int getDefaultQueueNumber() {
-        return (Integer) jSpinner1.getValue();
+    public DscpValuesEnum getDefaultQueueNumber() {
+        return (DscpValuesEnum) jComboBox1.getSelectedItem();
     }
 
     /**
@@ -141,7 +142,7 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
         jButton3 = new javax.swing.JButton();
         errLabel = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jSpinner1 = new javax.swing.JSpinner();
+        jComboBox1 = new javax.swing.JComboBox();
 
         setMinimumSize(new java.awt.Dimension(583, 511));
 
@@ -210,7 +211,7 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(DscpClassificationDialog.class, "DscpClassificationDialog.jLabel2.text")); // NOI18N
 
-        jSpinner1.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(0), Integer.valueOf(0), null, Integer.valueOf(1)));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -224,8 +225,8 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(22, 22, 22)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -259,8 +260,8 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(21, 21, 21)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(20, 20, 20)
                 .addComponent(jButton3)
                 .addContainerGap())
         );
@@ -298,27 +299,12 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JSpinner jSpinner1;
     private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
-
-    private class QueryDialog extends JPanel {
-
-        private JTextField txtField;
-
-        private QueryDialog(String value) {
-            txtField = new JTextField(value);
-            txtField.setColumns(30);
-            add(txtField);
-        }
-
-        private String getInput() {
-            return txtField.getText();
-        }
-    }
 
     private static class ComboItem {
 
