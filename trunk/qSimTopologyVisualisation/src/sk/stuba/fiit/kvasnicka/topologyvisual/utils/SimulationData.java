@@ -28,7 +28,6 @@ import org.openide.util.Exceptions;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.PacketTypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
@@ -260,7 +259,6 @@ public class SimulationData {
         private Layer4TypeEnum layer4protocol;
         private int packetSize;
         private int packetCount;
-        private PacketTypeEnum packetType;
         private int activationDelay;
 
         private void setId() {

@@ -304,7 +304,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                     result.add(def.getQueueNumber());
                 }
 
-                result.add(dscpClassificationDialog.getDefaultQueueNumber());
+                result.add(dscpClassificationDialog.getDefaultQueueNumber().getQosQueue());
 
                 return result;
             case FLOW_BASED:
@@ -499,7 +499,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                     throw new QosCreationException(NbBundle.getMessage(RouterConfigurationDialog.class, "classfication_not_configured"));
                 }
                 List<DscpDefinition> result = dscpClassificationDialog.getDscpDefinitions();
-                final DscpManager dscpManager = new DscpManager(result.toArray(new DscpDefinition[result.size()]), dscpClassificationDialog.getDefaultQueueNumber());
+                final DscpManager dscpManager = new DscpManager(result.toArray(new DscpDefinition[result.size()]), dscpClassificationDialog.getDefaultQueueNumber().getQosQueue());
 
                 classification = new DscpClassification(new HashMap<String, Object>() {
                     {
@@ -1094,12 +1094,10 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             if (!areClassesDefined()) {//user selected one of class based scheduling mechanisms, but no classes are defined
                 if (!PreferenciesHelper.isNeverShowQosClassConfirmation()) {
                     ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(RouterConfigurationDialog.class, "class_definition_warning"));
-                    NotifyDescriptor descriptor = new NotifyDescriptor(
+                    NotifyDescriptor.Confirmation descriptor = new NotifyDescriptor.Confirmation(
                             panel, // instance of your panel
                             NbBundle.getMessage(RouterConfigurationDialog.class, "warning_title"), // title of the dialog
-                            NotifyDescriptor.YES_NO_OPTION, NotifyDescriptor.WARNING_MESSAGE, null,
-                            NotifyDescriptor.YES_OPTION // default option is "Yes"
-                            );
+                            NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE);
 
                     if (DialogDisplayer.getDefault().notify(descriptor) != NotifyDescriptor.YES_OPTION) {
                         return;
