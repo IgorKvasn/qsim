@@ -122,14 +122,14 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         txtName.setText(router.getName());
         txtDescription.setText(router.getDescription());
 
-        Available packetClassifEnum = retirevePacketClassifEnum(router.getQosMechanism().getPacketClassification());
+        PacketClassification.Available packetClassifEnum = retirevePacketClassifEnum(router.getQosMechanism().getPacketClassification());
         switch (packetClassifEnum) {
             case BEST_EFFORT:
                 comboQosClassif.setSelectedIndex(0);
                 break;
             case DSCP:
                 HashMap<String, Object> params = ((DscpClassification) (router.getQosMechanism()).getPacketClassification()).getParameters();
-                dscpClassificationDialog = new DscpClassificationDialog(this,(DscpManager) params.get(DscpClassification.DSCP_DEFINITIONS));
+                dscpClassificationDialog = new DscpClassificationDialog(this, (DscpManager) params.get(DscpClassification.DSCP_DEFINITIONS));
                 comboQosClassif.setSelectedIndex(1);
                 break;
             case FLOW_BASED:
@@ -144,9 +144,41 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             default:
                 throw new IllegalStateException("unknown packet classif enum: " + packetClassifEnum);
         }
-        
-        
 
+        ActiveQueueManagement.Available activeQueueEnum = retireveActiveQueueManagEnum(router.getQosMechanism().getActiveQueueManagement());
+        HashMap<String, Object> paramsQueue;
+        switch (activeQueueEnum) {
+            case NONE:
+                comboQosQueue.setSelectedIndex(0);
+                break;
+            case RED:
+                paramsQueue = ((RandomEarlyDetection) (router.getQosMechanism()).getActiveQueueManagement()).getParameters();
+                redQueueManagementDialog = new RedQueueManagementDialog(this, (Double) paramsQueue.get(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR), (Double) paramsQueue.get(RandomEarlyDetection.MAX_PROBABILITY), (Double) paramsQueue.get(RandomEarlyDetection.MAX_THRESHOLD), (Double) paramsQueue.get(RandomEarlyDetection.MIN_THRESHOLD));
+                comboQosQueue.setSelectedIndex(1);
+                break;
+            case WRED:
+                paramsQueue = ((WeightedRED) (router.getQosMechanism()).getActiveQueueManagement()).getParameters();
+                wredQueueManagementDialog = new WredQueueManagementDialog(this, (WredDefinition[]) paramsQueue.get(WeightedRED.WRED_DEFINITION));
+                comboQosQueue.setSelectedIndex(2);
+                break;
+            default:
+                throw new IllegalStateException("unknown active queue management enum: " + activeQueueEnum);
+        }
+
+    }
+
+    private ActiveQueueManagement.Available retireveActiveQueueManagEnum(ActiveQueueManagement manag) {
+        if (manag instanceof RandomEarlyDetection) {
+            return ActiveQueueManagement.Available.RED;
+        }
+        if (manag instanceof WeightedRED) {
+            return ActiveQueueManagement.Available.WRED;
+        }
+        if (manag instanceof BestEffortQueueManagement) {
+            return ActiveQueueManagement.Available.NONE;
+        }
+
+        throw new IllegalStateException("unable to determine queue management enum");
     }
 
     private PacketClassification.Available retirevePacketClassifEnum(PacketClassification classif) {
@@ -247,7 +279,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         switch (classEnum) {
             case RED:
                 if (redQueueManagementDialog == null) {
-                    redQueueManagementDialog = new RedQueueManagementDialog();
+                    redQueueManagementDialog = new RedQueueManagementDialog(this);
                 }
                 redQueueManagementDialog.setVisible(true);
                 break;
@@ -257,7 +289,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 try {
                     queueCount = calculateQueueCountByClassification();
                     if (wredQueueManagementDialog == null) {
-                        wredQueueManagementDialog = new WredQueueManagementDialog(queueCount);
+                        wredQueueManagementDialog = new WredQueueManagementDialog(this, queueCount);
                     } else {
                         wredQueueManagementDialog.setQueueCountLabel(queueCount);
                     }
