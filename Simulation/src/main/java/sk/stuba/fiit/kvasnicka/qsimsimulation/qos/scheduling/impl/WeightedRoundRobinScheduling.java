@@ -43,7 +43,7 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
 
     public static final String CLASS_DEFINITIONS = "class_definitions";
 
-    public WeightedRoundRobinScheduling(Map<String, Object> parameters) {
+    public WeightedRoundRobinScheduling(HashMap<String, Object> parameters) {
         super(parameters);
         try {
             QosUtils.checkParameter(parameters, ClassDefinition[].class, CLASS_DEFINITIONS);

@@ -17,9 +17,11 @@
 
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling;
 
+import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,12 +30,13 @@ import java.util.Map;
  */
 public abstract class PacketScheduling implements QosMechanism {
     private static final long serialVersionUID = - 7724658919812873308L;
-    protected Map<String, Object> parameters;
+    @Getter
+    protected HashMap<String, Object> parameters;
 
     public PacketScheduling() {
     }
 
-    public PacketScheduling(Map<String, Object> parameters) {
+    public PacketScheduling(HashMap<String, Object> parameters) {
         this.parameters = parameters;
     }
 

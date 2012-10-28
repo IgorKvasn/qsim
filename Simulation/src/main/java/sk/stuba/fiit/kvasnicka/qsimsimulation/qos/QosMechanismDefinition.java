@@ -17,6 +17,7 @@
 
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos;
 
+import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
@@ -40,10 +41,13 @@ public class QosMechanismDefinition implements Serializable {
     private static Logger logg = Logger.getLogger(QosMechanismDefinition.class);
     private static final long serialVersionUID = - 2761566613214031952L;
     @Setter
+    @Getter
     private PacketScheduling packetScheduling;
     @Setter
+    @Getter
     private PacketClassification packetClassification;
     @Setter
+    @Getter
     private ActiveQueueManagement activeQueueManagement;
 
     public QosMechanismDefinition(PacketScheduling packetScheduling, PacketClassification packetClassification, ActiveQueueManagement activeQueueManagement) {

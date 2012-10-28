@@ -17,6 +17,7 @@
 
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification;
 
+import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.QosMechanism;
@@ -28,7 +29,7 @@ import java.util.HashMap;
  */
 public abstract class PacketClassification implements QosMechanism {
     private static final long serialVersionUID = 5049685251835322761L;
-
+    @Getter
     protected HashMap<String, Object> parameters;
 
     protected PacketClassification(HashMap<String, Object> parameters) {
@@ -38,6 +39,7 @@ public abstract class PacketClassification implements QosMechanism {
     protected PacketClassification() {
 
     }
+
 
     public abstract int classifyAndMarkPacket(NetworkNode networkNode, Packet packet);
 

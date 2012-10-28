@@ -43,7 +43,7 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
 
     public static final String CLASS_DEFINITIONS = "class_definitions";
 
-    public ClassBasedWFQScheduling(Map<String, Object> parameters) {
+    public ClassBasedWFQScheduling(HashMap<String, Object> parameters) {
         super(parameters);
         try {
             QosUtils.checkParameter(parameters, ClassDefinition[].class, CLASS_DEFINITIONS);
