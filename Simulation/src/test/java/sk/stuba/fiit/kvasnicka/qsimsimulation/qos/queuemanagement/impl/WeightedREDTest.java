@@ -20,6 +20,7 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl;
 import org.junit.Before;
 import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -45,9 +46,13 @@ public class WeightedREDTest {
         packet2 = new Packet(15, null, null, 1);
         packet2.setQosQueue(1);
 
+        ClassDefinition classDefinition1 = new ClassDefinition("name1", 0);
+        ClassDefinition classDefinition2 = new ClassDefinition("name2", 1);
+
+
         final WeightedRED.WredDefinition[] defs = new WeightedRED.WredDefinition[2];
-        defs[0] = new WeightedRED.WredDefinition(0, .02, .2, .1, .9);
-        defs[1] = new WeightedRED.WredDefinition(1, .2, .2, .1, .9);
+        defs[0] = new WeightedRED.WredDefinition(classDefinition1, .02, .2, .1, .9);
+        defs[1] = new WeightedRED.WredDefinition(classDefinition2, .2, .2, .1, .9);
 
         wred = new WeightedRED(new HashMap<String, Object>() {{
             put(WeightedRED.WRED_DEFINITION, defs);
@@ -63,7 +68,7 @@ public class WeightedREDTest {
             queue.add(p);
         }
 
-        assertFalse(wred.manageQueue(queue, packet1));//over maximumu threshold
+        assertFalse(wred.manageQueue(queue, packet1));//over maximum threshold
 
         List<Packet> queue2 = new LinkedList<Packet>();
         assertTrue(wred.manageQueue(queue2, packet2));//below minimum threshold
@@ -83,10 +88,13 @@ public class WeightedREDTest {
     }
 
     @Test
-    public void testManageQueue_wrong_queue_deafult_red_definition() {
+    public void testManageQueue_default_red_definition() {
+        ClassDefinition classDefinition1 = new ClassDefinition("name1", 1);
+        ClassDefinition classDefinition2 = new ClassDefinition("", 2);
+
         final WeightedRED.WredDefinition[] defs = new WeightedRED.WredDefinition[2];
-        defs[0] = new WeightedRED.WredDefinition(0, .02, .2, .1, .9);
-        defs[1] = new WeightedRED.WredDefinition(- 1, .2, .2, .1, .9);
+        defs[0] = new WeightedRED.WredDefinition(classDefinition1, .02, .2, .1, .9);
+        defs[1] = new WeightedRED.WredDefinition(classDefinition2, .2, .2, .1, .9);
 
         wred = new WeightedRED(new HashMap<String, Object>() {{
             put(WeightedRED.WRED_DEFINITION, defs);
