@@ -4,10 +4,12 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
@@ -18,6 +20,7 @@ import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.DscpClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.DscpClassification.DscpValuesEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpDefinition;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.supporting.DscpQueryDialog;
 
 /**
@@ -28,8 +31,8 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
 
     private DefaultTableModel tableModel;
 
-    public DscpClassificationDialog() {
-        super(WindowManager.getDefault().getMainWindow(), true);
+    public DscpClassificationDialog(JDialog parent) {
+        super(parent, true);
 
         initComponents();
         errLabel.setVisible(false);
@@ -55,10 +58,32 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
 
     }
 
+    /**
+     * used to load settings from already existing network node
+     *
+     * @param settings
+     */
+    public DscpClassificationDialog(JDialog parent, DscpManager dscpManager) {
+        this(parent);
+
+        //default queue
+        String defaultQueueName = DscpClassification.findDscpValueByQueueNumber(dscpManager.getNotDefinedQueue()).getTextName();
+        for (int i = 0; i < jComboBox1.getItemCount(); i++) {
+            if (((ComboItem) jComboBox1.getItemAt(i)).getLabel().equals(defaultQueueName)) {
+                jComboBox1.setSelectedIndex(i);
+                break;
+            }
+        }
+        //dscp queries
+        for (DscpDefinition def : dscpManager.getDefinitions()) {
+            tableModel.addRow(new Object[]{DscpClassification.findDscpValueByQueueNumber(def.getQueueNumber()), def.getQuery()});
+        }
+    }
+
     private void showQueryDialog(int row) {
-        DscpQueryDialog queryDialog = new DscpQueryDialog((String) jTable1.getValueAt(row, 1));
+        DscpQueryDialog queryDialog = new DscpQueryDialog(this, (String) jTable1.getValueAt(row, 1));
         queryDialog.setVisible(true);
-        
+
         String result = queryDialog.getDscpQuery();
         if (result == null) {//user hit cancel
             return;
@@ -90,7 +115,7 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
     }
 
     public DscpValuesEnum getDefaultQueueNumber() {
-        return (DscpValuesEnum) jComboBox1.getSelectedItem();
+        return DscpClassification.findDscpValueByQueueNumber(((ComboItem) jComboBox1.getSelectedItem()).value);
     }
 
     /**
@@ -108,6 +133,9 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
         for (int i = 0; i < tableModel.getRowCount(); i++) {
             try {
                 ComboItem a = (ComboItem) tableModel.getValueAt(i, 0);
+                if (a == null) {
+                    throw new ClassCastException(); //not the best solution to throw unrelated exception, but catch block is already written...
+                }
                 String s = (String) jTable1.getValueAt(i, 1);
                 if (StringUtils.isEmpty(s)) {
                     throw new ClassCastException();

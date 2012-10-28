@@ -60,6 +60,23 @@ public class DialogHandler {
 
         return new Router(resultObject.getName(), resultObject.getDescription(), resultObject.getQosMechanismDefinition(), resultObject.getMaxTxBufferSize(), resultObject.getMaxRxBufferSize(), resultObject.getMaxOutputQueueSize(), resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay(), resultObject.getMinProcessingDelay(), resultObject.getMaxProcessingDelay());
     }
+    
+    
+    /**
+     * shows dialog with router configuration
+     * 
+     * null if user hit cancel
+     */
+    public Router showRouterConfigurationDialog(Router router) {
+        BlockingDialog bl = new RouterConfigurationDialog(router);
+        bl.showDialog();
+        RouterConfigurationDialog.ResultObject resultObject = (RouterConfigurationDialog.ResultObject) bl.getUserInput();
+        if (resultObject == null) {
+            return null;
+        }
+
+        return new Router(resultObject.getName(), resultObject.getDescription(), resultObject.getQosMechanismDefinition(), resultObject.getMaxTxBufferSize(), resultObject.getMaxRxBufferSize(), resultObject.getMaxOutputQueueSize(), resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay(), resultObject.getMinProcessingDelay(), resultObject.getMaxProcessingDelay());
+    }
 
     /**
      * shows dialog with computer configuration

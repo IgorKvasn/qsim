@@ -28,24 +28,17 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
  */
 public class ComputerVertex extends TopologyVertex {
 
-    private Computer computer;
-
     /**
      * creates instance
      *
      * @param computer computer associated with this vertex
      */
     public ComputerVertex(NetworkNode computer) {
-        super(ImageType.TOPOLOGY_VERTEX_COMPUTER, computer.getName(),computer.getDescription());
+        super(ImageType.TOPOLOGY_VERTEX_COMPUTER, computer.getName(), computer.getDescription());
         if (computer instanceof Computer) {
-            this.computer = (Computer) computer;
+            setDataModel(computer);
         } else {
             throw new IllegalArgumentException("ComputerVertex must have reference to underlying Computer object");
         }
-    }
-
-    @Override
-    public NetworkNode getDataModel() {
-        return computer;
     }
 }

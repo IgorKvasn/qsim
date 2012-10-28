@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.DropMode;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
@@ -53,8 +54,8 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
     /**
      * Creates new form ClassDefinitionDialog
      */
-    public ClassDefinitionDialog() {
-        super(WindowManager.getDefault().getMainWindow(), true);
+    public ClassDefinitionDialog(JDialog parent) {
+        super(parent, true);
         initComponents();
         jTree1.setDragEnabled(true);
         jTree1.setDropMode(DropMode.ON_OR_INSERT);

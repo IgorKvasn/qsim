@@ -34,6 +34,7 @@ import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
@@ -73,7 +74,6 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.BlockingDialog;
 public class RouterConfigurationDialog extends BlockingDialog<RouterConfigurationDialog.ResultObject> {
 
     private static Logger logg = Logger.getLogger(RouterConfigurationDialog.class);
-    private String routerName;
     private DscpClassificationDialog dscpClassificationDialog;
     private RedQueueManagementDialog redQueueManagementDialog;
     private WredQueueManagementDialog wredQueueManagementDialog;
@@ -86,7 +86,6 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
      */
     public RouterConfigurationDialog(String routerName) {
         super(WindowManager.getDefault().getMainWindow());
-        this.routerName = routerName;
         initComponents();
 
         ((SpinnerNumberModel) spinProcessingMin.getModel()).setMinimum(DelayHelper.MIN_PROCESSING_DELAY);
@@ -101,6 +100,73 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         initQosConfigurationButtons();
 
         selectedPacketClassification = (Available) ((ComboItem) comboQosClassif.getItemAt(0)).getValue();
+    }
+
+    /**
+     * this constructor is used when editing
+     *
+     * @param existingRouter
+     */
+    public RouterConfigurationDialog(Router router) {
+        this(router.getName());
+
+        spinProcessingMax.setValue(router.getMaxProcessingDelay());
+        spinProcessingMin.setValue(router.getMinProcessingDelay());
+        spinTcpTimeout.setValue(router.getTcpDelay());
+        spinProcessing.setValue(router.getMaxProcessingPackets());
+        spinInputQueue.setValue(router.getMaxIntputQueueSize());
+        spinOutputQueue.setValue(router.getOutputQueueManager().getMaxCapacity());
+        spinTx.setValue(router.getMaxTxBufferSize());
+        spinRx.setValue(router.getMaxRxBufferSize());
+
+        txtName.setText(router.getName());
+        txtDescription.setText(router.getDescription());
+
+        Available packetClassifEnum = retirevePacketClassifEnum(router.getQosMechanism().getPacketClassification());
+        switch (packetClassifEnum) {
+            case BEST_EFFORT:
+                comboQosClassif.setSelectedIndex(0);
+                break;
+            case DSCP:
+                HashMap<String, Object> params = ((DscpClassification) (router.getQosMechanism()).getPacketClassification()).getParameters();
+                dscpClassificationDialog = new DscpClassificationDialog(this,(DscpManager) params.get(DscpClassification.DSCP_DEFINITIONS));
+                comboQosClassif.setSelectedIndex(1);
+                break;
+            case FLOW_BASED:
+                comboQosClassif.setSelectedIndex(2);
+                break;
+            case IP_PRECEDENCE:
+                comboQosClassif.setSelectedIndex(3);
+                break;
+            case NONE:
+                comboQosClassif.setSelectedIndex(4);
+                break;
+            default:
+                throw new IllegalStateException("unknown packet classif enum: " + packetClassifEnum);
+        }
+        
+        
+
+    }
+
+    private PacketClassification.Available retirevePacketClassifEnum(PacketClassification classif) {
+        if (classif instanceof BestEffortClassification) {
+            return Available.BEST_EFFORT;
+        }
+        if (classif instanceof DscpClassification) {
+            return Available.DSCP;
+        }
+        if (classif instanceof FlowBasedClassification) {
+            return Available.FLOW_BASED;
+        }
+        if (classif instanceof IpPrecedenceClassification) {
+            return Available.IP_PRECEDENCE;
+        }
+        if (classif instanceof NoClassification) {
+            return Available.NONE;
+        }
+
+        throw new IllegalStateException("unable to determine packet classif enum");
     }
 
     private void initQosComboboxes() {
@@ -159,10 +225,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         switch (classEnum) {
             case DSCP:
                 if (dscpClassificationDialog == null) {
-                    if (classDefinitionDialog == null) {
-                        classDefinitionDialog = new ClassDefinitionDialog();
-                    }
-                    dscpClassificationDialog = new DscpClassificationDialog();
+                    dscpClassificationDialog = new DscpClassificationDialog(this);
                 }
                 dscpClassificationDialog.setVisible(true);
                 break;
@@ -223,7 +286,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             case CB_WFQ:
             case WEIGHTED_ROUND_ROBIN:
                 if (classDefinitionDialog == null) {
-                    classDefinitionDialog = new ClassDefinitionDialog();
+                    classDefinitionDialog = new ClassDefinitionDialog(this);
                 }
                 classDefinitionDialog.showDialog(getDefinedQueues(), isDscpClassificationSelected());
                 break;
@@ -391,7 +454,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
 
                 if (result == JOptionPane.YES_OPTION) {
                     if (classDefinitionDialog == null) {
-                        classDefinitionDialog = new ClassDefinitionDialog();
+                        classDefinitionDialog = new ClassDefinitionDialog(this);
                     }
                     classDefinitionDialog.showDialog(getDefinedQueues(), isDscpClassificationSelected());
                 }
@@ -1047,6 +1110,9 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         if (selectedPacketClassification == classEnum) {//user has selected the same item again
             return;
         }
+
+        selectedPacketClassification = classEnum;
+
         if (classDefinitionDialog != null) {
             //erase QoS class configuration
             classDefinitionDialog.dispose();

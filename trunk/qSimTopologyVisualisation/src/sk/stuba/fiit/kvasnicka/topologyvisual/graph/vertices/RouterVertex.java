@@ -29,8 +29,6 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
  */
 public class RouterVertex extends TopologyVertex {
 
-    private Router router;
-
     /**
      * creates new instance
      *
@@ -39,14 +37,9 @@ public class RouterVertex extends TopologyVertex {
     public RouterVertex(NetworkNode router) {
         super(ImageType.TOPOLOGY_VERTEX_ROUTER, router.getName(), router.getDescription());
         if (router instanceof Router) {
-            this.router = (Router) router;
+            setDataModel(router);
         } else {
             throw new IllegalArgumentException("RouterVertex must have reference to underlying Router object");
         }
-    }
-
-    @Override
-    public NetworkNode getDataModel() {
-        return router;
     }
 }
