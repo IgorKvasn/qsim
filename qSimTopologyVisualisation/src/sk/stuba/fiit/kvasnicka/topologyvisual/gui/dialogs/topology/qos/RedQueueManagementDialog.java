@@ -4,7 +4,7 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos;
 
-import org.openide.windows.WindowManager;
+import javax.swing.JDialog;
 
 /**
  *
@@ -15,9 +15,17 @@ public class RedQueueManagementDialog extends javax.swing.JDialog {
     /**
      * Creates new form RedQueueManagementDialog
      */
-    public RedQueueManagementDialog() {
-        super(WindowManager.getDefault().getMainWindow(), true);
+    public RedQueueManagementDialog(JDialog parent) {
+        super(parent, true);
         initComponents();
+    }
+
+    public RedQueueManagementDialog(JDialog parent,double expWeight, double maxProb, double maxThr, double minThr) {
+        this(parent);
+        jSpinner1.setValue(expWeight);
+        jSpinner2.setValue(minThr);
+        jSpinner3.setValue(maxThr);
+        jSpinner4.setValue(maxProb);
     }
 
     public double getExponentialWeightFactor() {

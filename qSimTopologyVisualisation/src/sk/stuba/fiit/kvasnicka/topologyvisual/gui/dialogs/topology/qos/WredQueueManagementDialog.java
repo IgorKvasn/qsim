@@ -4,11 +4,13 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos;
 
+import java.awt.Dialog;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
@@ -28,6 +30,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
  */
 public class WredQueueManagementDialog extends javax.swing.JDialog {
 
+    
+    
     private DefaultTreeModel treeModel;
     private DefaultMutableTreeNode rootNode;
     private Map<Integer, Integer> queueMap;//key=queue number; value=tree node index
@@ -36,13 +40,30 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
     /**
      * Creates new form WredQueueManagementDialog
      */
-    public WredQueueManagementDialog(int queueCount) {
-        super(WindowManager.getDefault().getMainWindow(), true);
+    public WredQueueManagementDialog(JDialog owner, int queueCount) {
+        super(owner, true);
+        init();
+        setQueueCountLabel(queueCount);
+        createQueues(queueCount);
+    }
+
+    /**
+     * constructor that loads previous configuration - e.g. when editing vertex
+     *
+     * @param owner
+     * @param params
+     */
+    public WredQueueManagementDialog(JDialog owner, WredDefinition[] params) {
+        super(owner, true);
+        init();
+        
+        
+    }
+
+    private void init() {
         initComponents();
         treeModel = (DefaultTreeModel) jTree1.getModel();
         queueMap = new HashMap<Integer, Integer>();
-        setQueueCountLabel(queueCount);
-        createQueues(queueCount);
         jTree1.addTreeSelectionListener(new SelectionListener());
         selectTreeNode(0);
     }
@@ -454,7 +475,9 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
             String selectedNodeName = selectedNode.toString();
 
+            //save previous configuration
             saveConfiguration();
+            //load new configuration
             loadConfiguration();
 
         }
