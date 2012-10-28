@@ -27,19 +27,12 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
  */
 public class SwitchVertex extends TopologyVertex {
 
-    private Switch sw;
-
     public SwitchVertex(NetworkNode sw) {
         super(ImageType.TOPOLOGY_VERTEX_SWITCH, sw.getName(), sw.getDescription());
         if (sw instanceof Switch) {
-            this.sw = (Switch) sw;
+            setDataModel(sw);
         } else {
             throw new IllegalArgumentException("SwitchVertex must have reference to underlying Switch object");
         }
-    }
-
-    @Override
-    public NetworkNode getDataModel() {
-        return sw;
     }
 }

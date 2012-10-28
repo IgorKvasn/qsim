@@ -20,11 +20,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import org.apache.commons.collections15.Factory;
-import org.apache.log4j.Logger;
-
 import java.util.LinkedList;
 import java.util.List;
+import org.apache.commons.collections15.Factory;
+import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.commons.TopologyElementFactory;

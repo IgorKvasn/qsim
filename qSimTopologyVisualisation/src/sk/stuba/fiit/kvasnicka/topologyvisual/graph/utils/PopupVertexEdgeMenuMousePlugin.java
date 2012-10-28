@@ -25,6 +25,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.*;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import org.apache.log4j.Logger;
 import org.openide.DialogDisplayer;
@@ -62,6 +63,7 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
     private Topology topology;
     private JMenuItem menuItemDeleteVertex;
     private JMenuItem menuItemDeleteEdge;
+    private JMenuItem menuItemEditVertex;
 
     /**
      * Creates a new instance of PopupVertexEdgeMenuMousePlugin
@@ -77,7 +79,7 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
      * class.
      */
     public PopupVertexEdgeMenuMousePlugin(Topology topology, int modifiers) {
-        super(modifiers);     
+        super(modifiers);
 
         createVertexPopup();
         createEdgePopup();
@@ -121,15 +123,22 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
         vertexPopup.add(new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "properties")));
         vertexPopup.addSeparator();
         vertexPopup.addSeparator();
+
+        menuItemEditVertex = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "edit"));
+        menuItemEditVertex.setEnabled(true);
+
         menuItemDeleteVertex = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete"));
         menuItemDeleteVertex.setEnabled(true);
 
         vertexPopup.add(menuItemDeleteVertex);
+        vertexPopup.add(menuItemEditVertex);
+
         JMenuItem menuSimulLog = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "simul_log"));
         menuSimulLog.addActionListener(new ShowSimulationLogsMenuItem());
         vertexPopup.add(menuSimulLog);
 
         menuItemDeleteVertex.addActionListener(new VertexDeleteMenuItem());
+        menuItemEditVertex.addActionListener(new VertexEditMenuItem());
     }
 
     private void createEdgePopup() {
@@ -149,6 +158,26 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
         } else {
             menuItemDeleteVertex.setEnabled(true);
             menuItemDeleteEdge.setEnabled(true);
+        }
+    }
+
+    private class VertexEditMenuItem implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (NetbeansWindowHelper.getInstance().getActiveTopology() == null) {
+                return;
+            }
+
+            if (topology.getSelectedVertices().size() > 1) {
+                JOptionPane.showMessageDialog(NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation(),
+                        "You can edit only one vertex at a time.",
+                        "Editing error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().editVertices(topology.getSelectedVertices());
         }
     }
 
@@ -202,7 +231,7 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                     }
                 }
 
-               topology.getTopolElementTopComponent().reloadSimulationRuleData();
+                topology.getTopolElementTopComponent().reloadSimulationRuleData();
             }
 
             if (topology.getSelectedVertices().isEmpty()) {//user right clicks on the vertex - this does not selects vertex

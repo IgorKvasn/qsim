@@ -18,6 +18,7 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui;
 
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import java.awt.BorderLayout;
+import java.util.Collection;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -34,11 +35,11 @@ import org.openide.awt.StatusDisplayer;
 import org.openide.awt.UndoRedo;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.ConfigureSimulationAction;
@@ -54,6 +55,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyElementCreatorHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.RouterVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.DialogHandler;
@@ -502,6 +504,31 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     public void retrieveVertexByClickCancel() {
         setTopologyCreationMode();
         this.verticesSelectionPanel = null;
+    }
+
+    /**
+     * opens edit dialogs for one of the given topology vertices if multiple
+     * vertices are given, probably one with the lowest name will be edited
+     *
+     * @param vertices
+     */
+    public void editVertices(Collection<TopologyVertex> vertices) {
+        NetworkNode editedModel = null;
+        for (TopologyVertex v : vertices) {
+            if (v instanceof RouterVertex) {
+                editedModel = dialogHandler.showRouterConfigurationDialog((Router) v.getDataModel());
+                if (editedModel == null) {//user hit cancel
+                    return;
+                }
+
+            }
+            //todo add switch and computer editing - just like lines above
+
+
+            //set edited data model as new
+            v.setDataModel(editedModel);
+            break; //only the first selected vertex is edited
+        }
     }
 
     /**

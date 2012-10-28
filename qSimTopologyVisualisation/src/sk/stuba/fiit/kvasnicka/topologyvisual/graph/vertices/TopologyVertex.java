@@ -22,9 +22,9 @@ import javax.swing.Icon;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlTransient;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Computer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
@@ -41,6 +41,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class TopologyVertex implements Serializable {
 
+    private static final Logger logg = Logger.getLogger(TopologyVertex.class);
     protected ImageType imageType;
     @Getter
     protected final Icon icon;
@@ -48,6 +49,7 @@ public abstract class TopologyVertex implements Serializable {
     @Setter
     protected String description = "NA";
     protected String name;
+    protected NetworkNode networkNode;
 
     /**
      * creates new instance
@@ -106,7 +108,22 @@ public abstract class TopologyVertex implements Serializable {
      * @see Computer
      * @return
      */
-    public abstract NetworkNode getDataModel();
+    public NetworkNode getDataModel() {
+        return networkNode;
+    }
+
+    /**
+     * sets underlying data model (e.g. after it was edited by user)
+     *
+     * @param networkNode
+     */
+    public void setDataModel(NetworkNode networkNode) {
+        if (networkNode == null) {//data model MUST NOT be null 
+            logg.error("Setting data model to NULL - this is strictly prohibited");
+            return;
+        }
+        this.networkNode = networkNode;
+    }
 
     /**
      * deselects vertex

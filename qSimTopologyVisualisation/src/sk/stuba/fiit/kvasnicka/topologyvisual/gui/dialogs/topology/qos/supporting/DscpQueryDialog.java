@@ -5,6 +5,7 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.supporting;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -24,8 +25,8 @@ public class DscpQueryDialog extends javax.swing.JDialog {
     /**
      * Creates new form DscpQueryDialog
      */
-    public DscpQueryDialog(String defaultQuery) {
-        super(WindowManager.getDefault().getMainWindow(), true);
+    public DscpQueryDialog(JDialog parent, String defaultQuery) {
+        super(parent, true);
         initComponents();
         jXTextArea1.setPrompt("DSCP query");
         listOperands.addListSelectionListener(new QueryListSelectionHandler(listOperands));
