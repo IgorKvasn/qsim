@@ -17,6 +17,7 @@
 
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp;
 
+import lombok.Getter;
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.ClassificationException;
@@ -30,7 +31,9 @@ import java.io.Serializable;
 public class DscpManager implements Serializable {
 
     private static final long serialVersionUID = - 2613638503370201116L;
+    @Getter
     private final DscpDefinition[] definitions;
+    @Getter
     private int notDefinedQueue;
     private static Logger logg = Logger.getLogger(DscpManager.class);
 

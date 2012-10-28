@@ -25,7 +25,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.RoundRobinSche
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedFairQueuingScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedRoundRobinScheduling;
 
-import java.util.Map;
+import java.util.HashMap;
 
 /**
  * factory that creates packet scheduling algorithm implementation
@@ -44,7 +44,7 @@ public final class PacketSchedulingFactory {
      * @param params         some packet scheduling implementations require some parameters; may be null if no parameters are needed
      * @return PacketScheduling implementation
      */
-    public static PacketScheduling createPacketScheduling(PacketSchedulingImplEnum schedulingEnum, Map<String, Object> params) {
+    public static PacketScheduling createPacketScheduling(PacketSchedulingImplEnum schedulingEnum, HashMap<String, Object> params) {
         switch (schedulingEnum) {
             case ClassBasedWFQ:
                 return new ClassBasedWFQScheduling(params);

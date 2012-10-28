@@ -17,6 +17,7 @@
 
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement;
 
+import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.QosMechanism;
 
@@ -29,7 +30,7 @@ import java.util.List;
 public abstract class ActiveQueueManagement implements QosMechanism {
 
     private static final long serialVersionUID = - 876488938244873514L;
-
+    @Getter
     private HashMap<String, Object> parameters;
 
     public ActiveQueueManagement() {
@@ -41,10 +42,6 @@ public abstract class ActiveQueueManagement implements QosMechanism {
 
     public void setParameters(HashMap<String, Object> parameters) {
         this.parameters = parameters;
-    }
-
-    public HashMap<String, Object> getParameters() {
-        return parameters;
     }
 
     /**
