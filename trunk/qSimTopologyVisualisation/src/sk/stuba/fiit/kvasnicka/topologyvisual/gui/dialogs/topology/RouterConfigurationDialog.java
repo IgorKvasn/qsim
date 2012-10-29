@@ -58,6 +58,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.PriorityQueuin
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.RoundRobinScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedFairQueuingScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedRoundRobinScheduling;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.ConfirmDialogPanel;
@@ -285,18 +286,19 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 break;
 
             case WRED:
-                int queueCount;
-                try {
-                    queueCount = calculateQueueCountByClassification();
-                    if (wredQueueManagementDialog == null) {
-                        wredQueueManagementDialog = new WredQueueManagementDialog(this, queueCount);
+                
+                    ClassDefinition[] classes = null;
+                    if (areClassesDefined()) {
+                        classes = classDefinitionDialog.getClasses();
                     } else {
-                        wredQueueManagementDialog.setQueueCountLabel(queueCount);
+                        //todo ask user if he wants to configure classes - if no, return and switch selected combobox item back
+                        //show class definition dialog and after that show Wred dialog
                     }
+                    if (wredQueueManagementDialog == null) {
+                        wredQueueManagementDialog = new WredQueueManagementDialog(this, classes);
+                    } 
                     wredQueueManagementDialog.setVisible(true);
-                } catch (QosCreationException ex) {
-                    return;
-                }
+               
 
                 break;
             default:
@@ -333,87 +335,6 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             return true;
         }
         return false;
-    }
-
-    /**
-     * determines, how many queues will be created according to selected
-     * classification
-     *
-     * @return -1 if unable to determine (e.g. flow based classification)
-     */
-    private int calculateQueueCountByClassification() throws QosCreationException {
-        PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
-
-        switch (classEnum) {
-            case BEST_EFFORT:
-                return 1;
-            case DSCP:
-                Set<Integer> queues = new TreeSet<Integer>();
-                if (dscpClassificationDialog == null) { //dscp is not defined yet
-                    JOptionPane.showMessageDialog(this,
-                            "DSCP is selected, but not configured, yet.",
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                    throw new QosCreationException("dscp not configured");
-                }
-
-                for (DscpDefinition def : dscpClassificationDialog.getDscpDefinitions()) {
-                    queues.add(def.getQueueNumber());
-                }
-                return queues.size() + 1;
-            case FLOW_BASED:
-                return -1;
-            case IP_PRECEDENCE:
-                return 8;
-            case NONE:
-                return -1;
-            default:
-                throw new IllegalStateException("unable to predict number of output queues for classification: " + classEnum);
-        }
-    }
-
-    /**
-     * returns queues defined by selected classification
-     *
-     * @return null if unable to retrieve queue numbers (e.g. flow based
-     * classification)
-     */
-    private Set<Integer> getQueueNumbersByClassification() throws QosCreationException {
-        PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
-        Set<Integer> result = new TreeSet<Integer>();
-
-        switch (classEnum) {
-            case BEST_EFFORT:
-                result.add(0);
-                return result;
-            case DSCP:
-                if (dscpClassificationDialog == null) { //dscp is not defined yet
-                    JOptionPane.showMessageDialog(this,
-                            "DSCP is selected, but not configured, yet.",
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                    throw new QosCreationException("dscp not configured");
-                }
-
-                for (DscpDefinition def : dscpClassificationDialog.getDscpDefinitions()) {
-                    result.add(def.getQueueNumber());
-                }
-
-                result.add(dscpClassificationDialog.getDefaultQueueNumber().getQosQueue());
-
-                return result;
-            case FLOW_BASED:
-                return null;
-            case IP_PRECEDENCE:
-                for (int i = 0; i < 8; i++) {
-                    result.add(i);
-                }
-                return result;
-            case NONE:
-                return result;
-            default:
-                throw new IllegalStateException("unable to retrieve output queues for classification: " + classEnum);
-        }
     }
 
     /**
@@ -565,10 +486,11 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 if (wredQueueManagementDialog == null) {
                     throw new QosCreationException(NbBundle.getMessage(RouterConfigurationDialog.class, "queue_management_not_configured"));
                 }
+                if (!areClassesDefined()) {
+                    throw new QosCreationException(NbBundle.getMessage(RouterConfigurationDialog.class, "queue_management_not_configured"));
+                }
                 Collection<WredDefinition> configuration = wredQueueManagementDialog.getConfiguration();
-
                 final WeightedRED.WredDefinition[] definitions = configuration.toArray(new WredDefinition[configuration.size()]);
-
                 queueManagement = new WeightedRED(new HashMap<String, Object>() {
                     {
                         put(WeightedRED.WRED_DEFINITION, definitions);

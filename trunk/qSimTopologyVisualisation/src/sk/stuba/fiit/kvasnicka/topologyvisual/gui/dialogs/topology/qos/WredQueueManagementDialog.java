@@ -22,6 +22,7 @@ import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.WeightedRED.WredDefinition;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
 
 /**
@@ -30,21 +31,20 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
  */
 public class WredQueueManagementDialog extends javax.swing.JDialog {
 
-    
-    
     private DefaultTreeModel treeModel;
     private DefaultMutableTreeNode rootNode;
-    private Map<Integer, Integer> queueMap;//key=queue number; value=tree node index
-    private Map<Integer, WredDefinition> configuration = new HashMap<Integer, WredDefinition>(); //key =queue number; value=WredDefinition
+    private Map<String, Integer> classMapMap;//key=class name; value=tree node index
+    private Map<String, WredDefinition> configuration = new HashMap<String, WredDefinition>(); //key =class name; value=WredDefinition
+    private ClassDefinition[] classes;
 
     /**
      * Creates new form WredQueueManagementDialog
      */
-    public WredQueueManagementDialog(JDialog owner, int queueCount) {
+    public WredQueueManagementDialog(JDialog owner, ClassDefinition[] classes) {
         super(owner, true);
         init();
-        setQueueCountLabel(queueCount);
-        createQueues(queueCount);
+        this.classes = classes;
+        createClasses(classes);
     }
 
     /**
@@ -56,14 +56,16 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
     public WredQueueManagementDialog(JDialog owner, WredDefinition[] params) {
         super(owner, true);
         init();
-        
-        
+
+        //make  ClassDefinition[] from WredDefinition[]
+        // this.classes = classes;
+        //call  createClasses(classes);        
     }
 
     private void init() {
         initComponents();
         treeModel = (DefaultTreeModel) jTree1.getModel();
-        queueMap = new HashMap<Integer, Integer>();
+        classMapMap = new HashMap<String, Integer>();
         jTree1.addTreeSelectionListener(new SelectionListener());
         selectTreeNode(0);
     }
@@ -73,15 +75,10 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
      *
      * @param queueCount
      */
-    private void createQueues(int queueCount) {
+    private void createClasses(ClassDefinition[] classes) {
         try {
-            if (queueCount == -1) {
-                //create default queue
-                addQueue(-1);
-            } else {
-                for (int i = 0; i < queueCount; i++) {
-                    addQueue(i);
-                }
+            for (int i = 0; i < classes.length; i++) {
+                addClass(classes[i].getName());
             }
         } catch (QosCreationException ex) {
             Exceptions.printStackTrace(ex);//this should not happen
@@ -89,11 +86,11 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
     }
 
     private void loadConfiguration() {
-        int queue = getSelectedQueue();
-        if (queue == -2) {//nothing is selected
+        String selClass = getSelectedClass();
+        if (selClass == null) {//nothing is selected
             return;
         }
-        WredDefinition wredDefinition = configuration.get(queue);
+        WredDefinition wredDefinition = configuration.get(selClass);
         if (wredDefinition == null) {//configuration was not saved before
             jSpinner1.setValue(0.002d);
             jSpinner2.setValue(0.2d);
@@ -121,13 +118,23 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
         if (rootNode.getChildCount() == 0) {//nothing to save
             return;
         }
-        int queue = getSelectedQueue();
-        if (queue == -2) {//nothing is selected
+        String selClass = getSelectedClass();
+        if (selClass == null) {//nothing is selected
             return;
         }
-        WredDefinition definition = new WredDefinition(queue, getExponenetial(), getMaxThresh(), getMinThresh(), getMaxProb());
+        WredDefinition definition = new WredDefinition(getClassDefinitionByName(selClass), getExponenetial(), getMaxThresh(), getMinThresh(), getMaxProb());
+        configuration.put(selClass, definition);
+    }
 
-        configuration.put(queue, definition);
+    private ClassDefinition getClassDefinitionByName(String className) {
+        for (ClassDefinition def : classes) {
+            if (def.getName().equals(className)) {
+                return def;
+            }
+        }
+
+        throw new IllegalArgumentException("unable to find class with name: " + className);
+
     }
 
     private double getExponenetial() {
@@ -147,17 +154,17 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
     }
 
     /**
-     * returns selected queue in the tree
+     * returns selected class in the tree
      *
-     * @return -2 if nothing is selected
+     * @return null if nothing is selected
      */
-    private int getSelectedQueue() {
+    private String getSelectedClass() {
         if (jTree1.getLastSelectedPathComponent() == null) {
-            return -2;
+            return null;
         }
         DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
         String selectedNodeName = selectedNode.toString();
-        return Integer.parseInt(selectedNodeName);
+        return selectedNodeName;
     }
 
     /**
@@ -173,20 +180,20 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
         }
     }
 
-    private void addQueue(int queueNumber) throws QosCreationException {
-        if (queueMap.containsKey(queueNumber)) {
-            throw new QosCreationException("duplicite queue number " + queueNumber);
+    private void addClass(String className) throws QosCreationException {
+        if (classMapMap.containsKey(className)) {
+            throw new QosCreationException("duplicite queue number " + className);
         }
-        queueMap.put(queueNumber, rootNode.getChildCount());
-        treeModel.insertNodeInto(new DefaultMutableTreeNode(queueNumber), rootNode, rootNode.getChildCount());
+        classMapMap.put(className, rootNode.getChildCount());
+        treeModel.insertNodeInto(new DefaultMutableTreeNode(className), rootNode, rootNode.getChildCount());
     }
 
-    private void removeQueue(int queueNumber) throws QosCreationException {
-        if (!queueMap.containsKey(queueNumber)) {
-            throw new QosCreationException("no queue with number " + queueNumber);
+    private void removeClass(String className) throws QosCreationException {
+        if (!classMapMap.containsKey(className)) {
+            throw new QosCreationException("no queue with number " + className);
         }
-        treeModel.removeNodeFromParent((MutableTreeNode) rootNode.getChildAt(queueMap.get(queueNumber)));
-        queueMap.remove(queueNumber);
+        treeModel.removeNodeFromParent((MutableTreeNode) rootNode.getChildAt(classMapMap.get(className)));
+        classMapMap.remove(className);
 
     }
 
@@ -217,9 +224,6 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTree1 = new javax.swing.JTree();
         jLabel7 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jLabel8 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -313,22 +317,6 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel7, org.openide.util.NbBundle.getMessage(WredQueueManagementDialog.class, "WredQueueManagementDialog.jLabel7.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(WredQueueManagementDialog.class, "WredQueueManagementDialog.jButton1.text")); // NOI18N
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-
-        org.openide.awt.Mnemonics.setLocalizedText(jButton2, org.openide.util.NbBundle.getMessage(WredQueueManagementDialog.class, "WredQueueManagementDialog.jButton2.text")); // NOI18N
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel8, org.openide.util.NbBundle.getMessage(WredQueueManagementDialog.class, "WredQueueManagementDialog.jLabel8.text")); // NOI18N
-
         org.openide.awt.Mnemonics.setLocalizedText(jButton3, org.openide.util.NbBundle.getMessage(WredQueueManagementDialog.class, "WredQueueManagementDialog.jButton3.text")); // NOI18N
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -344,20 +332,12 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jButton1)
-                                .addGap(18, 18, 18)
-                                .addComponent(jButton2)
-                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(jScrollPane1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel8))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(jLabel7)
+                        .addGap(0, 196, Short.MAX_VALUE)))
                 .addContainerGap())
             .addGroup(layout.createSequentialGroup()
                 .addGap(196, 196, 196)
@@ -369,16 +349,9 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel7)
-                .addGap(9, 9, 9)
-                .addComponent(jLabel8)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton1)
-                            .addComponent(jButton2))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(30, 30, 30)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButton3)
@@ -388,67 +361,11 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        String s = (String) JOptionPane.showInputDialog(
-                this,
-                "Insert queue number you want to add",
-                "Add new queue",
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                null,
-                rootNode.getChildCount());
-
-        try {
-            if (Integer.parseInt(s) < -1) {
-                throw new NumberFormatException();
-            }
-            addQueue(Integer.parseInt(s));
-            selectTreeNode(rootNode.getChildCount() - 1);//select new node
-        } catch (QosCreationException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Configuration for this queue already exists.",
-                    "Queue number error",
-                    JOptionPane.ERROR_MESSAGE);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Please enter number (positive integer value) or -1 or default settings",
-                    "Numeric error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        String s = (String) JOptionPane.showInputDialog(
-                this,
-                "Insert queue number you want to add",
-                "Remove queue",
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                null,
-                rootNode.getChildCount());
-
-        try {
-            removeQueue(Integer.parseInt(s));
-            selectTreeNode(0);//select first node
-        } catch (QosCreationException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Configuration for this queue does not exist.",
-                    "Queue number error",
-                    JOptionPane.ERROR_MESSAGE);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Please enter number (positive integer value)",
-                    "Numeric error",
-                    JOptionPane.ERROR_MESSAGE);
-        }    }//GEN-LAST:event_jButton2ActionPerformed
-
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         saveConfiguration();
         this.setVisible(false);
     }//GEN-LAST:event_jButton3ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -457,7 +374,6 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSpinner jSpinner1;
@@ -476,7 +392,7 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
             String selectedNodeName = selectedNode.toString();
 
             //save previous configuration
-            saveConfiguration();
+            saveConfiguration();//todo test if saving and loading works as intended, because it looks like it saves and loads the same config
             //load new configuration
             loadConfiguration();
 
