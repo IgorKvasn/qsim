@@ -167,7 +167,7 @@ public class PingTest {
         SimulationTimer timer = (SimulationTimer) getPropertyWithoutGetter(SimulationFacade.class, simulationFacade, "timer");
 
         //simulate many timer ticks
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 25; i++) {
             timer.actionPerformed(null);
         }
 

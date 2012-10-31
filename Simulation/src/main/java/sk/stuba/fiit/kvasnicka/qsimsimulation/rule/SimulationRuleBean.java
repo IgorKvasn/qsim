@@ -154,6 +154,7 @@ public class SimulationRuleBean {
      * forces simulation rule to send on 1 packet
      */
     public void resetNumberOfPacketsToOne() {
+        if (numberOfPackets == - 1) return;
         numberOfPackets = 1;
     }
 
