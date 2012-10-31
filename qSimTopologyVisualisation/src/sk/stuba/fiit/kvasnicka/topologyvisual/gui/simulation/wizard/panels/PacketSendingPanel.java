@@ -41,6 +41,8 @@ public class PacketSendingPanel extends PanelInterface {
     }
 
     private void initIpPrecedence() {
+        jComboBox1.removeAllItems();
+
         jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_0, "0 - lowest"));
         jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_1, "1"));
         jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_2, "2"));
@@ -52,6 +54,8 @@ public class PacketSendingPanel extends PanelInterface {
     }
 
     private void initComboboxLayer4() {
+        comboLayer4.removeAllItems();
+
         comboLayer4.addItem(new ComboItem(Layer4TypeEnum.TCP, "TCP"));
         comboLayer4.addItem(new ComboItem(Layer4TypeEnum.UDP, "UDP"));
         comboLayer4.addItem(new ComboItem(Layer4TypeEnum.ICMP, "ICMP"));
@@ -67,7 +71,12 @@ public class PacketSendingPanel extends PanelInterface {
     @Override
     public boolean validateData() {
         iterator.getStoredData().setLayer4protocol((Layer4TypeEnum) (((ComboItem) comboLayer4.getSelectedItem()).getValue()));
-        iterator.getStoredData().setPacketCount(((Integer) spinCount.getValue()).intValue());
+
+        int count = ((Integer) spinCount.getValue()).intValue();
+        if (jCheckBox1.isSelected()) {
+            count = -1;
+        }
+        iterator.getStoredData().setPacketCount(count);
         iterator.getStoredData().setPacketSize((Integer) spinSize.getValue());
         iterator.getStoredData().setActivationDelay(getActivationDelay());
         iterator.getStoredData().setSrcPort((Integer) spinSrcPort.getValue());
@@ -80,7 +89,14 @@ public class PacketSendingPanel extends PanelInterface {
     public void initValues(Data data) {
 
         comboLayer4.setSelectedIndex(getSelectedIndexLayer4(data.getLayer4protocol()));
-        spinCount.setValue(data.getPacketCount() == 0 ? 1 : data.getPacketCount());
+
+        if (data.getPacketCount() == -1) {
+            spinCount.setValue(0);
+            jCheckBox1.setSelected(true);
+        } else {
+            spinCount.setValue(data.getPacketCount() == 0 ? 1 : data.getPacketCount());
+            jCheckBox1.setSelected(false);
+        }
         spinSize.setValue(data.getPacketSize() == 0 ? 1 : data.getPacketSize());
 
         spinSrcPort.setValue(data.getSrcPort() == 0 ? 1 : data.getSrcPort());
@@ -160,6 +176,7 @@ public class PacketSendingPanel extends PanelInterface {
         spinDestPort = new javax.swing.JSpinner();
         jLabel4 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox();
+        jCheckBox1 = new javax.swing.JCheckBox();
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jPanel1.border.title"))); // NOI18N
 
@@ -205,11 +222,14 @@ public class PacketSendingPanel extends PanelInterface {
 
         spinCount.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
 
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jCheckBox1, org.jdesktop.beansbinding.ELProperty.create("${!selected}"), spinCount, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
         jLabel3.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jLabel3.text")); // NOI18N
 
         jLabel5.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jLabel5.text")); // NOI18N
 
-        spinSize.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
+        spinSize.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(500), Integer.valueOf(1), null, Integer.valueOf(1)));
 
         errorLabel.setForeground(new java.awt.Color(255, 0, 0));
         errorLabel.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.errorLabel.text")); // NOI18N
@@ -224,7 +244,7 @@ public class PacketSendingPanel extends PanelInterface {
 
         jLabel4.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jLabel4.text")); // NOI18N
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jCheckBox1.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jCheckBox1.text_1")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -250,7 +270,9 @@ public class PacketSendingPanel extends PanelInterface {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(26, 26, 26)
                         .addComponent(errorLabel)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 97, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jCheckBox1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
@@ -267,7 +289,8 @@ public class PacketSendingPanel extends PanelInterface {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2)
-                            .addComponent(spinCount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(spinCount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jCheckBox1))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel3)
@@ -289,7 +312,7 @@ public class PacketSendingPanel extends PanelInterface {
                         .addGap(25, 25, 25)
                         .addComponent(errorLabel))
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(46, Short.MAX_VALUE))
+                .addContainerGap(44, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -298,6 +321,7 @@ public class PacketSendingPanel extends PanelInterface {
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JComboBox comboLayer4;
     private javax.swing.JLabel errorLabel;
+    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
