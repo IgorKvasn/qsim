@@ -202,10 +202,10 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
     private void simulationRuleActivationChanged(SimulationRuleBean rule, boolean newActivationState) {
         if (rule.isPing()) {
             int row = findRowBySimulationRule(rule, pingModel);
-            changeActiveStateTable(pingModel, newActivationState, row);
+            changeActiveStateTable(pingModel, rule, row);
         } else {
             int row = findRowBySimulationRule(rule, simulRuleModel);
-            changeActiveStateTable(simulRuleModel, newActivationState, row);
+            changeActiveStateTable(simulRuleModel, rule, row);
         }
     }
 
@@ -216,8 +216,8 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
      * @param newActivationState
      * @param row
      */
-    private void changeActiveStateTable(DefaultTableModel model, boolean newActivationState, int row) {
-        String text = newActivationState ? NbBundle.getMessage(SimulRuleReviewTopComponent.class, "finished") : NbBundle.getMessage(SimulRuleReviewTopComponent.class, "active");
+    private void changeActiveStateTable(DefaultTableModel model, SimulationRuleBean rule, int row) {
+        String text = isActive(rule);
         model.setValueAt(text, row, 4);
     }
 
