@@ -46,7 +46,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
     private DefaultListModel listModel;
     private RowFilter<ListModel, Object> listFilter;
     private List<TopologyVertex> nodeList;
-    private MyTreeTableModel tableModel;
+    private MyTreeTableModel tableModel = new MyTreeTableModel(null);
     private NetworkNode selectedNode;
     private Map<NetworkNode, MyTreeTableModel> treeTableModelCache;//cache TreeTableModels, because it is quite expensive to build one...
     private final NetworkNodeStatisticsTopComponent networkNodeStatisticsTopComponent;
@@ -208,6 +208,10 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
         private List<MyTreeNode> outputNodes;
 
         private MyTreeTableModel(NetworkNode node) {
+            if (node == null) {
+                return;
+            }
+
             myroot = new MyTreeNode("root", 0, null);
 
             //init input queue

@@ -61,6 +61,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedRoundR
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DisabledItemsComboBox;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.ConfirmDialogPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.ClassDefinitionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.DscpClassificationDialog;
@@ -81,6 +82,8 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
     private ClassDefinitionDialog classDefinitionDialog;
     private boolean creatingComboboxes; //all comboboxes are listening for changes, what is not good when creating (populating) comboboxes
     private PacketClassification.Available selectedPacketClassification; //to temporary store selected classification mechanism
+    private ComboItem selectedQueueManag;
+    private ComboItem selectedPacketSched;
 
     /**
      * Creates new form RouterConfigurationDialog
@@ -101,6 +104,8 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         initQosConfigurationButtons();
 
         selectedPacketClassification = (Available) ((ComboItem) comboQosClassif.getItemAt(0)).getValue();
+        selectedQueueManag = ((ComboItem) comboQosQueue.getItemAt(0));
+        selectedPacketSched = ((ComboItem) comboQosScheduling.getItemAt(0));
     }
 
     /**
@@ -166,6 +171,9 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 throw new IllegalStateException("unknown active queue management enum: " + activeQueueEnum);
         }
 
+        //todo load packet scheduling
+
+        //todo select comboboxes and set selectedPacketClassification, selectedQueueManag and selectedPacketSched 
     }
 
     private ActiveQueueManagement.Available retireveActiveQueueManagEnum(ActiveQueueManagement manag) {
@@ -286,19 +294,18 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 break;
 
             case WRED:
-                
-                    ClassDefinition[] classes = null;
-                    if (areClassesDefined()) {
-                        classes = classDefinitionDialog.getClasses();
-                    } else {
-                        //todo ask user if he wants to configure classes - if no, return and switch selected combobox item back
-                        //show class definition dialog and after that show Wred dialog
-                    }
-                    if (wredQueueManagementDialog == null) {
-                        wredQueueManagementDialog = new WredQueueManagementDialog(this, classes);
-                    } 
-                    wredQueueManagementDialog.setVisible(true);
-               
+                ClassDefinition[] classes = null;
+                if (areClassesDefined()) {
+                    classes = classDefinitionDialog.getClasses();
+                } else {
+                    //todo ask user if he wants to configure classes - if no, return and switch selected combobox item back
+                    //show class definition dialog and after that show Wred dialog
+                }
+                if (wredQueueManagementDialog == null) {
+                    wredQueueManagementDialog = new WredQueueManagementDialog(this, classes);
+                }
+                wredQueueManagementDialog.setVisible(true);
+
 
                 break;
             default:
@@ -1048,6 +1055,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         }
 
         btnConfigQueue.setEnabled(((ActiveQueueManagement.Available) ((ComboItem) comboQosQueue.getSelectedItem()).getValue()).hasParameters());
+        selectedQueueManag = ((ComboItem) comboQosQueue.getSelectedItem());
     }//GEN-LAST:event_comboQosQueueActionPerformed
 
     private void btnConfigQueueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfigQueueActionPerformed
@@ -1108,7 +1116,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         }
 
         PacketScheduling.Available schedEnum = ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());
-        btnConfigScheduling.setEnabled(schedEnum.hasParameters());
+
 
         if ((PacketScheduling.Available.WEIGHTED_ROUND_ROBIN == schedEnum) || (PacketScheduling.Available.CB_WFQ == schedEnum)) {
             if (!areClassesDefined()) {//user selected one of class based scheduling mechanisms, but no classes are defined
@@ -1119,16 +1127,24 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                             NbBundle.getMessage(RouterConfigurationDialog.class, "warning_title"), // title of the dialog
                             NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE);
 
-                    if (DialogDisplayer.getDefault().notify(descriptor) != NotifyDescriptor.YES_OPTION) {
-                        return;
-                    }
+                    //show dialog
+                    DialogDisplayer.getDefault().notify(descriptor);
+
+
                     if (panel.isNeverShow()) {
                         PreferenciesHelper.setNeverShowQosClassConfirmation(panel.isNeverShow());
                     }
                 }
 
+                //user cannot select this item, yet - reverse user selection                                
+                comboQosScheduling.setSelectedItem(selectedPacketSched);
+                return;
+
             }
         }
+        
+        btnConfigScheduling.setEnabled(schedEnum.hasParameters());
+        selectedPacketSched = ((ComboItem) comboQosScheduling.getSelectedItem());
 
     }//GEN-LAST:event_comboQosSchedulingActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
