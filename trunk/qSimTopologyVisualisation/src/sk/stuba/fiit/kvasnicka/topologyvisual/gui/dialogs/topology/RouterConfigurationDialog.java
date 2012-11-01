@@ -177,26 +177,26 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             case FIFO:
                 comboQosScheduling.setSelectedIndex(0);
                 break;
-            case PRIORITY_QUEUEING:             
+            case PRIORITY_QUEUEING:
                 comboQosScheduling.setSelectedIndex(1);
                 break;
             case ROUND_ROBIN:
                 comboQosScheduling.setSelectedIndex(2);
                 break;
-            case WEIGHTED_ROUND_ROBIN:                
+            case WEIGHTED_ROUND_ROBIN:
                 comboQosScheduling.setSelectedIndex(3);
                 break;
             case WFQ:
                 comboQosScheduling.setSelectedIndex(4);
                 break;
-            case CB_WFQ:                
+            case CB_WFQ:
                 comboQosScheduling.setSelectedIndex(5);
                 break;
             default:
                 throw new IllegalStateException("unknown packet scheduling enum: " + packetSchedEnum);
         }
 
-      //todo  classDefinitionDialog = new ClassDefinitionDialog(this, router.getQosMechanism().getClassDefinitions());        
+        classDefinitionDialog = new ClassDefinitionDialog(this, router.getQosMechanism().getClassDefinitions());
 
         selectedPacketClassification = (ComboItem) comboQosClassif.getSelectedItem();
         selectedQueueManag = (ComboItem) comboQosQueue.getSelectedItem();
@@ -441,8 +441,14 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         //packet scheduling
         PacketScheduling packetScheduling = createPacketScheduling();
 
-        //finally create QoS mechanism definition
-        QosMechanismDefinition qosMechanismDefinition = new QosMechanismDefinition(packetScheduling, packetClassification, activeQueueManagement);
+        //qos classes
+        ClassDefinition[] classes = null;
+        if (areClassesDefined()) {
+            classes = classDefinitionDialog.getClasses();
+        }
+
+        //finally create QoS mechanism definition        
+        QosMechanismDefinition qosMechanismDefinition = new QosMechanismDefinition(classes, packetScheduling, packetClassification, activeQueueManagement);
         return qosMechanismDefinition;
     }
 
