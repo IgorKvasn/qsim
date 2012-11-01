@@ -56,16 +56,28 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
      */
     public ClassDefinitionDialog(JDialog parent, Set<Integer> queues, boolean isDscp) {
         super(parent, true);
+        this.isDscp = isDscp;
+        init();
+        fillTree(queues);
+        expandTree(jTree1);
+    }
+
+    public ClassDefinitionDialog(JDialog parent, ClassDefinition[] classes) {
+        super(parent, true);
+        init();
+
+        for (ClassDefinition def : classes) {
+            addClass(def.getName(), def.getQueueNumbers());
+        }
+    }
+
+    private void init() {
         initComponents();
         jTree1.setDragEnabled(true);
         jTree1.setDropMode(DropMode.ON_OR_INSERT);
         jTree1.setTransferHandler(new TreeTransferHandler(NbBundle.getMessage(ClassDefinitionDialog.class, "undefined_queues_tree_node")));
         jTree1.getSelectionModel().setSelectionMode(TreeSelectionModel.CONTIGUOUS_TREE_SELECTION);
         jTree1.setRootVisible(false);
-
-        this.isDscp = isDscp;
-        fillTree(queues);
-        expandTree(jTree1);
     }
 
     public void showDialog() {
@@ -141,6 +153,22 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
         }
 
         treeModel.insertNodeInto(new DefaultMutableTreeNode(name), rootNode, rootNode.getChildCount());
+    }
+
+    private void addClass(String name, List<Integer> queueNumbers) {
+        DefaultMutableTreeNode classNode = new DefaultMutableTreeNode(name);
+        treeModel.insertNodeInto(classNode, rootNode, rootNode.getChildCount());
+
+        for (int queue : queueNumbers) {
+            String label;
+            if (isDscp) {
+                label = DscpClassification.findDscpValueByQueueNumber(queue).getTextName();
+            } else {
+                label = String.valueOf(queue);
+            }
+            treeModel.insertNodeInto(new DefaultMutableTreeNode(label), classNode, classNode.getChildCount());
+        }
+
     }
 
     /**
