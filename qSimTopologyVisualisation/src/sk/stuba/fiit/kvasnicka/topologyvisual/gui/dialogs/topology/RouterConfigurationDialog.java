@@ -61,7 +61,6 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedRoundR
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DisabledItemsComboBox;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.ConfirmDialogPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.ClassDefinitionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.DscpClassificationDialog;
@@ -326,10 +325,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         switch (classEnum) {
             case CB_WFQ:
             case WEIGHTED_ROUND_ROBIN:
-                if (classDefinitionDialog == null) {
-                    classDefinitionDialog = new ClassDefinitionDialog(this);
-                }
-                classDefinitionDialog.showDialog(getDefinedQueues(), isDscpClassificationSelected());
+                showClassesConfiguration();
                 break;
             default:
                 throw new IllegalStateException("undefined dialog for packet scheduling " + classEnum);
@@ -413,10 +409,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                         + "\n(You will be not able to create a router without configuring them.)", "QoS classes", JOptionPane.YES_NO_OPTION);
 
                 if (result == JOptionPane.YES_OPTION) {
-                    if (classDefinitionDialog == null) {
-                        classDefinitionDialog = new ClassDefinitionDialog(this);
-                    }
-                    classDefinitionDialog.showDialog(getDefinedQueues(), isDscpClassificationSelected());
+                    showClassesConfiguration();
                 }
 
             }
@@ -561,6 +554,13 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         return ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());
     }
 
+    private void showClassesConfiguration() {
+        if (classDefinitionDialog == null) {
+            classDefinitionDialog = new ClassDefinitionDialog(this, getDefinedQueues(), isDscpClassificationSelected());
+        }
+        classDefinitionDialog.showDialog();
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -608,6 +608,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         btnConfigScheduling = new javax.swing.JButton();
         btnConfigClassif = new javax.swing.JButton();
         comboQosScheduling = new sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DisabledItemsComboBox();
+        jButton1 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jButton7 = new javax.swing.JButton();
@@ -847,6 +848,13 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             }
         });
 
+        jButton1.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jButton1.text")); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
@@ -876,7 +884,10 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                             .addComponent(jLabel14)
                             .addComponent(jLabel13)
                             .addComponent(jLabel15))
-                        .addContainerGap())))
+                        .addContainerGap())
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -899,7 +910,9 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnConfigScheduling)
                     .addComponent(comboQosScheduling, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(71, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
+                .addComponent(jButton1)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
@@ -1054,6 +1067,31 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             return;
         }
 
+        if (((ActiveQueueManagement.Available) ((ComboItem) comboQosQueue.getSelectedItem()).getValue()) == ActiveQueueManagement.Available.WRED) {
+            if (!areClassesDefined()) {//WRED requires classes to be defined
+                if (!PreferenciesHelper.isNeverShowQosClassConfirmation()) {
+                    ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(RouterConfigurationDialog.class, "class_definition_warning_queue_manag"));
+                    NotifyDescriptor.Confirmation descriptor = new NotifyDescriptor.Confirmation(
+                            panel, // instance of your panel
+                            NbBundle.getMessage(RouterConfigurationDialog.class, "warning_title"), // title of the dialog
+                            NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE);
+
+                    //show dialog
+                    DialogDisplayer.getDefault().notify(descriptor);
+
+
+                    if (panel.isNeverShow()) {
+                        PreferenciesHelper.setNeverShowQosClassConfirmation(panel.isNeverShow());
+                    }
+                }
+
+                //user cannot select this item, yet - reverse user selection                                
+                comboQosQueue.setSelectedItem(selectedQueueManag);
+                return;
+            }
+        }
+
+
         btnConfigQueue.setEnabled(((ActiveQueueManagement.Available) ((ComboItem) comboQosQueue.getSelectedItem()).getValue()).hasParameters());
         selectedQueueManag = ((ComboItem) comboQosQueue.getSelectedItem());
     }//GEN-LAST:event_comboQosQueueActionPerformed
@@ -1121,7 +1159,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         if ((PacketScheduling.Available.WEIGHTED_ROUND_ROBIN == schedEnum) || (PacketScheduling.Available.CB_WFQ == schedEnum)) {
             if (!areClassesDefined()) {//user selected one of class based scheduling mechanisms, but no classes are defined
                 if (!PreferenciesHelper.isNeverShowQosClassConfirmation()) {
-                    ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(RouterConfigurationDialog.class, "class_definition_warning"));
+                    ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(RouterConfigurationDialog.class, "class_definition_warning_scheduling"));
                     NotifyDescriptor.Confirmation descriptor = new NotifyDescriptor.Confirmation(
                             panel, // instance of your panel
                             NbBundle.getMessage(RouterConfigurationDialog.class, "warning_title"), // title of the dialog
@@ -1142,11 +1180,15 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
 
             }
         }
-        
+
         btnConfigScheduling.setEnabled(schedEnum.hasParameters());
         selectedPacketSched = ((ComboItem) comboQosScheduling.getSelectedItem());
 
     }//GEN-LAST:event_comboQosSchedulingActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        showClassesConfiguration();
+    }//GEN-LAST:event_jButton1ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConfigClassif;
     private javax.swing.JButton btnConfigQueue;
@@ -1154,6 +1196,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
     private javax.swing.JComboBox comboQosClassif;
     private javax.swing.JComboBox comboQosQueue;
     private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DisabledItemsComboBox comboQosScheduling;
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton7;

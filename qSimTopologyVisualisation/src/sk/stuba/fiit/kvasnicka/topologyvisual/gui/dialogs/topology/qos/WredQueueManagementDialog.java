@@ -9,19 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
-import javax.swing.JTree;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.WeightedRED.WredDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
-import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
 
 /**
  *
@@ -85,7 +77,8 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
 
     private void init() {
         initComponents();
-        listModel = (DefaultListModel) jList1.getModel();
+        listModel = new DefaultListModel();
+        jList1.setModel(listModel);
         jList1.addListSelectionListener(new SelectionListener());
         selectClass(0);
     }
@@ -162,19 +155,6 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
             return null;
         }
         return (ListItem) jList1.getSelectedValue();
-    }
-
-    /**
-     * shows text that informs user about recommended queue number
-     *
-     * @param queueCount
-     */
-    public final void setQueueCountLabel(int queueCount) {
-        if (queueCount == -1) {
-            jLabel7.setText(NbBundle.getMessage(WredQueueManagementDialog.class, "unable_to_predict_queue_count"));
-        } else {
-            jLabel7.setText(NbBundle.getMessage(WredQueueManagementDialog.class, "predicted_queue_count") + ": " + queueCount);
-        }
     }
 
     private void addClass(ClassDefinition classDefinition) {

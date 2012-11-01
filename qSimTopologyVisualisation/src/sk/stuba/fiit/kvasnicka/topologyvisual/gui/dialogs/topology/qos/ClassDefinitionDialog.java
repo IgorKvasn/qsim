@@ -54,7 +54,7 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
     /**
      * Creates new form ClassDefinitionDialog
      */
-    public ClassDefinitionDialog(JDialog parent) {
+    public ClassDefinitionDialog(JDialog parent, Set<Integer> queues, boolean isDscp) {
         super(parent, true);
         initComponents();
         jTree1.setDragEnabled(true);
@@ -62,12 +62,13 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
         jTree1.setTransferHandler(new TreeTransferHandler(NbBundle.getMessage(ClassDefinitionDialog.class, "undefined_queues_tree_node")));
         jTree1.getSelectionModel().setSelectionMode(TreeSelectionModel.CONTIGUOUS_TREE_SELECTION);
         jTree1.setRootVisible(false);
-    }
 
-    public void showDialog(Set<Integer> queues, boolean isDscp) {
         this.isDscp = isDscp;
         fillTree(queues);
         expandTree(jTree1);
+    }
+
+    public void showDialog() {
         setVisible(true);
     }
 
@@ -79,7 +80,7 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
         List<ClassDefinition> classesList = new LinkedList<ClassDefinition>();
 
         for (int i = 0; i < rootNode.getChildCount(); i++) {
-            TreeNode node = rootNode.getChildAt(i);
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) rootNode.getChildAt(i);
             if (!node.isLeaf()) {
                 List<Integer> list = new LinkedList<Integer>();
                 TreeNode child = (TreeNode) treeModel.getChild(rootNode, i);
@@ -89,6 +90,9 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
                         logg.debug("queue is integer");
                         list.add(Integer.parseInt(q));
                     } else {//it is a DSCP value
+                        if (!isDscp) {
+                            throw new IllegalStateException("queue is a string, but it is not a DSCP value");
+                        }
                         logg.debug("queue is DSCP string value");
                         list.add(DscpClassification.DscpValuesEnum.valueOf(q).getQosQueue());
                     }
@@ -97,7 +101,7 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
                 if (list.isEmpty()) {//emtpy classes will be ignored
                     continue;
                 }
-                ClassDefinition def = new ClassDefinition(list);
+                ClassDefinition def = new ClassDefinition(list, (String) node.getUserObject());
                 classesList.add(def);
             }
         }
@@ -121,7 +125,43 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
     }
 
     private void addClass() {
-        treeModel.insertNodeInto(new DefaultMutableTreeNode("Qos class"), rootNode, rootNode.getChildCount());
+        //ask user for class's name
+        String name = (String) JOptionPane.showInputDialog(this, "Qos class name:");
+
+        if (StringUtils.isEmpty(name)) {
+            return;
+        }
+
+        if (!isClassNameUnique(name)) {
+            JOptionPane.showMessageDialog(this,
+                    "QoS class with this name already exists.",
+                    "Class name duplicity",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        treeModel.insertNodeInto(new DefaultMutableTreeNode(name), rootNode, rootNode.getChildCount());
+    }
+
+    /**
+     * detects if class name is unique
+     *
+     * @param name
+     * @return
+     */
+    private boolean isClassNameUnique(String name) {
+        for (int i = 0; i < rootNode.getChildCount(); i++) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) rootNode.getChildAt(i);
+            String nodeName = ((String) node.getUserObject());
+            //I do not care about "undefined queues" tree node
+            if (nodeName.equals(NbBundle.getMessage(ClassDefinitionDialog.class, "undefined_queues_tree_node"))) {
+                continue;
+            }
+            if (nodeName.equals(name)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
