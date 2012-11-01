@@ -24,6 +24,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ParameterException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.QosUtils;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,7 +125,9 @@ public class WeightedRED extends ActiveQueueManagement {
     }
 
     @Getter
-    public static class WredDefinition {
+    public static class WredDefinition implements Serializable {
+
+        private static final long serialVersionUID = - 2963226506330225270L;
 
         private ClassDefinition qosClass;
         private double exponentialWeightFactor;
