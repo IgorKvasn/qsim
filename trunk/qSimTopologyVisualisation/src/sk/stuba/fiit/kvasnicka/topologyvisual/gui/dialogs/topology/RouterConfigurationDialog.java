@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.SpinnerNumberModel;
 import lombok.Getter;
@@ -80,7 +81,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
     private WredQueueManagementDialog wredQueueManagementDialog;
     private ClassDefinitionDialog classDefinitionDialog;
     private boolean creatingComboboxes; //all comboboxes are listening for changes, what is not good when creating (populating) comboboxes
-    private PacketClassification.Available selectedPacketClassification; //to temporary store selected classification mechanism
+    private ComboItem selectedPacketClassification; //to temporary store selected classification mechanism
     private ComboItem selectedQueueManag;
     private ComboItem selectedPacketSched;
 
@@ -102,7 +103,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         initQosComboboxes();
         initQosConfigurationButtons();
 
-        selectedPacketClassification = (Available) ((ComboItem) comboQosClassif.getItemAt(0)).getValue();
+        selectedPacketClassification = ((ComboItem) comboQosClassif.getItemAt(0));
         selectedQueueManag = ((ComboItem) comboQosQueue.getItemAt(0));
         selectedPacketSched = ((ComboItem) comboQosScheduling.getItemAt(0));
     }
@@ -170,9 +171,59 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 throw new IllegalStateException("unknown active queue management enum: " + activeQueueEnum);
         }
 
-        //todo load packet scheduling
+        PacketScheduling.Available packetSchedEnum = retirevePacketSchedulingEnum(router.getQosMechanism().getPacketScheduling());
+        HashMap<String, Object> paramsSched;
+        switch (packetSchedEnum) {
+            case FIFO:
+                comboQosScheduling.setSelectedIndex(0);
+                break;
+            case PRIORITY_QUEUEING:             
+                comboQosScheduling.setSelectedIndex(1);
+                break;
+            case ROUND_ROBIN:
+                comboQosScheduling.setSelectedIndex(2);
+                break;
+            case WEIGHTED_ROUND_ROBIN:                
+                comboQosScheduling.setSelectedIndex(3);
+                break;
+            case WFQ:
+                comboQosScheduling.setSelectedIndex(4);
+                break;
+            case CB_WFQ:                
+                comboQosScheduling.setSelectedIndex(5);
+                break;
+            default:
+                throw new IllegalStateException("unknown packet scheduling enum: " + packetSchedEnum);
+        }
 
-        //todo select comboboxes and set selectedPacketClassification, selectedQueueManag and selectedPacketSched 
+      //todo  classDefinitionDialog = new ClassDefinitionDialog(this, router.getQosMechanism().getClassDefinitions());        
+
+        selectedPacketClassification = (ComboItem) comboQosClassif.getSelectedItem();
+        selectedQueueManag = (ComboItem) comboQosQueue.getSelectedItem();
+        selectedPacketSched = (ComboItem) comboQosScheduling.getSelectedItem();
+    }
+
+    private PacketScheduling.Available retirevePacketSchedulingEnum(PacketScheduling scheduling) {
+        if (scheduling instanceof FifoScheduling) {
+            return PacketScheduling.Available.FIFO;
+        }
+        if (scheduling instanceof ClassBasedWFQScheduling) {
+            return PacketScheduling.Available.CB_WFQ;
+        }
+        if (scheduling instanceof PriorityQueuingScheduling) {
+            return PacketScheduling.Available.PRIORITY_QUEUEING;
+        }
+        if (scheduling instanceof RoundRobinScheduling) {
+            return PacketScheduling.Available.ROUND_ROBIN;
+        }
+        if (scheduling instanceof WeightedRoundRobinScheduling) {
+            return PacketScheduling.Available.WEIGHTED_ROUND_ROBIN;
+        }
+        if (scheduling instanceof WeightedFairQueuingScheduling) {
+            return PacketScheduling.Available.WFQ;
+        }
+
+        throw new IllegalStateException("unable to determine packet scheduling enum");
     }
 
     private ActiveQueueManagement.Available retireveActiveQueueManagEnum(ActiveQueueManagement manag) {
@@ -1105,9 +1156,9 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             return;
         }
 
-        PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
+        ComboItem classEnum = ((ComboItem) comboQosClassif.getSelectedItem());
 
-        if (selectedPacketClassification == classEnum) {//user has selected the same item again
+        if ((PacketClassification.Available) selectedPacketClassification.getValue() == (PacketClassification.Available) classEnum.getValue()) {//user has selected the same item again
             return;
         }
 
@@ -1137,7 +1188,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         }
 
         //flow based classification and class based packet scheduling dont work together
-        btnConfigClassif.setEnabled(classEnum.hasParameters());
+        btnConfigClassif.setEnabled(((PacketClassification.Available) classEnum.getValue()).hasParameters());
     }//GEN-LAST:event_comboQosClassifActionPerformed
 
     private void btnConfigClassifActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfigClassifActionPerformed
