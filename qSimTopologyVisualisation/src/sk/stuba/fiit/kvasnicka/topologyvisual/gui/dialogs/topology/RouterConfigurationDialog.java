@@ -196,7 +196,9 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 throw new IllegalStateException("unknown packet scheduling enum: " + packetSchedEnum);
         }
 
-        classDefinitionDialog = new ClassDefinitionDialog(this, router.getQosMechanism().getClassDefinitions());
+        if (router.getQosMechanism().getClassDefinitions() != null) {
+            classDefinitionDialog = new ClassDefinitionDialog(this, router.getQosMechanism().getClassDefinitions());
+        }
 
         selectedPacketClassification = (ComboItem) comboQosClassif.getSelectedItem();
         selectedQueueManag = (ComboItem) comboQosQueue.getSelectedItem();
