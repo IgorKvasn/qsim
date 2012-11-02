@@ -16,10 +16,18 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui;
 
+import com.ctc.wstx.dtd.ContentSpec;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import java.awt.BorderLayout;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -33,13 +41,16 @@ import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.StatusDisplayer;
 import org.openide.awt.UndoRedo;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Computer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Switch;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.ConfigureSimulationAction;
@@ -47,6 +58,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.actions.NetworkNodeStatsAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.PauseSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.RunSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.StopSimulationAction;
+import sk.stuba.fiit.kvasnicka.topologyvisual.actions.copypaste.CopyVertexAction;
+import sk.stuba.fiit.kvasnicka.topologyvisual.actions.copypaste.PasteVertexAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.events.topologystate.TopologyStateChangedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.events.topologystate.TopologyStateChangedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
@@ -55,9 +68,12 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyElementCreatorHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.ComputerVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.RouterVertex;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.SwitchVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.RouterConfigurationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.DialogHandler;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.TopologyPaletteTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectionEvent;
@@ -72,6 +88,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResul
 import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.RunningSimulationManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.nodes.NetworkNodeStatsManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.rules.SimulRuleStatisticalDataManager;
+import sk.stuba.fiit.kvasnicka.topologyvisual.topology.ClipboardWrapper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyStateEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.EdgeUtils;
@@ -298,6 +315,163 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     }
 
     /**
+     * updates state of copy and paste toolbar buttons
+     *
+     * @param enable this is just a hint wether copy/paste buttons CAN be
+     * enabled - they are actually enabled only if there is something in
+     * clipboard
+     */
+    private void updateCopyPasteButtons(boolean enable) {
+        if (active) {//only active TopolVisualisation can update toolbar buttons            
+            if (!enable) {//copy/paste buttons cannot be enabled
+                CopyVertexAction.getInstance().updateState(enable);
+                PasteVertexAction.getInstance().updateState(enable);
+                return;
+            }
+
+            //copy/paste button can be enabled
+            if (topology.getSelectedSingleVertex() != null) {//only if some vertex is selected, then I can copy it
+                CopyVertexAction.getInstance().updateState(true);
+            }
+            if (!isClipboardEmpty()) {//paste button is enabled only if there is something in clipboard
+                PasteVertexAction.getInstance().updateState(true);
+            }
+        }
+    }
+
+    /**
+     * updates only "Copy" button
+     *
+     * @param enable
+     */
+    public void updateCopyButton(boolean enable) {
+        if (active) {//only active TopolVisualisation can update toolbar buttons            
+            CopyVertexAction.getInstance().updateState(enable);
+        }
+    }
+
+    private boolean isClipboardEmpty() {
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        if (clipboard.getContents(this) == null) {
+            return true;
+        }
+        try {
+            if (clipboard.getData(ClipboardWrapper.networkNodeFlavor) == null) {
+                return true;
+            }
+        } catch (UnsupportedFlavorException ex) {
+            return true;
+        } catch (IOException ex) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * copies selected network node
+     */
+    public void performVertexCopy() {
+        if (topology.getSelectedVertices().isEmpty()) {
+            logg.warn("Copy action is enabled, but no vertex is selected");
+            return;
+        }
+        if (topology.getSelectedVertices().size() > 1) {
+            JOptionPane.showMessageDialog(this,
+                    "Copy can be performed only if one vertex is seelcted.",
+                    "Unable to copy vertex",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        NetworkNode selectedNode = topology.getSelectedVertices().iterator().next().getDataModel();
+        addVertexToClipboard(selectedNode);
+    }
+
+    /**
+     * pastes copied vertex into topology to the specified location
+     *
+     * @param location location of pasted vertex
+     */
+    public void performVertexPaste(Point location) {
+        try {
+            if (isClipboardEmpty()) {
+                logg.error("user hits 'Paste', but there is nothing to paste - this should not happen");
+                return;
+            }
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            NetworkNode pasteNode = (NetworkNode) clipboard.getData(ClipboardWrapper.networkNodeFlavor);
+            pasteNode.setName("");
+
+            if (pasteNode instanceof Router) {
+                RouterConfigurationDialog dialog = new RouterConfigurationDialog((Router) pasteNode);
+                dialog.showDialog();
+                if (dialog.getUserInput() == null) {//user hit cancel
+                    return;
+                }
+                pasteNode = dialog.getUserInput();
+                topology.addVertex(new RouterVertex(pasteNode), location);
+            }
+
+            //todo switch paste
+            if (pasteNode instanceof Switch) {
+                throw new UnsupportedOperationException("not yet implemented");
+//                 SwitchConfigurationDialog dialog = new SwitchConfigurationDialog((Switch) pasteNode);
+//                dialog.showDialog();
+//                if (dialog.getUserInput() == null) {//user hit cancel
+//                    return;
+//                }
+//                pasteNode = dialog.getUserInput();
+//                topology.addVertex(new SwitchVertex(pasteNode), location);
+
+            }
+
+            //todo computer paste
+            if (pasteNode instanceof Computer) {
+                throw new UnsupportedOperationException("not yet implemented");
+//                 SwitchConfigurationDialog dialog = new SwitchConfigurationDialog((Switch) pasteNode);
+//                dialog.showDialog();
+//                if (dialog.getUserInput() == null) {//user hit cancel
+//                    return;
+//                }
+//                pasteNode = dialog.getUserInput();
+//                topology.addVertex(new ComputerVertex(pasteNode), location);
+
+            }
+
+            //create new TopologyVertex with coordinates of the new vertex
+
+
+
+
+        } catch (UnsupportedFlavorException ex) {
+            throw new IllegalStateException(ex);
+        } catch (IOException ex) {
+            throw new IllegalStateException(ex);
+        }
+    }
+
+    /**
+     * pastes copied vertex into topology to the default location [0,0]
+     */
+    public void performVertexPaste() {
+        performVertexPaste(new Point(0, 0));
+
+    }
+
+    /**
+     * adds vertex to system clipboard and updates toolbar buttons
+     */
+    private void addVertexToClipboard(NetworkNode node) {
+        //create wrapper
+        Transferable contentSpec = new ClipboardWrapper(node);
+        //add to clipboard
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(contentSpec, null);
+        //update toolbar
+        PasteVertexAction.getInstance().updateState(true);
+    }
+
+    /**
      * closes these top components: <ol> <li>SimulationTopCopmponent</li>
      * <li>AddSimulationTopComponent</li> <li>TopologyPaletteTopComponent</li>
      * </ol>
@@ -507,27 +681,28 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     }
 
     /**
-     * opens edit dialogs for one of the given topology vertices if multiple
-     * vertices are given, probably one with the lowest name will be edited
+     * opens edit dialogs for currently selected vertex
      *
      * @param vertices
      */
-    public void editVertices(Collection<TopologyVertex> vertices) {
-        NetworkNode editedModel = null;
-        for (TopologyVertex v : vertices) {
-            if (v instanceof RouterVertex) {
-                editedModel = dialogHandler.showRouterConfigurationDialog((Router) v.getDataModel());
-                if (editedModel == null) {//user hit cancel
-                    return;
-                }
+    public void editSelectedVertex() {
+        if (topology.getSelectedSingleVertex() == null) {//nothing is selected
+            return;
+        }
 
+        NetworkNode editedModel;
+        if (topology.getSelectedSingleVertex() instanceof RouterVertex) {
+            editedModel = dialogHandler.showRouterConfigurationDialog((Router) topology.getSelectedSingleVertex().getDataModel());
+            if (editedModel == null) {//user hit cancel
+                return;
             }
+
+
             //todo add switch and computer editing - just like lines above
 
 
             //set edited data model as new
-            v.setDataModel(editedModel);
-            break; //only the first selected vertex is edited
+            topology.getSelectedSingleVertex().setDataModel(editedModel);
         }
     }
 
@@ -695,6 +870,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     public void componentOpened() {
         NetbeansWindowHelper.getInstance().activateWindow(this);
         updateToolbarButtons(false);
+        updateCopyPasteButtons(true);
     }
 
     @Override
@@ -704,6 +880,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         topologyElementCreator.cancelAction();
         selectedAction = null;
         updateToolbarButtons(true);
+        updateCopyPasteButtons(false);
     }
 
     @Override

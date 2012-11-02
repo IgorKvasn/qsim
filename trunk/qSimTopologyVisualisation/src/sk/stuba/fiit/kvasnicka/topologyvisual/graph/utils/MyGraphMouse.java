@@ -88,7 +88,7 @@ public class MyGraphMouse extends DefaultModalGraphMouse<TopologyVertex, Topolog
         listenerList.remove(VertexCreatedListener.class, listener);
     }
 
-    private void fireVertexCreatedEvent(VertexCreatedEvent evt) {
+    public void fireVertexCreatedEvent(VertexCreatedEvent evt) {
         Object[] listeners = listenerList.getListenerList();
         // Each listener occupies two elements - the first is the listener class
         // and the second is the listener instance

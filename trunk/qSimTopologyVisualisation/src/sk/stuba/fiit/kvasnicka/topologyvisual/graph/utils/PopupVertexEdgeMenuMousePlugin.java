@@ -177,7 +177,7 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                 return;
             }
 
-            NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().editVertices(topology.getSelectedVertices());
+            NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().editSelectedVertex();
         }
     }
 

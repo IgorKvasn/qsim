@@ -17,10 +17,13 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.topology;
 
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
+import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.AbstractGraph;
+import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.*;
 import edu.uci.ics.jung.visualization.decorators.DefaultVertexIconTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
@@ -32,12 +35,14 @@ import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.util.List;
 import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.event.EventListenerList;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.collections15.Transformer;
 import org.apache.log4j.Logger;
 import org.openide.util.NbBundle;
@@ -88,6 +93,12 @@ public class Topology implements VertexCreatedListener {
     private GraphMouseListener<TopologyVertex> vertexPickedListener;
     private DefaultModalGraphMouse defaultGm;
     private EventListenerList listenerList = new EventListenerList();
+    @Getter
+    /**
+     * sometimes I need to know single selected vertex (so i do not care about
+     * multiselect)
+     */
+    private TopologyVertex selectedSingleVertex = null;
 
     /**
      * creates new instance
@@ -96,6 +107,16 @@ public class Topology implements VertexCreatedListener {
      */
     public Topology(TopologyVisualisation topolElementTopComponent) {
         this.topolElementTopComponent = topolElementTopComponent;
+    }
+
+    public void setSelectedSingleVertex(TopologyVertex selectedSingleVertex) {
+        this.selectedSingleVertex = selectedSingleVertex;
+        //update copy action button in toolbar
+        if (selectedSingleVertex == null) {
+            topolElementTopComponent.updateCopyButton(false);
+        } else {
+            topolElementTopComponent.updateCopyButton(true);
+        }
     }
 
     /**
@@ -206,7 +227,6 @@ public class Topology implements VertexCreatedListener {
 
         //tooltips over the vertex
         vv.setVertexToolTipTransformer(new Transformer<TopologyVertex, String>() {
-
             @Override
             public String transform(TopologyVertex topologyVertex) {
                 if (!PreferenciesHelper.isNodeTooltipName() && !PreferenciesHelper.isNodeTooltipDescription()) {
@@ -229,7 +249,6 @@ public class Topology implements VertexCreatedListener {
         vv.getRenderContext().setVertexLabelRenderer(new MyVertexLabelRenderer(Color.BLACK));
         vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.S);
         vv.getRenderContext().setVertexLabelTransformer(new Transformer<TopologyVertex, String>() {
-
             @Override
             public String transform(TopologyVertex v) {
                 if (PreferenciesHelper.isShowNodeNamesInTopology()) {
@@ -297,7 +316,7 @@ public class Topology implements VertexCreatedListener {
         PickedState<TopologyVertex> ps = vv.getPickedVertexState();
         vv.removeGraphMouseListener(vertexPickedListener);
         DefaultVertexIconTransformer<TopologyVertex> vertexIconTransformer = (DefaultVertexIconTransformer<TopologyVertex>) vv.getRenderContext().getVertexIconTransformer();
-        vertexPickedListener = new VertexPickedSimulRulesListener(vertexIconTransformer, topolElementTopComponent,topolElementTopComponent.getAddSimulRuleTopComponent() , ps);
+        vertexPickedListener = new VertexPickedSimulRulesListener(vertexIconTransformer, topolElementTopComponent, topolElementTopComponent.getAddSimulRuleTopComponent(), ps);
         vv.addGraphMouseListener(vertexPickedListener);
     }
 
@@ -317,7 +336,17 @@ public class Topology implements VertexCreatedListener {
         g.removeVertex(vertex);
         getVv().repaint();
         topolElementTopComponent.topologyModified();
-        fireVertexCreatedEvent(new VertexDeletedEvent(this, vertex));
+        fireVertexDeletedEvent(new VertexDeletedEvent(this, vertex));
+    }
+
+    public void addVertex(TopologyVertex newVertex, Point location) {
+        Graph<TopologyVertex, TopologyEdge> graph = vv.getModel().getGraphLayout().getGraph();
+
+        graph.addVertex(newVertex);
+
+        layout.setLocation(newVertex, vv.getRenderContext().getMultiLayerTransformer().inverseTransform(location));
+        fireVertexCreatedEvent(new VertexCreatedEvent(this, newVertex));
+        vv.repaint();
     }
 
     /**
@@ -332,7 +361,7 @@ public class Topology implements VertexCreatedListener {
         }
         getVv().repaint();
         topolElementTopComponent.topologyModified();
-        fireVertexCreatedEvent(new VertexDeletedEvent(this, vertices));
+        fireVertexDeletedEvent(new VertexDeletedEvent(this, vertices));
     }
 
     /**
@@ -511,7 +540,6 @@ public class Topology implements VertexCreatedListener {
         }
         //now highlight each edge
         vv.getRenderContext().setEdgeDrawPaintTransformer(new Transformer<TopologyEdge, Paint>() {
-
             @Override
             public Paint transform(TopologyEdge i) {
                 for (TopologyEdge e : edges) {
@@ -547,6 +575,10 @@ public class Topology implements VertexCreatedListener {
         graphMouse.removeVertexCreatedListener(listener);
     }
 
+    private void fireVertexCreatedEvent(VertexCreatedEvent event) {
+        graphMouse.fireVertexCreatedEvent(event);
+    }
+
     public void addVertexDeletedListener(VertexDeletedListener listener) {
         listenerList.add(VertexDeletedListener.class, listener);
     }
@@ -555,7 +587,7 @@ public class Topology implements VertexCreatedListener {
         listenerList.remove(VertexDeletedListener.class, listener);
     }
 
-    private void fireVertexCreatedEvent(VertexDeletedEvent evt) {
+    private void fireVertexDeletedEvent(VertexDeletedEvent evt) {
         Object[] listeners = listenerList.getListenerList();
         // Each listener occupies two elements - the first is the listener class
         // and the second is the listener instance

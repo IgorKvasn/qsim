@@ -52,13 +52,13 @@ public class DialogHandler {
         String routerName = vertexFactory.createRouterName();
         BlockingDialog bl = new RouterConfigurationDialog(routerName);
         bl.showDialog();
-        RouterConfigurationDialog.ResultObject resultObject = (RouterConfigurationDialog.ResultObject) bl.getUserInput();
+        Router resultObject = (Router) bl.getUserInput();
         if (resultObject == null) {
             vertexFactory.decrementNumberOfRouters();
             throw new IllegalStateException("user hit cancel");
         }
 
-        return new Router(resultObject.getName(), resultObject.getDescription(), resultObject.getQosMechanismDefinition(), resultObject.getMaxTxBufferSize(), resultObject.getMaxRxBufferSize(), resultObject.getMaxOutputQueueSize(), resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay(), resultObject.getMinProcessingDelay(), resultObject.getMaxProcessingDelay());
+        return resultObject;
     }
     
     

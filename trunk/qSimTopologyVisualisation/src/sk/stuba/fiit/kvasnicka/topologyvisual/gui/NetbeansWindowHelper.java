@@ -165,7 +165,7 @@ public class NetbeansWindowHelper {
         listenerList.remove(MultiviewChangedListener.class, listener);
     }
 
-    private void fireSimulationRuleAddedEvent(MultiviewChangedEvent evt) {
+    private void fireMultiviewChangedEvent(MultiviewChangedEvent evt) {
         Object[] listeners = listenerList.getListenerList();
         for (int i = 0; i < listeners.length; i += 2) {
             if (listeners[i].equals(MultiviewChangedListener.class)) {
