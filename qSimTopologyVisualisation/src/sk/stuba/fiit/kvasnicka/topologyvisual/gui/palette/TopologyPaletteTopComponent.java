@@ -61,22 +61,22 @@ public final class TopologyPaletteTopComponent extends TopComponent {
     private void initPalette() {
         String category = NbBundle.getMessage(TopologyVisualisation.class, "nodesCategory");
         topologyPalette1.addCategory(category);
-        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyVisualisation.class, "routerVertex"), PaletteActionEnum.NEW_VERTEX_ROUTER);
-        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyVisualisation.class, "switchVertex"), PaletteActionEnum.NEW_VERTEX_SWITCH);
-        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyVisualisation.class, "computerVertex"), PaletteActionEnum.NEW_VERTEX_PC);
+        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyPaletteTopComponent.class, "routerVertex"), PaletteActionEnum.NEW_VERTEX_ROUTER);
+        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyPaletteTopComponent.class, "switchVertex"), PaletteActionEnum.NEW_VERTEX_SWITCH);
+        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyPaletteTopComponent.class, "computerVertex"), PaletteActionEnum.NEW_VERTEX_PC);
 
         category = NbBundle.getMessage(TopologyVisualisation.class, "linksCategory");
         topologyPalette1.addCategory(category);
-        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyVisualisation.class, "gigaEthernetLink"), PaletteActionEnum.NEW_EDGE_GIGA_ETHERNET);
-        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyVisualisation.class, "fastEthernetLink"), PaletteActionEnum.NEW_EDGE_FAST_ETHERNET);
-        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyVisualisation.class, "ethernetLink"), PaletteActionEnum.NEW_EDGE_ETHERNET);
-        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyVisualisation.class, "customLink"), PaletteActionEnum.NEW_EDGE_CUSTOM);
+        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyPaletteTopComponent.class, "gigaEthernetLink"), PaletteActionEnum.NEW_EDGE_GIGA_ETHERNET);
+        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyPaletteTopComponent.class, "fastEthernetLink"), PaletteActionEnum.NEW_EDGE_FAST_ETHERNET);
+        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyPaletteTopComponent.class, "ethernetLink"), PaletteActionEnum.NEW_EDGE_ETHERNET);
+        topologyPalette1.addChild(category, NbBundle.getMessage(TopologyPaletteTopComponent.class, "customLink"), PaletteActionEnum.NEW_EDGE_CUSTOM);
     }
 
-    private void resetPalette() {
-        topologyPalette1.clearCategory(NbBundle.getMessage(TopologyPaletteTopComponent.class, "custom_nodes"));
-        topologyPalette1.clearCategory(NbBundle.getMessage(TopologyPaletteTopComponent.class, "custom_edges"));
-    }
+//    private void resetPalette() {
+//        topologyPalette1.clearCategory(NbBundle.getMessage(TopologyPaletteTopComponent.class, "custom_nodes"));
+//        topologyPalette1.clearCategory(NbBundle.getMessage(TopologyPaletteTopComponent.class, "custom_edges"));
+//    }
 
     public void clearSelection() {
         topologyPalette1.clearSelection();

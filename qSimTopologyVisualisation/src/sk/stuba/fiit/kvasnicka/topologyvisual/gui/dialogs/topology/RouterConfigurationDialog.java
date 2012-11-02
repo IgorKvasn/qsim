@@ -73,7 +73,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.BlockingDialog;
  *
  * @author Igor Kvasnicka
  */
-public class RouterConfigurationDialog extends BlockingDialog<RouterConfigurationDialog.ResultObject> {
+public class RouterConfigurationDialog extends BlockingDialog<Router> {
 
     private static Logger logg = Logger.getLogger(RouterConfigurationDialog.class);
     private DscpClassificationDialog dscpClassificationDialog;
@@ -669,7 +669,6 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         comboQosScheduling = new sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DisabledItemsComboBox();
         jButton1 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
         jButton7 = new javax.swing.JButton();
         jButton8 = new javax.swing.JButton();
         lblError = new javax.swing.JLabel();
@@ -1001,18 +1000,6 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
             }
         });
 
-        jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/load_configuration.png"))); // NOI18N
-        jButton4.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jButton4.text")); // NOI18N
-        jButton4.setToolTipText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jButton4.toolTipText")); // NOI18N
-        jButton4.setBorderPainted(false);
-        jButton4.setContentAreaFilled(false);
-        jButton4.setFocusPainted(false);
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
-            }
-        });
-
         jButton7.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jButton7.text")); // NOI18N
         jButton7.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1042,9 +1029,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(lblError, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
+                        .addGap(58, 58, 58)
                         .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(29, 29, 29))))
             .addGroup(layout.createSequentialGroup()
@@ -1060,15 +1045,12 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
                 .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(9, 9, 9))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(lblError)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
-                        .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(9, 9, 9))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(lblError)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton7)
@@ -1083,10 +1065,6 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         Help help = Lookup.getDefault().lookup(Help.class);
         help.showHelp(new HelpCtx("ahoj"));//todo router configuration - help
     }//GEN-LAST:event_jButton3ActionPerformed
-
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO load configuration
-    }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         //OK button
@@ -1104,7 +1082,7 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
         Integer txSize = (Integer) spinTx.getValue();
         try {
             QosMechanismDefinition qosMechanismDefinition = createQosMechanismDefinition();
-            RouterConfigurationDialog.ResultObject resultObject = new RouterConfigurationDialog.ResultObject(txtName.getText(), txtDescription.getText(), qosMechanismDefinition, txSize, rxSize, inputQueue, outputQueue, processingPackets, tcptimeout, minProcessingDelay, maxProcessingDelay);
+            Router resultObject = new Router(txtName.getText(), txtDescription.getText(), qosMechanismDefinition, txSize, rxSize, outputQueue, inputQueue, processingPackets, tcptimeout, minProcessingDelay, maxProcessingDelay);
             setUserInput(resultObject);
             closeDialog();
         } catch (QosCreationException ex) {
@@ -1257,7 +1235,6 @@ public class RouterConfigurationDialog extends BlockingDialog<RouterConfiguratio
     private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DisabledItemsComboBox comboQosScheduling;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
     private javax.swing.JLabel jLabel1;

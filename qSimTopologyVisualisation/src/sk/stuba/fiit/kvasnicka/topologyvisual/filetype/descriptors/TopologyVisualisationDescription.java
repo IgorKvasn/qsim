@@ -69,7 +69,7 @@ public class TopologyVisualisationDescription implements MultiViewDescription, S
     }
 
     @Override
-    public MultiViewElement createElement() {
+    public MultiViewElement createElement() {       
         topologyVisualisation = new TopologyVisualisation(obj);
         return topologyVisualisation;
     }

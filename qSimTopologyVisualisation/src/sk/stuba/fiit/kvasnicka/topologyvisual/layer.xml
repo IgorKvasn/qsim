@@ -138,6 +138,8 @@ along with qSim.  If not, see &lt;http://www.gnu.org/licenses/>.
         <file name="Topology_hidden"/>
         <folder name="Simulation">
         </folder>
+         <folder name="EditSimulation">
+        </folder>
     </folder>
     <folder name="Windows2">
         <folder name="Modes">

@@ -17,22 +17,18 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils;
 
 import edu.uci.ics.jung.visualization.LayeredIcon;
-import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.decorators.DefaultVertexIconTransformer;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
 import org.apache.log4j.Logger;
 
 import javax.swing.Icon;
-import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.AddSimulationTopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
-import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.VerticesUtil;
 
 /**
@@ -62,9 +58,11 @@ public class VertexPickedTopolCreationListener implements ItemListener {
             if (ps.isPicked(vertex)) {
                 //vertex is now selected
                 vertexSelected(vertex);
+                NetbeansWindowHelper.getInstance().getActiveTopology().setSelectedSingleVertex(vertex);
             } else {
                 //vertex is no longer selected
                 vertexDeSelected(vertex);
+                NetbeansWindowHelper.getInstance().getActiveTopology().setSelectedSingleVertex(null);
             }
         }
     }
