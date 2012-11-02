@@ -454,7 +454,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
      * pastes copied vertex into topology to the default location [0,0]
      */
     public void performVertexPaste() {
-        performVertexPaste(new Point(0, 0));
+        performVertexPaste(new Point(topology.getVv().getWidth()/2, topology.getVv().getHeight()/2));
 
     }
 
