@@ -107,6 +107,8 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                 logg.debug("Vertex " + v + " was right clicked");
                 selectedVertex = v;
                 vertexPopup.show(vv, e.getX(), e.getY());
+                //right clicking on a vertex makes it selected/picked
+                topology.manuallySelectVertex(v, true);
             } else {
                 final TopologyEdge edge = pickSupport.getEdge(vv.getGraphLayout(), p.getX(), p.getY());
                 if (edge != null) {

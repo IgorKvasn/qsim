@@ -16,7 +16,6 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui;
 
-import com.ctc.wstx.dtd.ContentSpec;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import java.awt.BorderLayout;
 import java.awt.Point;
@@ -25,9 +24,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -41,7 +38,6 @@ import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.StatusDisplayer;
 import org.openide.awt.UndoRedo;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.Mode;
@@ -68,9 +64,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyElementCreatorHelper;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.ComputerVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.RouterVertex;
-import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.SwitchVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.RouterConfigurationDialog;
