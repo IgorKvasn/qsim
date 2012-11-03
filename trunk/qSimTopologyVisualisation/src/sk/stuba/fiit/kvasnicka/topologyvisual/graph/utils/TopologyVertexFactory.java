@@ -58,6 +58,20 @@ public class TopologyVertexFactory implements Factory<TopologyVertex> {
     public TopologyVertexFactory() {
     }
 
+    public TopologyVertexFactory(List<TopologyVertex> allVertices) {
+        for (TopologyVertex v : allVertices) {
+            if (v instanceof ComputerVertex) {
+                vertexComputerList.add((ComputerVertex) v);
+            }
+            if (v instanceof RouterVertex) {
+                vertexRouterList.add((RouterVertex) v);
+            }
+            if (v instanceof SwitchVertex) {
+                vertexSwitchList.add((SwitchVertex) v);
+            }
+        }
+    }
+
     public void setTopolElementTopComponent(TopologyVisualisation topolElementTopComponent) {
         this.topolElementTopComponent = topolElementTopComponent;
     }

@@ -518,7 +518,7 @@ public class Topology implements VertexCreatedListener {
             return;
         }
 
-        vertexFactory = loadSettings.getVFactory();
+        vertexFactory = loadSettings.getVertexFactory();        
 
         g = loadSettings.getG();
         layout = loadSettings.getLayout();

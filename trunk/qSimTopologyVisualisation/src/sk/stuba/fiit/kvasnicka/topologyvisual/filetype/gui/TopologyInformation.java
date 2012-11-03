@@ -52,7 +52,7 @@ public class TopologyInformation extends javax.swing.JPanel implements MultiView
         jTextField1.setText(obj.getLoadSettings().getName());
         jTextArea1.setText(obj.getLoadSettings().getDescription());
         if (obj.getLoadSettings().getG() != null) {//topology was loaded
-            jLabel1.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_nodes") + ": " + obj.getLoadSettings().getVFactory().getAllVertices().size());
+            jLabel1.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_nodes") + ": " + obj.getLoadSettings().getVertexFactory().getAllVertices().size());
         }
         initDocumentListeners();
     }

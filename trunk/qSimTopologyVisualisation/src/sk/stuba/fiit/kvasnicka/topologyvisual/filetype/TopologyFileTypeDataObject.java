@@ -18,20 +18,14 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.filetype;
 
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.graph.AbstractGraph;
-import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.io.GraphIOException;
 import edu.uci.ics.jung.io.GraphMLWriter;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.io.*;
 import javax.swing.Icon;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import lombok.Getter;
-import org.apache.commons.collections15.Transformer;
 import org.apache.log4j.Logger;
-import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.spi.actions.AbstractSavable;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -42,8 +36,6 @@ import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
-import org.openide.util.Lookup;
-import org.openide.util.NbBundle.Messages;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.TopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
@@ -51,7 +43,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.SerialisationHelper;
-import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.XmlSerializationProxy;
+import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.SerializationProxy;
 
 public class TopologyFileTypeDataObject extends MultiDataObject {
 
@@ -68,7 +60,7 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
     private boolean dirty = false;
     private InstanceContent content = new InstanceContent();
 
-    public TopologyFileTypeDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException, GraphIOException, JAXBException {
+    public TopologyFileTypeDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException, GraphIOException, ClassNotFoundException {
         super(pf, loader);
 //        registerEditor("text/qsim", true);
         CookieSet cookies = getCookieSet();
@@ -95,121 +87,31 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
         return 1;
     }
 
-//    @MultiViewElement.Registration(displayName = "#LBL_TopologyInfoMultiview",
-//    iconBase = "sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/qsimFileType.png",
-//    mimeType = "text/qsim",
-//    persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
-//    preferredID = "TopologyInfoMultiview",
-//    position = 1000)
-//    @Messages("LBL_TopologyInfoMultiview=Info")
-//    public static TopologyInformation createEditor(Lookup lkp) {
-//        return new TopologyInformation(lkp);
-//    }
-    private void serialize(XmlSerializationProxy proxy, Graph topologyGraph, AbstractLayout<TopologyVertex, TopologyEdge> layout) throws JAXBException, FileNotFoundException, IOException {
+    private void serialize(SerializationProxy proxy) throws IOException {
         logg.debug("serialisation....- file: " + getPrimaryFile().getNameExt());
-//todo use auto-closable here
-        BufferedWriter fileOutput = new BufferedWriter(new FileWriter(FileUtil.toFile(getPrimaryFile())));
-        String jaxbString = "";
-        if (proxy != null) {
-            StringWriter sw = new StringWriter();
-            marshall(proxy, sw);
-            jaxbString = sw.toString();
-        }
 
-        String jungString = "";
-        if (topologyGraph != null && layout != null) {
-            jungString = saveJung(topologyGraph, layout);
-        }
-        fileOutput.write(jaxbString);
-        fileOutput.newLine();
-        fileOutput.write(jungString);
-        fileOutput.close();
+
+        String proxyString = SerializationProxy.serializetoString(proxy);
+
+        FileWriter fileStream = new FileWriter(FileUtil.toFile(getPrimaryFile()));
+        fileStream.write(proxyString);
+        fileStream.close();
+
         logg.debug("serialised - file: " + getPrimaryFile().getNameExt());
     }
 
-    private String saveJung(Graph topologyGraph, AbstractLayout<TopologyVertex, TopologyEdge> layout) throws IOException {
-        StringWriter out = new StringWriter();
-        initSerialisationUtils(layout);
-        graphWriter.save(topologyGraph, out);
-        return out.toString();
-    }
-
-    private void marshall(XmlSerializationProxy proxy, StringWriter output) throws JAXBException, FileNotFoundException {
-        JAXBContext context = JAXBContext.newInstance(XmlSerializationProxy.class);
-
-        Marshaller m = context.createMarshaller();
-        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        m.marshal(proxy, output);
-    }
-
-    private DeserialisationResult deserialize() throws GraphIOException, IOException, JAXBException {
+    private DeserialisationResult deserialize() throws GraphIOException, IOException, ClassNotFoundException {
         logg.debug("deserialisation.... - file: " + getPrimaryFile().getNameExt());
         return serialisationHelper.loadSettings(FileUtil.toFile(getPrimaryFile()));
     }
 
-    public void save() throws JAXBException, FileNotFoundException, IOException {
+    public void save() throws IOException {
         logg.debug("saving topology");
         //create serialisation proxy
-        XmlSerializationProxy proxy = new XmlSerializationProxy();
-        proxy.prepareProxy(getLoadSettings().getVFactory(), getLoadSettings().getG(), getLoadSettings().getName(), getLoadSettings().getDescription(), getLoadSettings().isDistanceVectorRouting());
+        SerializationProxy proxy = new SerializationProxy();
+        proxy.prepareProxy(getLoadSettings().getVertexFactory(), getLoadSettings().getG(), getLoadSettings().getLayout(), getLoadSettings().getName(), getLoadSettings().getDescription(), getLoadSettings().isDistanceVectorRouting());
         //call serialize() method
-        serialize(proxy, getLoadSettings().getG(), getLoadSettings().getLayout());
-    }
-
-    /**
-     * init some serialisation settings for JUNG serialisation
-     *
-     * @param layout
-     */
-    private void initSerialisationUtils(final AbstractLayout<TopologyVertex, TopologyEdge> layout) {
-        graphWriter.addVertexData("x", null, "0",
-                new Transformer<TopologyVertex, String>() {
-                    @Override
-                    public String transform(TopologyVertex v) {
-                        return Double.toString(layout.getX(v));
-                    }
-                });
-
-        graphWriter.addVertexData("y", null, "0",
-                new Transformer<TopologyVertex, String>() {
-                    @Override
-                    public String transform(TopologyVertex v) {
-                        return Double.toString(layout.getY(v));
-                    }
-                });
-
-        graphWriter.addVertexData("imageType", null, "null",
-                new Transformer<TopologyVertex, String>() {
-                    @Override
-                    public String transform(TopologyVertex v) {
-                        return v.getImageType().name();
-                    }
-                });
-
-        graphWriter.addVertexData("vertex_name", null, "null",
-                new Transformer<TopologyVertex, String>() {
-                    @Override
-                    public String transform(TopologyVertex v) {
-                        return v.getName();
-                    }
-                });
-
-        graphWriter.addEdgeData("vertex1_name", null, "null",
-                new Transformer<TopologyEdge, String>() {
-                    @Override
-                    public String transform(TopologyEdge e) {
-                        return e.getVertex1().getName();
-                    }
-                });
-
-        graphWriter.addEdgeData("vertex2_name", null, "null",
-                new Transformer<TopologyEdge, String>() {
-                    @Override
-                    public String transform(TopologyEdge e) {
-                        return e.getVertex2().getName();
-                    }
-                });
+        serialize(proxy);
     }
 
     /**
@@ -235,7 +137,7 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
         topComponent = window;
         loadSettings.setG(g);
         loadSettings.setLayout(layout);
-        loadSettings.setVFactory(vFactory);
+        loadSettings.setVertexFactory(vFactory);
         markModified(window);
     }
 
@@ -279,8 +181,6 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
                 logg.debug("---------saving");
                 TopologyFileTypeDataObject.this.save();
                 topComponent.setDisplayName(TopologyFileTypeDataObject.this.getPrimaryFile().getNameExt());
-            } catch (JAXBException ex) {
-                Exceptions.printStackTrace(ex);
             } catch (FileNotFoundException ex) {
                 Exceptions.printStackTrace(ex);
             }

@@ -76,7 +76,7 @@
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-            <TitledBorder title="Topology statistics:">
+            <TitledBorder title="&lt;TopologyInformation.jPanel1.border.title&gt;">
               <ResourceString PropertyName="titleX" bundle="sk/stuba/fiit/kvasnicka/topologyvisual/palette/gui/Bundle.properties" key="TopologyInformation.jPanel1.border.title" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </TitledBorder>
           </Border>

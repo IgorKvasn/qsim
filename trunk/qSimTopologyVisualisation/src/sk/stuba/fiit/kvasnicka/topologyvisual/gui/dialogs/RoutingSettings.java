@@ -50,8 +50,6 @@ public class RoutingSettings extends javax.swing.JDialog {
             if (modified) {
                 try {
                     file.save();
-                } catch (JAXBException ex) {
-                    Exceptions.printStackTrace(ex);
                 } catch (FileNotFoundException ex) {
                     Exceptions.printStackTrace(ex);
                 } catch (IOException ex) {
