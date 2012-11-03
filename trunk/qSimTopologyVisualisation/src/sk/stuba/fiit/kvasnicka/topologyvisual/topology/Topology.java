@@ -198,6 +198,16 @@ public class Topology implements VertexCreatedListener {
         component.setEnabledPalette(false);
     }
 
+    /**
+     * programatically (manually) select specified vertex
+     *
+     * @param v
+     * @param selected
+     */
+    public void manuallySelectVertex(TopologyVertex v, boolean selected) {
+        vv.getPickedVertexState().pick(v, selected);
+    }
+
     @Override
     public void vertexCreatedOccurred(VertexCreatedEvent evt) {
         logg.debug("vertex created");
