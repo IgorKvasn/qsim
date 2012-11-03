@@ -547,7 +547,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             dialogHandler = new DialogHandler();
             topology.createDefaultSettings();
         } else {
-            loadSettings.getVFactory().setTopolElementTopComponent(this);
+            loadSettings.getVertexFactory().setTopolElementTopComponent(this);
             topology.loadFromSettings(loadSettings);
             dialogHandler = new DialogHandler(topology.getVertexFactory().getVertexRouterList().size(), topology.getVertexFactory().getVertexSwitchList().size(), topology.getVertexFactory().getVertexComputerList().size());
         }

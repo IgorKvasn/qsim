@@ -204,6 +204,12 @@
                 </test-type>
             </test-dependencies>
             <public-packages>
+                <package>edu.uci.ics.jung.graph</package>
+                <package>edu.uci.ics.jung.graph.event</package>
+                <package>edu.uci.ics.jung.graph.util</package>
+                <package>edu.uci.ics.jung.io</package>
+                <package>edu.uci.ics.jung.io.graphml</package>
+                <package>edu.uci.ics.jung.io.graphml.parser</package>
                 <package>sk.stuba.fiit.kvasnicka.topologyvisual.facade</package>
             </public-packages>
             <class-path-extension>
@@ -265,6 +271,10 @@
             <class-path-extension>
                 <runtime-relative-path>ext/colt-1.2.0.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/colt-1.2.0.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/commons-codec-1.7.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/commons-codec-1.7.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/jung-samples-2.0.1.jar</runtime-relative-path>

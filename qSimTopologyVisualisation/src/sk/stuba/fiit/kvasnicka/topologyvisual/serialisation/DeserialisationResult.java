@@ -39,9 +39,9 @@ public class DeserialisationResult {
 
     private AbstractGraph<TopologyVertex, TopologyEdge> g;
     private AbstractLayout<TopologyVertex, TopologyEdge> layout;
-    private TopologyVertexFactory vFactory;
     private String name, description;
     private boolean distanceVectorRouting;
+    private TopologyVertexFactory vertexFactory;
 
     /**
      * empty constructor used when it is a new file
@@ -58,19 +58,16 @@ public class DeserialisationResult {
      * @param name
      * @param description
      */
-    public DeserialisationResult(AbstractGraph<TopologyVertex, TopologyEdge> g, TopologyVertexFactory vFactory, Map<TopologyVertex, Point2D> vertexLocationMap, String name, String description, boolean distanceVectorRouting) {
+    public DeserialisationResult(AbstractGraph<TopologyVertex, TopologyEdge> g, StaticLayout<TopologyVertex, TopologyEdge> layout, TopologyVertexFactory vertexFactory, Map<TopologyVertex, Point2D> vertexLocationMap, String name, String description, boolean distanceVectorRouting) {
         this.name = name;
         this.description = description;
-        this.vFactory = vFactory;
         this.g = g;
-        layout = new StaticLayout<TopologyVertex, TopologyEdge>(g);
+        this.layout = layout;
 
-        for (TopologyVertex v : vertexLocationMap.keySet()) {
-            layout.setLocation(v, vertexLocationMap.get(v));
-        }
 
-        normalizeEdges(g.getEdges());
+//        normalizeEdges(g.getEdges());
         this.distanceVectorRouting = distanceVectorRouting;
+        this.vertexFactory = vertexFactory;
     }
 
     /**
@@ -79,7 +76,7 @@ public class DeserialisationResult {
      * @param name
      * @param description
      */
-    public DeserialisationResult(String name, String description,boolean distanceVectorRouting) {
+    public DeserialisationResult(String name, String description, boolean distanceVectorRouting) {
         this.name = name;
         this.description = description;
         this.distanceVectorRouting = distanceVectorRouting;
@@ -91,7 +88,7 @@ public class DeserialisationResult {
      * @return
      */
     public boolean isJungLoaded() {
-        return g != null && vFactory != null;
+        return g != null && vertexFactory != null;
     }
 
     /**

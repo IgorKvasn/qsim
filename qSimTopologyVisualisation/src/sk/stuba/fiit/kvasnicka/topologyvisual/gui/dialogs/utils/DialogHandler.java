@@ -60,22 +60,20 @@ public class DialogHandler {
 
         return resultObject;
     }
-    
-    
+
     /**
      * shows dialog with router configuration
-     * 
+     *
      * null if user hit cancel
      */
     public Router showRouterConfigurationDialog(Router router) {
         BlockingDialog bl = new RouterConfigurationDialog(router);
         bl.showDialog();
-        RouterConfigurationDialog.ResultObject resultObject = (RouterConfigurationDialog.ResultObject) bl.getUserInput();
+        Router resultObject = (Router) bl.getUserInput();
         if (resultObject == null) {
-            return null;
+            throw new IllegalStateException("user hit cancel");
         }
-
-        return new Router(resultObject.getName(), resultObject.getDescription(), resultObject.getQosMechanismDefinition(), resultObject.getMaxTxBufferSize(), resultObject.getMaxRxBufferSize(), resultObject.getMaxOutputQueueSize(), resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay(), resultObject.getMinProcessingDelay(), resultObject.getMaxProcessingDelay());
+        return resultObject;
     }
 
     /**

@@ -16,27 +16,29 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.serialisation;
 
+import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
+import edu.uci.ics.jung.graph.AbstractGraph;
 import edu.uci.ics.jung.graph.Graph;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
-import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
-import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.dto.EdgeDTO;
-import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.transform.EdgeTransform;
+import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.dto.TopologyVertexSerialization;
+import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.transformation.TopologyVertexToVertexXmlTransformation;
 
 /**
  * Serialisation proxy pattern. two main things are being serialised by this
@@ -50,31 +52,41 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.transform.EdgeTransf
  */
 @Getter
 @Setter
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
-public class XmlSerializationProxy {
+public class SerializationProxy implements Serializable {
 
-    @XmlTransient
-    private static final Logger logg = Logger.getLogger(XmlSerializationProxy.class);
-    private int numberOfVertices;
-    private ArrayList<NetworkNode> vertices;
-    private int numberOfEdges;
-    private ArrayList<EdgeDTO> edges;
+    private static final long serialVersionUID = -403250971215465050L;
+    private static final transient Logger logg = Logger.getLogger(SerializationProxy.class);
+    private ArrayList<Edge> edges;
     private String topologyName, topologyDescription;
     private Boolean distanceVectorRouting;
+    private ArrayList<TopologyVertexSerialization> vertices;
+
+    public static SerializationProxy serializeFromString(String s) throws IOException, ClassNotFoundException {
+        byte[] data = Base64.decodeBase64(s);
+        ObjectInputStream ois = new ObjectInputStream(
+                new ByteArrayInputStream(data));
+        Object o = ois.readObject();
+        ois.close();
+        return (SerializationProxy) o;
+    }
+
+    public static String serializetoString(Serializable o) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(o);
+        oos.close();
+        return new String(Base64.encodeBase64String(baos.toByteArray()));
+    }
 
     /**
      * initializes serialisation proxy - fills it with actual data that are
      * about to be saved
      */
-    public void prepareProxy(TopologyVertexFactory vertexFactory, Graph topologyGraph, String name, String description, boolean distanceVectorRouting) {
+    public void prepareProxy(TopologyVertexFactory vertexFactory, AbstractGraph<TopologyVertex, TopologyEdge> graph, AbstractLayout<TopologyVertex, TopologyEdge> layout, String name, String description, boolean distanceVectorRouting) {
         //saving JUNG topology
-        if (vertexFactory != null && topologyGraph != null) {
-            this.vertices = getNetworkNodes(vertexFactory);
-            this.numberOfVertices = vertices.size();
-
-            this.edges = getDataModelEdges(topologyGraph);
-            this.numberOfEdges = edges.size();
+        if (vertexFactory != null && graph != null) {
+            this.vertices = getNetworkNodes(vertexFactory, layout);
+            this.edges = getDataModelEdges(graph);
         }
 
         //saving topology information
@@ -91,21 +103,21 @@ public class XmlSerializationProxy {
         return distanceVectorRouting.booleanValue();
     }
 
-    private ArrayList<NetworkNode> getNetworkNodes(TopologyVertexFactory vertexFactory) {
+    private ArrayList<TopologyVertexSerialization> getNetworkNodes(TopologyVertexFactory vertexFactory, AbstractLayout<TopologyVertex, TopologyEdge> layout) {
         List<TopologyVertex> allVertices = vertexFactory.getAllVertices();
-        ArrayList<NetworkNode> list = new ArrayList<NetworkNode>(allVertices.size());
+        ArrayList<TopologyVertexSerialization> list = new ArrayList<TopologyVertexSerialization>(allVertices.size());
         for (TopologyVertex v : allVertices) {
-            list.add(v.getDataModel());
+            list.add(TopologyVertexToVertexXmlTransformation.transformToSerializable(v, layout));
         }
         return list;
     }
 
-    private ArrayList<EdgeDTO> getDataModelEdges(Graph topologyGraph) {
+    private ArrayList<Edge> getDataModelEdges(Graph topologyGraph) {
         Collection<TopologyEdge> edgesCol = topologyGraph.getEdges();
 
-        ArrayList<EdgeDTO> list = new ArrayList<EdgeDTO>(edgesCol.size());
+        ArrayList<Edge> list = new ArrayList<Edge>(edgesCol.size());
         for (TopologyEdge e : edgesCol) {
-            list.add(EdgeTransform.transformToDTO(e.getEdge()));
+            list.add(e.getEdge());
         }
         return list;
     }
