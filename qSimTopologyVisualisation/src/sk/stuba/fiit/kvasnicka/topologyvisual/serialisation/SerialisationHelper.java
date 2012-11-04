@@ -73,6 +73,7 @@ public class SerialisationHelper {
         result.setG(g);
         result.setLayout(layout);
         result.setVertexFactory(new TopologyVertexFactory(verticesTopology));
+        result.setSimulRulesData(serProxy.getSimulRulesData());
         logg.debug("file loaded: " + file.getAbsolutePath());
         return result;
     }

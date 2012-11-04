@@ -23,6 +23,7 @@ import edu.uci.ics.jung.io.GraphMLWriter;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.io.*;
+import java.util.List;
 import javax.swing.Icon;
 import lombok.Getter;
 import org.apache.log4j.Logger;
@@ -44,6 +45,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.DeserialisationResult;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.SerialisationHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.SerializationProxy;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
 
 public class TopologyFileTypeDataObject extends MultiDataObject {
 
@@ -109,7 +111,7 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
         logg.debug("saving topology");
         //create serialisation proxy
         SerializationProxy proxy = new SerializationProxy();
-        proxy.prepareProxy(getLoadSettings().getVertexFactory(), getLoadSettings().getG(), getLoadSettings().getLayout(), getLoadSettings().getName(), getLoadSettings().getDescription(), getLoadSettings().isDistanceVectorRouting());
+        proxy.prepareProxy(getLoadSettings().getVertexFactory(), getLoadSettings().getG(), getLoadSettings().getLayout(), getLoadSettings().getName(), getLoadSettings().getDescription(), getLoadSettings().isDistanceVectorRouting(), getLoadSettings().getSimulRulesData());
         //call serialize() method
         serialize(proxy);
     }
@@ -133,11 +135,12 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
      *
      * @param window
      */
-    public void modifiedTopology(TopComponent window, AbstractGraph<TopologyVertex, TopologyEdge> g, AbstractLayout<TopologyVertex, TopologyEdge> layout, TopologyVertexFactory vFactory) {
+    public void modifiedTopology(TopComponent window, AbstractGraph<TopologyVertex, TopologyEdge> g, AbstractLayout<TopologyVertex, TopologyEdge> layout, TopologyVertexFactory vFactory, List<SimulationData.Data> simulRulesData) {
         topComponent = window;
         loadSettings.setG(g);
         loadSettings.setLayout(layout);
         loadSettings.setVertexFactory(vFactory);
+        loadSettings.setSimulRulesData(simulRulesData);
         markModified(window);
     }
 

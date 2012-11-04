@@ -39,6 +39,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.dto.TopologyVertexSerialization;
 import sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.transformation.TopologyVertexToVertexXmlTransformation;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
 
 /**
  * Serialisation proxy pattern. two main things are being serialised by this
@@ -60,6 +61,7 @@ public class SerializationProxy implements Serializable {
     private String topologyName, topologyDescription;
     private Boolean distanceVectorRouting;
     private ArrayList<TopologyVertexSerialization> vertices;
+    private ArrayList<SimulationData.Data> simulRulesData;
 
     public static SerializationProxy serializeFromString(String s) throws IOException, ClassNotFoundException {
         byte[] data = Base64.decodeBase64(s);
@@ -82,7 +84,7 @@ public class SerializationProxy implements Serializable {
      * initializes serialisation proxy - fills it with actual data that are
      * about to be saved
      */
-    public void prepareProxy(TopologyVertexFactory vertexFactory, AbstractGraph<TopologyVertex, TopologyEdge> graph, AbstractLayout<TopologyVertex, TopologyEdge> layout, String name, String description, boolean distanceVectorRouting) {
+    public void prepareProxy(TopologyVertexFactory vertexFactory, AbstractGraph<TopologyVertex, TopologyEdge> graph, AbstractLayout<TopologyVertex, TopologyEdge> layout, String name, String description, boolean distanceVectorRouting, List<SimulationData.Data> simulRulesData) {
         //saving JUNG topology
         if (vertexFactory != null && graph != null) {
             this.vertices = getNetworkNodes(vertexFactory, layout);
@@ -93,6 +95,7 @@ public class SerializationProxy implements Serializable {
         this.topologyName = name;
         this.topologyDescription = description;
         this.distanceVectorRouting = distanceVectorRouting;
+        this.simulRulesData = new ArrayList<SimulationData.Data>(simulRulesData);
     }
 
     public boolean isDistanceVectorRouting() {
