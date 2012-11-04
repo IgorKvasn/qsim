@@ -70,9 +70,7 @@ public class DialogHandler {
         BlockingDialog bl = new RouterConfigurationDialog(router);
         bl.showDialog();
         Router resultObject = (Router) bl.getUserInput();
-        if (resultObject == null) {
-            throw new IllegalStateException("user hit cancel");
-        }
+        //user hitting cancel is handled elsewhere
         return resultObject;
     }
 

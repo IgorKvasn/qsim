@@ -204,12 +204,6 @@
                 </test-type>
             </test-dependencies>
             <public-packages>
-                <package>edu.uci.ics.jung.graph</package>
-                <package>edu.uci.ics.jung.graph.event</package>
-                <package>edu.uci.ics.jung.graph.util</package>
-                <package>edu.uci.ics.jung.io</package>
-                <package>edu.uci.ics.jung.io.graphml</package>
-                <package>edu.uci.ics.jung.io.graphml.parser</package>
                 <package>sk.stuba.fiit.kvasnicka.topologyvisual.facade</package>
             </public-packages>
             <class-path-extension>
