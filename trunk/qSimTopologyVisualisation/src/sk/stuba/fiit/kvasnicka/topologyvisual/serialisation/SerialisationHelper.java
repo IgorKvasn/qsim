@@ -98,6 +98,7 @@ public class SerialisationHelper {
         for (TopologyVertexSerialization t : vertices) {
             TopologyVertex vertex = TopologyVertexToVertexXmlTransformation.transFormSerializable(t, layout);
             g.addVertex(vertex);
+            result.add(vertex);
         }
 
         return result;
