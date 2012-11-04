@@ -142,6 +142,9 @@ along with qSim.  If not, see &lt;http://www.gnu.org/licenses/>.
         </folder>
     </folder>
     <folder name="Windows2">
+        <folder name="Components">
+            <file name="navigatorTC.settings_hidden"/>
+        </folder>
         <folder name="Modes">
             <file name="myoutput.wsmode" url="myoutputWsmode.xml"/>
         </folder>

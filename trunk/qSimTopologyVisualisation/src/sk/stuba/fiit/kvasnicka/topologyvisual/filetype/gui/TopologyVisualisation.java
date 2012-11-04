@@ -16,13 +16,17 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui;
 
+import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.List;
 import javax.swing.*;
@@ -146,6 +150,13 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
         initTopology();
         initPalette();
+
+        //open navigator
+        navigatorTopComponent = new TopologyNavigatorTopComponent(this);
+        Mode navigatorMode = WindowManager.getDefault().findMode("navigator");
+        navigatorMode.dockInto(navigatorTopComponent);
+        navigatorTopComponent.open();
+//        navigatorTopComponent.requestActive();
     }
 
     /**
@@ -503,14 +514,6 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         simulRuleReviewTopComponent.open();
         simulRuleReviewTopComponent.requestActive();
 
-
-        navigatorTopComponent = new TopologyNavigatorTopComponent(this);
-        Mode navigatorMode = WindowManager.getDefault().findMode("navigator");
-        navigatorMode.dockInto(navigatorTopComponent);
-        navigatorTopComponent.open();
-        navigatorTopComponent.requestActive();
-
-
     }
 
     private void closeSimulationWindows() {
@@ -531,12 +534,6 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             networkNodeStatisticsTopComponent.close();
             networkNodeStatisticsTopComponent.cleanUp();
             networkNodeStatisticsTopComponent = null;
-        }
-
-        if (navigatorTopComponent != null) {
-            navigatorTopComponent.close();
-            navigatorTopComponent.cleanUp();
-            navigatorTopComponent = null;
         }
     }
 
@@ -668,6 +665,34 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
      */
     public void setStatusBarText(String text) {
         StatusDisplayer.getDefault().setStatusText(text);
+    }
+
+    /**
+     * centers topology so that specified vertex will be in the center
+     *
+     * @param vertex
+     */
+    public void centerOnVertex(TopologyVertex vertex) {
+        Layout<TopologyVertex, TopologyEdge> layout = topology.getVv().getGraphLayout();
+        Point2D q = layout.transform(vertex);
+        Point2D lvc = topology.getVv().getRenderContext().getMultiLayerTransformer().inverseTransform(topology.getVv().getCenter());
+        final double dx = (lvc.getX() - q.getX()) / 10;
+        final double dy = (lvc.getY() - q.getY()) / 10;
+
+        Runnable animator = new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < 10; i++) {
+                    topology.getVv().getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT).translate(dx, dy);
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ex) {
+                    }
+                }
+            }
+        };
+        Thread thread = new Thread(animator);
+        thread.start();
     }
 
     /**
@@ -891,6 +916,13 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         updateToolbarButtons(false);
         updateCopyPasteButtons(true);
         getSimulationData().addSimulationRuleChangedListener(this);
+
+        if (navigatorTopComponent != null) {
+            Mode navigatorMode = WindowManager.getDefault().findMode("navigator");
+            navigatorMode.dockInto(navigatorTopComponent);
+            navigatorTopComponent.open();
+            navigatorTopComponent.requestActive();
+        }
     }
 
     @Override
@@ -903,6 +935,11 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         updateCopyPasteButtons(false);
         getSimulationData().removeSimulationRuleChangedListener(this);
 
+        if (navigatorTopComponent != null) {
+            navigatorTopComponent.close();
+            navigatorTopComponent.cleanUp();
+            navigatorTopComponent = null;
+        }
     }
 
     @Override

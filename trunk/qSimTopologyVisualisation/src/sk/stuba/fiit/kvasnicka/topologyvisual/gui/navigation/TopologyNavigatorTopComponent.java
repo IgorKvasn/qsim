@@ -4,12 +4,24 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.navigation;
 
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Collection;
 import java.util.Enumeration;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-import org.netbeans.api.settings.ConvertAsProperties;
+import javax.swing.tree.TreeSelectionModel;
+import org.apache.log4j.Logger;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.util.NbBundle;
@@ -49,10 +61,12 @@ persistenceType = TopComponent.PERSISTENCE_NEVER)
 })
 public final class TopologyNavigatorTopComponent extends TopComponent implements VertexCreatedListener, VertexDeletedListener {
 
+    private static final Logger logg = Logger.getLogger(TopologyNavigatorTopComponent.class);
     private DefaultMutableTreeNode computerNode, routerNode, switchNode;
     private DefaultTreeModel treeModel;
     private DefaultMutableTreeNode rootNode;
     private TopologyVisualisation topologyVisualisation;
+    private JPopupMenu popupMenu;
 
     public TopologyNavigatorTopComponent(TopologyVisualisation topologyVisualisation) {
         initComponents();
@@ -65,8 +79,66 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
         topologyVisualisation.getTopology().addVertexCreatedListener(this);
         topologyVisualisation.getTopology().addVertexDeletedListener(this);
 
+        jTree1.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+        initPopupMenu();
+
+        //attach popup on node
+        jTree1.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    //right click selection does not work by default - here is a workaround
+                    jTree1.getSelectionModel().setSelectionPath(jTree1.getPathForLocation(e.getX(), e.getY()));
+                    //show popup
+                    TreePath path = jTree1.getPathForLocation(e.getX(), e.getY());
+                    Rectangle pathBounds = jTree1.getUI().getPathBounds(jTree1, path);
+                    if (pathBounds != null && pathBounds.contains(e.getX(), e.getY())) {
+                        popupMenu.show(jTree1, pathBounds.x, pathBounds.y + pathBounds.height);
+                    }
+                }
+            }
+        });
     }
 
+    /**
+     * inits popup menu that will be shown when user right clicks on a JTree
+     * node
+     */
+    private void initPopupMenu() {
+        popupMenu = new JPopupMenu();
+        JMenuItem itemFind = new JMenuItem(NbBundle.getMessage(TopologyNavigatorTopComponent.class, "find"));
+        itemFind.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TopologyVertex selected = getSelectedVertex();
+                if (selected == null) {
+                    logg.warn("user clicked on popup menu, but no selected node found - so how did he managed to show popup menu?");
+                    return;
+                }
+                topologyVisualisation.centerOnVertex(selected);
+            }
+        });
+
+        popupMenu.add(itemFind);
+    }
+
+    /**
+     * finds selected vertex in tree
+     *
+     * @return null if nothing is selected
+     */
+    private TopologyVertex getSelectedVertex() {
+        if (jTree1.getSelectionCount() == 0) {
+            return null;
+        }
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
+        return (TopologyVertex) node.getUserObject();
+    }
+
+    /**
+     * this dialog is closing, so I need to clean up some listeners and stuff..
+     */
     public void cleanUp() {
         topologyVisualisation.getTopology().removeVertexCreatedListener(this);
         topologyVisualisation.getTopology().removeVertexDeletedListener(this);
@@ -80,7 +152,6 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
     private void initVerticesList(TopologyVertexFactory factory) {
         rootNode = new DefaultMutableTreeNode();
         treeModel = new DefaultTreeModel(rootNode);
-        jXTree1.setModel(treeModel);
 
 
         routerNode = new DefaultMutableTreeNode(NbBundle.getMessage(TopologyNavigatorTopComponent.class, "router"));
@@ -104,7 +175,9 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
             treeModel.insertNodeInto(new DefaultMutableTreeNode(cv), computerNode, 0);
         }
 
-        expandTree(jXTree1);
+        jTree1.setModel(treeModel);
+
+        expandTree(jTree1);
 
     }
 
@@ -137,7 +210,35 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
 
     @Override
     public void vertexDeletedOccurred(VertexDeletedEvent evt) {
-        throw new UnsupportedOperationException("Not supported yet.");
+
+        Collection<TopologyVertex> deletedCollection = evt.getDeletedVertex();
+        for (TopologyVertex delV : deletedCollection) {
+            if (delV instanceof RouterVertex) {
+                treeModel.removeNodeFromParent(findNode(delV.getName(), routerNode));
+            }
+            if (delV instanceof ComputerVertex) {
+                treeModel.removeNodeFromParent(findNode(delV.getName(), computerNode));
+            }
+            if (delV instanceof SwitchVertex) {
+                treeModel.removeNodeFromParent(findNode(delV.getName(), switchNode));
+            }
+        }
+    }
+
+    /**
+     * finds tree node by user object (name of TopologyVertex)
+     *
+     * @param name
+     * @return
+     */
+    private DefaultMutableTreeNode findNode(String name, DefaultMutableTreeNode parent) {
+        for (int i = 0; i < parent.getChildCount(); i++) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) parent.getChildAt(i);
+            if (((TopologyVertex) (node.getUserObject())).getName().equals(name)) {
+                return node;
+            }
+        }
+        throw new IllegalStateException("could not find node/vertex " + name + " in parent " + parent.getUserObject().toString());
     }
 
     /**
@@ -148,19 +249,19 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jXTree1 = new org.jdesktop.swingx.JXTree();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTree1 = new javax.swing.JTree();
 
         setLayout(new java.awt.BorderLayout());
 
-        jXTree1.setRootVisible(false);
-        jScrollPane2.setViewportView(jXTree1);
+        jTree1.setRootVisible(false);
+        jScrollPane1.setViewportView(jTree1);
 
-        add(jScrollPane2, java.awt.BorderLayout.CENTER);
+        add(jScrollPane1, java.awt.BorderLayout.PAGE_START);
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane jScrollPane2;
-    private org.jdesktop.swingx.JXTree jXTree1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTree jTree1;
     // End of variables declaration//GEN-END:variables
 
     @Override
