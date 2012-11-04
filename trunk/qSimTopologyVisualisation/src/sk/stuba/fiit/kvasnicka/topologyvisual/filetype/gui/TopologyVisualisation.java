@@ -56,6 +56,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.actions.RunSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.StopSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.copypaste.CopyVertexAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.copypaste.PasteVertexAction;
+import sk.stuba.fiit.kvasnicka.topologyvisual.events.simulationrule.SimulationRuleChangedEvent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.events.simulationrule.SimulationRuleChangedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.events.topologystate.TopologyStateChangedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.events.topologystate.TopologyStateChangedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
@@ -69,6 +71,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.RouterConfigurationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.DialogHandler;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.navigation.TopologyNavigatorTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.TopologyPaletteTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectionEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectionListener;
@@ -99,7 +102,7 @@ persistenceType = TopComponent.PERSISTENCE_NEVER,
 preferredID = "TopologyMultiviewElement",
 position = 2000)
 @NbBundle.Messages("LBL_TopologyCreatorMultiview=Topology")
-public final class TopologyVisualisation extends JPanel implements VertexCreatedListener, DocumentListener, MultiViewElement, PaletteSelectionListener {
+public final class TopologyVisualisation extends JPanel implements VertexCreatedListener, DocumentListener, MultiViewElement, PaletteSelectionListener, SimulationRuleChangedListener {
 
     private static Logger logg = Logger.getLogger(TopologyVisualisation.class);
     private Topology topology;
@@ -124,6 +127,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     private transient SimulRuleReviewTopComponent simulRuleReviewTopComponent;
     private transient SimulationTopComponent simulationTopComponent;
     private transient NetworkNodeStatisticsTopComponent networkNodeStatisticsTopComponent;
+    private transient TopologyNavigatorTopComponent navigatorTopComponent;
     @Getter
     private transient NetworkNodeStatsManager networkNodeStatsManager;
 
@@ -241,7 +245,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         //remove this simulation from list of all running simulations
         RunningSimulationManager.getInstance().simulationEnded(dataObject.getName());
 
-        //opens palette sho user can add new vertices/edges
+        //opens palette so user can add new vertices/edges
         TopologyPaletteTopComponent palette = (TopologyPaletteTopComponent) WindowManager.getDefault().findTopComponent("TopologyPaletteTopComponent");
         if (palette == null) {
             logg.error("Could not find component TopologyPaletteTopComponent");
@@ -448,7 +452,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
      * pastes copied vertex into topology to the default location [0,0]
      */
     public void performVertexPaste() {
-        performVertexPaste(new Point(topology.getVv().getWidth()/2, topology.getVv().getHeight()/2));
+        performVertexPaste(new Point(topology.getVv().getWidth() / 2, topology.getVv().getHeight() / 2));
 
     }
 
@@ -494,10 +498,19 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         simulationFacade.addPingRuleListener(simulRuleReviewTopComponent);
         simulationFacade.addSimulationRuleListener(simulRuleReviewTopComponent);
 
-        Mode outputMode = WindowManager.getDefault().findMode("commonpalette");
-        outputMode.dockInto(simulRuleReviewTopComponent);
+        Mode commonPaletteMode = WindowManager.getDefault().findMode("commonpalette");
+        commonPaletteMode.dockInto(simulRuleReviewTopComponent);
         simulRuleReviewTopComponent.open();
         simulRuleReviewTopComponent.requestActive();
+
+
+        navigatorTopComponent = new TopologyNavigatorTopComponent(this);
+        Mode navigatorMode = WindowManager.getDefault().findMode("navigator");
+        navigatorMode.dockInto(navigatorTopComponent);
+        navigatorTopComponent.open();
+        navigatorTopComponent.requestActive();
+
+
     }
 
     private void closeSimulationWindows() {
@@ -518,6 +531,12 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             networkNodeStatisticsTopComponent.close();
             networkNodeStatisticsTopComponent.cleanUp();
             networkNodeStatisticsTopComponent = null;
+        }
+
+        if (navigatorTopComponent != null) {
+            navigatorTopComponent.close();
+            navigatorTopComponent.cleanUp();
+            navigatorTopComponent = null;
         }
     }
 
@@ -549,6 +568,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         } else {
             loadSettings.getVertexFactory().setTopolElementTopComponent(this);
             topology.loadFromSettings(loadSettings);
+            getSimulationData().setSimulationData(loadSettings.getSimulRulesData());
             dialogHandler = new DialogHandler(topology.getVertexFactory().getVertexRouterList().size(), topology.getVertexFactory().getVertexSwitchList().size(), topology.getVertexFactory().getVertexComputerList().size());
         }
         topology.initTopology();
@@ -820,7 +840,12 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     }
 
     public void topologyModified() {
-        dataObject.modifiedTopology(callback.getTopComponent(), topology.getG(), topology.getLayout(), topology.getVertexFactory());
+        dataObject.modifiedTopology(callback.getTopComponent(), topology.getG(), topology.getLayout(), topology.getVertexFactory(), getSimulationData().getSimulationData());
+    }
+
+    @Override
+    public void simulationRuleChangedOccured(SimulationRuleChangedEvent evt) {
+        topologyModified();
     }
 
     //-------savable-------
@@ -865,6 +890,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         NetbeansWindowHelper.getInstance().activateWindow(this);
         updateToolbarButtons(false);
         updateCopyPasteButtons(true);
+        getSimulationData().addSimulationRuleChangedListener(this);
     }
 
     @Override
@@ -875,6 +901,8 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         selectedAction = null;
         updateToolbarButtons(true);
         updateCopyPasteButtons(false);
+        getSimulationData().removeSimulationRuleChangedListener(this);
+
     }
 
     @Override

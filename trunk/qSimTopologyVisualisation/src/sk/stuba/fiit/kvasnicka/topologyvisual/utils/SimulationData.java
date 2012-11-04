@@ -16,10 +16,12 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.utils;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import javax.swing.event.EventListenerList;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +32,9 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
+import sk.stuba.fiit.kvasnicka.topologyvisual.events.simulationrule.SimulationRuleChangedEvent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.events.simulationrule.SimulationRuleChangedListener;
+import sk.stuba.fiit.kvasnicka.topologyvisual.events.topologystate.TopologyStateChangedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
@@ -52,6 +57,7 @@ public class SimulationData {
     private final TopologyFileTypeDataObject dataObject;
     private final Topology topology;
     private List<Data> dataRules;
+    private EventListenerList listenerList = new EventListenerList();
 
     public SimulationData(TopologyFileTypeDataObject dataObject, Topology topology) {
         this.dataObject = dataObject;
@@ -188,6 +194,7 @@ public class SimulationData {
             dataRules.remove(simDataNumber);
             dataRules.add(simDataNumber, data);
         }
+        fireSimulationRuleChangedEvent(new SimulationRuleChangedEvent(this));
     }
 
     /**
@@ -213,6 +220,13 @@ public class SimulationData {
     public List<Data> getSimulationData() {
         return dataRules;
     }
+    
+      /**
+     * returns simulation data that will be used to create simulation rules
+     */
+    public void setSimulationData(List<Data> dataRules) {
+        this.dataRules = dataRules;
+    }
 
     /**
      * removes simulation rule data depending on its ID
@@ -227,7 +241,24 @@ public class SimulationData {
                 return;
             }
         }
+        fireSimulationRuleChangedEvent(new SimulationRuleChangedEvent(this));
+    }
 
+    public void addSimulationRuleChangedListener(SimulationRuleChangedListener listener) {
+        listenerList.add(SimulationRuleChangedListener.class, listener);
+    }
+
+    public void removeSimulationRuleChangedListener(SimulationRuleChangedListener listener) {
+        listenerList.remove(SimulationRuleChangedListener.class, listener);
+    }
+
+    private void fireSimulationRuleChangedEvent(SimulationRuleChangedEvent evt) {
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = 0; i < listeners.length; i += 2) {
+            if (listeners[i].equals(TopologyStateChangedListener.class)) {
+                ((SimulationRuleChangedListener) listeners[i + 1]).simulationRuleChangedOccured(evt);
+            }
+        }
     }
 
     /**
@@ -248,8 +279,9 @@ public class SimulationData {
     @Getter
     @Setter
     @EqualsAndHashCode(of = "id")
-    public static class Data {
+    public static class Data implements Serializable {
 
+        private static final long serialVersionUID = -20325075325465050L;
         private String id = null;
         private IpPrecedence ipPrecedence;
         private int srcPort, destPort;
