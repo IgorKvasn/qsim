@@ -117,13 +117,13 @@ public class DialogHandler {
      *
      */
     public Edge showEdgeConfigurationDialog(long defaultSpeed, NetworkNode node1, NetworkNode node2) {
-        BlockingDialog bl = new EdgeConfigurationDialog(node1, node2, defaultSpeed);
+        EdgeConfigurationDialog bl = new EdgeConfigurationDialog(node1, node2, defaultSpeed);
         bl.showDialog();
-        EdgeConfigurationDialog.ResultObject resultObject = (EdgeConfigurationDialog.ResultObject) bl.getUserInput();
+        Edge resultObject = bl.getUserInput();
         if (resultObject == null) {
             throw new IllegalStateException("user hit cancel");
         }
 
-        return new Edge(resultObject.getSpeed(), resultObject.getMtu(), resultObject.getLength(), resultObject.getPacketErrorRate(), node1, node2);
+        return resultObject;
     }
 }

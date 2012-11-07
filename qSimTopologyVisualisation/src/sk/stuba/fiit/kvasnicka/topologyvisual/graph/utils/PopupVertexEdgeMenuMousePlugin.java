@@ -61,6 +61,7 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
     private JMenuItem menuItemDeleteVertex;
     private JMenuItem menuItemDeleteEdge;
     private JMenuItem menuItemEditVertex;
+    private JMenuItem menuItemEditEdge;
 
     /**
      * Creates a new instance of PopupVertexEdgeMenuMousePlugin
@@ -114,6 +115,8 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                     selectedEdge = edge;
                     correctEdgePopup();
                     edgePopup.show(vv, e.getX(), e.getY());
+                    //right clicking on a edge makes it selected/picked
+                    topology.manuallySelectEdge(edge, true);
                 }
             }
         }
@@ -135,10 +138,13 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
 
     private void correctEdgePopup() {
         if (topology.getTopolElementTopComponent().isSimulationRunning()) {
-            menuItemDeleteEdge.setEnabled(true);
+            menuItemDeleteEdge.setEnabled(false);
+            menuItemEditEdge.setText(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "view"));
         } else {
             menuItemDeleteEdge.setEnabled(true);
+            menuItemEditEdge.setText(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "edit"));
         }
+
     }
 
     private void createVertexPopup() {
@@ -167,8 +173,12 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
 
     private void createEdgePopup() {
         edgePopup = new JPopupMenu();
-        edgePopup.add(new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "properties")));
-        edgePopup.addSeparator();
+
+        menuItemEditEdge = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "edit"));
+        menuItemEditEdge.addActionListener(new EdgeEditMenuItem());
+        edgePopup.add(menuItemEditEdge);
+
+
         menuItemDeleteEdge = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete"));
         menuItemDeleteEdge.addActionListener(new EdgeDeleteMenuItem());
         edgePopup.add(menuItemDeleteEdge);
@@ -182,6 +192,21 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
         } else {
             menuItemDeleteVertex.setEnabled(true);
             menuItemDeleteEdge.setEnabled(true);
+        }
+    }
+
+    private class EdgeEditMenuItem implements ActionListener {
+
+        public EdgeEditMenuItem() {
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation() == null) {
+                return;
+            }
+
+            topology.getTopolElementTopComponent().showEdgeEditDialog(selectedEdge);
         }
     }
 

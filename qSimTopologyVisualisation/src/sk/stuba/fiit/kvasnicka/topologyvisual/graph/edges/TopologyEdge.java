@@ -16,13 +16,13 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 
 /**
- * abstract class for all edge classes
+ * class that represents edge in the graphical topology
  *
  * @author Igor Kvasnicka
  */
@@ -30,18 +30,20 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 public class TopologyEdge {
 
     @Getter
+    @Setter
     private Edge edge;
     @Getter
+    @Setter
     private TopologyVertex vertex1, vertex2;
 
     /**
      * used only during deserialisation - if you use this constructor, do not
-     * forget to initialise vertex1 and vertex2
+     * forget to initialise vertex1 and vertex2 afterwards
      *
      * @param edge
      */
     public TopologyEdge(Edge edge) {
-        this.edge = edge;
+        this.edge = edge;//fixme init vertex1 and vertex2
     }
 
     /**
