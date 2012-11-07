@@ -4,6 +4,7 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.navigation;
 
+import java.awt.Component;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,22 +12,25 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.List;
+import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import org.apache.log4j.Logger;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.util.NbBundle;
-import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import org.openide.windows.TopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedListener;
@@ -37,6 +41,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.ComputerVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.RouterVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.SwitchVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
+import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
 
 /**
  * Top component which displays something.
@@ -92,6 +97,11 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
                     jTree1.getSelectionModel().setSelectionPath(jTree1.getPathForLocation(e.getX(), e.getY()));
                     //show popup
                     TreePath path = jTree1.getPathForLocation(e.getX(), e.getY());
+                    //only leafs shows popups
+                    if (isVertexCategory((DefaultMutableTreeNode) path.getLastPathComponent())) {
+                        return; //it is not a leaf
+                    }
+
                     Rectangle pathBounds = jTree1.getUI().getPathBounds(jTree1, path);
                     if (pathBounds != null && pathBounds.contains(e.getX(), e.getY())) {
                         popupMenu.show(jTree1, pathBounds.x, pathBounds.y + pathBounds.height);
@@ -99,6 +109,22 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
                 }
             }
         });
+
+        jTree1.setCellRenderer(new CustomIconRenderer());
+    }
+
+    /**
+     * determines if specified node is a category node<br>category nodes are
+     * computerNode, routerNode and switchNode - so they are "category" nodes
+     *
+     * @param node
+     * @return
+     */
+    private boolean isVertexCategory(DefaultMutableTreeNode node) {
+        if (node.getLevel() <= 1) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -107,6 +133,7 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
      */
     private void initPopupMenu() {
         popupMenu = new JPopupMenu();
+
         JMenuItem itemFind = new JMenuItem(NbBundle.getMessage(TopologyNavigatorTopComponent.class, "find"));
         itemFind.addActionListener(new ActionListener() {
             @Override
@@ -121,6 +148,69 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
         });
 
         popupMenu.add(itemFind);
+
+        JMenuItem itemCopy = new JMenuItem(NbBundle.getMessage(TopologyNavigatorTopComponent.class, "copy"));
+        itemCopy.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TopologyVertex selected = getSelectedVertex();
+                if (selected == null) {
+                    logg.warn("user clicked on popup menu, but no selected node found - so how did he managed to show popup menu?");
+                    return;
+                }
+                topologyVisualisation.performVertexCopy(selected);
+            }
+        });
+
+        popupMenu.add(itemCopy);
+
+        JMenuItem itemDeleteItem = new JMenuItem(NbBundle.getMessage(TopologyNavigatorTopComponent.class, "delete"));
+        itemDeleteItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                List<TopologyVertex> selected = getSelectedVertices();
+                if (selected.isEmpty()) {
+                    logg.warn("user clicked on popup menu, but no selected node found - so how did he managed to show popup menu?");
+                    return;
+                }
+                topologyVisualisation.deleteVerticesWithDialog(selected);
+            }
+        });
+
+        popupMenu.add(itemDeleteItem);
+
+        JMenuItem itemEditItem = new JMenuItem(NbBundle.getMessage(TopologyNavigatorTopComponent.class, "edit"));
+        itemEditItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TopologyVertex selected = getSelectedVertex();
+                if (selected == null) {
+                    logg.warn("user clicked on popup menu, but no selected node found - so how did he managed to show popup menu?");
+                    return;
+                }
+                topologyVisualisation.editVertex(selected);
+            }
+        });
+
+        popupMenu.add(itemEditItem);
+
+    }
+
+    /**
+     * returns all selected vertices (JTree leafs only)
+     *
+     * @return
+     */
+    private List<TopologyVertex> getSelectedVertices() {
+        TreePath[] paths = jTree1.getSelectionPaths();
+        List<TopologyVertex> result = new LinkedList<TopologyVertex>();
+        for (TreePath p : paths) {
+            if (((TreeNode) p.getLastPathComponent()).isLeaf()) {
+                result.add((TopologyVertex) ((DefaultMutableTreeNode) p.getLastPathComponent()).getUserObject());
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -210,7 +300,6 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
 
     @Override
     public void vertexDeletedOccurred(VertexDeletedEvent evt) {
-
         Collection<TopologyVertex> deletedCollection = evt.getDeletedVertex();
         for (TopologyVertex delV : deletedCollection) {
             if (delV instanceof RouterVertex) {
@@ -254,6 +343,7 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
 
         setLayout(new java.awt.BorderLayout());
 
+        jTree1.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
         jTree1.setRootVisible(false);
         jScrollPane1.setViewportView(jTree1);
 
@@ -266,23 +356,64 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
 
     @Override
     public void componentOpened() {
-        // TODO add custom code on component opening
     }
 
     @Override
     public void componentClosed() {
-        // TODO add custom code on component closing
     }
 
     void writeProperties(java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
         p.setProperty("version", "1.0");
-        // TODO store your settings
     }
 
     void readProperties(java.util.Properties p) {
         String version = p.getProperty("version");
-        // TODO read your settings according to their version
+    }
+
+    class CustomIconRenderer extends DefaultTreeCellRenderer {
+
+        ImageIcon routerIcon, computerIcon, switchIcon;
+        ImageIcon defaultIcon;
+
+        public CustomIconRenderer() {
+            computerIcon = ImageResourceHelper.loadImage("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/vertex_computer_16.png");
+            routerIcon = ImageResourceHelper.loadImage("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/vertex_router_16.png");
+            switchIcon = ImageResourceHelper.loadImage("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/vertex_switch_16.png");
+            defaultIcon = ImageResourceHelper.loadImage("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/dot.png");
+        }
+
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel,
+                boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            super.getTreeCellRendererComponent(tree, value, sel,
+                    expanded, leaf, row, hasFocus);
+            ImageIcon icon = getIconForNode((DefaultMutableTreeNode) value);
+            if (icon != null) {
+                setIcon(icon);
+            }
+
+            return this;
+        }
+
+        private ImageIcon getIconForNode(DefaultMutableTreeNode node) {
+            if (!isVertexCategory(node)) {
+                return defaultIcon;
+            }
+            String name = (String) node.getUserObject();
+
+            if (name.equals(NbBundle.getMessage(TopologyNavigatorTopComponent.class, "router"))) {
+                return routerIcon;
+            }
+            if (name.equals(NbBundle.getMessage(TopologyNavigatorTopComponent.class, "switch"))) {
+                return switchIcon;
+            }
+            if (name.equals(NbBundle.getMessage(TopologyNavigatorTopComponent.class, "computer"))) {
+                return computerIcon;
+            }
+
+            throw new IllegalStateException("unable to find icon for: " + name);
+        }
     }
 }

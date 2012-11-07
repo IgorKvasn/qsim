@@ -19,7 +19,6 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -28,7 +27,10 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.geom.Point2D;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -40,6 +42,8 @@ import org.apache.log4j.Logger;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.awt.StatusDisplayer;
 import org.openide.awt.UndoRedo;
 import org.openide.util.Lookup;
@@ -53,6 +57,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Switch;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
+import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.ConfigureSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.NetworkNodeStatsAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.PauseSimulationAction;
@@ -69,10 +74,13 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObjec
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedListener;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.PopupVertexEdgeMenuMousePlugin;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyElementCreatorHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.RouterVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.ConfirmDialogPanel;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.deletion.VertexDeletionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.RouterConfigurationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.DialogHandler;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.navigation.TopologyNavigatorTopComponent;
@@ -380,20 +388,31 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     /**
      * copies selected network node
      */
-    public void performVertexCopy() {
+    public void performVertexCopyFromTopology() {
         if (topology.getSelectedVertices().isEmpty()) {
             logg.warn("Copy action is enabled, but no vertex is selected");
             return;
         }
         if (topology.getSelectedVertices().size() > 1) {
             JOptionPane.showMessageDialog(this,
-                    "Copy can be performed only if one vertex is seelcted.",
+                    "Copy can be performed only if exactly one vertex is selected.",
                     "Unable to copy vertex",
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
-        NetworkNode selectedNode = topology.getSelectedVertices().iterator().next().getDataModel();
+        performVertexCopy(topology.getSelectedVertices().iterator().next());
+    }
+
+    /**
+     * copies network node
+     */
+    public void performVertexCopy(TopologyVertex vertex) {
+        if (vertex == null) {
+            throw new IllegalArgumentException("vertex is NULL");
+        }
+        NetworkNode selectedNode = vertex.getDataModel();
         addVertexToClipboard(selectedNode);
+        logg.debug("vertex copied");
     }
 
     /**
@@ -478,6 +497,74 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         clipboard.setContents(contentSpec, null);
         //update toolbar
         PasteVertexAction.getInstance().updateState(true);
+    }
+
+    public void deleteVertices(List<TopologyVertex> vertices) {
+        topology.deleteVertex(vertices);
+    }
+
+    private Map<TopologyVertex, List<SimulationData.Data>> getAffectedSimrules(Collection<TopologyVertex> selectedVertices) {
+        Map<TopologyVertex, List<SimulationData.Data>> affectedRules = new HashMap<TopologyVertex, List<SimulationData.Data>>();
+        for (TopologyVertex v : selectedVertices) {
+            List<SimulationData.Data> simulRulesThatContainsNode = topology.getTopolElementTopComponent().getSimulationData().getSimulationDataContainingVertex(v);
+            if (!simulRulesThatContainsNode.isEmpty()) {
+                affectedRules.put(v, simulRulesThatContainsNode);
+            }
+        }
+        return affectedRules;
+    }
+
+    /**
+     * asks user if he wants to delete desired vertices - notifies him if there
+     * are some of these vertices that are a part of routing rules
+     *
+     * @return
+     */
+    public boolean deleteVerticesWithDialog(Collection<TopologyVertex> toDelete) {
+        Map<TopologyVertex, List<SimulationData.Data>> affectedSimrules;
+
+        affectedSimrules = getAffectedSimrules(toDelete);
+        if (affectedSimrules.isEmpty()) {
+            //there are no affected simulation rules
+            if (!PreferenciesHelper.isNeverShowVertexDeleteConfirmation()) {
+                ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "vertex_delete_question") + " " + VerticesUtil.getVerticesNames(topology.getSelectedVertices()));
+                NotifyDescriptor descriptor = new NotifyDescriptor(
+                        panel, // instance of your panel
+                        NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete_confirm_title"), // title of the dialog
+                        NotifyDescriptor.YES_NO_OPTION, NotifyDescriptor.QUESTION_MESSAGE, null,
+                        NotifyDescriptor.YES_OPTION // default option is "Yes"
+                        );
+                if (DialogDisplayer.getDefault().notify(descriptor) != NotifyDescriptor.YES_OPTION) {
+                    return false;
+                }
+                if (panel.isNeverShow()) {
+                    PreferenciesHelper.setNeverShowVertexDeleteConfirmation(panel.isNeverShow());
+                }
+            }
+        } else {
+            //some simulation rules depend on this vertex
+            VertexDeletionDialog dialog = new VertexDeletionDialog(affectedSimrules);
+            dialog.setVisible(true);
+            if (dialog.getReturnCode() == VertexDeletionDialog.ReturnCode.CANCEL) {
+                return false;
+            }
+            for (TopologyVertex v : affectedSimrules.keySet()) {
+                for (SimulationData.Data data : affectedSimrules.get(v)) {
+                    if (VerticesUtil.isVertexSourceOrDestination(v, data)) {//topology vertex marked for removal is source or destination in some simulation rule
+                        topology.getTopolElementTopComponent().getSimulationData().removeSimulationData(data.getId());
+                    }
+                }
+            }
+            topology.getTopolElementTopComponent().reloadSimulationRuleData();
+        }
+
+
+        //actually delete vertex
+        topology.deleteVertex(toDelete);
+
+
+        logg.debug("vertex deletion: " + VerticesUtil.getVerticesNames(topology.getSelectedVertices()));
+        return true;
     }
 
     /**
@@ -720,18 +807,19 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     }
 
     /**
-     * opens edit dialogs for currently selected vertex
+     * opens edit dialogs for currently specified vertex
      *
-     * @param vertices
+     * @param vertex
      */
-    public void editSelectedVertex() {
-        if (topology.getSelectedSingleVertex() == null) {//nothing is selected
+    public void editVertex(TopologyVertex vertex) {
+        if (vertex == null) {
+            logg.error("editting vertex, but it is NULL");
             return;
         }
 
-        NetworkNode editedModel;
-        if (topology.getSelectedSingleVertex() instanceof RouterVertex) {
-            editedModel = dialogHandler.showRouterConfigurationDialog((Router) topology.getSelectedSingleVertex().getDataModel());
+        NetworkNode editedModel = null;
+        if (vertex instanceof RouterVertex) {
+            editedModel = dialogHandler.showRouterConfigurationDialog((Router) vertex.getDataModel());
             if (editedModel == null) {//user hit cancel
                 return;
             }
@@ -740,9 +828,23 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             //todo add switch and computer editing - just like lines above
 
 
-            //set edited data model as new
-            topology.getSelectedSingleVertex().setDataModel(editedModel);
         }
+        //set edited data model as new
+        vertex.setDataModel(editedModel);
+    }
+
+    /**
+     * opens edit dialogs for currently selected vertex
+     *
+     * @see
+     * #editVertex(sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex)
+     */
+    public void editSelectedVertex() {
+        if (topology.getSelectedSingleVertex() == null) {//nothing is selected
+            return;
+        }
+
+        editVertex(topology.getSelectedSingleVertex());
     }
 
     /**

@@ -17,13 +17,11 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.topology;
 
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.AbstractGraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.*;
 import edu.uci.ics.jung.visualization.decorators.DefaultVertexIconTransformer;
 import edu.uci.ics.jung.visualization.decorators.PickableEdgePaintTransformer;
@@ -35,14 +33,12 @@ import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.*;
 import java.util.List;
 import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.event.EventListenerList;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.collections15.Transformer;
 import org.apache.log4j.Logger;
 import org.openide.util.NbBundle;
@@ -355,8 +351,8 @@ public class Topology implements VertexCreatedListener {
         graph.addVertex(newVertex);
 
         layout.setLocation(newVertex, vv.getRenderContext().getMultiLayerTransformer().inverseTransform(location));
-        fireVertexCreatedEvent(new VertexCreatedEvent(this, newVertex));
         vv.repaint();
+        fireVertexCreatedEvent(new VertexCreatedEvent(this, newVertex));
     }
 
     /**
@@ -364,7 +360,7 @@ public class Topology implements VertexCreatedListener {
      *
      * @param vertex vertex to delete
      */
-    public void deleteVertex(Set<TopologyVertex> vertices) {
+    public void deleteVertex(Collection<TopologyVertex> vertices) {
         for (TopologyVertex vertex : vertices) {
             vertexFactory.deleteVertex(vertex);
             g.removeVertex(vertex);
@@ -518,7 +514,7 @@ public class Topology implements VertexCreatedListener {
             return;
         }
 
-        vertexFactory = loadSettings.getVertexFactory();        
+        vertexFactory = loadSettings.getVertexFactory();
 
         g = loadSettings.getG();
         layout = loadSettings.getLayout();
