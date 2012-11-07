@@ -36,6 +36,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexC
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexdeleted.VertexDeletedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexdeleted.VertexDeletedListener;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.PopupVertexEdgeMenuMousePlugin;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.ComputerVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.RouterVertex;
@@ -72,6 +73,7 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
     private DefaultMutableTreeNode rootNode;
     private TopologyVisualisation topologyVisualisation;
     private JPopupMenu popupMenu;
+    private JMenuItem itemDeleteItem, itemEditItem;
 
     public TopologyNavigatorTopComponent(TopologyVisualisation topologyVisualisation) {
         initComponents();
@@ -104,6 +106,7 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
 
                     Rectangle pathBounds = jTree1.getUI().getPathBounds(jTree1, path);
                     if (pathBounds != null && pathBounds.contains(e.getX(), e.getY())) {
+                        correctPopup();
                         popupMenu.show(jTree1, pathBounds.x, pathBounds.y + pathBounds.height);
                     }
                 }
@@ -111,6 +114,20 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
         });
 
         jTree1.setCellRenderer(new CustomIconRenderer());
+    }
+
+    /**
+     * when simulation running, user cannot delete vertex and instead of "Edit"
+     * label, "View" label is shown (the same menu item)
+     */
+    private void correctPopup() {
+        if (topologyVisualisation.isSimulationRunning()) {
+            itemDeleteItem.setEnabled(false);
+            itemEditItem.setText(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "view"));
+        } else {
+            itemDeleteItem.setEnabled(true);
+            itemEditItem.setText(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "edit"));
+        }
     }
 
     /**
@@ -164,7 +181,7 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
 
         popupMenu.add(itemCopy);
 
-        JMenuItem itemDeleteItem = new JMenuItem(NbBundle.getMessage(TopologyNavigatorTopComponent.class, "delete"));
+        itemDeleteItem = new JMenuItem(NbBundle.getMessage(TopologyNavigatorTopComponent.class, "delete"));
         itemDeleteItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -179,7 +196,7 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
 
         popupMenu.add(itemDeleteItem);
 
-        JMenuItem itemEditItem = new JMenuItem(NbBundle.getMessage(TopologyNavigatorTopComponent.class, "edit"));
+        itemEditItem = new JMenuItem(NbBundle.getMessage(TopologyNavigatorTopComponent.class, "edit"));
         itemEditItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

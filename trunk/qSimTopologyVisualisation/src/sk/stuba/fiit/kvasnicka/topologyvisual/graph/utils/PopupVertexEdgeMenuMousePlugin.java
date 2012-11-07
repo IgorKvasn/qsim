@@ -103,6 +103,7 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
             if (v != null) {
                 logg.debug("Vertex " + v + " was right clicked");
                 selectedVertex = v;
+                correctVertexPopup();
                 vertexPopup.show(vv, e.getX(), e.getY());
                 //right clicking on a vertex makes it selected/picked
                 topology.manuallySelectVertex(v, true);
@@ -111,17 +112,37 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                 if (edge != null) {
                     logg.debug("Edge " + edge + " was right clicked");
                     selectedEdge = edge;
+                    correctEdgePopup();
                     edgePopup.show(vv, e.getX(), e.getY());
                 }
             }
         }
     }
 
+    /**
+     * when simulation running, user cannot delete vertex and instead of "Edit"
+     * label, "View" label is shown (the same menu item)
+     */
+    private void correctVertexPopup() {
+        if (topology.getTopolElementTopComponent().isSimulationRunning()) {
+            menuItemDeleteVertex.setEnabled(false);
+            menuItemEditVertex.setText(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "view"));
+        } else {
+            menuItemDeleteVertex.setEnabled(true);
+            menuItemEditVertex.setText(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "edit"));
+        }
+    }
+
+    private void correctEdgePopup() {
+        if (topology.getTopolElementTopComponent().isSimulationRunning()) {
+            menuItemDeleteEdge.setEnabled(true);
+        } else {
+            menuItemDeleteEdge.setEnabled(true);
+        }
+    }
+
     private void createVertexPopup() {
         vertexPopup = new JPopupMenu();
-        vertexPopup.add(new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "properties")));
-        vertexPopup.addSeparator();
-        vertexPopup.addSeparator();
 
         menuItemEditVertex = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "edit"));
         menuItemEditVertex.setEnabled(true);
@@ -135,6 +156,10 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
         JMenuItem menuSimulLog = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "simul_log"));
         menuSimulLog.addActionListener(new ShowSimulationLogsMenuItem());
         vertexPopup.add(menuSimulLog);
+
+        JMenuItem menuCopy = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "copy"));
+        menuCopy.addActionListener(new CopyVertexListener());
+        vertexPopup.add(menuCopy);
 
         menuItemDeleteVertex.addActionListener(new VertexDeleteMenuItem());
         menuItemEditVertex.addActionListener(new VertexEditMenuItem());
@@ -194,8 +219,8 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
             } else {
                 toDelete = topology.getSelectedVertices();
             }
-                        
-             topology.getTopolElementTopComponent().deleteVerticesWithDialog(toDelete);
+
+            topology.getTopolElementTopComponent().deleteVerticesWithDialog(toDelete);
 
         }
     }
@@ -287,6 +312,14 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
             outputMode.dockInto(logTopComponent);
             logTopComponent.open();
             logTopComponent.requestActive();
+        }
+    }
+
+    private class CopyVertexListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            topology.getTopolElementTopComponent().performVertexCopyFromTopology();
         }
     }
 }

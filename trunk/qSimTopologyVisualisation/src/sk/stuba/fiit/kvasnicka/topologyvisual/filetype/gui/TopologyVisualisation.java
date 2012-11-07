@@ -200,6 +200,9 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             //everuthing that is no use for simulation
             closeTopologyCreationWindows();
 
+            //user cannot paste vertices
+            updatePasteButton(false);
+
             statManager = new SimulRuleStatisticalDataManager(simulationRules);
             simulationFacade.addPingRuleListener(statManager);
             simulationFacade.addSimulationRuleListener(statManager);
@@ -261,6 +264,9 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         networkNodeStatsManager.removeStatisticsListeners();
         closeSimulationWindows();
 
+        //user now can paste vertices
+        updatePasteButton(false);
+
         //remove this simulation from list of all running simulations
         RunningSimulationManager.getInstance().simulationEnded(dataObject.getName());
 
@@ -320,7 +326,6 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
                 StopSimulationAction.getInstance().updateState(null);
                 ConfigureSimulationAction.getInstance().updateState(null);
                 NetworkNodeStatsAction.getInstance().updateState(null);
-
             } else {
                 RunSimulationAction.getInstance().updateState(simulationState);
                 PauseSimulationAction.getInstance().updateState(simulationState);
@@ -351,7 +356,11 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
                 CopyVertexAction.getInstance().updateState(true);
             }
             if (!isClipboardEmpty()) {//paste button is enabled only if there is something in clipboard
-                PasteVertexAction.getInstance().updateState(true);
+                if (isSimulationRunning()) {//if simulation is running user cannot paste vertices
+                    PasteVertexAction.getInstance().updateState(false);
+                } else {
+                    PasteVertexAction.getInstance().updateState(true);
+                }
             }
         }
     }
@@ -364,6 +373,21 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     public void updateCopyButton(boolean enable) {
         if (active) {//only active TopolVisualisation can update toolbar buttons            
             CopyVertexAction.getInstance().updateState(enable);
+        }
+    }
+
+    /**
+     * updates only "Paste" button
+     *
+     * @param enable
+     */
+    public void updatePasteButton(boolean enable) {
+        if (active) {//only active TopolVisualisation can update toolbar buttons            
+            if (isSimulationRunning()) {//when simulation is running, user simply cannot paste a vertex
+                PasteVertexAction.getInstance().updateState(false);
+                return;
+            }
+            PasteVertexAction.getInstance().updateState(enable);
         }
     }
 
@@ -412,7 +436,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         }
         NetworkNode selectedNode = vertex.getDataModel();
         addVertexToClipboard(selectedNode);
-        logg.debug("vertex copied");
+        logg.debug("vertex copied: " + vertex.getName());
     }
 
     /**
@@ -496,7 +520,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(contentSpec, null);
         //update toolbar
-        PasteVertexAction.getInstance().updateState(true);
+        updatePasteButton(true);
     }
 
     public void deleteVertices(List<TopologyVertex> vertices) {
@@ -1091,5 +1115,9 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     @Override
     public CloseOperationState canCloseElement() {
         return CloseOperationState.STATE_OK;
+    }
+
+    public boolean isSimulationRunning() {
+        return simulationState == TopologyStateEnum.RUN || simulationState == TopologyStateEnum.PAUSED;
     }
 }

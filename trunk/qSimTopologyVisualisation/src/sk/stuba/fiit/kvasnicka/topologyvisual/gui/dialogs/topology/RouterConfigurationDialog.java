@@ -62,6 +62,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedRoundR
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.ConfirmDialogPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.ClassDefinitionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.DscpClassificationDialog;
@@ -172,7 +173,6 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
         }
 
         PacketScheduling.Available packetSchedEnum = retirevePacketSchedulingEnum(router.getQosMechanism().getPacketScheduling());
-        HashMap<String, Object> paramsSched;
         switch (packetSchedEnum) {
             case FIFO:
                 comboQosScheduling.setSelectedIndex(0);
@@ -203,6 +203,15 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
         selectedPacketClassification = (ComboItem) comboQosClassif.getSelectedItem();
         selectedQueueManag = (ComboItem) comboQosQueue.getSelectedItem();
         selectedPacketSched = (ComboItem) comboQosScheduling.getSelectedItem();
+    }
+
+    @Override
+    public void showDialogHook() {
+        /**
+         * if simulation is running, no edits are allowed - so user cannot hit
+         * OK button
+         */
+        bntOk.setEnabled(!NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().isSimulationRunning());
     }
 
     private PacketScheduling.Available retirevePacketSchedulingEnum(PacketScheduling scheduling) {
@@ -669,7 +678,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
         comboQosScheduling = new sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DisabledItemsComboBox();
         jButton1 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
-        jButton7 = new javax.swing.JButton();
+        bntOk = new javax.swing.JButton();
         jButton8 = new javax.swing.JButton();
         lblError = new javax.swing.JLabel();
 
@@ -942,7 +951,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
                             .addComponent(jLabel14)
                             .addComponent(jLabel13)
                             .addComponent(jLabel15))
-                        .addContainerGap())
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(jButton1)
                         .addGap(0, 0, Short.MAX_VALUE))))
@@ -1000,10 +1009,10 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
             }
         });
 
-        jButton7.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jButton7.text")); // NOI18N
-        jButton7.addActionListener(new java.awt.event.ActionListener() {
+        bntOk.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.bntOk.text")); // NOI18N
+        bntOk.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton7ActionPerformed(evt);
+                bntOkActionPerformed(evt);
             }
         });
 
@@ -1034,7 +1043,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
                         .addGap(29, 29, 29))))
             .addGroup(layout.createSequentialGroup()
                 .addGap(131, 131, 131)
-                .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(bntOk, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
@@ -1053,7 +1062,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
                 .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton7)
+                    .addComponent(bntOk)
                     .addComponent(jButton8))
                 .addContainerGap(24, Short.MAX_VALUE))
         );
@@ -1066,7 +1075,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
         help.showHelp(new HelpCtx("ahoj"));//todo router configuration - help
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+    private void bntOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bntOkActionPerformed
         //OK button
 
         if (!validateInput()) {
@@ -1092,7 +1101,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
                     JOptionPane.ERROR_MESSAGE);
         }
 
-    }//GEN-LAST:event_jButton7ActionPerformed
+    }//GEN-LAST:event_bntOkActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
         //cancel button
@@ -1227,6 +1236,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
         showClassesConfiguration();
     }//GEN-LAST:event_jButton1ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton bntOk;
     private javax.swing.JButton btnConfigClassif;
     private javax.swing.JButton btnConfigQueue;
     private javax.swing.JButton btnConfigScheduling;
@@ -1235,7 +1245,6 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
     private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DisabledItemsComboBox comboQosScheduling;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
