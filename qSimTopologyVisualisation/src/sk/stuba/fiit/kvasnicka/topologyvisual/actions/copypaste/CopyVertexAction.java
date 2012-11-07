@@ -49,7 +49,7 @@ public class CopyVertexAction extends AbstractAction implements Presenter.Toolba
     @Override
     public void actionPerformed(ActionEvent e) {
         //user wants to copy a vertex
-        NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().performVertexCopy();
+        NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().performVertexCopyFromTopology();
     }
 
     @Override
