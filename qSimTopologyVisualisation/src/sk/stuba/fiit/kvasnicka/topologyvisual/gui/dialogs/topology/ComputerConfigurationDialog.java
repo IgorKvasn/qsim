@@ -57,6 +57,11 @@ public class ComputerConfigurationDialog extends BlockingDialog<ComputerConfigur
         initGui(computerName);
     }
 
+    @Override
+    public void showDialogHook() {
+        //nothing
+    }
+
     private void initGui(String computerName) {
         add(compPanel);
 

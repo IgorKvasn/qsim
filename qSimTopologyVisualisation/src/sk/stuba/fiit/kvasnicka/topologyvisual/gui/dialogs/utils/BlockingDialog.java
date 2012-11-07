@@ -46,7 +46,6 @@ public abstract class BlockingDialog<R> extends JDialog {
         super(owner, true);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowListener() {
-
             @Override
             public void windowOpened(WindowEvent e) {
             }
@@ -83,8 +82,16 @@ public abstract class BlockingDialog<R> extends JDialog {
      */
     public void showDialog() {
         setLocationRelativeTo(super.getOwner());
+
+        showDialogHook();
+
         setVisible(true);
     }
+
+    /**
+     * hook method that is called just <b>before</b> dialog is shown
+     */
+    public abstract void showDialogHook();
 
     /**
      * method that returns user input data

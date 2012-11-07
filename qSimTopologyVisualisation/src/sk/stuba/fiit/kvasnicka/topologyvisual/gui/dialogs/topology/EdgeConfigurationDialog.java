@@ -34,6 +34,11 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
         pack();
     }
 
+    @Override
+    public void showDialogHook() {
+        //nothing
+    }
+
     private double calculateErrorRate() {
         if (jRadioButton1.isSelected()) {//packet error rate is selected
             return Double.parseDouble(txtPer.getText());
