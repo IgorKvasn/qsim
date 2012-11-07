@@ -206,7 +206,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
     }
 
     @Override
-    public void showDialogHook() {
+    protected void showDialogHook() {
         /**
          * if simulation is running, no edits are allowed - so user cannot hit
          * OK button

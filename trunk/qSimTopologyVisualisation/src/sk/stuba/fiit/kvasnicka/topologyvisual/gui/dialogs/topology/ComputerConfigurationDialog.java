@@ -57,11 +57,6 @@ public class ComputerConfigurationDialog extends BlockingDialog<ComputerConfigur
         initGui(computerName);
     }
 
-    @Override
-    public void showDialogHook() {
-        //nothing
-    }
-
     private void initGui(String computerName) {
         add(compPanel);
 
@@ -90,6 +85,15 @@ public class ComputerConfigurationDialog extends BlockingDialog<ComputerConfigur
             }
         });
         pack();
+    }
+
+    @Override
+    protected void showDialogHook() {
+        /**
+         * if simulation is running, no edits are allowed - so user cannot hit
+         * OK button
+         */
+        btnOk.setEnabled(!NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().isSimulationRunning());
     }
 
     private boolean validateInput() {

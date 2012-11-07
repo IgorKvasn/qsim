@@ -91,7 +91,7 @@ public abstract class BlockingDialog<R> extends JDialog {
     /**
      * hook method that is called just <b>before</b> dialog is shown
      */
-    public abstract void showDialogHook();
+    protected abstract void showDialogHook();
 
     /**
      * method that returns user input data

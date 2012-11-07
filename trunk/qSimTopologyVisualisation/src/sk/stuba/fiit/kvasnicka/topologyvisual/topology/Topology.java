@@ -203,6 +203,16 @@ public class Topology implements VertexCreatedListener {
     public void manuallySelectVertex(TopologyVertex v, boolean selected) {
         vv.getPickedVertexState().pick(v, selected);
     }
+    
+       /**
+     * programatically (manually) select specified edge
+     *
+     * @param e
+     * @param selected
+     */
+    public void manuallySelectEdge(TopologyEdge e, boolean selected) {
+        vv.getPickedEdgeState().pick(e, selected);
+    }
 
     @Override
     public void vertexCreatedOccurred(VertexCreatedEvent evt) {

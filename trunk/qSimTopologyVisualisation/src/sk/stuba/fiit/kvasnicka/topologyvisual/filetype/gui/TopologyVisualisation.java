@@ -81,6 +81,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.ConfirmDialogPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.deletion.VertexDeletionDialog;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.EdgeConfigurationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.RouterConfigurationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.DialogHandler;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.navigation.TopologyNavigatorTopComponent;
@@ -589,6 +590,16 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
         logg.debug("vertex deletion: " + VerticesUtil.getVerticesNames(topology.getSelectedVertices()));
         return true;
+    }
+
+    public void showEdgeEditDialog(TopologyEdge edge) {
+        EdgeConfigurationDialog dialog = new EdgeConfigurationDialog(edge.getEdge());
+        dialog.showDialog();
+
+        if (dialog.getUserInput() == null) {//user hit cancel
+            return;
+        }
+        edge.setEdge(dialog.getUserInput());
     }
 
     /**

@@ -10,14 +10,19 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.BlockingDialog;
 
 /**
  *
  * @author Igor Kvasnicka
  */
-public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDialog.ResultObject> {
+public class EdgeConfigurationDialog extends BlockingDialog<Edge> {
+
+    private static final Color ERROR_COLOR = new Color(249, 77, 77);
+    private NetworkNode src, dest;
 
     /**
      * creates new instance of dialog
@@ -27,16 +32,39 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
      */
     public EdgeConfigurationDialog(NetworkNode src, NetworkNode dest, long defaultSpeed) {
         super(WindowManager.getDefault().getMainWindow());
+        this.src = src;
+        this.dest = dest;
+
         setTitle(NbBundle.getMessage(EdgeConfigurationDialog.class, "create.new.edge"));
 
         initComponents();
-        txtSpeed.setValue((double) defaultSpeed / 1000 / 1000);//conversion from bps to Mbps
+        txtSpeed.setText(String.valueOf((double) defaultSpeed / 1000 / 1000));//conversion from bps to Mbps
+        pack();
+    }
+
+    public EdgeConfigurationDialog(Edge edge) {
+        super(WindowManager.getDefault().getMainWindow());
+        setTitle(NbBundle.getMessage(EdgeConfigurationDialog.class, "create.new.edge"));
+
+        initComponents();
+        txtSpeed.setText(String.valueOf((double) edge.getMaxSpeed() / 1000 / 1000));//conversion from bps to Mbps
+        txtLength.setText(edge.getLength() + "");
+        txtMTU.setText(edge.getMtu() + "");
+        txtPer.setText(edge.getPacketErrorRate() + "");
+        txtBer.setText("");
+        jRadioButton1.setSelected(true);//PER is selected
+        this.src = edge.getNode1();
+        this.dest = edge.getNode2();
         pack();
     }
 
     @Override
-    public void showDialogHook() {
-        //nothing
+    protected void showDialogHook() {
+        /**
+         * if simulation is running, no edits are allowed - so user cannot hit
+         * OK button
+         */
+        btnOk.setEnabled(!NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().isSimulationRunning());
     }
 
     private double calculateErrorRate() {
@@ -55,34 +83,26 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
         buttonGroup1 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
-        txtSpeed = new javax.swing.JFormattedTextField();
         jLabel2 = new javax.swing.JLabel();
-        txtLength = new javax.swing.JFormattedTextField();
         jPanel1 = new javax.swing.JPanel();
         jRadioButton1 = new javax.swing.JRadioButton();
         jRadioButton2 = new javax.swing.JRadioButton();
-        txtPer = new javax.swing.JFormattedTextField();
-        txtBer = new javax.swing.JFormattedTextField();
         jLabel4 = new javax.swing.JLabel();
+        txtPer = new javax.swing.JTextField();
+        txtBer = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        txtMTU = new javax.swing.JFormattedTextField();
-        jButton1 = new javax.swing.JButton();
+        btnOk = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        txtSpeed = new javax.swing.JTextField();
+        txtLength = new javax.swing.JTextField();
+        txtMTU = new javax.swing.JTextField();
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "bitrate.bit.s")); // NOI18N
 
-        txtSpeed.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#.#"))));
-        txtSpeed.setToolTipText(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "bitrate.must.be.decimal.number")); // NOI18N
-
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "length.m")); // NOI18N
-
-        txtLength.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#"))));
-        txtLength.setText(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.txtLength.text")); // NOI18N
-        txtLength.setToolTipText(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "length.must.be.decimal.number")); // NOI18N
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.jPanel1.border.title"))); // NOI18N
 
@@ -93,18 +113,11 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
         buttonGroup1.add(jRadioButton2);
         org.openide.awt.Mnemonics.setLocalizedText(jRadioButton2, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.jRadioButton2.text")); // NOI18N
 
-        txtPer.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#.#"))));
-
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jRadioButton1, org.jdesktop.beansbinding.ELProperty.create("${selected}"), txtPer, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
-        bindingGroup.addBinding(binding);
-
-        txtBer.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#.#"))));
-        txtBer.setText(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.txtBer.text")); // NOI18N
-
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jRadioButton2, org.jdesktop.beansbinding.ELProperty.create("${selected}"), txtBer, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
-        bindingGroup.addBinding(binding);
-
         org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.jLabel4.text")); // NOI18N
+
+        txtPer.setText(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.txtPer.text")); // NOI18N
+
+        txtBer.setText(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.txtBer.text")); // NOI18N
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -122,8 +135,8 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
                             .addComponent(jRadioButton1))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtPer, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
-                            .addComponent(txtBer))))
+                            .addComponent(txtPer)
+                            .addComponent(txtBer, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE))))
                 .addContainerGap(23, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -144,13 +157,10 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.jLabel3.text")); // NOI18N
 
-        txtMTU.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#"))));
-        txtMTU.setText(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.txtMTU.text")); // NOI18N
-
-        org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.jButton1.text")); // NOI18N
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        org.openide.awt.Mnemonics.setLocalizedText(btnOk, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.btnOk.text")); // NOI18N
+        btnOk.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                btnOkActionPerformed(evt);
             }
         });
 
@@ -161,6 +171,12 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
             }
         });
 
+        txtSpeed.setText(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.txtSpeed.text")); // NOI18N
+
+        txtLength.setText(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.txtLength.text")); // NOI18N
+
+        txtMTU.setText(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.txtMTU.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -169,7 +185,7 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(98, 98, 98)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnOk, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(27, 27, 27)
                         .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
@@ -207,15 +223,13 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
+                    .addComponent(btnOk)
                     .addComponent(jButton2))
                 .addGap(21, 21, 21))
         );
-
-        bindingGroup.bind();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void btnOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOkActionPerformed
         if (!validateInput()) {
             return;
         }
@@ -223,19 +237,20 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
         double errorRate = calculateErrorRate();
         long speed = Math.round(Double.valueOf(txtSpeed.getText()) * 1000 * 1000); //conversion from Mbs to bs
 
-        EdgeConfigurationDialog.ResultObject resultObject = new EdgeConfigurationDialog.ResultObject(speed, Integer.valueOf(txtSpeed.getText()), mtu, errorRate);
+        int length = Integer.valueOf(txtLength.getText());
 
-        setUserInput(resultObject);
+        Edge e = new Edge(speed, mtu, length, errorRate, src, dest);
+        setUserInput(e);
         closeDialog();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_btnOkActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         setUserInput(null);
         closeDialog();
     }//GEN-LAST:event_jButton2ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnOk;
     private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -244,64 +259,63 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
     private javax.swing.JPanel jPanel1;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton jRadioButton2;
-    private javax.swing.JFormattedTextField txtBer;
-    private javax.swing.JFormattedTextField txtLength;
-    private javax.swing.JFormattedTextField txtMTU;
-    private javax.swing.JFormattedTextField txtPer;
-    private javax.swing.JFormattedTextField txtSpeed;
-    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
+    private javax.swing.JTextField txtBer;
+    private javax.swing.JTextField txtLength;
+    private javax.swing.JTextField txtMTU;
+    private javax.swing.JTextField txtPer;
+    private javax.swing.JTextField txtSpeed;
     // End of variables declaration//GEN-END:variables
 
     private boolean validateInput() {
         boolean ok = true;
         try {
-            if (!StringUtils.isNumeric(txtSpeed.getText()) || StringUtils.isEmpty(txtSpeed.getText())) { //speed is numeric and non-empty
-                txtSpeed.setBackground(new Color(249, 77, 77));
+            if (StringUtils.isEmpty(txtSpeed.getText())) { //speed is numeric and non-empty
+                txtSpeed.setBackground(ERROR_COLOR);
                 ok = false;
             } else {
-                if (Long.valueOf(txtSpeed.getText()) <= 0) {//speed is not negative nor zero
-                    txtSpeed.setBackground(new Color(249, 77, 77));
+                if (Double.valueOf(txtSpeed.getText()) <= 0) {//speed is not negative nor zero
+                    txtSpeed.setBackground(ERROR_COLOR);
                     ok = false;
                 } else {
                     txtSpeed.setBackground(UIManager.getColor("JFormattedTextField.background"));
                 }
             }
         } catch (ClassCastException e) {
-            txtSpeed.setBackground(new Color(249, 77, 77));
+            txtSpeed.setBackground(ERROR_COLOR);
             ok = false;
         }
 
         try {
             if (!StringUtils.isNumeric(txtLength.getText()) || StringUtils.isEmpty(txtLength.getText())) { //length is numeric and non-empty
-                txtLength.setBackground(new Color(249, 77, 77));
+                txtLength.setBackground(ERROR_COLOR);
                 ok = false;
             } else {
                 if (Long.valueOf(txtLength.getText()) <= 0) {//length is not negative nor zero
-                    txtLength.setBackground(new Color(249, 77, 77));
+                    txtLength.setBackground(ERROR_COLOR);
                     ok = false;
                 } else {
                     txtLength.setBackground(UIManager.getColor("JFormattedTextField.background"));
                 }
             }
         } catch (ClassCastException e) {
-            txtSpeed.setBackground(new Color(249, 77, 77));
+            txtSpeed.setBackground(ERROR_COLOR);
             ok = false;
         }
 
         try {
             if (!StringUtils.isNumeric(txtMTU.getText()) || StringUtils.isEmpty(txtMTU.getText())) { //MTU is numeric and non-empty
-                txtMTU.setBackground(new Color(249, 77, 77));
+                txtMTU.setBackground(ERROR_COLOR);
                 ok = false;
             } else {
                 if (Long.valueOf(txtMTU.getText()) <= 0) {//MTU is not negative nor zero
-                    txtMTU.setBackground(new Color(249, 77, 77));
+                    txtMTU.setBackground(ERROR_COLOR);
                     ok = false;
                 } else {
                     txtMTU.setBackground(UIManager.getColor("JFormattedTextField.background"));
                 }
             }
         } catch (ClassCastException e) {
-            txtSpeed.setBackground(new Color(249, 77, 77));
+            txtSpeed.setBackground(ERROR_COLOR);
             ok = false;
         }
 
@@ -310,36 +324,36 @@ public class EdgeConfigurationDialog extends BlockingDialog<EdgeConfigurationDia
 
         if (jRadioButton1.isSelected()) {//packet error rate is selected
             try {
-                if (!StringUtils.isNumeric(txtPer.getText()) || StringUtils.isEmpty(txtPer.getText())) { //PER is numeric and non-empty
-                    txtPer.setBackground(new Color(249, 77, 77));
+                if (StringUtils.isEmpty(txtPer.getText())) { //PER is numeric and non-empty
+                    txtPer.setBackground(ERROR_COLOR);
                     ok = false;
                 } else {
                     if (Double.valueOf(txtPer.getText()) <= 0) {//PER is not negative nor zero
-                        txtPer.setBackground(new Color(249, 77, 77));
+                        txtPer.setBackground(ERROR_COLOR);
                         ok = false;
                     } else {
                         txtPer.setBackground(UIManager.getColor("JFormattedTextField.background"));
                     }
                 }
             } catch (ClassCastException e) {
-                txtSpeed.setBackground(new Color(249, 77, 77));
+                txtSpeed.setBackground(ERROR_COLOR);
                 ok = false;
             }
         } else {//bit error rate is selected
             try {
-                if (!StringUtils.isNumeric(txtBer.getText()) || StringUtils.isEmpty(txtBer.getText())) { //PER is numeric and non-empty
-                    txtBer.setBackground(new Color(249, 77, 77));
+                if (StringUtils.isEmpty(txtBer.getText())) { //PER is numeric and non-empty
+                    txtBer.setBackground(ERROR_COLOR);
                     ok = false;
                 } else {
                     if (Double.valueOf(txtBer.getText()) <= 0) {//PER is not negative nor zero
-                        txtBer.setBackground(new Color(249, 77, 77));
+                        txtBer.setBackground(ERROR_COLOR);
                         ok = false;
                     } else {
                         txtBer.setBackground(UIManager.getColor("JFormattedTextField.background"));
                     }
                 }
             } catch (ClassCastException e) {
-                txtSpeed.setBackground(new Color(249, 77, 77));
+                txtSpeed.setBackground(ERROR_COLOR);
                 ok = false;
             }
         }
