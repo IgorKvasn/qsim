@@ -50,7 +50,7 @@ public class SerialisationHelper {
      * @throws IOException
      * @throws JAXBException
      */
-    public DeserialisationResult loadSettings(File file) throws GraphIOException, IOException, ClassNotFoundException {
+    public DeserialisationResult loadSettings(File file) throws IOException {
         if (file == null) {
             return null;
         }
@@ -78,9 +78,9 @@ public class SerialisationHelper {
         return result;
     }
 
-    private void addEdgesToGraph(List<Edge> edges, AbstractGraph<TopologyVertex, TopologyEdge> g, List<TopologyVertex> vertices) {
-        for (Edge e : edges) {
-            g.addEdge(new TopologyEdge(e), findVertexByName(vertices, e.getNode1().getName()), findVertexByName(vertices, e.getNode2().getName()));
+    private void addEdgesToGraph(List<TopologyEdge> edges, AbstractGraph<TopologyVertex, TopologyEdge> g, List<TopologyVertex> vertices) {
+        for (TopologyEdge e : edges) {
+            g.addEdge(e, findVertexByName(vertices, e.getVertex1().getName()), findVertexByName(vertices, e.getVertex2().getName()));
         }
     }
 
@@ -97,7 +97,8 @@ public class SerialisationHelper {
         List<TopologyVertex> result = new LinkedList<TopologyVertex>();
 
         for (TopologyVertexSerialization t : vertices) {
-            TopologyVertex vertex = TopologyVertexToVertexXmlTransformation.transFormSerializable(t, layout);
+            layout.setLocation(t.getNode(), t.getX(), t.getY());
+            TopologyVertex vertex = t.getNode();
             g.addVertex(vertex);
             result.add(vertex);
         }

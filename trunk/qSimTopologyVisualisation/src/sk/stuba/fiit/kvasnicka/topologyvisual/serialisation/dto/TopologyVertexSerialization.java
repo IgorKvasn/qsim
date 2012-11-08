@@ -7,9 +7,7 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.serialisation.dto;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.topologyvisual.palette.PaletteActionEnum;
-import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 
 /**
  *
@@ -19,16 +17,14 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
 @Setter
 public class TopologyVertexSerialization implements Serializable {
 
-    private static final long serialVersionUID = -403250646215465050L;
-    private NetworkNode node;
+    private static final long serialVersionUID = -403250646325465050L;
+    private TopologyVertex node;
     private double x;
     private double y;
-    private ImageType imageType;
 
-    public TopologyVertexSerialization(NetworkNode node, double x, double y, ImageType imageType) {
+    public TopologyVertexSerialization(TopologyVertex node, double x, double y) {
         this.node = node;
         this.x = x;
         this.y = y;
-        this.imageType = imageType;
     }
 }

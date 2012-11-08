@@ -681,7 +681,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     private void initTopology() {
         DeserialisationResult loadSettings = dataObject.getLoadSettings();
 
-        if (!loadSettings.isJungLoaded()) {
+        if (loadSettings == null || !loadSettings.isJungLoaded()) {
             dialogHandler = new DialogHandler();
             topology.createDefaultSettings();
         } else {
