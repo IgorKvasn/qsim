@@ -62,13 +62,18 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
     private boolean dirty = false;
     private InstanceContent content = new InstanceContent();
 
-    public TopologyFileTypeDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException, GraphIOException, ClassNotFoundException {
+    public TopologyFileTypeDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException {
         super(pf, loader);
 //        registerEditor("text/qsim", true);
         CookieSet cookies = getCookieSet();
         cookies.add((Node.Cookie) new MyOpenSupport(getPrimaryEntry()));
         //deseralise file
-        this.loadSettings = deserialize();
+        try {
+            this.loadSettings = deserialize();
+        } catch (IOException e) {
+            logg.error(e);
+            this.loadSettings = null;
+        }
         logg.debug("deserialisation completed - file: " + getPrimaryFile().getNameExt());
     }
 
@@ -102,7 +107,7 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
         logg.debug("serialised - file: " + getPrimaryFile().getNameExt());
     }
 
-    private DeserialisationResult deserialize() throws GraphIOException, IOException, ClassNotFoundException {
+    private DeserialisationResult deserialize() throws IOException {
         logg.debug("deserialisation.... - file: " + getPrimaryFile().getNameExt());
         return serialisationHelper.loadSettings(FileUtil.toFile(getPrimaryFile()));
     }

@@ -16,6 +16,7 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges;
 
+import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
@@ -27,15 +28,16 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
  * @author Igor Kvasnicka
  */
 //@EqualsAndHashCode(of = {"vertex1", "vertex2"})
-public class TopologyEdge {
+public class TopologyEdge implements Serializable {
 
+    private static final long serialVersionUID = -4032546215465050L;
     @Getter
     @Setter
     private Edge edge;
     @Getter
     @Setter
     private TopologyVertex vertex1, vertex2;
-
+       
     /**
      * used only during deserialisation - if you use this constructor, do not
      * forget to initialise vertex1 and vertex2 afterwards

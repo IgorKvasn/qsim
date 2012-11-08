@@ -32,7 +32,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
+import org.openide.util.Exceptions;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyVertexFactory;
@@ -57,19 +57,22 @@ public class SerializationProxy implements Serializable {
 
     private static final long serialVersionUID = -403250971215465050L;
     private static final transient Logger logg = Logger.getLogger(SerializationProxy.class);
-    private ArrayList<Edge> edges;
+    private ArrayList<TopologyEdge> edges;
     private String topologyName, topologyDescription;
     private Boolean distanceVectorRouting;
     private ArrayList<TopologyVertexSerialization> vertices;
     private ArrayList<SimulationData.Data> simulRulesData;
 
-    public static SerializationProxy serializeFromString(String s) throws IOException, ClassNotFoundException {
-        byte[] data = Base64.decodeBase64(s);
-        ObjectInputStream ois = new ObjectInputStream(
-                new ByteArrayInputStream(data));
-        Object o = ois.readObject();
-        ois.close();
-        return (SerializationProxy) o;
+    public static SerializationProxy serializeFromString(String s) throws IOException {
+        try {
+            byte[] data = Base64.decodeBase64(s);
+            ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+            Object o = ois.readObject();
+            ois.close();
+            return (SerializationProxy) o;
+        } catch (ClassNotFoundException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
     public static String serializetoString(Serializable o) throws IOException {
@@ -115,13 +118,8 @@ public class SerializationProxy implements Serializable {
         return list;
     }
 
-    private ArrayList<Edge> getDataModelEdges(Graph topologyGraph) {
+    private ArrayList<TopologyEdge> getDataModelEdges(Graph topologyGraph) {
         Collection<TopologyEdge> edgesCol = topologyGraph.getEdges();
-
-        ArrayList<Edge> list = new ArrayList<Edge>(edgesCol.size());
-        for (TopologyEdge e : edgesCol) {
-            list.add(e.getEdge());
-        }
-        return list;
+        return new ArrayList<TopologyEdge>(edgesCol);
     }
 }
