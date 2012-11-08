@@ -34,7 +34,6 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.events.simulationrule.SimulationRuleChangedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.events.simulationrule.SimulationRuleChangedListener;
-import sk.stuba.fiit.kvasnicka.topologyvisual.events.topologystate.TopologyStateChangedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.TopologyFileTypeDataObject;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.edges.TopologyEdge;
@@ -238,7 +237,7 @@ public class SimulationData {
             Data data = it.next();
             if (data.getId().equals(dataID)) {
                 it.remove();
-                return;
+                break;
             }
         }
         fireSimulationRuleChangedEvent(new SimulationRuleChangedEvent(this));
@@ -255,7 +254,7 @@ public class SimulationData {
     private void fireSimulationRuleChangedEvent(SimulationRuleChangedEvent evt) {
         Object[] listeners = listenerList.getListenerList();
         for (int i = 0; i < listeners.length; i += 2) {
-            if (listeners[i].equals(TopologyStateChangedListener.class)) {
+            if (listeners[i].equals(SimulationRuleChangedListener.class)) {
                 ((SimulationRuleChangedListener) listeners[i + 1]).simulationRuleChangedOccured(evt);
             }
         }
