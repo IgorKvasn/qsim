@@ -25,16 +25,18 @@ import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogEvent;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogCategory;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
@@ -49,6 +51,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
 import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
 import static sk.stuba.fiit.kvasnicka.TestUtils.setWithoutSetter;
@@ -68,11 +71,6 @@ public class PacketDeliveryListenerTest {
 
     @Before
     public void before() {
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(50);
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(50);
-        OutputQueueManager outputQueueManager3 = new OutputQueueManager(50);
-
-
         qosMechanism = EasyMock.createMock(QosMechanismDefinition.class);
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
         EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
@@ -109,7 +107,7 @@ public class PacketDeliveryListenerTest {
         deliveredPackets = 0;
         deliveredPingPackets = 0;
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0,  Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         SimulationFacade simulationFacade = new SimulationFacade();
@@ -123,7 +121,15 @@ public class PacketDeliveryListenerTest {
         rule.addPacketDeliveredListener(testListenerClass);
 
         SimulationTimer timer = (SimulationTimer) getPropertyWithoutGetter(SimulationFacade.class, simulationFacade, "timer");
-
+        SimulationLogUtils logUtils = (SimulationLogUtils) getPropertyWithoutGetter(SimulationTimer.class, timer, "simulationLogUtils");
+        logUtils.addSimulationLogListener(new SimulationLogListener() {
+            @Override
+            public void simulationLogOccurred(SimulationLogEvent evt) {
+                if (evt.getSimulationLog().getCategory() == LogCategory.ERROR) {
+                    fail("error during simulation: " + evt.getSimulationLog().getCause());
+                }
+            }
+        });
         timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);
@@ -146,9 +152,17 @@ public class PacketDeliveryListenerTest {
         deliveredPingPackets = 0;
 
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
-
+        SimulationLogUtils logUtils = (SimulationLogUtils) getPropertyWithoutGetter(SimulationTimer.class, timer, "simulationLogUtils");
+        logUtils.addSimulationLogListener(new SimulationLogListener() {
+            @Override
+            public void simulationLogOccurred(SimulationLogEvent evt) {
+                if (evt.getSimulationLog().getCategory() == LogCategory.ERROR) {
+                    fail("error during simulation: " + evt.getSimulationLog().getCause());
+                }
+            }
+        });
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0,  Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         TestListenerClass testListenerClass = new TestListenerClass();

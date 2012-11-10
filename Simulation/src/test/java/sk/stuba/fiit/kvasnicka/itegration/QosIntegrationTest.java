@@ -25,9 +25,12 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogEvent;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogCategory;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
@@ -46,6 +49,8 @@ import java.util.LinkedList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
 import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
 
 /**
@@ -61,21 +66,21 @@ public class QosIntegrationTest {
     public void before() {
         packetDelivered = 0;
 
-        QosMechanismDefinition qosMechanism1 = new QosMechanismDefinition(null,new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
+        QosMechanismDefinition qosMechanism1 = new QosMechanismDefinition(null, new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
             put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, .02);
             put(RandomEarlyDetection.MAX_PROBABILITY, .9);
             put(RandomEarlyDetection.MAX_THRESHOLD, .2);
             put(RandomEarlyDetection.MIN_THRESHOLD, .1);
         }}));
 
-        QosMechanismDefinition qosMechanism2 = new QosMechanismDefinition(null,new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
+        QosMechanismDefinition qosMechanism2 = new QosMechanismDefinition(null, new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
             put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, .02);
             put(RandomEarlyDetection.MAX_PROBABILITY, .9);
             put(RandomEarlyDetection.MAX_THRESHOLD, .2);
             put(RandomEarlyDetection.MIN_THRESHOLD, .1);
         }}));
 
-        QosMechanismDefinition qosMechanism3 = new QosMechanismDefinition(null,new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
+        QosMechanismDefinition qosMechanism3 = new QosMechanismDefinition(null, new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
             put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, .02);
             put(RandomEarlyDetection.MAX_PROBABILITY, .9);
             put(RandomEarlyDetection.MAX_THRESHOLD, .2);
@@ -103,9 +108,17 @@ public class QosIntegrationTest {
     @Test
     public void test3Nodes() throws NoSuchFieldException, IllegalAccessException {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1, edge2), Arrays.asList(node1, node2, node3), new SimulationLogUtils());
-
+        SimulationLogUtils logUtils = (SimulationLogUtils) getPropertyWithoutGetter(SimulationTimer.class, timer, "simulationLogUtils");
+        logUtils.addSimulationLogListener(new SimulationLogListener() {
+            @Override
+            public void simulationLogOccurred(SimulationLogEvent evt) {
+                if (evt.getSimulationLog().getCategory() == LogCategory.ERROR) {
+                    fail("error during simulation: " + evt.getSimulationLog().getCause());
+                }
+            }
+        });
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node3, 1, 50, 0,  Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node3, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2, node3));
 
         simulationManager.addSimulationRule(rule);

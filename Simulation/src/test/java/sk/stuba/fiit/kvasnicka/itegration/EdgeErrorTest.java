@@ -28,7 +28,10 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogEvent;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogCategory;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
@@ -48,6 +51,8 @@ import java.util.TreeSet;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
 import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
 import static sk.stuba.fiit.kvasnicka.TestUtils.setWithoutSetter;
 
@@ -111,10 +116,21 @@ public class EdgeErrorTest {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2), new SimulationLogUtils());
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0,  Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
+
+        SimulationLogUtils logUtils = (SimulationLogUtils) getPropertyWithoutGetter(SimulationTimer.class, timer, "simulationLogUtils");
+        logUtils.addSimulationLogListener(new SimulationLogListener() {
+            @Override
+            public void simulationLogOccurred(SimulationLogEvent evt) {
+                if (evt.getSimulationLog().getCategory() == LogCategory.ERROR) {
+                    fail("error during simulation: " + evt.getSimulationLog().getCause());
+                }
+            }
+        });
+
 
         timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
 

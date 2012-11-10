@@ -413,6 +413,7 @@ public abstract class NetworkNode implements Serializable {
      * @param packet packet to be added
      */
     public void addNewPacketsToOutputQueue(Packet packet) {
+        packet.setQosQueue(qosMechanism.classifyAndMarkPacket(this, packet));//new packet has to be classified
         moveFromProcessingToOutputQueue(packet);
     }
 
@@ -585,8 +586,8 @@ public abstract class NetworkNode implements Serializable {
             }
             return;
         }
-        if (packet != null) {//this was the last fragment to complete a whole packet - now I can place this packet into input queue
 
+        if (packet != null) {//this was the last fragment to complete a whole packet - now I can place this packet into input queue
             //mark and classify packet right after it was received
             packet.setQosQueue(qosMechanism.classifyAndMarkPacket(this, packet));
 

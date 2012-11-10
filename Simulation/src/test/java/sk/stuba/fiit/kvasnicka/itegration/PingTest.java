@@ -24,13 +24,13 @@ import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogCategory;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
@@ -63,11 +63,6 @@ public class PingTest {
         packetsDelivered = 0;
 
 
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(50);
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(50);
-        OutputQueueManager outputQueueManager3 = new OutputQueueManager(50);
-
-
         qosMechanism = EasyMock.createMock(QosMechanismDefinition.class);
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
         EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
@@ -79,6 +74,8 @@ public class PingTest {
                 return ((Map<Integer, List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
             }
         }).times(100);
+        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true).times(100);
+
         EasyMock.replay(qosMechanism);
 
         node1 = new Router("node1", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
@@ -97,7 +94,7 @@ public class PingTest {
     @Test
     public void testSinglePacketSimulation() throws NoSuchFieldException, IllegalAccessException {
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0,  Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         SimulationFacade simulationFacade = new SimulationFacade();
@@ -105,6 +102,15 @@ public class PingTest {
         simulationFacade.initTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
         SimulationTimer timer = (SimulationTimer) getPropertyWithoutGetter(SimulationFacade.class, simulationFacade, "timer");
         simulationFacade.addSimulationLogListener(listener);
+
+        simulationFacade.addSimulationLogListener(new SimulationLogListener() {
+            @Override
+            public void simulationLogOccurred(SimulationLogEvent evt) {
+                if (evt.getSimulationLog().getCategory() == LogCategory.ERROR) {
+                    fail("error during simulation: " + evt.getSimulationLog().getCause());
+                }
+            }
+        });
 
         simulationFacade.startTimer();
 
@@ -125,7 +131,7 @@ public class PingTest {
     @Test
     public void testSinglePacket_3Nodes() throws NoSuchFieldException, IllegalAccessException {
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node3, 1, 50, 0,  Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node3, 1, 50, 0, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2, node3));
 
         SimulationFacade simulationFacade = new SimulationFacade();
@@ -133,6 +139,15 @@ public class PingTest {
         simulationFacade.initTimer(Arrays.asList(edge1, edge2), Arrays.asList(node1, node2, node3));
         SimulationTimer timer = (SimulationTimer) getPropertyWithoutGetter(SimulationFacade.class, simulationFacade, "timer");
         simulationFacade.addSimulationLogListener(listener);
+
+        simulationFacade.addSimulationLogListener(new SimulationLogListener() {
+            @Override
+            public void simulationLogOccurred(SimulationLogEvent evt) {
+                if (evt.getSimulationLog().getCategory() == LogCategory.ERROR) {
+                    fail("error during simulation: " + evt.getSimulationLog().getCause());
+                }
+            }
+        });
 
         simulationFacade.startTimer();
 
@@ -155,8 +170,8 @@ public class PingTest {
      * @throws IllegalAccessException
      */
     @Test
-    public void testSinglePacketSimulation_infinitePing() throws NoSuchFieldException, IllegalAccessException {
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, - 1, 50, 0,  Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);    //notice this -1
+    public void testSinglePacketSimulation_infinitePing() throws Exception {
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, - 1, 50, 0, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);    //notice this -1
         rule.setRoute(Arrays.asList(node1, node2));
 
         SimulationFacade simulationFacade = new SimulationFacade();
@@ -164,10 +179,20 @@ public class PingTest {
         simulationFacade.initTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
         simulationFacade.startTimer();
 
+        simulationFacade.addSimulationLogListener(new SimulationLogListener() {
+            @Override
+            public void simulationLogOccurred(SimulationLogEvent evt) {
+                if (evt.getSimulationLog().getCategory() == LogCategory.ERROR) {
+                    fail("error during simulation: " + evt.getSimulationLog().getCause());
+                }
+            }
+        });
+
         SimulationTimer timer = (SimulationTimer) getPropertyWithoutGetter(SimulationFacade.class, simulationFacade, "timer");
 
         //simulate many timer ticks
         for (int i = 0; i < 25; i++) {
+            System.out.println("i = " + i);
             timer.actionPerformed(null);
         }
 

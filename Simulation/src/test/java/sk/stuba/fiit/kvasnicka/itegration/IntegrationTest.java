@@ -31,10 +31,13 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogEvent;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogCategory;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
@@ -53,6 +56,8 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
 import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
 import static sk.stuba.fiit.kvasnicka.TestUtils.setWithoutSetter;
 
@@ -109,7 +114,15 @@ public class IntegrationTest {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
 
         simulationManager = new SimulationManager();
-
+        SimulationLogUtils logUtils = (SimulationLogUtils) getPropertyWithoutGetter(SimulationTimer.class, timer, "simulationLogUtils");
+        logUtils.addSimulationLogListener(new SimulationLogListener() {
+            @Override
+            public void simulationLogOccurred(SimulationLogEvent evt) {
+                if (evt.getSimulationLog().getCategory() == LogCategory.ERROR) {
+                    fail("error during simulation: " + evt.getSimulationLog().getCause());
+                }
+            }
+        });
         timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
 
         timer.actionPerformed(null);
@@ -123,7 +136,15 @@ public class IntegrationTest {
     @Test
     public void testSinglePacketSimulation() throws NoSuchFieldException, IllegalAccessException {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
-
+        SimulationLogUtils logUtils = (SimulationLogUtils) getPropertyWithoutGetter(SimulationTimer.class, timer, "simulationLogUtils");
+        logUtils.addSimulationLogListener(new SimulationLogListener() {
+            @Override
+            public void simulationLogOccurred(SimulationLogEvent evt) {
+                if (evt.getSimulationLog().getCategory() == LogCategory.ERROR) {
+                    fail("error during simulation: " + evt.getSimulationLog().getCause());
+                }
+            }
+        });
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -150,7 +171,15 @@ public class IntegrationTest {
     @Test
     public void testMultiplePacketsSimulation() throws NoSuchFieldException, IllegalAccessException {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
-
+        SimulationLogUtils logUtils = (SimulationLogUtils) getPropertyWithoutGetter(SimulationTimer.class, timer, "simulationLogUtils");
+        logUtils.addSimulationLogListener(new SimulationLogListener() {
+            @Override
+            public void simulationLogOccurred(SimulationLogEvent evt) {
+                if (evt.getSimulationLog().getCategory() == LogCategory.ERROR) {
+                    fail("error during simulation: " + evt.getSimulationLog().getCause());
+                }
+            }
+        });
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 2, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -187,7 +216,15 @@ public class IntegrationTest {
         PowerMock.replay(DelayHelper.class);
 
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
-
+        SimulationLogUtils logUtils = (SimulationLogUtils) getPropertyWithoutGetter(SimulationTimer.class, timer, "simulationLogUtils");
+        logUtils.addSimulationLogListener(new SimulationLogListener() {
+            @Override
+            public void simulationLogOccurred(SimulationLogEvent evt) {
+                if (evt.getSimulationLog().getCategory() == LogCategory.ERROR) {
+                    fail("error during simulation: " + evt.getSimulationLog().getCause());
+                }
+            }
+        });
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 2, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -218,7 +255,15 @@ public class IntegrationTest {
     @Test
     public void testSimulationRuleActivationDelay() throws NoSuchFieldException, IllegalAccessException {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
-
+        SimulationLogUtils logUtils = (SimulationLogUtils) getPropertyWithoutGetter(SimulationTimer.class, timer, "simulationLogUtils");
+        logUtils.addSimulationLogListener(new SimulationLogListener() {
+            @Override
+            public void simulationLogOccurred(SimulationLogEvent evt) {
+                if (evt.getSimulationLog().getCategory() == LogCategory.ERROR) {
+                    fail("error during simulation: " + evt.getSimulationLog().getCause());
+                }
+            }
+        });
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 2, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -262,7 +307,15 @@ public class IntegrationTest {
     @Test
     public void testStopAndClearTimer() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
-
+        SimulationLogUtils logUtils = (SimulationLogUtils) getPropertyWithoutGetter(SimulationTimer.class, timer, "simulationLogUtils");
+        logUtils.addSimulationLogListener(new SimulationLogListener() {
+            @Override
+            public void simulationLogOccurred(SimulationLogEvent evt) {
+                if (evt.getSimulationLog().getCategory() == LogCategory.ERROR) {
+                    fail("error during simulation: " + evt.getSimulationLog().getCause());
+                }
+            }
+        });
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 2, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -287,7 +340,15 @@ public class IntegrationTest {
     @Test
     public void test3Nodes() throws NoSuchFieldException, IllegalAccessException {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1, edge2), Arrays.asList(node1, node2, node3), new SimulationLogUtils());
-
+        SimulationLogUtils logUtils = (SimulationLogUtils) getPropertyWithoutGetter(SimulationTimer.class, timer, "simulationLogUtils");
+        logUtils.addSimulationLogListener(new SimulationLogListener() {
+            @Override
+            public void simulationLogOccurred(SimulationLogEvent evt) {
+                if (evt.getSimulationLog().getCategory() == LogCategory.ERROR) {
+                    fail("error during simulation: " + evt.getSimulationLog().getCause());
+                }
+            }
+        });
         simulationManager = new SimulationManager();
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node3, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2, node3));
@@ -318,7 +379,15 @@ public class IntegrationTest {
     public void testSimulRuleAdd() throws NoSuchFieldException, IllegalAccessException {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), new SimulationLogUtils());
         simulationManager = new SimulationManager();
-
+        SimulationLogUtils logUtils = (SimulationLogUtils) getPropertyWithoutGetter(SimulationTimer.class, timer, "simulationLogUtils");
+        logUtils.addSimulationLogListener(new SimulationLogListener() {
+            @Override
+            public void simulationLogOccurred(SimulationLogEvent evt) {
+                if (evt.getSimulationLog().getCategory() == LogCategory.ERROR) {
+                    fail("error during simulation: " + evt.getSimulationLog().getCause());
+                }
+            }
+        });
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
         simulationManager.addSimulationRule(rule);
