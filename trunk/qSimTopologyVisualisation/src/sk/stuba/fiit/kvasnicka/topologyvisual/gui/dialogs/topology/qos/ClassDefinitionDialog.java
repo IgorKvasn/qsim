@@ -4,7 +4,6 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos;
 
-import com.ctc.wstx.util.StringUtil;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -29,9 +28,7 @@ import javax.swing.tree.TreeSelectionModel;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
-import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.DscpClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ParameterException;
@@ -138,7 +135,7 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
 
     private void addClass() {
         //ask user for class's name
-        String name = (String) JOptionPane.showInputDialog(this, "Qos class name:");
+        String name = JOptionPane.showInputDialog(this, "Qos class name:");
 
         if (StringUtils.isEmpty(name)) {
             return;

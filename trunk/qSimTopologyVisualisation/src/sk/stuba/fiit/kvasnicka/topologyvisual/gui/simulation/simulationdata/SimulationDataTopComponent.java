@@ -51,6 +51,16 @@ public final class SimulationDataTopComponent extends TopComponent {
         rules = new HashMap<SimulationRuleBean, TaskPanel>();
 
         chart.setToolTipType(Chart2D.ToolTipType.VALUE_SNAP_TO_TRACEPOINTS);
+
+        initTraces(statDatas);
+
+    }
+
+    private void initTraces(Collection<SimulRuleStatisticalData> statDatas) {
+        for (SimulRuleStatisticalData data : statDatas) {
+            chart.addTrace(data.getChartTrace());
+        }
+        chart.removeAllTraces();
     }
 
     /**

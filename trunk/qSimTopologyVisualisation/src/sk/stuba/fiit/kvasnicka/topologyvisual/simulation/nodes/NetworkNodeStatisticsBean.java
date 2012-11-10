@@ -53,6 +53,11 @@ public class NetworkNodeStatisticsBean implements SimulationTimerListener {
         inputTrace = new TraceIdentifier(createTrace(node.getName() + " - Input queue"));
         processingTrace = new TraceIdentifier(createTrace(node.getName() + " - Processing packets"));
 
+        allUsages.add(node.getAllOutputQueues());
+        allUsages.add(node.getAllProcessingPackets());
+        allUsages.add(node.getAllRXBuffers());
+        allUsages.add(node.getAllTXBuffers());
+        allUsages.add(node.getInputQueue());
 
     }
 

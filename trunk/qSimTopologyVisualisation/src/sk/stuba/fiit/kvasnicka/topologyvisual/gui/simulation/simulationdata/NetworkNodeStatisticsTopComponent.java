@@ -4,6 +4,7 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata;
 
+import info.monitorenter.gui.chart.ITrace2D;
 import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Set;
@@ -19,6 +20,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.panels.simulationdata.networknode.TextualStatisticsPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.nodes.NetworkNodeStatisticsBean.TraceIdentifier;
+import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.nodes.NetworkNodeStatsManager;
 
 /**
  * Top component which displays something.
@@ -49,7 +51,7 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
     private TextualStatisticsPanel textualStatisticsPanel;
     private List<TraceIdentifier> showingTraces = new java.util.LinkedList<TraceIdentifier>();
 
-    public NetworkNodeStatisticsTopComponent(TopologyVisualisation topologyVisualisation) {
+    public NetworkNodeStatisticsTopComponent(TopologyVisualisation topologyVisualisation, NetworkNodeStatsManager networkNodeStatsManager) {
         initComponents();
         setName(Bundle.CTL_NetworkNodeStatisticsTopComponent());
         setToolTipText(Bundle.HINT_NetworkNodeStatisticsTopComponent());
@@ -63,6 +65,21 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
         for (TopologyVertex v : topologyVisualisation.getTopology().getVertexFactory().getAllVertices()) {
             monitoringNodes.add(new MonitoringNode(v));
         }
+
+        initTraces(networkNodeStatsManager.getAllTraces());
+    }
+
+    /**
+     * all traces must be added to the chart just to init them
+     *
+     *
+     * @param traces
+     */
+    private void initTraces(List<ITrace2D> traces) {
+        for (ITrace2D trace : traces) {
+            chart2D1.addTrace(trace);
+        }
+        chart2D1.removeAllTraces();
     }
 
     public void cleanUp() {
