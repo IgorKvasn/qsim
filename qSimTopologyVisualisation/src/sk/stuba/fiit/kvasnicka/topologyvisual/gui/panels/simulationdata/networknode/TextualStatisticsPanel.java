@@ -597,5 +597,10 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             this.label = label;
             this.value = value;
         }
+
+        @Override
+        public String toString() {
+            return label;
+        }
     }
 }

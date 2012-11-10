@@ -6,6 +6,7 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.simulation.nodes;
 
 import info.monitorenter.gui.chart.ITrace2D;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
@@ -32,10 +33,26 @@ public class NetworkNodeStatsManager {
             NetworkNodeStatisticsBean networkNodeStatisticsBean = new NetworkNodeStatisticsBean(node);
             simulationFacade.addSimulationTimerListener(networkNodeStatisticsBean);
             statisticsBeans.put(networkNodeStatisticsBean.getNode(), networkNodeStatisticsBean);
-            for (UsageStatistics usage : networkNodeStatisticsBean.getUsages()) {
-                translateList.add(new Usage2Trace(usage, networkNodeStatisticsBean.getInputTrace()));
-            }
+
+            translateList.add(new Usage2Trace(node.getAllOutputQueues(), networkNodeStatisticsBean.getOutputTotalTrace()));
+            translateList.add(new Usage2Trace(node.getAllProcessingPackets(), networkNodeStatisticsBean.getProcessingTrace()));
+            translateList.add(new Usage2Trace(node.getAllRXBuffers(), networkNodeStatisticsBean.getRxTotalTrace()));
+            translateList.add(new Usage2Trace(node.getAllTXBuffers(), networkNodeStatisticsBean.getTxTotalTrace()));
+            translateList.add(new Usage2Trace(node.getInputQueue(), networkNodeStatisticsBean.getInputTrace()));
+
+            //todo init networkNodeStatisticsBean.getRxTraceMap() and TX            
+
         }
+    }
+
+    public List<ITrace2D> getAllTraces() {
+        List<ITrace2D> list = new LinkedList<ITrace2D>();
+
+        for (Usage2Trace usage : translateList) {
+            list.add(usage.traceIdentifier.getTrace());
+        }
+
+        return list;
     }
 
     public void removeStatisticsListeners() {

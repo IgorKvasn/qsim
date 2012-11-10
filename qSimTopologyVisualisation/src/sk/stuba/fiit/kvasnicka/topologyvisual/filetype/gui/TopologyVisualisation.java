@@ -209,6 +209,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             simulationFacade.addSimulationRuleListener(statManager);
             simulationFacade.addPingPacketDeliveredListener(statManager);
 
+
             //opens all supporting windows for simulation
             openSimulationWindows(statManager, simulationFacade.getSimulationRules());
 
@@ -218,6 +219,8 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
                 List<NetworkNode> networkNodeList = VerticesUtil.convertTopologyVertexList2NetworkNodeList(topology.getVertexFactory().getAllVertices());
                 simulationFacade.initTimer(EdgeUtils.convertTopologyEdgeListToEdgeList(topology.getG().getEdges()), networkNodeList);
                 networkNodeStatsManager = new NetworkNodeStatsManager(networkNodeList, simulationFacade);
+                networkNodeStatisticsTopComponent = new NetworkNodeStatisticsTopComponent(this, networkNodeStatsManager);
+
                 simulationFacade.startTimer();
             }
 
@@ -234,7 +237,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
     public void openNetworkNodeSimulationTopcomponent() {
         if (networkNodeStatisticsTopComponent == null) {
-            networkNodeStatisticsTopComponent = new NetworkNodeStatisticsTopComponent(this);
+            throw new IllegalStateException("networkNodeStatisticsTopComponent is NULL");
         }
 
         Mode outputMode = WindowManager.getDefault().findMode("output");

@@ -17,6 +17,7 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices;
 
 import edu.uci.ics.jung.visualization.LayeredIcon;
+import java.io.IOException;
 import java.io.Serializable;
 import javax.swing.Icon;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -41,10 +42,11 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class TopologyVertex implements Serializable {
 
+    private static final long serialVersionUID = 5325672657148825399L;
     private static final Logger logg = Logger.getLogger(TopologyVertex.class);
     protected ImageType imageType;
     @Getter
-    protected final Icon icon;
+    protected transient Icon icon;
     @Getter
     @Setter
     protected String description = "NA";
@@ -64,6 +66,11 @@ public abstract class TopologyVertex implements Serializable {
         if (icon == null) {
             throw new IllegalStateException("icon not loaded");
         }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        this.icon = ImageResourceHelper.loadImageVertex(imageType, null);
     }
 
     /**
