@@ -232,6 +232,8 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
                     NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_part1") + "\n" + ex.getMessage() + "\n" + NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_part2"),
                     NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_title"),
                     JOptionPane.ERROR_MESSAGE);
+        } finally {
+            this.requestFocus();
         }
     }
 
@@ -282,6 +284,8 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             return;
         }
         palette.open();
+
+        this.requestFocus();
     }
 
     /**
@@ -290,6 +294,8 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     public void pauseSimulation() {
         //change simulation state
         setSimulationState(TopologyStateEnum.PAUSED);
+
+        this.requestFocus();
     }
 
     /**
@@ -794,7 +800,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     }
 
     /**
-     * centers topology so that specified vertex will be in the center
+     * centres topology so that specified vertex will be in the centre
      *
      * @param vertex
      */
@@ -807,6 +813,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
         Runnable animator = new Runnable() {
             @Override
+            @SuppressWarnings("SleepWhileInLoop")
             public void run() {
                 for (int i = 0; i < 10; i++) {
                     topology.getVv().getRenderContext().getMultiLayerTransformer().getTransformer(Layer.LAYOUT).translate(dx, dy);

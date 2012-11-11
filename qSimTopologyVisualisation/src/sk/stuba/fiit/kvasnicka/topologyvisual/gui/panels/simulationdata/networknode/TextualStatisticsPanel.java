@@ -23,7 +23,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellRenderer;
 import lombok.Getter;
 import org.jdesktop.swingx.JXSearchField;
-import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.treetable.AbstractTreeTableModel;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
@@ -76,7 +75,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
         jXTreeTable1.setCellSelectionEnabled(false);
         jXTreeTable1.setRowSelectionAllowed(false);
         jXTreeTable1.setColumnSelectionAllowed(false);
-        jXTreeTable1.setDefaultRenderer(JProgressBar.class, new ProgressRenderer(jXTreeTable1));
+        jXTreeTable1.setDefaultRenderer(JProgressBar.class, new ProgressRenderer());
 
         treeTableModelCache = new HashMap<NetworkNode, MyTreeTableModel>();
     }
@@ -225,7 +224,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             //init output nodes
             outputRootNode = new MyTreeNode("Output queue", node.getMaxOutputQueueSize(), node.getAllOutputQueues());
             myroot.getChildren().add(outputRootNode);
-            
+
             outputNodes = generateOutputNodes(node);
             for (MyTreeNode treeNode : outputNodes) {
                 outputRootNode.getChildren().add(treeNode);
@@ -439,7 +438,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             if (maxCapacity == 0) {//this prevents division by zero
                 return 0.0;
             }
-            return (double) (currentUsage * 100) / maxCapacity;
+            return (currentUsage * 100) / maxCapacity;
         }
 
         public Boolean getInChart() {
@@ -473,13 +472,10 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
 
     private class ProgressRenderer extends JProgressBar implements TableCellRenderer {
 
-        private JXTreeTable table;
-
-        public ProgressRenderer(JXTreeTable table) {
+        public ProgressRenderer() {
             super(JProgressBar.HORIZONTAL);
             setBorderPainted(false);
             setStringPainted(true);
-            this.table = table;
             setMinimum(0);
             setMaximum(100);
         }
