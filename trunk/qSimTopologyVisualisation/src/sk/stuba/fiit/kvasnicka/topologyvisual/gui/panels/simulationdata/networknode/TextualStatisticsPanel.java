@@ -76,7 +76,8 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
         jXTreeTable1.setCellSelectionEnabled(false);
         jXTreeTable1.setRowSelectionAllowed(false);
         jXTreeTable1.setColumnSelectionAllowed(false);
-        jXTreeTable1.getColumnModel().getColumn(3).setCellRenderer(new ProgressRenderer(jXTreeTable1));
+        jXTreeTable1.setDefaultRenderer(JProgressBar.class, new ProgressRenderer(jXTreeTable1));
+
         treeTableModelCache = new HashMap<NetworkNode, MyTreeTableModel>();
     }
 
@@ -153,6 +154,9 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             MyTreeNode treeNode = tableModel.outputNodes.get(i);
             treeNode.setCurrentUsage(selectedNode.getOutputQueueManager().getQueueUsedCapacity(i));
         }
+
+        //update progress bars
+        jXTreeTable1.repaint();
     }
 
     /**
@@ -221,7 +225,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             //init output nodes
             outputRootNode = new MyTreeNode("Output queue", node.getMaxOutputQueueSize(), node.getAllOutputQueues());
             myroot.getChildren().add(outputRootNode);
-
+            
             outputNodes = generateOutputNodes(node);
             for (MyTreeNode treeNode : outputNodes) {
                 outputRootNode.getChildren().add(treeNode);
@@ -318,7 +322,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
                 case 2:
                     return treenode.calculateUsage();
                 case 3:
-                    return treenode.getCurrentUsage();
+                    return treenode.calculateUsageAsDouble(); //progress bar
                 case 4:
                     return treenode.getInChart();
                 default:
@@ -334,7 +338,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
                 case 1:
                     return Integer.class;
                 case 2:
-                    return Double.class;
+                    return String.class;
                 case 3:
                     return JProgressBar.class;
                 case 4:
@@ -349,7 +353,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             if (column == 4) {//only column with checkbox (Boolean) is editable
                 return true;
             }
-            return false;
+            return true;
         }
 
         @Override
@@ -406,13 +410,11 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
         private int maxCapacity;
         private UsageStatistics usageStatistics;
         private List<MyTreeNode> children = new ArrayList<MyTreeNode>();
-        private JProgressBar progressBar;
         private Boolean inChart;
 
         private MyTreeNode(String name, int maxCapacity, UsageStatistics usageStatistics) {
             this.name = name;
             this.maxCapacity = maxCapacity;
-            progressBar = new JProgressBar(0, maxCapacity);
             this.inChart = Boolean.FALSE;            //auto-boxing should work, but nevermind....
             this.usageStatistics = usageStatistics;
         }
@@ -421,8 +423,23 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             return usageStatistics;
         }
 
-        private double calculateUsage() {
-            return Double.valueOf(twoDForm.format((double) currentUsage / maxCapacity * 100));
+        /**
+         * formats usage to two decimal places
+         *
+         * @return
+         */
+        private String calculateUsage() {
+            if (maxCapacity == 0) {//this prevents division by zero
+                return String.valueOf(0);
+            }
+            return twoDForm.format(calculateUsageAsDouble());
+        }
+
+        private Double calculateUsageAsDouble() {
+            if (maxCapacity == 0) {//this prevents division by zero
+                return 0.0;
+            }
+            return (double) (currentUsage * 100) / maxCapacity;
         }
 
         public Boolean getInChart() {
@@ -443,10 +460,45 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
 
         public void setCurrentUsage(double currentUsage) {
             this.currentUsage = currentUsage;
-            progressBar.setValue(safeLongToInt(Math.round(currentUsage)));
-            progressBar.repaint();
         }
 
+        public String getName() {
+            return name;
+        }
+
+        public List<MyTreeNode> getChildren() {
+            return children;
+        }
+    }
+
+    private class ProgressRenderer extends JProgressBar implements TableCellRenderer {
+
+        private JXTreeTable table;
+
+        public ProgressRenderer(JXTreeTable table) {
+            super(JProgressBar.HORIZONTAL);
+            setBorderPainted(false);
+            setStringPainted(true);
+            this.table = table;
+            setMinimum(0);
+            setMaximum(100);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus,
+                int row, int column) {
+
+            setValue(safeLongToInt(Math.round((Double) table.getValueAt(row, 3))));
+            return this;
+        }
+
+        /**
+         * safely converts long to int
+         *
+         * @param l
+         * @return
+         */
         private int safeLongToInt(long l) {
             if (l < Integer.MIN_VALUE) {
                 return Integer.MIN_VALUE;
@@ -457,35 +509,6 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             }
 
             return (int) l;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public List<MyTreeNode> getChildren() {
-            return children;
-        }
-
-        public JProgressBar getProgressBar() {
-            return progressBar;
-        }
-    }
-
-    private class ProgressRenderer extends JProgressBar implements TableCellRenderer {
-
-        private JXTreeTable table;
-
-        public ProgressRenderer(JXTreeTable table) {
-            super();
-            this.table = table;
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                boolean isSelected, boolean hasFocus,
-                int row, int column) {
-            return (Component) this.table.getValueAt(row, 3);
         }
     }
 
@@ -537,6 +560,8 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
                 .addContainerGap())
         );
 
+        jXTreeTable1.setCellSelectionEnabled(true);
+        jXTreeTable1.setExpandedIcon(null);
         jScrollPane1.setViewportView(jXTreeTable1);
 
         org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(TextualStatisticsPanel.class, "TextualStatisticsPanel.jButton1.text")); // NOI18N
@@ -566,7 +591,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
