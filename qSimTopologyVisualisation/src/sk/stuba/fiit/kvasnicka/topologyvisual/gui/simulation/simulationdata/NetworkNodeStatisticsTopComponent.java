@@ -31,10 +31,10 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.nodes.NetworkNodeStatsM
 @TopComponent.Description(
     preferredID = "NetworkNodeStatisticsTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
-persistenceType = TopComponent.PERSISTENCE_ALWAYS)
-@TopComponent.Registration(mode = "output", openAtStartup = false)
+persistenceType = TopComponent.PERSISTENCE_NEVER)
+@TopComponent.Registration(mode = "myoutput", openAtStartup = false)
 @ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.simulation.NetworkNodeStatisticsTopComponent")
-@ActionReference(path = "Menu/Window" /*, position = 333 */)
+//@ActionReference(path = "Menu/Window" /*, position = 333 */)
 //@TopComponent.OpenActionRegistration(
 //    displayName = "#CTL_NetworkNodeStatisticsAction",
 //preferredID = "NetworkNodeStatisticsTopComponent")

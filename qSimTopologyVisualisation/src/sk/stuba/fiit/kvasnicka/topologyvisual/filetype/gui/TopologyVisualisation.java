@@ -239,10 +239,11 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         if (networkNodeStatisticsTopComponent == null) {
             throw new IllegalStateException("networkNodeStatisticsTopComponent is NULL");
         }
-
-        Mode outputMode = WindowManager.getDefault().findMode("output");
-        outputMode.dockInto(networkNodeStatisticsTopComponent);
-        networkNodeStatisticsTopComponent.open();
+        if (!networkNodeStatisticsTopComponent.isOpened()) {
+            Mode outputMode = WindowManager.getDefault().findMode("myoutput");
+            outputMode.dockInto(networkNodeStatisticsTopComponent);
+            networkNodeStatisticsTopComponent.open();
+        }
         networkNodeStatisticsTopComponent.requestActive();
     }
 
@@ -1097,7 +1098,9 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
     @Override
     public void componentActivated() {
-        openPaletteWindow();
+        if (!isSimulationRunning()) {
+            openPaletteWindow();
+        }
         NetbeansWindowHelper.getInstance().activateWindow(this);
         updateToolbarButtons(false);
 
