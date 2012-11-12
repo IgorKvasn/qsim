@@ -4,8 +4,12 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata;
 
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import javax.swing.JTable;
+import javax.swing.ToolTipManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -54,6 +58,8 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
     private SimulRuleStatisticalDataManager statManager;
     private SimulationDataTopComponent simulDataTopComponent;
     private final SimulationFacade simulationFacade;
+    private final int DEFAULT_TOOLTIP_TIMEOUT_INITIAL = ToolTipManager.sharedInstance().getInitialDelay();
+    private final int DEFAULT_TOOLTIP_TIMEOUT_DISMISS = ToolTipManager.sharedInstance().getDismissDelay();
 
     public SimulRuleReviewTopComponent(SimulationFacade simulationFacade) {
         initComponents();
@@ -74,6 +80,21 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
         simulTable.getSelectionModel().addListSelectionListener(listenerSimul);
         simulTable.getColumnModel().getSelectionModel().addListSelectionListener(listenerSimul);
 
+        //workaround to set Tooltip dismiss delay just for this component and not for the whole Swing world
+        simulTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                ToolTipManager.sharedInstance().setInitialDelay(250);
+                ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                ToolTipManager.sharedInstance().setInitialDelay(DEFAULT_TOOLTIP_TIMEOUT_INITIAL);
+                ToolTipManager.sharedInstance().setDismissDelay(DEFAULT_TOOLTIP_TIMEOUT_DISMISS);
+
+            }
+        });
 
     }
 
@@ -116,6 +137,30 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
             }
         }
         throw new IllegalStateException("unable to find simulation rule in table");
+    }
+
+    /**
+     * creates tooltip for a row in table
+     *
+     * @param p
+     * @return
+     */
+    private String getToolTip(Point p) {
+        int rowIndex = simulTable.rowAtPoint(p);
+
+        SimulationRuleBean rule = findSimulationRuleByRow(rowIndex, simulRuleModel);
+        StringBuilder sb = new StringBuilder("<html><table>");
+
+        sb.append("<tr><td>").append(NbBundle.getMessage(SimulRuleReviewTopComponent.class, "name")).append("</td><td>").append(rule.getName()).append("</td></tr>");
+        sb.append("<tr><td>").append(NbBundle.getMessage(SimulRuleReviewTopComponent.class, "source")).append("</td><td>").append(rule.getSource().getName()).append("</td></tr>");
+        sb.append("<tr><td>").append(NbBundle.getMessage(SimulRuleReviewTopComponent.class, "destination")).append("</td><td>").append(rule.getDestination().getName()).append("</td></tr>");
+        sb.append("<tr><td>").append(NbBundle.getMessage(SimulRuleReviewTopComponent.class, "activation")).append("</td><td>").append(isActive(rule)).append("</td></tr>");
+        sb.append("<tr><td>").append(NbBundle.getMessage(SimulRuleReviewTopComponent.class, "protocol")).append("</td><td>").append(rule.getLayer4Type().toString()).append("</td></tr>");
+        sb.append("<tr><td>").append(NbBundle.getMessage(SimulRuleReviewTopComponent.class, "packetSize")).append("</td><td>").append(String.valueOf(rule.getPacketSize())).append(" B").append("</td></tr>");
+
+        sb.append("</table></html>");
+
+        return sb.toString();
     }
 
     private SimulationRuleBean findSimulationRuleByRow(int row, DefaultTableModel model) {
@@ -175,18 +220,8 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
         model.setValueAt(text, row, 4);
     }
 
-    private void showDetails(int row, boolean ping) {
-
+    private void updateActivateButton(int row) {
         SimulationRuleBean rule = findSimulationRuleByRow(row, simulRuleModel);
-
-
-        lblName.setText(rule.getName());
-        lblSource.setText(rule.getSource().getName());
-        lblDestination.setText(rule.getDestination().getName());
-        lblActivation.setText(isActive(rule));
-        lblLayer4.setText(rule.getLayer4Type().toString());
-        lblPacketSize.setText(String.valueOf(rule.getPacketSize()) + " B");
-
         try {
             Double.parseDouble(isActive(rule));
             //it is a number - rule is not activated
@@ -217,7 +252,6 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
         if (!simulDataTopComponent.isOpened()) {
             Mode outputMode = WindowManager.getDefault().findMode("myoutput");
             outputMode.dockInto(simulDataTopComponent);
-            simulDataTopComponent.requestAttention(true);
             simulDataTopComponent.open();
         }
     }
@@ -230,79 +264,18 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        btnActivate = new javax.swing.JButton();
-        jPanel3 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        lblName = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        lblActivation = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        lblSource = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        lblDestination = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        lblPacketSize = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        lblLayer4 = new javax.swing.JLabel();
-        btnRoute = new javax.swing.JButton();
-        btnStat = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
-        simulTable = new javax.swing.JTable();
-
-        org.openide.awt.Mnemonics.setLocalizedText(btnActivate, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.btnActivate.text")); // NOI18N
-        btnActivate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnActivateActionPerformed(evt);
+        simulTable = new javax.swing.JTable(){
+            public String getToolTipText(MouseEvent e) {
+                return getToolTip(e.getPoint());
             }
-        });
+        };
+        jPanel1 = new javax.swing.JPanel();
+        btnActivate = new javax.swing.JButton();
+        btnStat = new javax.swing.JButton();
+        btnRoute = new javax.swing.JButton();
 
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.jPanel3.border.title"))); // NOI18N
-        jPanel3.setLayout(new java.awt.GridLayout(0, 2));
-
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.jLabel1.text")); // NOI18N
-        jPanel3.add(jLabel1);
-
-        org.openide.awt.Mnemonics.setLocalizedText(lblName, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.lblName.text")); // NOI18N
-        jPanel3.add(lblName);
-
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel7, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.jLabel7.text")); // NOI18N
-        jPanel3.add(jLabel7);
-
-        org.openide.awt.Mnemonics.setLocalizedText(lblActivation, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.lblActivation.text")); // NOI18N
-        jPanel3.add(lblActivation);
-
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.jLabel2.text")); // NOI18N
-        jPanel3.add(jLabel2);
-
-        org.openide.awt.Mnemonics.setLocalizedText(lblSource, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.lblSource.text")); // NOI18N
-        jPanel3.add(lblSource);
-
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.jLabel3.text")); // NOI18N
-        jPanel3.add(jLabel3);
-
-        org.openide.awt.Mnemonics.setLocalizedText(lblDestination, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.lblDestination.text")); // NOI18N
-        jPanel3.add(lblDestination);
-
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.jLabel5.text")); // NOI18N
-        jPanel3.add(jLabel5);
-
-        org.openide.awt.Mnemonics.setLocalizedText(lblPacketSize, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.lblPacketSize.text")); // NOI18N
-        jPanel3.add(lblPacketSize);
-
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel6, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.jLabel6.text")); // NOI18N
-        jPanel3.add(jLabel6);
-
-        org.openide.awt.Mnemonics.setLocalizedText(lblLayer4, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.lblLayer4.text")); // NOI18N
-        jPanel3.add(lblLayer4);
-
-        org.openide.awt.Mnemonics.setLocalizedText(btnRoute, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.btnRoute.text")); // NOI18N
-
-        org.openide.awt.Mnemonics.setLocalizedText(btnStat, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.btnStat.text")); // NOI18N
-        btnStat.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnStatActionPerformed(evt);
-            }
-        });
+        setLayout(new java.awt.BorderLayout());
 
         simulTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -336,45 +309,31 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
         simulTable.getColumnModel().getColumn(3).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.simulTable.columnModel.title2")); // NOI18N
         simulTable.getColumnModel().getColumn(4).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.simulTable.columnModel.title3_1")); // NOI18N
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(btnActivate, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(21, 21, 21)
-                                .addComponent(btnStat)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnRoute)))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(45, 45, 45)
-                .addComponent(btnActivate)
-                .addGap(22, 22, 22)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnRoute)
-                    .addComponent(btnStat))
-                .addContainerGap(157, Short.MAX_VALUE))
-        );
+        add(jScrollPane3, java.awt.BorderLayout.CENTER);
+
+        org.openide.awt.Mnemonics.setLocalizedText(btnActivate, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.btnActivate.text")); // NOI18N
+        btnActivate.setEnabled(false);
+        btnActivate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnActivateActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnActivate);
+
+        org.openide.awt.Mnemonics.setLocalizedText(btnStat, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.btnStat.text")); // NOI18N
+        btnStat.setEnabled(false);
+        btnStat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnStatActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btnStat);
+
+        org.openide.awt.Mnemonics.setLocalizedText(btnRoute, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.btnRoute.text")); // NOI18N
+        btnRoute.setEnabled(false);
+        jPanel1.add(btnRoute);
+
+        add(jPanel1, java.awt.BorderLayout.PAGE_END);
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnActivateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActivateActionPerformed
@@ -388,20 +347,8 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
     private javax.swing.JButton btnActivate;
     private javax.swing.JButton btnRoute;
     private javax.swing.JButton btnStat;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JLabel lblActivation;
-    private javax.swing.JLabel lblDestination;
-    private javax.swing.JLabel lblLayer4;
-    private javax.swing.JLabel lblName;
-    private javax.swing.JLabel lblPacketSize;
-    private javax.swing.JLabel lblSource;
     private javax.swing.JTable simulTable;
     // End of variables declaration//GEN-END:variables
 
@@ -459,13 +406,11 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
     private class SelectionListener implements ListSelectionListener {
 
         JTable table;
-        private boolean ping;
 
         // It is necessary to keep the table since it is not possible
         // to determine the table from the event's source
         SelectionListener(JTable table, boolean ping) {
             this.table = table;
-            this.ping = ping;
         }
 
         @Override
@@ -474,7 +419,9 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
             if (table.getSelectedRowCount() == 0) {
                 return;
             }
-            showDetails(table.getSelectedRow(), ping);
+            updateActivateButton(table.getSelectedRow());
+            btnRoute.setEnabled(true);
+            btnStat.setEnabled(true);
         }
     }
 }

@@ -165,7 +165,6 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         Mode navigatorMode = WindowManager.getDefault().findMode("navigator");
         navigatorMode.dockInto(navigatorTopComponent);
         navigatorTopComponent.open();
-//        navigatorTopComponent.requestActive();
     }
 
     /**
@@ -198,7 +197,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             setSimulationState(TopologyStateEnum.RUN);
 
             //close palette, simulation top component, add simulation rule top component,... 
-            //everuthing that is no use for simulation
+            //everything that is no use for simulation
             closeTopologyCreationWindows();
 
             //user cannot paste vertices
@@ -641,11 +640,10 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         simulationFacade.addPingRuleListener(simulRuleReviewTopComponent);
         simulationFacade.addSimulationRuleListener(simulRuleReviewTopComponent);
 
-        Mode commonPaletteMode = WindowManager.getDefault().findMode("commonpalette");
+        Mode commonPaletteMode = WindowManager.getDefault().findMode("explorer");
         commonPaletteMode.dockInto(simulRuleReviewTopComponent);
         simulRuleReviewTopComponent.open();
-        simulRuleReviewTopComponent.requestActive();
-
+        simulRuleReviewTopComponent.requestVisible();
     }
 
     private void closeSimulationWindows() {
