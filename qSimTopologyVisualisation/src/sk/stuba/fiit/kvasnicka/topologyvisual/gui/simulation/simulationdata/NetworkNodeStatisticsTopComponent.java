@@ -13,35 +13,29 @@ import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
+import org.openide.util.NbBundle.Messages;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
 import sk.stuba.fiit.kvasnicka.topologyvisual.filetype.gui.TopologyVisualisation;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.panels.simulationdata.networknode.TextualStatisticsPanel;
-import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.nodes.NetworkNodeStatisticsBean.TraceIdentifier;
+import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.nodes.NetworkNodeStatisticsBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.nodes.NetworkNodeStatsManager;
 
 /**
  * Top component which displays something.
  */
-//@ConvertAsProperties(
-//    dtd = "-//sk.stuba.fiit.kvasnicka.topologyvisual.simulation//NetworkNodeStatistics//EN",
-//autostore = false)
 @TopComponent.Description(
-    preferredID = "NetworkNodeStatisticsTopComponent",
+    preferredID = "PokusTopComponentTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
 persistenceType = TopComponent.PERSISTENCE_NEVER)
 @TopComponent.Registration(mode = "myoutput", openAtStartup = false)
-@ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.simulation.NetworkNodeStatisticsTopComponent")
-//@ActionReference(path = "Menu/Window" /*, position = 333 */)
-//@TopComponent.OpenActionRegistration(
-//    displayName = "#CTL_NetworkNodeStatisticsAction",
-//preferredID = "NetworkNodeStatisticsTopComponent")
+@ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.PokusTopComponentTopComponent")
+@ActionReference(path = "Menu/Window" /*, position = 333 */)
 @Messages({
-    "CTL_NetworkNodeStatisticsAction=NetworkNodeStatistics",
-    "CTL_NetworkNodeStatisticsTopComponent=NetworkNodeStatistics Window",
-    "HINT_NetworkNodeStatisticsTopComponent=This is a NetworkNodeStatistics window"
+    "CTL_PokusTopComponentAction=PokusTopComponent",
+    "CTL_PokusTopComponentTopComponent=PokusTopComponent Window",
+    "HINT_PokusTopComponentTopComponent=This is a PokusTopComponent window"
 })
 public final class NetworkNodeStatisticsTopComponent extends TopComponent {
 
@@ -49,12 +43,13 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
     private TopologyVisualisation topologyVisualisation;
     private List<MonitoringNode> monitoringNodes;
     private TextualStatisticsPanel textualStatisticsPanel;
-    private List<TraceIdentifier> showingTraces = new java.util.LinkedList<TraceIdentifier>();
+    private List<NetworkNodeStatisticsBean.TraceIdentifier> showingTraces = new java.util.LinkedList<NetworkNodeStatisticsBean.TraceIdentifier>();
 
     public NetworkNodeStatisticsTopComponent(TopologyVisualisation topologyVisualisation, NetworkNodeStatsManager networkNodeStatsManager) {
         initComponents();
-        setName(Bundle.CTL_NetworkNodeStatisticsTopComponent());
-        setToolTipText(Bundle.HINT_NetworkNodeStatisticsTopComponent());
+        setName(Bundle.CTL_PokusTopComponentTopComponent());
+        setToolTipText(Bundle.HINT_PokusTopComponentTopComponent());
+
         this.topologyVisualisation = topologyVisualisation;
 
         textualStatisticsPanel = new TextualStatisticsPanel(topologyVisualisation.getTopology().getVertexFactory().getAllVertices(), this);
@@ -170,20 +165,24 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
 
     @Override
     public void componentOpened() {
+        // TODO add custom code on component opening
     }
 
     @Override
     public void componentClosed() {
+        // TODO add custom code on component closing
     }
 
     void writeProperties(java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
         p.setProperty("version", "1.0");
+        // TODO store your settings
     }
 
     void readProperties(java.util.Properties p) {
         String version = p.getProperty("version");
+        // TODO read your settings according to their version
     }
 
     /**
@@ -194,13 +193,13 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
     public void updateChart(List<UsageStatistics> list) {
         //first remove all charts from chart
         chart2D1.removeAllTraces();
-        for (TraceIdentifier traceIdentifier : showingTraces) {
+        for (NetworkNodeStatisticsBean.TraceIdentifier traceIdentifier : showingTraces) {
             traceIdentifier.setVisible(false);
         }
         showingTraces.clear();
 
         for (UsageStatistics usageStatistics : list) {
-            TraceIdentifier traceIdentifier = topologyVisualisation.getNetworkNodeStatsManager().getTrace(usageStatistics);
+            NetworkNodeStatisticsBean.TraceIdentifier traceIdentifier = topologyVisualisation.getNetworkNodeStatsManager().getTrace(usageStatistics);
             chart2D1.addTrace(traceIdentifier.getTrace());
             traceIdentifier.setVisible(true);
         }
