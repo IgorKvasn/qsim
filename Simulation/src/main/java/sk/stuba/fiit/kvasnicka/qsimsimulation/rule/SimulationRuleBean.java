@@ -86,6 +86,13 @@ public class SimulationRuleBean {
     private int srcPort;
     @Getter
     private int destPort;
+    @Getter
+    @Setter
+    /**
+     * this is a flag that is used mainly (only) for ping - ping simulation rule may be active, but when a packet did not finish its round-trip, no new packet
+     * can be created
+     */
+    private boolean canCreateNewPacket = true;
     /**
      * list of all who wants to be notified, when packet is delivered
      * especially useful when waiting for a ping to be delivered
@@ -226,7 +233,7 @@ public class SimulationRuleBean {
         Object[] listeners = listenerList.getListenerList();
         for (int i = 0; i < listeners.length; i += 2) {
             if (listeners[i].equals(PingPacketDeliveredListener.class)) {
-                ((PingPacketDeliveredListener) listeners[i + 1]).packetDeliveredOccurred(evt);
+                ((PingPacketDeliveredListener) listeners[i + 1]).pingPacketDeliveredOccurred(evt);
             }
         }
     }

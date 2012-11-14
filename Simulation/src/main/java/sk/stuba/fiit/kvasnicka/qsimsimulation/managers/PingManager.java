@@ -103,9 +103,11 @@ public class PingManager implements PingPacketDeliveredListener {
     }
 
     @Override
-    public void packetDeliveredOccurred(PingPacketDeliveredEvent evt) {
+    public void pingPacketDeliveredOccurred(PingPacketDeliveredEvent evt) {
         SimulationRuleBean rule = evt.getPacket().getSimulationRule();
-
+        if (! rule.isPing()) {  //a simple check just to be sure
+            throw new IllegalStateException("something went terribly wrong: delivered packet is not ping packet, even it should be");
+        }
         if (pingDefinitions.containsKey(rule.getUniqueID())) {//check if new ping packet should be created
             PingDefinition def = pingDefinitions.get(rule.getUniqueID());
             def.decreaseRepetitions();
@@ -117,7 +119,8 @@ public class PingManager implements PingPacketDeliveredListener {
             //reset simulation rule
             rule.setActivationTime(evt.getPacket().getSimulationTime()); //when the last ping packet came, new is created
             rule.resetNumberOfPacketsToOne();
-            rule.setActive(true);
+            rule.setActive(true);//this is probably redundant
+            rule.setCanCreateNewPacket(true);//allow simulation rule to generate new packets
         }
     }
 
