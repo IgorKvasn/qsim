@@ -87,7 +87,6 @@ public class SimulationRuleBean {
     @Getter
     private int destPort;
     @Getter
-    @Setter
     /**
      * this is a flag that is used mainly (only) for ping - ping simulation rule may be active, but when a packet did not finish its round-trip, no new packet
      * can be created
@@ -128,6 +127,11 @@ public class SimulationRuleBean {
         this.numberOfPackets = numberOfPackets;
         this.packetSize = packetSize;
         routes = new HashMap<NetworkNode, NetworkNode>();
+    }
+
+    public void setCanCreateNewPacket(boolean canCreateNewPacket) {
+        if (! isPing()) throw new IllegalStateException("Only ping simulation rules can change this property!");
+        this.canCreateNewPacket = canCreateNewPacket;
     }
 
     /**
