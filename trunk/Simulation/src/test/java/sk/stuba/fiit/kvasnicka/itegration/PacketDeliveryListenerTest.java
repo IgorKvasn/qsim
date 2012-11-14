@@ -197,7 +197,7 @@ public class PacketDeliveryListenerTest {
         }
 
         @Override
-        public void packetDeliveredOccurred(PingPacketDeliveredEvent evt) {
+        public void pingPacketDeliveredOccurred(PingPacketDeliveredEvent evt) {
             deliveredPingPackets++;
         }
     }

@@ -17,6 +17,7 @@
 
 package sk.stuba.fiit.kvasnicka.itegration;
 
+import org.apache.log4j.Logger;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.Before;
@@ -50,11 +51,12 @@ import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
  * @author Igor Kvasnicka
  */
 public class PingTest {
-    int packetsDelivered;
-    QosMechanismDefinition qosMechanism;
-    NetworkNode node1, node2, node3;
-    Edge edge1, edge2;
-    ListenerClass listener;
+    private int packetsDelivered;
+    private QosMechanismDefinition qosMechanism;
+    private NetworkNode node1, node2, node3;
+    private Edge edge1, edge2;
+    private ListenerClass listener;
+    private static final Logger logg = Logger.getLogger(PingTest.class);
 
     @Before
     public void before() {
@@ -74,7 +76,7 @@ public class PingTest {
                 return ((Map<Integer, List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
             }
         }).times(100);
-        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true).times(100);
+//        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true).times(100);
 
         EasyMock.replay(qosMechanism);
 
@@ -94,7 +96,7 @@ public class PingTest {
     @Test
     public void testSinglePacketSimulation() throws NoSuchFieldException, IllegalAccessException {
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 2, 50, 0, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         SimulationFacade simulationFacade = new SimulationFacade();
@@ -121,8 +123,15 @@ public class PingTest {
         timer.actionPerformed(null);
         timer.actionPerformed(null);
 
+
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+
         assertFalse(timer.isRunning());
-        assertEquals(1, packetsDelivered);
+        assertEquals(2, packetsDelivered);
     }
 
     /**
@@ -185,6 +194,11 @@ public class PingTest {
                 if (evt.getSimulationLog().getCategory() == LogCategory.ERROR) {
                     fail("error during simulation: " + evt.getSimulationLog().getCause());
                 }
+                if (evt.getSimulationLog().getCategory() == LogCategory.INFO) {
+                    if (evt.getSimulationLog().getCause().contains("dropped")) {
+                        fail("packet has been dropped");
+                    }
+                }
             }
         });
 
@@ -192,7 +206,13 @@ public class PingTest {
 
         //simulate many timer ticks
         for (int i = 0; i < 25; i++) {
-            System.out.println("i = " + i);
+            System.out.println("i= " + i);
+            if (i == 22) {
+                System.out.println("");
+            }
+            if (i == 23) {
+                System.out.println("");
+            }
             timer.actionPerformed(null);
         }
 

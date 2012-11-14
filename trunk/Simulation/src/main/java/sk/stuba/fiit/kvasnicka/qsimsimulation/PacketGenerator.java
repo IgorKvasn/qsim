@@ -58,6 +58,8 @@ public class PacketGenerator {
     public void generatePackets(double simulationTime, double timeQuantum) {
         for (SimulationRuleBean rule : simulationRules) {
             if (rule.isFinished()) continue; //I don't care about finished simulation rules
+            if (! rule.isCanCreateNewPacket()) continue; //this rule simply cannot generate new packet
+
             if (rule.isActive()) {//rule has been activated and it is not finished yet
                 addPacketsToNetworkNode(timeQuantum, rule, simulationTime);
             } else {//check if the time came to activate this rule
@@ -67,6 +69,11 @@ public class PacketGenerator {
                     addPacketsToNetworkNode(timeQuantum, rule, simulationTime);
                     rule.increaseActivationTime(timeQuantum);
                 }
+            }
+
+            //new packet has been generated - now it's a good time to decide if other new packets can be created (this is only for ping rules)
+            if (rule.isPing()) {
+                rule.setCanCreateNewPacket(false);
             }
         }
     }
