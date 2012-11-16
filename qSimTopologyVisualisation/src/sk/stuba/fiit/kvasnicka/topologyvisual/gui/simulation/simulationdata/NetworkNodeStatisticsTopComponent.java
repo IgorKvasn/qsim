@@ -9,6 +9,8 @@ import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.openide.awt.ActionID;
@@ -62,6 +64,15 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
         }
 
         initTraces(networkNodeStatsManager.getAllTraces());
+
+        jTabbedPane1.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (jTabbedPane1.getSelectedIndex()==1){//user has changed tab to "Chart"
+                    textualStatisticsPanel.saveChangesToChart();
+                }
+            }
+        });
     }
 
     /**
@@ -90,12 +101,27 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
     private void initComponents() {
 
         jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanel1 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         panelChart = new javax.swing.JPanel();
         chart2D1 = new info.monitorenter.gui.chart.Chart2D();
         jLabel1 = new javax.swing.JLabel();
-        jPanel1 = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
+
+        jPanel3.setLayout(new java.awt.BorderLayout());
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 905, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)
+        );
+
+        jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(NetworkNodeStatisticsTopComponent.class, "NetworkNodeStatisticsTopComponent.jPanel1.TabConstraints.tabTitle"), jPanel1); // NOI18N
 
         jPanel2.setLayout(new java.awt.BorderLayout());
 
@@ -120,21 +146,6 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
         jPanel2.add(panelChart, java.awt.BorderLayout.CENTER);
 
         jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(NetworkNodeStatisticsTopComponent.class, "NetworkNodeStatisticsTopComponent.jPanel2.TabConstraints.tabTitle"), jPanel2); // NOI18N
-
-        jPanel3.setLayout(new java.awt.BorderLayout());
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 905, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)
-        );
-
-        jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(NetworkNodeStatisticsTopComponent.class, "NetworkNodeStatisticsTopComponent.jPanel1.TabConstraints.tabTitle"), jPanel1); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);

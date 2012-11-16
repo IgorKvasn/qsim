@@ -72,12 +72,38 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
 
         initTextualNodesList();
 
-        jXTreeTable1.setCellSelectionEnabled(false);
-        jXTreeTable1.setRowSelectionAllowed(false);
-        jXTreeTable1.setColumnSelectionAllowed(false);
         jXTreeTable1.setDefaultRenderer(JProgressBar.class, new ProgressRenderer());
 
+        jXTreeTable1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        ListSelectionListener listener = new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (e.getValueIsAdjusting()) {//value is not definitely set (user did not release mouse button)
+                    return;
+                }
+                int rowIndex = jXTreeTable1.getSelectedRow();
+                int colIndex = jXTreeTable1.getSelectedColumn();
+
+                if ((rowIndex == -1) || (colIndex == -1)) {//just in case
+                    return;
+                }
+
+                if (colIndex == 4) {//column 4 is boolean column
+                    boolean oldValue = (Boolean) jXTreeTable1.getValueAt(rowIndex, colIndex);
+                    jXTreeTable1.setValueAt(!oldValue, rowIndex, colIndex);                                                           
+                }
+
+            }
+        };
+        jXTreeTable1.getSelectionModel().addListSelectionListener(listener);
+        jXTreeTable1.getColumnModel().getSelectionModel().addListSelectionListener(listener);
+
+
         treeTableModelCache = new HashMap<NetworkNode, MyTreeTableModel>();
+
+        listTextualNodes.setSelectedIndex(0);//select the first node
+        networkNodeSelectedChanged();
+
     }
 
     private void filterList(String text) {
@@ -116,6 +142,8 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             treeTableModelCache.put(selectedNode, tableModel);
         }
         jXTreeTable1.setTreeTableModel(tableModel);
+        jXTreeTable1.expandAll();
+
         jXTreeTable1.repaint();
     }
 
@@ -161,7 +189,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
     /**
      * saves and shows selected statistics in chart
      */
-    private void saveChangesToChart() {
+    public void saveChangesToChart() {
         //following map contains: key = network node; value = list of all UsageStatistics (buffers/queues) that should be in the graph
         List<UsageStatistics> usages = new LinkedList<UsageStatistics>();
         for (Map.Entry<NetworkNode, MyTreeTableModel> e : treeTableModelCache.entrySet()) {
@@ -352,15 +380,16 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             if (column == 4) {//only column with checkbox (Boolean) is editable
                 return true;
             }
-            return true;
+            return false;
         }
 
         @Override
         public void setValueAt(Object value, Object node, int column) {
-            super.setValueAt(value, node, column);
             if (column == 4) {//this is the columne with check box (boolean)
                 ((MyTreeNode) node).setInChart((Boolean) value);
+                return;
             }
+            super.setValueAt(value, node, column);
         }
 
         @Override
@@ -414,7 +443,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
         private MyTreeNode(String name, int maxCapacity, UsageStatistics usageStatistics) {
             this.name = name;
             this.maxCapacity = maxCapacity;
-            this.inChart = Boolean.FALSE;            //auto-boxing should work, but nevermind....
+            this.inChart = false;
             this.usageStatistics = usageStatistics;
         }
 
@@ -522,8 +551,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
         jScrollPane2 = new javax.swing.JScrollPane();
         listTextualNodes = new org.jdesktop.swingx.JXList();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jXTreeTable1 = new org.jdesktop.swingx.JXTreeTable(tableModel);
-        jButton1 = new javax.swing.JButton();
+        jXTreeTable1 = new org.jdesktop.swingx.JXTreeTable();
 
         setPreferredSize(new java.awt.Dimension(905, 284));
 
@@ -556,16 +584,9 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
                 .addContainerGap())
         );
 
-        jXTreeTable1.setCellSelectionEnabled(true);
-        jXTreeTable1.setExpandedIcon(null);
+        jXTreeTable1.setColumnSelectionAllowed(true);
+        jXTreeTable1.setShowGrid(false);
         jScrollPane1.setViewportView(jXTreeTable1);
-
-        org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(TextualStatisticsPanel.class, "TextualStatisticsPanel.jButton1.text")); // NOI18N
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -574,32 +595,28 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 587, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addGap(46, 46, 46))
+                .addContainerGap(659, Short.MAX_VALUE))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(279, 279, 279)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 578, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(48, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton1))))
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(23, 23, 23)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(23, Short.MAX_VALUE)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        saveChangesToChart();
-    }//GEN-LAST:event_jButton1ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
