@@ -96,7 +96,7 @@ public final class SimulRuleStatisticalDataManager implements PingRuleListener, 
     }
 
     @Override
-    public void packetDeliveredOccurred(PingPacketDeliveredEvent evt) {
+    public void pingPacketDeliveredOccurred(PingPacketDeliveredEvent evt) {
         packetDelivered(evt.getPacket());
     }
 }
