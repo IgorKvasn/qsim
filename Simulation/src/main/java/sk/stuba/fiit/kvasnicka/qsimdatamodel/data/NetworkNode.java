@@ -67,7 +67,7 @@ import java.util.Map;
 public abstract class NetworkNode implements Serializable {
 
     private static Logger logg = Logger.getLogger(NetworkNode.class);
-    private static final long serialVersionUID = 5329622657148825399L;
+    private static final long serialVersionUID = 5329622657148825389L;
     @SimLog
     private transient SimulationLogUtils simulLog;
 
@@ -98,12 +98,12 @@ public abstract class NetworkNode implements Serializable {
      * map of all output interfaces - this is used as TX buffers
      */
     @Getter
-    private transient Map<NetworkNode, TxBuffer> txInterfaces;
+    private HashMap<NetworkNode, TxBuffer> txInterfaces;
     /**
      * map of all input interfaces - this is used as RX buffers
      */
     @Getter
-    private transient Map<NetworkNode, RxBuffer> rxInterfaces;
+    private HashMap<NetworkNode, RxBuffer> rxInterfaces;
     @Getter
     private int maxTxBufferSize;
     @Getter
@@ -111,7 +111,6 @@ public abstract class NetworkNode implements Serializable {
     @Getter
     private InputQueue inputQueue;
 
-    @Setter
     @Getter
     private TopologyManager topologyManager;
     /**
@@ -207,8 +206,6 @@ public abstract class NetworkNode implements Serializable {
         in.defaultReadObject();
 
         processingPackets = new LinkedList<Packet>();
-        txInterfaces = new HashMap<NetworkNode, TxBuffer>();
-        rxInterfaces = new HashMap<NetworkNode, RxBuffer>();
 
         allOutputQueues = new UsageStatistics() {
             @Override
@@ -239,6 +236,12 @@ public abstract class NetworkNode implements Serializable {
         };
     }
 
+    public void setTopologyManager(TopologyManager topologyManager) {
+        this.topologyManager = topologyManager;
+        //also create RX and TX buffers
+        initTxBuffers();
+        initRxBuffers();
+    }
 
     /**
      * defines forbidden NetworkNodes that cannot be neighbours with this
@@ -329,6 +332,27 @@ public abstract class NetworkNode implements Serializable {
         return outputQueueManager.getQueueCount() * outputQueueManager.getMaxCapacity();
     }
 
+    /**
+     * creates TX buffers
+     */
+    private void initTxBuffers() {
+        List<Edge> edgesList = topologyManager.findEdgesWithNode(this);
+        for (Edge edge : edgesList) {
+            NetworkNode oppositeNode = edge.findOppositeNetworkNode(this);
+            txInterfaces.put(oppositeNode, new TxBuffer(maxTxBufferSize, this, oppositeNode, topologyManager));
+        }
+    }
+
+    /**
+     * creates RX buffers
+     */
+    private void initRxBuffers() {
+        List<Edge> edgesList = topologyManager.findEdgesWithNode(this);
+        for (Edge edge : edgesList) {
+            NetworkNode oppositeNode = edge.findOppositeNetworkNode(this);
+            rxInterfaces.put(oppositeNode, new RxBuffer(edge, maxRxBufferSize, this));
+        }
+    }
 
     /**
      * processes given packet
@@ -485,7 +509,7 @@ public abstract class NetworkNode implements Serializable {
 
     @Override
     public String toString() {
-        return "NetworkNode{" + "name=" + name + '}';
+        return name;
     }
 
     /**
@@ -527,7 +551,7 @@ public abstract class NetworkNode implements Serializable {
 
 
         if (! txInterfaces.containsKey(nextHop)) {
-            txInterfaces.put(nextHop, new TxBuffer(maxTxBufferSize, this, nextHop, topologyManager));
+            throw new IllegalStateException("could not find TX buffer on node: " + getName() + " for opposide node: " + nextHop.getName());
         }
 
         TxBuffer txInterface = txInterfaces.get(nextHop);
@@ -556,8 +580,7 @@ public abstract class NetworkNode implements Serializable {
      */
     public void addToRxBuffer(Fragment fragment) {
         if (! rxInterfaces.containsKey(fragment.getFrom())) {
-            Edge edge = topologyManager.findEdge(this.getName(), fragment.getFrom().getName());
-            rxInterfaces.put(fragment.getFrom(), new RxBuffer(edge, maxRxBufferSize));
+            throw new IllegalStateException("could not find RX buffer on node: " + getName() + " for opposide node: " + fragment.getFrom().getName());
         }
         Packet packet = null;
         try {

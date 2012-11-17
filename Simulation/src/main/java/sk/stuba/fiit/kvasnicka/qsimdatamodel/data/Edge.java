@@ -301,6 +301,34 @@ public class Edge implements Serializable, UsageStatistics {
     }
 
     /**
+     * returns network node on the opposite end of the edge
+     *
+     * @param node
+     * @return
+     */
+    public NetworkNode findOppositeNetworkNode(NetworkNode node) {
+        if (node == null) throw new IllegalArgumentException("node is NULL");
+        if (node1.getName().equals(node.getName())) return node2;
+        if (node2.getName().equals(node.getName())) return node1;
+        throw new IllegalStateException("node: " + node.getName() + " could not be found on the edge: " + node1.getName() + " <-> " + node2.getName());
+    }
+
+    /**
+     * determines if this edge contains specified network node
+     *
+     * @param node
+     * @return
+     */
+    public boolean containsNode(NetworkNode node) {
+        if (node == null) throw new IllegalArgumentException("node is NULL");
+
+        if (node1.getName().equals(node.getName())) return true;
+        if (node2.getName().equals(node.getName())) return true;
+
+        return false;
+    }
+
+    /**
      * returns percentage usage of the edge during last simulation quantum
      */
     @Override

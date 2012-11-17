@@ -48,6 +48,8 @@ public class TxBuffer implements UsageStatistics {
     private NetworkNode networknodeNextHop;
 
     private Edge edge;
+    @Getter
+    private String name;
 
     public TxBuffer(int maxBufferSize, NetworkNode currentNode, NetworkNode networknodeNextHop, TopologyManager topologyManager) {
 
@@ -58,6 +60,7 @@ public class TxBuffer implements UsageStatistics {
         }
         this.networknodeNextHop = networknodeNextHop;
         edge = topologyManager.findEdge(currentNode.getName(), networknodeNextHop.getName());
+        name = currentNode.getName() + ": TX buffer - " + networknodeNextHop.getName();
     }
 
     public void addFragment(Fragment packet) {

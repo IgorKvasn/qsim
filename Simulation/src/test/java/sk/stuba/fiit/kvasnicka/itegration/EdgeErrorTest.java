@@ -105,6 +105,10 @@ public class EdgeErrorTest {
         setWithoutSetter(Edge.class, edge, "mtu", 1000);
         setWithoutSetter(Edge.class, edge, "speedMap", new HashMap<SimulationRuleBean, Long>());
         setWithoutSetter(Edge.class, edge, "congestedInfoSet", new TreeSet<Object>());
+
+        topologyManager = new TopologyManager(Arrays.asList(edge),Arrays.asList(node1,node2));
+        node1.setTopologyManager(topologyManager);
+        node2.setTopologyManager(topologyManager);
     }
 
     /**

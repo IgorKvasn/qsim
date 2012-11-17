@@ -122,7 +122,7 @@ public class RxBufferTest {
     @Test
     public void testFragmentReceived() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
-        RxBuffer inputInterface = new RxBuffer(edge, 10);//I do not care about max RX size
+        RxBuffer inputInterface = new RxBuffer(edge, 10, node1);//I do not care about max RX size
         Packet p1 = new Packet(14, packetManager, null, 10); //3 fragments will be created
         initRoute(p1);
 
@@ -146,7 +146,7 @@ public class RxBufferTest {
     @Test
     public void testFragmentReceived_multipacket() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
-        RxBuffer inputInterface = new RxBuffer(edge, 10);//I do not care about max RX size
+        RxBuffer inputInterface = new RxBuffer(edge, 10, node1);//I do not care about max RX size
         Packet p1 = new Packet(14, packetManager, null, 10); //3 fragments will be created
         Packet p2 = new Packet(16, packetManager, null, 10); //4 fragments will be created
         initRoute(p1, p2);
@@ -181,7 +181,7 @@ public class RxBufferTest {
     @Test
     public void testFragmentReceived_packet_created() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
-        RxBuffer inputInterface = new RxBuffer(edge, 10);//I do not care about max RX size
+        RxBuffer inputInterface = new RxBuffer(edge, 10, node1);//I do not care about max RX size
         Packet p1 = new Packet(14, packetManager, null, 10); //3 fragments will be created
         initRoute(p1);
 
@@ -217,7 +217,7 @@ public class RxBufferTest {
     @Test
     public void testFragmentReceived_packet_created__simulation_time() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
-        RxBuffer inputInterface = new RxBuffer(edge, 10);//I do not care about max RX size
+        RxBuffer inputInterface = new RxBuffer(edge, 10, node1);//I do not care about max RX size
         Packet p1 = new Packet(14, packetManager, null, 10); //3 fragments will be created
         initRoute(p1);
 
@@ -256,7 +256,7 @@ public class RxBufferTest {
     @Test
     public void testFragmentReceived_packet_created__multiple_packets() throws NotEnoughBufferSpaceException, PacketCrcErrorException {
         //prepare
-        RxBuffer inputInterface = new RxBuffer(edge, 10);//I do not care about max RX size
+        RxBuffer inputInterface = new RxBuffer(edge, 10, node1);//I do not care about max RX size
         Packet p1 = new Packet(14, packetManager, null, 10); //3 fragments will be created
         Packet p2 = new Packet(9, packetManager, null, 10); //2 fragments will be created
         initRoute(p1, p2);
@@ -301,7 +301,7 @@ public class RxBufferTest {
     public void testFragmentReceived_overflow() throws PacketCrcErrorException {
         //prepare
         int MAX_RX_SIZE = 2;
-        RxBuffer inputInterface = new RxBuffer(edge, MAX_RX_SIZE);//max 2 fragments in RX
+        RxBuffer inputInterface = new RxBuffer(edge, MAX_RX_SIZE, node1);//max 2 fragments in RX
         Packet p1 = new Packet(14, packetManager, null, 10); //3 fragments will be created
         initRoute(p1);
 
@@ -327,7 +327,7 @@ public class RxBufferTest {
     }
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100,  layer4, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, layer4, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {

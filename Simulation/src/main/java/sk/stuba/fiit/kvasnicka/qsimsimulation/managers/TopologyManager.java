@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.WeakHashMap;
 
@@ -130,6 +131,21 @@ public class TopologyManager implements Serializable {
      */
     public List<NetworkNode> getNodeList() {
         return nodeList;
+    }
+
+    /**
+     * finds all edges that contain specified node
+     *
+     * @param node
+     * @return
+     */
+    public List<Edge> findEdgesWithNode(NetworkNode node) {
+        if (node == null) throw new IllegalArgumentException("node is NULL");
+        List<Edge> result = new LinkedList<Edge>();
+        for (Edge e : edgeList) {
+            if (e.containsNode(node)) result.add(e);
+        }
+        return result;
     }
 
     @EqualsAndHashCode(of = {"node1", "node2"})

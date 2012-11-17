@@ -17,8 +17,10 @@
 
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers;
 
+import lombok.Getter;
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.PacketCrcErrorException;
@@ -32,7 +34,7 @@ import java.util.Map;
  * @author Igor Kvasnicka
  */
 public class RxBuffer implements UsageStatistics {
-    private  static Logger logg = Logger.getLogger(RxBuffer.class);
+    private static Logger logg = Logger.getLogger(RxBuffer.class);
 
     /**
      * edge that is connected to this intput interface
@@ -44,8 +46,10 @@ public class RxBuffer implements UsageStatistics {
      * value = number of fragment already received
      */
     private Map<String, Integer> fragmentMap;
+    @Getter
+    private String name;
 
-    public RxBuffer(Edge edge, int maxRxSize) {
+    public RxBuffer(Edge edge, int maxRxSize, NetworkNode currentNode) {
 
         if (maxRxSize == 0) throw new IllegalArgumentException("max RX size must be 1 or more");
         if (maxRxSize == - 1) {
@@ -55,6 +59,7 @@ public class RxBuffer implements UsageStatistics {
         }
         this.edge = edge;
         fragmentMap = new HashMap<String, Integer>();
+        name = currentNode.getName() + ": RX buffer - " + edge.findOppositeNetworkNode(currentNode).getName();
     }
 
     /**
