@@ -206,13 +206,6 @@ public class PingTest {
 
         //simulate many timer ticks
         for (int i = 0; i < 25; i++) {
-            System.out.println("i= " + i);
-            if (i == 22) {
-                System.out.println("");
-            }
-            if (i == 23) {
-                System.out.println("");
-            }
             timer.actionPerformed(null);
         }
 

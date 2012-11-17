@@ -46,9 +46,11 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
 import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
 import static sk.stuba.fiit.kvasnicka.TestUtils.setWithoutSetter;
@@ -216,8 +218,59 @@ public class EdgeTest {
         assertEquals(2.5, usage, 0);
     }
 
+    @Test
+    public void testFindOppositeNetworkNode() {
+        assertTrue(node2.getName().equals(edge.findOppositeNetworkNode(node1).getName()));
+        assertTrue(node1.getName().equals(edge.findOppositeNetworkNode(node2).getName()));
+    }
+
+    @Test
+    public void testFindOppositeNetworkNode_null_argument() {
+        try {
+            edge.findOppositeNetworkNode(null);
+            fail("IllegalArgumentException should be thrown");
+        } catch (IllegalArgumentException e) {
+            //OK
+        }
+    }
+
+    @Test
+    public void testFindOppositeNetworkNode_unknown_node() {
+        try {
+            NetworkNode node3 = new Router("new node that is not placed on the edge", null, qosMechanism, MAX_TX_SIZE, 10, 50, 10, 2, 100, 0, 0);
+
+            edge.findOppositeNetworkNode(node3);
+            fail("IllegalStateException should be thrown");
+        } catch (IllegalStateException e) {
+            //OK
+        }
+    }
+
+    @Test
+    public void testContainsNode() {
+        assertTrue(edge.containsNode(node1));
+        assertTrue(edge.containsNode(node2));
+    }
+
+    @Test
+    public void testContainsNode_unknown_node() {
+        NetworkNode node3 = new Router("new node that is not placed on the edge", null, qosMechanism, MAX_TX_SIZE, 10, 50, 10, 2, 100, 0, 0);
+
+        assertFalse(edge.containsNode(node3));
+    }
+
+    @Test
+    public void testContainsNode_null_argument() {
+        try {
+            edge.containsNode(null);
+            fail("IllegalArgumentException should be thrown");
+        } catch (IllegalArgumentException e) {
+            //OK
+        }
+    }
+
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 10,  layer4, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 10, layer4, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {
