@@ -110,7 +110,12 @@ public class PacketGenerator {
         List<Packet> packets = new LinkedList<Packet>();
         double timeSpent = 0;
         double creationTime = rule.getActivationTime() % timeQuantum;
+
         while (timeSpent <= creationTime && (rule.getNumberOfPackets() > 0 || rule.getNumberOfPackets() == - 1)) {
+            if (rule.isPing() && packets.size() == 1) { //there can be created only 1 ICMP ping at a time
+                break;
+            }
+
             double creationDelay = DelayHelper.calculatePacketCreationDelay(rule.getSource(), rule.getPacketSize());
             if (timeSpent + creationDelay > timeQuantum) break; //no time left to spent
             packets.add(createPacket(rule, rule.getActivationTime() + timeSpent + simulationTime));
@@ -119,6 +124,7 @@ public class PacketGenerator {
 
             if (rule.isFinished()) fireSimulationRuleFinishedEvent(new SimulationRuleActivationEvent(this, rule));
         }
+
         if (logg.isDebugEnabled()) {
             logg.debug("Packets created: " + packets.size());
         }
