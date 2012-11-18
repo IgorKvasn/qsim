@@ -55,7 +55,7 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
             DscpValuesEnum dscpEn = DscpClassification.DscpValuesEnum.values()[i];
             jComboBox1.addItem(new ComboItem(dscpEn.getQosQueue(), dscpEn.getTextName()));
         }
-
+        setLocationRelativeTo(parent);
     }
 
     /**

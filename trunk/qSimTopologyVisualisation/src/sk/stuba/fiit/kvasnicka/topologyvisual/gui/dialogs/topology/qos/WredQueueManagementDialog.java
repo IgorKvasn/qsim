@@ -37,6 +37,7 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
 
         selectClass(0);
         selectedClass = getSelectedClass();
+        setLocationRelativeTo(owner);
     }
 
     /**
@@ -59,6 +60,7 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
 
         selectClass(0);
         selectedClass = getSelectedClass();
+        setLocationRelativeTo(owner);
     }
 
     private void init() {

@@ -6,7 +6,6 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.simulation.rules;
 
 import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
-import info.monitorenter.gui.chart.traces.painters.TracePainterFill;
 import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
