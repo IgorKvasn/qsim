@@ -46,6 +46,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
+import static sk.stuba.fiit.kvasnicka.TestUtils.setWithoutSetter;
 
 /**
  * @author Igor Kvasnicka
@@ -211,6 +212,60 @@ public class PingTest {
 
 
         assertTrue(timer.isRunning());    //timer has not yet finished
+    }
+
+    /**
+     * this ping goes on and on with edge that drops everything
+     *
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
+    @Test
+    public void testSinglePacketSimulation_infinitePing_crc_error() throws Exception {
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, - 1, 50, 0, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);    //notice this -1
+        rule.setRoute(Arrays.asList(node1, node2));
+
+        setWithoutSetter(Edge.class, edge1, "packetErrorRate", 1.0);
+        SimulationFacade simulationFacade = new SimulationFacade();
+        simulationFacade.addSimulationRule(rule);
+        simulationFacade.initTimer(Arrays.asList(edge1), Arrays.asList(node1, node2));
+        simulationFacade.startTimer();
+
+//        simulationFacade.addSimulationLogListener(new SimulationLogListener() {
+//            @Override
+//            public void simulationLogOccurred(SimulationLogEvent evt) {
+//                if (evt.getSimulationLog().getCategory() == LogCategory.ERROR) {
+//                    fail("error during simulation: " + evt.getSimulationLog().getCause());
+//                }
+//                if (evt.getSimulationLog().getCategory() == LogCategory.INFO) {
+//                    if (evt.getSimulationLog().getCause().contains("dropped")) {
+//                        fail("packet has been dropped");
+//                    }
+//                }
+//            }
+//        });
+        simulationFacade.addSimulationLogListener(new SimulationLogListener() {
+            @Override
+            public void simulationLogOccurred(SimulationLogEvent evt) {
+                if (evt.getSimulationLog().getCause().equals("Starting simulation timer")) return;
+                if (evt.getSimulationLog().getCause().equals("Nothing to simulate - simulation stopped")) return;
+
+                if (evt.getSimulationLog().getCause().startsWith("Ping packet delivered in:")) {
+                    packetsDelivered++;
+                }
+            }
+        });
+
+        SimulationTimer timer = (SimulationTimer) getPropertyWithoutGetter(SimulationFacade.class, simulationFacade, "timer");
+
+        //simulate many timer ticks
+        for (int i = 0; i < 25; i++) {
+            timer.actionPerformed(null);
+        }
+
+
+        assertTrue(timer.isRunning());    //timer has not yet finished
+        assertEquals(0, packetsDelivered);//no packet have been delivered
     }
 
     private class ListenerClass implements SimulationLogListener {

@@ -80,6 +80,8 @@ public class InputQueue implements UsageStatistics, Serializable {
             //packet should be dropped
             if (packet.getLayer4().isRetransmissionEnabled()) {
                 node.retransmittPacket(packet);
+            } else {
+                packet.getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
             }
         }
 
