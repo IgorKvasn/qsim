@@ -67,7 +67,7 @@ public class PingTest {
 
 
         qosMechanism = EasyMock.createMock(QosMechanismDefinition.class);
-        EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
+        EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(125);
         EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
             @Override
             public List<Packet> answer() throws Throwable {
@@ -76,14 +76,13 @@ public class PingTest {
                 }
                 return ((Map<Integer, List<Packet>>) EasyMock.getCurrentArguments()[1]).get(0);
             }
-        }).times(100);
-//        EasyMock.expect(qosMechanism.performActiveQueueManagement(EasyMock.anyObject(List.class), EasyMock.anyObject(Packet.class))).andReturn(true).times(100);
+        }).times(250);
 
         EasyMock.replay(qosMechanism);
 
-        node1 = new Router("node1", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
-        node3 = new Router("node3", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 1, 1, 1, 1, 1, 0, 0.5, 0.5);
+        node2 = new Router("node2", null, qosMechanism, 1, 1, 1, 1, 1, 0, 0.5, 0.5);
+        node3 = new Router("node3", null, qosMechanism, 1, 1, 1, 1, 1, 0, 0.5, 0.5);
 
 
         edge1 = new Edge(100000000, 100, 2000, 0, node1, node2);
@@ -167,6 +166,9 @@ public class PingTest {
         timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+
 
         assertFalse(timer.isRunning());
         assertEquals(1, packetsDelivered);
@@ -206,7 +208,7 @@ public class PingTest {
         SimulationTimer timer = (SimulationTimer) getPropertyWithoutGetter(SimulationFacade.class, simulationFacade, "timer");
 
         //simulate many timer ticks
-        for (int i = 0; i < 25; i++) {
+        for (int i = 0; i < 125; i++) {
             timer.actionPerformed(null);
         }
 
