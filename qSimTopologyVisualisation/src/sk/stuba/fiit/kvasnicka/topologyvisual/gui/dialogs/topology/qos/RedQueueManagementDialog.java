@@ -18,9 +18,10 @@ public class RedQueueManagementDialog extends javax.swing.JDialog {
     public RedQueueManagementDialog(JDialog parent) {
         super(parent, true);
         initComponents();
+        setLocationRelativeTo(parent);
     }
 
-    public RedQueueManagementDialog(JDialog parent,double expWeight, double maxProb, double maxThr, double minThr) {
+    public RedQueueManagementDialog(JDialog parent, double expWeight, double maxProb, double maxThr, double minThr) {
         this(parent);
         jSpinner1.setValue(expWeight);
         jSpinner2.setValue(minThr);

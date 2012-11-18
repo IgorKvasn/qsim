@@ -608,7 +608,9 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         if (dialog.getUserInput() == null) {//user hit cancel
             return;
         }
+        
         edge.setEdge(dialog.getUserInput());
+        topologyModified();
     }
 
     /**

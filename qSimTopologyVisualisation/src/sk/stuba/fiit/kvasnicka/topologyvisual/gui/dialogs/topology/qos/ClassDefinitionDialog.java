@@ -57,6 +57,7 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
         init();
         fillTree(queues);
         expandTree(jTree1);
+        setLocationRelativeTo(parent);
     }
 
     public ClassDefinitionDialog(JDialog parent, ClassDefinition[] classes) {
@@ -66,6 +67,7 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
         for (ClassDefinition def : classes) {
             addClass(def.getName(), def.getQueueNumbers());
         }
+        setLocationRelativeTo(parent);
     }
 
     private void init() {

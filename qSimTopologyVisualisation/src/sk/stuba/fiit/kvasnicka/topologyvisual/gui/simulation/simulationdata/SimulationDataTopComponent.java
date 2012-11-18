@@ -145,7 +145,7 @@ public final class SimulationDataTopComponent extends TopComponent {
         jXTaskPaneContainer1 = new org.jdesktop.swingx.JXTaskPaneContainer();
         chart = new info.monitorenter.gui.chart.Chart2D();
 
-        jSplitPane1.setDividerLocation(252);
+        jSplitPane1.setDividerLocation(302);
 
         jXTaskPaneContainer1.setOpaque(false);
         jXTaskPaneContainer1.setLayout(new java.awt.GridLayout(0, 1));
@@ -160,7 +160,7 @@ public final class SimulationDataTopComponent extends TopComponent {
         chart.setLayout(chartLayout);
         chartLayout.setHorizontalGroup(
             chartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 656, Short.MAX_VALUE)
+            .addGap(0, 606, Short.MAX_VALUE)
         );
         chartLayout.setVerticalGroup(
             chartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

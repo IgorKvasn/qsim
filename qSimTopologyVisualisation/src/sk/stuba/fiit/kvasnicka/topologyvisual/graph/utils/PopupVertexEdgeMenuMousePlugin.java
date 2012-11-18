@@ -107,6 +107,9 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                 correctVertexPopup();
                 vertexPopup.show(vv, e.getX(), e.getY());
                 //right clicking on a vertex makes it selected/picked
+                topology.deselectEdges();
+                topology.deselectVertices();
+                
                 topology.manuallySelectVertex(v, true);
             } else {
                 final TopologyEdge edge = pickSupport.getEdge(vv.getGraphLayout(), p.getX(), p.getY());
@@ -116,6 +119,9 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                     correctEdgePopup();
                     edgePopup.show(vv, e.getX(), e.getY());
                     //right clicking on a edge makes it selected/picked
+                    topology.deselectEdges();
+                    topology.deselectVertices();
+
                     topology.manuallySelectEdge(edge, true);
                 }
             }

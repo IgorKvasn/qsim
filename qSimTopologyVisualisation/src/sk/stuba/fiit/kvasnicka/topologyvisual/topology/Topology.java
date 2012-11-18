@@ -203,8 +203,8 @@ public class Topology implements VertexCreatedListener {
     public void manuallySelectVertex(TopologyVertex v, boolean selected) {
         vv.getPickedVertexState().pick(v, selected);
     }
-    
-       /**
+
+    /**
      * programatically (manually) select specified edge
      *
      * @param e
@@ -570,6 +570,9 @@ public class Topology implements VertexCreatedListener {
         //and do not forget to highlight source and destination vertices, too
     }
 
+    /**
+     * deselects all selected vertices
+     */
     public void deselectVertices() {
         if (NetbeansWindowHelper.getInstance().getActiveTopology() == null) {
             return;
@@ -581,6 +584,13 @@ public class Topology implements VertexCreatedListener {
             vertex.deSelectVertex();
             vertex.deCheckVertex();
         }
+    }
+
+    /**
+     * deselects all selected edges
+     */
+    public void deselectEdges() {
+        vv.getPickedEdgeState().clear();
     }
 
     public void addVertexCreatedListener(VertexCreatedListener listener) {

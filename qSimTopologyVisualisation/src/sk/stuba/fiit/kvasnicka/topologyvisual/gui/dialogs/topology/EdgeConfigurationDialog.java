@@ -39,6 +39,10 @@ public class EdgeConfigurationDialog extends BlockingDialog<Edge> {
 
         initComponents();
         txtSpeed.setText(String.valueOf((double) defaultSpeed / 1000 / 1000));//conversion from bps to Mbps
+        txtMTU.setText("1500");
+        jRadioButton1.setSelected(true);//PER is selected
+        txtPer.setText("0");
+        txtLength.setText("1");
         pack();
     }
 
@@ -50,7 +54,7 @@ public class EdgeConfigurationDialog extends BlockingDialog<Edge> {
         txtSpeed.setText(String.valueOf((double) edge.getMaxSpeed() / 1000 / 1000));//conversion from bps to Mbps
         txtLength.setText(edge.getLength() + "");
         txtMTU.setText(edge.getMtu() + "");
-        txtPer.setText(edge.getPacketErrorRate() + "");
+        txtPer.setText(edge.getPacketErrorRate() * 100 + "");
         txtBer.setText("");
         jRadioButton1.setSelected(true);//PER is selected
         this.src = edge.getNode1();
@@ -202,7 +206,7 @@ public class EdgeConfigurationDialog extends BlockingDialog<Edge> {
                                     .addComponent(txtSpeed)
                                     .addComponent(txtLength)
                                     .addComponent(txtMTU, javax.swing.GroupLayout.DEFAULT_SIZE, 137, Short.MAX_VALUE))))))
-                .addContainerGap(33, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -239,7 +243,7 @@ public class EdgeConfigurationDialog extends BlockingDialog<Edge> {
 
         int length = Integer.valueOf(txtLength.getText());
 
-        Edge e = new Edge(speed, mtu, length, errorRate, src, dest);
+        Edge e = new Edge(speed, mtu, length, errorRate / 100, src, dest);
         setUserInput(e);
         closeDialog();
     }//GEN-LAST:event_btnOkActionPerformed
@@ -283,6 +287,9 @@ public class EdgeConfigurationDialog extends BlockingDialog<Edge> {
         } catch (ClassCastException e) {
             txtSpeed.setBackground(ERROR_COLOR);
             ok = false;
+        } catch (NumberFormatException e) {
+            txtSpeed.setBackground(ERROR_COLOR);
+            ok = false;
         }
 
         try {
@@ -298,7 +305,10 @@ public class EdgeConfigurationDialog extends BlockingDialog<Edge> {
                 }
             }
         } catch (ClassCastException e) {
-            txtSpeed.setBackground(ERROR_COLOR);
+            txtLength.setBackground(ERROR_COLOR);
+            ok = false;
+        } catch (NumberFormatException e) {
+            txtLength.setBackground(ERROR_COLOR);
             ok = false;
         }
 
@@ -315,7 +325,10 @@ public class EdgeConfigurationDialog extends BlockingDialog<Edge> {
                 }
             }
         } catch (ClassCastException e) {
-            txtSpeed.setBackground(ERROR_COLOR);
+            txtMTU.setBackground(ERROR_COLOR);
+            ok = false;
+        } catch (NumberFormatException e) {
+            txtMTU.setBackground(ERROR_COLOR);
             ok = false;
         }
 
@@ -328,32 +341,38 @@ public class EdgeConfigurationDialog extends BlockingDialog<Edge> {
                     txtPer.setBackground(ERROR_COLOR);
                     ok = false;
                 } else {
-                    if (Double.valueOf(txtPer.getText()) <= 0) {//PER is not negative nor zero
+                    if ((Double.valueOf(txtPer.getText()) >= 0) && (Double.valueOf(txtPer.getText()) <= 100)) {//PER is between 0 and 100
+                        txtPer.setBackground(UIManager.getColor("JFormattedTextField.background"));
+                    } else {
                         txtPer.setBackground(ERROR_COLOR);
                         ok = false;
-                    } else {
-                        txtPer.setBackground(UIManager.getColor("JFormattedTextField.background"));
                     }
                 }
             } catch (ClassCastException e) {
-                txtSpeed.setBackground(ERROR_COLOR);
+                txtPer.setBackground(ERROR_COLOR);
+                ok = false;
+            } catch (NumberFormatException e) {
+                txtPer.setBackground(ERROR_COLOR);
                 ok = false;
             }
         } else {//bit error rate is selected
             try {
-                if (StringUtils.isEmpty(txtBer.getText())) { //PER is numeric and non-empty
+                if (StringUtils.isEmpty(txtBer.getText())) { //BER is numeric and non-empty
                     txtBer.setBackground(ERROR_COLOR);
                     ok = false;
                 } else {
-                    if (Double.valueOf(txtBer.getText()) <= 0) {//PER is not negative nor zero
+                    if ((Double.valueOf(txtBer.getText()) >= 0) && (Double.valueOf(txtBer.getText()) <= 100)) {//BER is between 0 and 100
+                        txtBer.setBackground(UIManager.getColor("JFormattedTextField.background"));
+                    } else {
                         txtBer.setBackground(ERROR_COLOR);
                         ok = false;
-                    } else {
-                        txtBer.setBackground(UIManager.getColor("JFormattedTextField.background"));
                     }
                 }
             } catch (ClassCastException e) {
-                txtSpeed.setBackground(ERROR_COLOR);
+                txtBer.setBackground(ERROR_COLOR);
+                ok = false;
+            } catch (NumberFormatException e) {
+                txtBer.setBackground(ERROR_COLOR);
                 ok = false;
             }
         }

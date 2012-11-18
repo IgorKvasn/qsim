@@ -75,6 +75,7 @@ public abstract class BlockingDialog<R> extends JDialog {
             public void windowDeactivated(WindowEvent e) {
             }
         });
+        setLocationRelativeTo(owner);
     }
 
     /**
