@@ -165,6 +165,8 @@ public class OutputQueueManager implements Serializable {
             //packet should be dropped
             if (p.getLayer4().isRetransmissionEnabled()) {
                 node.retransmittPacket(p);
+            } else {
+                p.getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
             }
         }
 

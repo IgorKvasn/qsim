@@ -413,6 +413,8 @@ public abstract class NetworkNode implements Serializable {
                 simulLog.log(new SimulationLog(LogCategory.INFO, "No space left in output queue -> packet dropped", getName(), LogSource.VERTEX, packet.getSimulationTime()));
                 if (packet.getLayer4().isRetransmissionEnabled()) {
                     retransmittPacket(packet);
+                } else {
+                   packet.getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
                 }
                 if (Layer4TypeEnum.TCP == packet.getLayer4()) {
                     nodeCongested(packet);
@@ -594,6 +596,8 @@ public abstract class NetworkNode implements Serializable {
 
             if (fragment.getOriginalPacket().getLayer4().isRetransmissionEnabled()) {
                 retransmittPacket(fragment.getOriginalPacket());
+            } else {
+                fragment.getOriginalPacket().getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
             }
 
             return;
@@ -606,6 +610,8 @@ public abstract class NetworkNode implements Serializable {
 
             if (e.getPacket().getLayer4().isRetransmissionEnabled()) {
                 retransmittPacket(e.getPacket());
+            } else {
+                fragment.getOriginalPacket().getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
             }
             return;
         }
@@ -633,6 +639,8 @@ public abstract class NetworkNode implements Serializable {
                     simulLog.log(new SimulationLog(LogCategory.INFO, "No space left in input queue -> packet dropped", getName(), LogSource.VERTEX, packet.getSimulationTime()));
                     if (packet.getLayer4().isRetransmissionEnabled()) {
                         retransmittPacket(packet);
+                    } else {
+                        fragment.getOriginalPacket().getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
                     }
                     if (Layer4TypeEnum.TCP == packet.getLayer4()) {
                         nodeCongested(packet);
