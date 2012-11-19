@@ -49,7 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
@@ -146,7 +145,7 @@ public class EdgeErrorTest {
         timer.actionPerformed(null);
 
 
-        assertFalse(timer.isRunning());
+        assertTrue(timer.isEndOfSimulation());
 
         checkNoPacketsInTopology(timer);
     }

@@ -220,7 +220,6 @@ public class SimulationTimer implements ActionListener {
                 }
                 simulationLogUtils.log(new SimulationLog(LogCategory.INFO, "Nothing to simulate - simulation stopped", SimulationLogUtils.SOURCE_GENERAL, LogSource.UNKNOWN, simulationTime));
 
-                timer.stop();
             }
             fireSimulationTimerEvent(new SimulationTimerEvent(this, simulationTime));
         } catch (Exception e) {
@@ -243,7 +242,7 @@ public class SimulationTimer implements ActionListener {
      *
      * @return
      */
-    private boolean isEndOfSimulation() {
+    public boolean isEndOfSimulation() {
         //first condition
         for (SimulationRuleBean sRule : simulationManager.getRulesUnmodifiable()) {
             if (! sRule.isFinished()) return false;

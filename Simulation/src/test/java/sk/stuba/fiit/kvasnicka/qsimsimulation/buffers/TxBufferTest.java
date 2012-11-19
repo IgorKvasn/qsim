@@ -337,8 +337,54 @@ public class TxBufferTest {
         assertEquals(28, edge.getFragments().get(1).getReceivedTime(), 0.0);
     }
 
+    /**
+     * adds 1 packet to TX - serialise it; then add second packet to TX and serialize it (no big deal, so far)
+     * now check if serialisation time on the second packet is correct
+     *
+     * @throws NotEnoughBufferSpaceException
+     */
+    @Test
+    public void testSerialisePackets_multiple_packets_enough_time() throws NotEnoughBufferSpaceException {
+        //preparation
+        PowerMock.mockStatic(DelayHelper.class);
+        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Packet.class), EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(1.0).times(2);
+        EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(2);
+        PowerMock.replay(DelayHelper.class);
+
+        Packet p1 = new Packet(64, packetManager, null, 10);
+        Packet p2 = new Packet(64, packetManager, null, 30);
+
+        initRoute(p1, p2);
+        TxBuffer outputInterface = node1.getTxInterfaces().get(node2);
+
+
+        node1.addToTxBuffer(p1, 100);
+
+        //test method
+        outputInterface.serialisePackets(20);
+
+        //assert - all packets should be on the wire
+        assertEquals(0, outputInterface.getFragmentsCount());
+        assertEquals(1, edge.getFragments().size());
+        assertEquals(10 + 1 + 1 + 3, edge.getFragments().get(0).getReceivedTime(), 0.0);
+
+
+        node1.addToTxBuffer(p2, 100);
+
+        //test method
+        outputInterface.serialisePackets(50);
+
+        //assert - all packets should be on the wire
+        assertEquals(0, outputInterface.getFragmentsCount());
+        assertEquals(2, edge.getFragments().size());
+        assertEquals(10 + 1 + 1 + 3, edge.getFragments().get(0).getReceivedTime(), 0.0);
+        assertEquals(30 + 1 + 1 + 3, edge.getFragments().get(1).getReceivedTime(), 0.0);
+
+        EasyMock.verify();
+    }
+
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 10,  layer4, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 10, layer4, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
         for (Packet p : packets) {
             Field f = null;
