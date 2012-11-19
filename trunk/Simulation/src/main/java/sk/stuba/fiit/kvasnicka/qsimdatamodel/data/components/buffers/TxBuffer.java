@@ -18,6 +18,7 @@
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers;
 
 import lombok.Getter;
+import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
@@ -34,6 +35,8 @@ import java.util.List;
  * @author Igor Kvasnicka
  */
 public class TxBuffer implements UsageStatistics {
+
+    private static final Logger logg = Logger.getLogger(TxBuffer.class);
 
     private List<Fragment> fragments = new LinkedList<Fragment>();
     /**
@@ -94,25 +97,24 @@ public class TxBuffer implements UsageStatistics {
             Fragment fragment = iterator.next();
 
             if (fragment.getReceivedTime() > simulationTime) {//this fragment is not ready to serialise, yet
+                if (logg.isDebugEnabled()) {
+                   logg.debug("this fragment is not ready to serialise: " + fragment.getReceivedTime() + " " + simulationTime);
+                }
                 continue;
             }
 
-            if (serialisationEndTime >= fragment.getReceivedTime()) {//this fragment will be ready to send after previous serialisation ends
-                fragment.setReceivedTime(serialisationEndTime);//new fragment can be serialised after the previous one is finished
-            }
-
-
-            if (simulationTime > serialisationEndTime) {//all fragments are serialised until given simulation time
-                serialisationEndTime = 0;
-            }
-
-            if (serialisationEndTime == 0) {//serialisation end time is not initialised, because all serialisation has already finished
+            if (fragment.getReceivedTime() < serialisationEndTime) {//there is another serialisation going on
+                fragment.setReceivedTime(serialisationEndTime);
+            } else {
                 serialisationEndTime = fragment.getReceivedTime();
             }
 
             int fragmentSize = QueueingHelper.calculateFragmentSize(fragment.getFragmentNumber(), QueueingHelper.calculateNumberOfFragments(fragment.getOriginalPacket().getPacketSize(), edge.getMtu()), edge.getMtu(), fragment.getOriginalPacket().getPacketSize());
             double serDelay = DelayHelper.calculateSerialisationDelay(fragment.getOriginalPacket(), edge, fragmentSize);
             if (serialisationEndTime + serDelay > simulationTime) { //there is no time left to serialise this packet
+                if (logg.isDebugEnabled()) {
+                    logg.debug("no time left to serialise this packet " + (serialisationEndTime + serDelay) + " " + simulationTime);
+                }
                 continue;
             }
             serialisationEndTime += serDelay;

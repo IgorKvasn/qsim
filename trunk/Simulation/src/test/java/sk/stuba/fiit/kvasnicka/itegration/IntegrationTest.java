@@ -54,7 +54,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
@@ -127,7 +126,7 @@ public class IntegrationTest {
 
         timer.actionPerformed(null);
 
-        assertFalse(timer.isRunning());
+        assertTrue(timer.isEndOfSimulation());
     }
 
     /**
@@ -159,7 +158,7 @@ public class IntegrationTest {
         timer.actionPerformed(null);
 
 
-        assertFalse(timer.isRunning());
+        assertTrue(timer.isEndOfSimulation());
 
         checkNoPacketsInTopology(timer);
     }
@@ -196,7 +195,7 @@ public class IntegrationTest {
         timer.actionPerformed(null);
 
 
-        assertFalse(timer.isRunning());
+        assertTrue(timer.isEndOfSimulation());
         checkNoPacketsInTopology(timer);
     }
 
@@ -245,7 +244,7 @@ public class IntegrationTest {
         timer.actionPerformed(null);
 
 
-        assertFalse(timer.isRunning());
+        assertTrue(timer.isEndOfSimulation());
         checkNoPacketsInTopology(timer);
     }
 
@@ -287,7 +286,7 @@ public class IntegrationTest {
         timer.actionPerformed(null);
 
 
-        assertFalse(timer.isRunning());
+        assertTrue(timer.isEndOfSimulation());
 
 
         checkNoPacketsInTopology(timer);
@@ -330,7 +329,7 @@ public class IntegrationTest {
         timer.stopTimer();
         timer.clearSimulationData();
 
-        assertFalse(timer.isRunning());
+        assertTrue(timer.isEndOfSimulation());
         checkNoPacketsInTopology(timer);
     }
 
@@ -364,7 +363,7 @@ public class IntegrationTest {
         timer.actionPerformed(null);
 
 
-        assertFalse(timer.isRunning());
+        assertTrue(timer.isEndOfSimulation());
 
         checkNoPacketsInTopology(timer);
     }
@@ -395,7 +394,7 @@ public class IntegrationTest {
 
         timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
 
-        //perform 2 timer ticks
+        //perform 2 timer timerTicks
         timer.actionPerformed(null);
 
 
@@ -412,7 +411,7 @@ public class IntegrationTest {
         timer.actionPerformed(null);
 
 
-        assertFalse("Simulation timer is still running", timer.isRunning());
+        assertTrue(timer.isEndOfSimulation());
 
         checkNoPacketsInTopology(timer);
     }
@@ -450,7 +449,7 @@ public class IntegrationTest {
         timer.actionPerformed(null);
 
         assertEquals(1, packetDelivered); //assert that packet has been delivered
-        assertFalse(timer.isRunning());
+        assertTrue(timer.isEndOfSimulation());
     }
 
     private void checkNoPacketsInTopology(SimulationTimer timer) throws NoSuchFieldException, IllegalAccessException {

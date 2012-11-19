@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
 import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
@@ -139,7 +139,7 @@ public class PacketDeliveryListenerTest {
         timer.actionPerformed(null);
         timer.actionPerformed(null);
 
-        assertFalse(timer.isRunning());
+        assertTrue(timer.isEndOfSimulation());
 
         assertEquals(0, deliveredPackets);
         assertEquals(1, deliveredPingPackets);
@@ -182,7 +182,7 @@ public class PacketDeliveryListenerTest {
         timer.actionPerformed(null);
 
 
-        assertFalse(timer.isRunning());
+        assertTrue(timer.isEndOfSimulation());
 
         assertEquals(1, deliveredPackets);
         assertEquals(0, deliveredPingPackets);

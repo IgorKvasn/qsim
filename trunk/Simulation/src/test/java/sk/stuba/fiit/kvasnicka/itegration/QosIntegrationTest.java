@@ -135,7 +135,7 @@ public class QosIntegrationTest {
         timer.actionPerformed(null);
 
 
-        assertFalse(timer.isRunning());
+        assertTrue(timer.isEndOfSimulation());
         assertEquals(1, packetDelivered);
 
 

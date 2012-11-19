@@ -41,8 +41,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static sk.stuba.fiit.kvasnicka.TestUtils.getPropertyWithoutGetter;
@@ -58,13 +58,17 @@ public class PingTest {
     private Edge edge1, edge2;
     private ListenerClass listener;
     private static final Logger logg = Logger.getLogger(PingTest.class);
+    int timerTicks = 0;
+    int previousTimerTicks = 0;
+
 
     @Before
     public void before() {
 
         listener = new ListenerClass();
         packetsDelivered = 0;
-
+        timerTicks = 0;
+        previousTimerTicks = 0;
 
         qosMechanism = EasyMock.createMock(QosMechanismDefinition.class);
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(125);
@@ -130,7 +134,7 @@ public class PingTest {
         timer.actionPerformed(null);
         timer.actionPerformed(null);
 
-        assertFalse(timer.isRunning());
+        assertTrue(timer.isEndOfSimulation());
         assertEquals(2, packetsDelivered);
     }
 
@@ -170,7 +174,7 @@ public class PingTest {
         timer.actionPerformed(null);
 
 
-        assertFalse(timer.isRunning());
+        assertTrue(timer.isEndOfSimulation());
         assertEquals(1, packetsDelivered);
     }
 
@@ -201,19 +205,35 @@ public class PingTest {
                     if (evt.getSimulationLog().getCause().contains("dropped")) {
                         fail("packet has been dropped");
                     }
+                    if (evt.getSimulationLog().getCause().contains("Ping packet delivered in")) {
+                        if (previousTimerTicks == 0) {
+                            previousTimerTicks = timerTicks;
+                            timerTicks = 0;
+                            return;
+                        }
+
+                        if (Math.abs(timerTicks - previousTimerTicks) > 1) {
+                            fail("number of timer ticks is not constant - previous number of ticks: " + previousTimerTicks + " current number: " + timerTicks);
+                            logg.error("rozdiel v timer tickoch: povodny = " + previousTimerTicks + " novy: " + timerTicks);
+                        }
+                        previousTimerTicks = timerTicks;
+                        timerTicks = 0;
+                    }
                 }
             }
         });
 
         SimulationTimer timer = (SimulationTimer) getPropertyWithoutGetter(SimulationFacade.class, simulationFacade, "timer");
 
+
         //simulate many timer ticks
         for (int i = 0; i < 125; i++) {
+            timerTicks++;
+            System.out.println("--------------- i = " + i);
             timer.actionPerformed(null);
         }
 
-
-        assertTrue(timer.isRunning());    //timer has not yet finished
+        assertFalse(timer.isEndOfSimulation());   //timer has not yet finished
     }
 
     /**
@@ -266,7 +286,7 @@ public class PingTest {
         }
 
 
-        assertTrue(timer.isRunning());    //timer has not yet finished
+        assertFalse(timer.isEndOfSimulation());    //timer has not yet finished
         assertEquals(0, packetsDelivered);//no packet have been delivered
     }
 
