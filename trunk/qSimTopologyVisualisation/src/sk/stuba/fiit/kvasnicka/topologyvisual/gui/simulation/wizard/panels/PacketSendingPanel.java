@@ -16,6 +16,7 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels;
 
+import java.util.Random;
 import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
@@ -29,6 +30,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 public class PacketSendingPanel extends PanelInterface {
 
     private SimulationRuleIterator iterator;
+    private static final Random random = new Random();
 
     /**
      * Creates new form PacketSendingPanel
@@ -70,7 +72,8 @@ public class PacketSendingPanel extends PanelInterface {
 
     @Override
     public boolean validateData() {
-        iterator.getStoredData().setLayer4protocol((Layer4TypeEnum) (((ComboItem) comboLayer4.getSelectedItem()).getValue()));
+        Layer4TypeEnum layer4prot = (Layer4TypeEnum) (((ComboItem) comboLayer4.getSelectedItem()).getValue());
+        iterator.getStoredData().setLayer4protocol(layer4prot);
 
         int count = ((Integer) spinCount.getValue()).intValue();
         if (jCheckBox1.isSelected()) {
@@ -79,8 +82,13 @@ public class PacketSendingPanel extends PanelInterface {
         iterator.getStoredData().setPacketCount(count);
         iterator.getStoredData().setPacketSize((Integer) spinSize.getValue());
         iterator.getStoredData().setActivationDelay(getActivationDelay());
-        iterator.getStoredData().setSrcPort((Integer) spinSrcPort.getValue());
-        iterator.getStoredData().setDestPort((Integer) spinDestPort.getValue());
+        if (layer4prot == Layer4TypeEnum.ICMP) {
+            iterator.getStoredData().setSrcPort(generateRandomPortNumber());
+            iterator.getStoredData().setDestPort(generateRandomPortNumber());
+        } else {
+            iterator.getStoredData().setSrcPort((Integer) spinSrcPort.getValue());
+            iterator.getStoredData().setDestPort((Integer) spinDestPort.getValue());
+        }
         iterator.getStoredData().setIpPrecedence((IpPrecedence) ((ComboItem) jComboBox1.getSelectedItem()).getValue());
         return true;
     }
@@ -111,6 +119,18 @@ public class PacketSendingPanel extends PanelInterface {
             jRadioButton1.setSelected(true);
             spinActive.setValue(data.getActivationDelay() == 0 ? 1 : data.getActivationDelay());
         }
+
+        if (data.getLayer4protocol() == Layer4TypeEnum.ICMP) {
+            spinSrcPort.setEnabled(false);
+            spinDestPort.setEnabled(false);
+        } else {
+            spinSrcPort.setEnabled(true);
+            spinDestPort.setEnabled(true);
+        }
+    }
+
+    private int generateRandomPortNumber() {
+        return random.nextInt(65536);
     }
 
     /**
@@ -229,6 +249,12 @@ public class PacketSendingPanel extends PanelInterface {
 
         jLabel5.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jLabel5.text")); // NOI18N
 
+        comboLayer4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboLayer4ActionPerformed(evt);
+            }
+        });
+
         spinSize.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(500), Integer.valueOf(1), null, Integer.valueOf(1)));
 
         errorLabel.setForeground(new java.awt.Color(255, 0, 0));
@@ -317,6 +343,16 @@ public class PacketSendingPanel extends PanelInterface {
 
         bindingGroup.bind();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void comboLayer4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboLayer4ActionPerformed
+        if ((Layer4TypeEnum) ((ComboItem) comboLayer4.getSelectedItem()).getValue() == Layer4TypeEnum.ICMP) {
+            spinSrcPort.setEnabled(false);
+            spinDestPort.setEnabled(false);
+        } else {
+            spinSrcPort.setEnabled(true);
+            spinDestPort.setEnabled(true);
+        }
+    }//GEN-LAST:event_comboLayer4ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JComboBox comboLayer4;
