@@ -18,9 +18,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.DscpClassification;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.DscpClassification.DscpValuesEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpValuesEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.supporting.DscpQueryDialog;
 
 /**
@@ -41,9 +41,9 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
 
 
         TableColumn col = jTable1.getColumnModel().getColumn(0);
-        ComboItem[] items = new ComboItem[DscpClassification.DscpValuesEnum.values().length];
+        ComboItem[] items = new ComboItem[DscpValuesEnum.values().length];
         for (int i = 0; i < items.length; i++) {
-            DscpValuesEnum dscpEn = DscpClassification.DscpValuesEnum.values()[i];
+            DscpValuesEnum dscpEn = DscpValuesEnum.values()[i];
             items[i] = new ComboItem(dscpEn.getQosQueue(), dscpEn.getTextName());
         }
 
@@ -51,8 +51,8 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
 
         //init default class
         jComboBox1.removeAllItems();
-        for (int i = 0; i < DscpClassification.DscpValuesEnum.values().length; i++) {
-            DscpValuesEnum dscpEn = DscpClassification.DscpValuesEnum.values()[i];
+        for (int i = 0; i < DscpValuesEnum.values().length; i++) {
+            DscpValuesEnum dscpEn = DscpValuesEnum.values()[i];
             jComboBox1.addItem(new ComboItem(dscpEn.getQosQueue(), dscpEn.getTextName()));
         }
         setLocationRelativeTo(parent);

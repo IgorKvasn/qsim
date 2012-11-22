@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.openide.util.NbBundle;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.DscpClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpValuesEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ParameterException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.QosUtils;
@@ -105,7 +106,7 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
                             throw new IllegalStateException("queue is a string, but it is not a DSCP value");
                         }
                         logg.debug("queue is DSCP string value");
-                        list.add(DscpClassification.DscpValuesEnum.valueOf(q).getQosQueue());
+                        list.add(DscpValuesEnum.valueOf(q).getQosQueue());
                     }
 
                 }

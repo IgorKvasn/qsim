@@ -20,6 +20,7 @@ import java.util.Random;
 import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpValuesEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 
@@ -38,21 +39,19 @@ public class PacketSendingPanel extends PanelInterface {
     public PacketSendingPanel() {
         initComponents();
         initComboboxLayer4();
-        initIpPrecedence();
+
+        initDscpCombo();
+
         errorLabel.setVisible(false);
     }
 
-    private void initIpPrecedence() {
-        jComboBox1.removeAllItems();
+    private void initDscpCombo() {
+        comboDSCP.removeAllItems();
+        for (DscpValuesEnum dscpEnum : DscpValuesEnum.values()) {
+            comboDSCP.addItem(new ComboItem(dscpEnum, dscpEnum.getTextName()));
+        }
 
-        jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_0, "0 - lowest"));
-        jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_1, "1"));
-        jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_2, "2"));
-        jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_3, "3"));
-        jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_4, "4"));
-        jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_5, "5"));
-        jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_6, "6"));
-        jComboBox1.addItem(new ComboItem(IpPrecedence.IP_PRECEDENCE_7, "7 - highest"));
+
     }
 
     private void initComboboxLayer4() {
@@ -89,7 +88,15 @@ public class PacketSendingPanel extends PanelInterface {
             iterator.getStoredData().setSrcPort((Integer) spinSrcPort.getValue());
             iterator.getStoredData().setDestPort((Integer) spinDestPort.getValue());
         }
-        iterator.getStoredData().setIpPrecedence((IpPrecedence) ((ComboItem) jComboBox1.getSelectedItem()).getValue());
+
+        if (radioTos.isSelected()) {//user has selected IP ToS
+            iterator.getStoredData().setIpPrecedence((IpPrecedence) ((ComboItem) jComboBox1.getSelectedItem()).getValue());
+            iterator.getStoredData().setDscpValuesEnum(null);
+        } else {//user has selected DSCP
+            iterator.getStoredData().setIpPrecedence(null);
+            iterator.getStoredData().setDscpValuesEnum((DscpValuesEnum) ((ComboItem) comboDSCP.getSelectedItem()).getValue());
+        }
+
         return true;
     }
 
@@ -179,6 +186,7 @@ public class PacketSendingPanel extends PanelInterface {
         bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
         buttonGroup1 = new javax.swing.ButtonGroup();
+        buttonGroup2 = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
         spinActive = new javax.swing.JSpinner();
         jRadioButton1 = new javax.swing.JRadioButton();
@@ -194,9 +202,12 @@ public class PacketSendingPanel extends PanelInterface {
         spinSrcPort = new javax.swing.JSpinner();
         jLabel6 = new javax.swing.JLabel();
         spinDestPort = new javax.swing.JSpinner();
-        jLabel4 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox();
         jCheckBox1 = new javax.swing.JCheckBox();
+        jPanel2 = new javax.swing.JPanel();
+        radioTos = new javax.swing.JRadioButton();
+        radioDscp = new javax.swing.JRadioButton();
+        comboDSCP = new javax.swing.JComboBox();
+        jComboBox1 = new javax.swing.JComboBox();
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jPanel1.border.title"))); // NOI18N
 
@@ -225,7 +236,7 @@ public class PacketSendingPanel extends PanelInterface {
                         .addGap(18, 18, 18)
                         .addComponent(spinActive, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(radioActiveOnStart))
-                .addContainerGap(149, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -268,16 +279,64 @@ public class PacketSendingPanel extends PanelInterface {
 
         spinDestPort.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
 
-        jLabel4.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jLabel4.text")); // NOI18N
-
         jCheckBox1.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jCheckBox1.text_1")); // NOI18N
+
+        buttonGroup2.add(radioTos);
+        radioTos.setSelected(true);
+        radioTos.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.radioTos.text_1")); // NOI18N
+
+        buttonGroup2.add(radioDscp);
+        radioDscp.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.radioDscp.text")); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, radioDscp, org.jdesktop.beansbinding.ELProperty.create("${selected}"), comboDSCP, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, radioTos, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jComboBox1, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(radioTos)
+                    .addComponent(radioDscp))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(comboDSCP, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(radioTos)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(radioDscp)
+                    .addComponent(comboDSCP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addComponent(errorLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jCheckBox1))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -292,20 +351,12 @@ public class PacketSendingPanel extends PanelInterface {
                             .addComponent(spinCount)
                             .addComponent(spinSize, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
                             .addComponent(spinSrcPort)
-                            .addComponent(spinDestPort)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(26, 26, 26)
-                        .addComponent(errorLabel)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jCheckBox1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
+                            .addComponent(spinDestPort))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 140, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(87, 87, 87))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -328,17 +379,18 @@ public class PacketSendingPanel extends PanelInterface {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel1)
-                            .addComponent(spinSrcPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel4)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(spinSrcPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel6)
                             .addComponent(spinDestPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(25, 25, 25)
                         .addComponent(errorLabel))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(44, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(27, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -355,6 +407,8 @@ public class PacketSendingPanel extends PanelInterface {
     }//GEN-LAST:event_comboLayer4ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.ButtonGroup buttonGroup2;
+    private javax.swing.JComboBox comboDSCP;
     private javax.swing.JComboBox comboLayer4;
     private javax.swing.JLabel errorLabel;
     private javax.swing.JCheckBox jCheckBox1;
@@ -362,12 +416,14 @@ public class PacketSendingPanel extends PanelInterface {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton radioActiveOnStart;
+    private javax.swing.JRadioButton radioDscp;
+    private javax.swing.JRadioButton radioTos;
     private javax.swing.JSpinner spinActive;
     private javax.swing.JSpinner spinCount;
     private javax.swing.JSpinner spinDestPort;
