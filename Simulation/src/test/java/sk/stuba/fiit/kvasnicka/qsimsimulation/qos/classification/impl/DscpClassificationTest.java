@@ -26,6 +26,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpValuesEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.lang.reflect.Field;
@@ -74,7 +75,7 @@ public class DscpClassificationTest {
 
         NetworkNode node2 = new Router("this is not node2", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
 
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100,  Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100,  Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
         Packet packet2 = new Packet(1, null, simulationRuleBean, 10);
 
         assertEquals(0, classification.classifyAndMarkPacket(node1, packet2));
@@ -82,8 +83,8 @@ public class DscpClassificationTest {
 
     @Test
     public void testDscpValueName() {
-        assertTrue("AF11".equals(DscpClassification.DscpValuesEnum.AF11.getTextName()));
-        assertTrue("Best effort".equals(DscpClassification.DscpValuesEnum.BEST_EFFORT.getTextName()));
+        assertTrue("AF11".equals(DscpValuesEnum.AF11.getTextName()));
+        assertTrue("Best effort".equals(DscpValuesEnum.BEST_EFFORT.getTextName()));
     }
 
     @Test
@@ -102,7 +103,7 @@ public class DscpClassificationTest {
             //OK
         }
 
-        assertEquals(DscpClassification.DscpValuesEnum.AF11, DscpClassification.findDscpValueByQueueNumber(1));
+        assertEquals(DscpValuesEnum.AF11, DscpClassification.findDscpValueByQueueNumber(1));
     }
 
     private void initRoute(Packet... packets) {
@@ -110,7 +111,7 @@ public class DscpClassificationTest {
         NetworkNode node2 = new Router("node2", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
 
 
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100,  Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100,  Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {

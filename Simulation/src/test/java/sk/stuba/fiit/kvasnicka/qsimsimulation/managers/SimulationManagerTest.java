@@ -46,7 +46,7 @@ public class SimulationManagerTest {
 
     @Test
     public void testPingAdd() {
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 0, 0, 0,  Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 0, 0, 0,  Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
         simulationManager.addSimulationRule(rule);
 
         assertNotNull(simulationManager.getRulesUnmodifiable());

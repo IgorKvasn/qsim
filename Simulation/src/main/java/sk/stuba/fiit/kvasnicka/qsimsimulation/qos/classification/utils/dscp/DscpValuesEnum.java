@@ -17,29 +17,39 @@
 
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp;
 
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
+import lombok.Getter;
 
 /**
- * this interface defines, what parameters can be used to classify packet by DSCP mechanism
- *
  * @author Igor Kvasnicka
  */
-public interface PacketDscpClassificationInterf {
+public enum DscpValuesEnum {
+        BEST_EFFORT(0) {
+            @Override
+            public String getTextName() {
+                return "Best effort";
+            }
+        },
+        AF11(1),
+        AF12(2),
+        AF13(3),
+        AF21(4),
+        AF22(5),
+        AF23(6),
+        AF31(7),
+        AF32(8),
+        AF33(9),
+        AF41(10),
+        AF42(11),
+        AF43(12),
+        EF(13);
+        @Getter
+        private int qosQueue;
 
-    int getSize();
+        private DscpValuesEnum(int qosQueue) {
+            this.qosQueue = qosQueue;
+        }
 
-    int getIpTos();
-
-    DscpValuesEnum getDscp();
-
-    NetworkNode getDestination();
-
-    NetworkNode getSource();
-
-    int getSrcPort();
-
-    int getDestPort();
-
-    Layer4TypeEnum getProtocol();
-}
+        public String getTextName() {
+            return toString();
+        }
+    }

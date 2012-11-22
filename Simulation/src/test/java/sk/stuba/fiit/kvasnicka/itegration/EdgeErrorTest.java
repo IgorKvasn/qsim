@@ -105,7 +105,7 @@ public class EdgeErrorTest {
         setWithoutSetter(Edge.class, edge, "speedMap", new HashMap<SimulationRuleBean, Long>());
         setWithoutSetter(Edge.class, edge, "congestedInfoSet", new TreeSet<Object>());
 
-        topologyManager = new TopologyManager(Arrays.asList(edge),Arrays.asList(node1,node2));
+        topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(node1, node2));
         node1.setTopologyManager(topologyManager);
         node2.setTopologyManager(topologyManager);
     }
@@ -119,7 +119,7 @@ public class EdgeErrorTest {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2), new SimulationLogUtils());
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);

@@ -51,7 +51,7 @@ public class PingManagerTest {
 
     @Test
     public void testPingAdd() {
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 0, 0, 0,  Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, 0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 0, 0, 0,  Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
         setWithoutSetter(SimulationRuleBean.class, rule, "route", Arrays.asList(node1, node2));
         pingManager.addPing(rule, 1);
 
