@@ -32,6 +32,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredListe
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.RoutingException;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpValuesEnum;
 
 import javax.swing.event.EventListenerList;
 import java.util.HashMap;
@@ -83,6 +84,9 @@ public class SimulationRuleBean {
     @Getter
     private IpPrecedence ipPrecedence;
     @Getter
+    private DscpValuesEnum dscpValue;
+
+    @Getter
     private int srcPort;
     @Getter
     private int destPort;
@@ -114,11 +118,16 @@ public class SimulationRuleBean {
      * @param destPort
      * @see #setRoute(java.util.List)
      */
-    public SimulationRuleBean(String name, NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, double activeDelay, Layer4TypeEnum layer4Type, IpPrecedence ipPrecedence, int srcPort, int destPort) {
+    public SimulationRuleBean(String name, NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, double activeDelay, Layer4TypeEnum layer4Type, IpPrecedence ipPrecedence, DscpValuesEnum dscpValue, int srcPort, int destPort) {
+        if ((dscpValue != null) && (ipPrecedence != null)) {
+            throw new IllegalArgumentException("DSCP and IP ToS must not be sent both");
+        }
+
         this.name = name;
         this.activationTime = activeDelay;
         this.layer4Type = layer4Type;
         this.ipPrecedence = ipPrecedence;
+        this.dscpValue = dscpValue;
         this.srcPort = srcPort;
         this.destPort = destPort;
         this.active = false;

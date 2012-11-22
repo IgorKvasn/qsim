@@ -25,6 +25,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.RoutingException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpValuesEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.PacketDscpClassificationInterf;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
@@ -104,7 +105,7 @@ public class Packet implements PacketDscpClassificationInterf {
         return simulationRule.getIpPrecedence();
     }
 
-    public int getIpPrecedence() {
+    public int getIpTos() {
         return simulationRule.getIpPrecedence().getIntRepresentation();
     }
 
@@ -118,6 +119,11 @@ public class Packet implements PacketDscpClassificationInterf {
 
     public int getDestPort() {
         return simulationRule.getDestPort();
+    }
+
+    @Override
+    public DscpValuesEnum getDscp() {
+        return simulationRule.getDscpValue();
     }
 
     /**
