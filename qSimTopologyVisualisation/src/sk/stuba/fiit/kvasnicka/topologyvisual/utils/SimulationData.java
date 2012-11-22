@@ -31,6 +31,8 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.DscpClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpValuesEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.events.simulationrule.SimulationRuleChangedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.events.simulationrule.SimulationRuleChangedListener;
@@ -283,6 +285,7 @@ public class SimulationData {
         private static final long serialVersionUID = -20325075325465050L;
         private String id = null;
         private IpPrecedence ipPrecedence;
+        private DscpValuesEnum dscpValuesEnum;
         private int srcPort, destPort;
         private String name;
         private TopologyVertex sourceVertex, destinationVertex;
