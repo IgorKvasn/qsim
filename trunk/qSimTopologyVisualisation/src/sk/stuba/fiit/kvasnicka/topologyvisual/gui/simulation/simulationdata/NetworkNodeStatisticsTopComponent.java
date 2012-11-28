@@ -56,7 +56,6 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
 
         textualStatisticsPanel = new TextualStatisticsPanel(topologyVisualisation.getTopology().getVertexFactory().getAllVertices(), this);
         jPanel3.add(textualStatisticsPanel, BorderLayout.CENTER);
-        topologyVisualisation.getSimulationFacade().addSimulationTimerListener(textualStatisticsPanel);
 
         monitoringNodes = new java.util.LinkedList<MonitoringNode>();
         for (TopologyVertex v : topologyVisualisation.getTopology().getVertexFactory().getAllVertices()) {
@@ -68,11 +67,14 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
         jTabbedPane1.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                if (jTabbedPane1.getSelectedIndex()==1){//user has changed tab to "Chart"
+                if (jTabbedPane1.getSelectedIndex() == 1) {//user has changed tab to "Chart"
                     textualStatisticsPanel.saveChangesToChart();
                 }
             }
         });
+
+        topologyVisualisation.getSimulationFacade().addSimulationTimerListener(textualStatisticsPanel);
+
     }
 
     /**
@@ -176,24 +178,20 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
 
     @Override
     public void componentOpened() {
-        // TODO add custom code on component opening
     }
 
     @Override
     public void componentClosed() {
-        // TODO add custom code on component closing
     }
 
     void writeProperties(java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
         p.setProperty("version", "1.0");
-        // TODO store your settings
     }
 
     void readProperties(java.util.Properties p) {
         String version = p.getProperty("version");
-        // TODO read your settings according to their version
     }
 
     /**

@@ -11,11 +11,15 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import lombok.Getter;
 import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.RxBuffer;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.TxBuffer;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.timer.SimulationTimerEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.timer.SimulationTimerListener;
 
@@ -30,34 +34,55 @@ public class NetworkNodeStatisticsBean implements SimulationTimerListener {
     private NetworkNode node;
     private TraceIdentifier rxTotalTrace;
     private Map<NetworkNode, TraceIdentifier> rxTraceMap; //key = the same as key in RX interface map
-    private Map<NetworkNode, TraceIdentifier> txTraceMap; //key = the same as key in RX interface map
+    private Map<NetworkNode, TraceIdentifier> txTraceMap; //key = the same as key in TX interface map
     private List<TraceIdentifier> outputTraceList; //the order is the same is specified in NetowrkNode's OutputQueueManager
     private TraceIdentifier txTotalTrace;
     private TraceIdentifier outputTotalTrace;
     private TraceIdentifier inputTrace;
     private TraceIdentifier processingTrace;
     private static Random random = new Random();
-    private List<UsageStatistics> allUsages;
+    private List<TraceIdentifier> allTraceIdentifiers;
 
     public NetworkNodeStatisticsBean(NetworkNode node) {
         this.node = node;
         rxTraceMap = new HashMap<NetworkNode, TraceIdentifier>(node.getRxInterfaces().size() * 4 / 3);
         txTraceMap = new HashMap<NetworkNode, TraceIdentifier>(node.getTxInterfaces().size() * 4 / 3);
         outputTraceList = new LinkedList<TraceIdentifier>();
-        allUsages = new LinkedList<UsageStatistics>();
+        allTraceIdentifiers = new LinkedList<TraceIdentifier>();
 
 
-        rxTotalTrace = new TraceIdentifier(createTrace(node.getName() + " - RX"));
-        txTotalTrace = new TraceIdentifier(createTrace(node.getName() + " - TX"));
-        outputTotalTrace = new TraceIdentifier(createTrace(node.getName() + " - Output queue"));
-        inputTrace = new TraceIdentifier(createTrace(node.getName() + " - Input queue"));
-        processingTrace = new TraceIdentifier(createTrace(node.getName() + " - Processing packets"));
+        rxTotalTrace = new TraceIdentifier(createTrace(node.getName() + " - all RX"), node.getAllRXBuffers());
+        txTotalTrace = new TraceIdentifier(createTrace(node.getName() + " - all TX"), node.getAllTXBuffers());
+        outputTotalTrace = new TraceIdentifier(createTrace(node.getName() + " - all output queues"), node.getAllOutputQueues());
+        inputTrace = new TraceIdentifier(createTrace(node.getName() + " - input queue"), node.getInputQueue());
+        processingTrace = new TraceIdentifier(createTrace(node.getName() + " - processing packets"), node.getAllProcessingPackets());
 
-        allUsages.add(node.getAllOutputQueues());
-        allUsages.add(node.getAllProcessingPackets());
-        allUsages.add(node.getAllRXBuffers());
-        allUsages.add(node.getAllTXBuffers());
-        allUsages.add(node.getInputQueue());
+        allTraceIdentifiers.add(rxTotalTrace);
+        allTraceIdentifiers.add(txTotalTrace);
+        allTraceIdentifiers.add(outputTotalTrace);
+        allTraceIdentifiers.add(inputTrace);
+        allTraceIdentifiers.add(processingTrace);
+        allTraceIdentifiers.addAll(rxTraceMap.values());
+        allTraceIdentifiers.addAll(txTraceMap.values());
+        allTraceIdentifiers.addAll(outputTraceList);
+
+        for (Entry<NetworkNode, RxBuffer> rxBuff : node.getRxInterfaces().entrySet()) {
+            TraceIdentifier tr = new TraceIdentifier(createTrace(rxBuff.getValue().getName()), rxBuff.getValue());
+            allTraceIdentifiers.add(tr);
+            rxTraceMap.put(rxBuff.getKey(), tr);
+        }
+
+        for (Entry<NetworkNode, TxBuffer> txBuff : node.getTxInterfaces().entrySet()) {
+            TraceIdentifier tr = new TraceIdentifier(createTrace(txBuff.getValue().getName()), txBuff.getValue());
+            allTraceIdentifiers.add(tr);
+            txTraceMap.put(txBuff.getKey(), tr);
+        }
+
+        int index = 1;
+        for (OutputQueue oQueue : node.getOutputQueueManager().getQueues()) {
+            allTraceIdentifiers.add(new TraceIdentifier(createTrace(node.getName() + " - output queue #" + index), oQueue));
+            index++;
+        }
 
     }
 
@@ -104,25 +129,18 @@ public class NetworkNodeStatisticsBean implements SimulationTimerListener {
         processingTrace.trace.addPoint(x, node.getAllProcessingPackets().getUsage());
     }
 
-    /**
-     * returns all UsageStatistics for this network node
-     *
-     * @return
-     */
-    List<UsageStatistics> getUsages() {
-        return allUsages;
-    }
-
     @Getter
     public static class TraceIdentifier {
 
         private ITrace2D trace;
         @Setter
         private boolean visible;
+        private UsageStatistics usageStatistics;
 
-        public TraceIdentifier(ITrace2D trace) {
+        public TraceIdentifier(ITrace2D trace, UsageStatistics usageStatistics) {
             this.trace = trace;
             this.visible = false;
+            this.usageStatistics = usageStatistics;
         }
     }
 }

@@ -84,6 +84,8 @@ public final class SimulationDataTopComponent extends TopComponent {
 
         rules.put(rule, new TaskPanel(pane, panel));
         setName(createTitle(rules.keySet()));
+        
+        showInChart(statisticalData, true);
 
     }
 
