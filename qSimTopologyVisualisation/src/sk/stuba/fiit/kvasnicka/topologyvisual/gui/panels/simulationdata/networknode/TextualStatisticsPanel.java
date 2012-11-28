@@ -90,7 +90,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
 
                 if (colIndex == 4) {//column 4 is boolean column
                     boolean oldValue = (Boolean) jXTreeTable1.getValueAt(rowIndex, colIndex);
-                    jXTreeTable1.setValueAt(!oldValue, rowIndex, colIndex);                                                           
+                    jXTreeTable1.setValueAt(!oldValue, rowIndex, colIndex);
                 }
 
             }
@@ -158,6 +158,9 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
         }
         tableModel.inputQueueNode.currentUsage = selectedNode.getInputQueueUsage();
         tableModel.processingNode.currentUsage = selectedNode.getProcessingPackets();
+        tableModel.outputRootNode.currentUsage = selectedNode.getAllOutputQueueUsage();
+        tableModel.rxRootNode.currentUsage = selectedNode.getRXUsage();
+        tableModel.txRootNode.currentUsage = selectedNode.getTXUsage();
 
         //update RX nodes
         for (Map.Entry<NetworkNode, RxBuffer> e : selectedNode.getRxInterfaces().entrySet()) {
@@ -165,7 +168,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             if (treeNode == null) {
                 throw new IllegalStateException("network node was not found in tree nodes " + e.getKey().getName());
             }
-            treeNode.setCurrentUsage(e.getValue().getNumberOfFragments());
+            treeNode.setCurrentUsage(e.getValue().getUsage());
         }
         //update TX nodes
         for (Map.Entry<NetworkNode, TxBuffer> e : selectedNode.getTxInterfaces().entrySet()) {
@@ -173,7 +176,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             if (treeNode == null) {
                 throw new IllegalStateException("network node was not found in tree nodes " + e.getKey().getName());
             }
-            treeNode.setCurrentUsage(e.getValue().getFragmentsCount());
+            treeNode.setCurrentUsage(e.getValue().getUsage());
         }
 
         //update output queue nodes
@@ -308,8 +311,9 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
         private List<MyTreeNode> generateOutputNodes(NetworkNode node) {
             List<MyTreeNode> nodes = new LinkedList<MyTreeNode>();
             OutputQueueManager outputQueues = node.getOutputQueueManager();
+            int index = 1;
             for (OutputQueue qDef : outputQueues.getQueues()) {
-                MyTreeNode n = new MyTreeNode("", qDef.getMaxCapacity(), qDef);
+                MyTreeNode n = new MyTreeNode("#" + index, qDef.getMaxCapacity(), qDef);
                 nodes.add(n);
             }
             return nodes;
@@ -615,7 +619,6 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
                     .addContainerGap(23, Short.MAX_VALUE)))
         );
     }// </editor-fold>//GEN-END:initComponents
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
