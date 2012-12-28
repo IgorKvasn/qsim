@@ -327,11 +327,7 @@ public final class SimulationTopComponent extends TopComponent {
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        if (jXTable1.getSelectedRowCount() == 0) {
-            JOptionPane.showMessageDialog(null,
-                    NbBundle.getMessage(SimulationTopComponent.class, "not_selected_row_error"),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+        if (jXTable1.getSelectedRowCount() == 0) {            
             return;
         }
         int rowToRemove = jXTable1.convertRowIndexToModel(jXTable1.getSelectedRow());
@@ -341,11 +337,7 @@ public final class SimulationTopComponent extends TopComponent {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        if (jXTable1.getSelectedRowCount() == 0) {
-            JOptionPane.showMessageDialog(null,
-                    NbBundle.getMessage(SimulationTopComponent.class, "not_selected_row_error"),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+        if (jXTable1.getSelectedRowCount() == 0) {          
             return;
         }
 
