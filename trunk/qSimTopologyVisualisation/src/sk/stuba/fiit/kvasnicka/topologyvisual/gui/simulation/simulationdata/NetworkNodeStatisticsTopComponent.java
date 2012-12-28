@@ -4,7 +4,10 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata;
 
+import info.monitorenter.gui.chart.IAxis;
+import info.monitorenter.gui.chart.IAxisScalePolicy;
 import info.monitorenter.gui.chart.ITrace2D;
+import info.monitorenter.gui.chart.rangepolicies.RangePolicyForcedPoint;
 import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Set;
@@ -49,6 +52,10 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
 
     public NetworkNodeStatisticsTopComponent(TopologyVisualisation topologyVisualisation, NetworkNodeStatsManager networkNodeStatsManager) {
         initComponents();
+
+        IAxis<IAxisScalePolicy> yAxis = (IAxis<IAxisScalePolicy>) chart2D1.getAxisY();
+        yAxis.setRangePolicy(new RangePolicyForcedPoint());
+
         setName(Bundle.CTL_PokusTopComponentTopComponent());
         setToolTipText(Bundle.HINT_PokusTopComponentTopComponent());
 
