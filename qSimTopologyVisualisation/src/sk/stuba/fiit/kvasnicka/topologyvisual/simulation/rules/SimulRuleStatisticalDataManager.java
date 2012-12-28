@@ -19,8 +19,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 /**
  *
- * gathers statistical data (SimulRuleStatisticalData object) for all <b>ping</b>
- * simulation rules
+ * gathers statistical data (SimulRuleStatisticalData object) for all simulation rules
  *
  * @author Igor Kvasnicka
  */

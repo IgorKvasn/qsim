@@ -5,7 +5,10 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata;
 
 import info.monitorenter.gui.chart.Chart2D;
+import info.monitorenter.gui.chart.IAxis;
+import info.monitorenter.gui.chart.IAxisScalePolicy;
 import info.monitorenter.gui.chart.ITrace2D;
+import info.monitorenter.gui.chart.rangepolicies.RangePolicyForcedPoint;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +55,9 @@ public final class SimulationDataTopComponent extends TopComponent {
 
         chart.setToolTipType(Chart2D.ToolTipType.VALUE_SNAP_TO_TRACEPOINTS);
 
+        IAxis<IAxisScalePolicy> yAxis = (IAxis<IAxisScalePolicy>)chart.getAxisY();
+        yAxis.setRangePolicy(new RangePolicyForcedPoint());
+        
         initTraces(statDatas);
 
     }

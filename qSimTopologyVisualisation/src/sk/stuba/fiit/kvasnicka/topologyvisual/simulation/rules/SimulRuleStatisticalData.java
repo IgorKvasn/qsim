@@ -7,6 +7,7 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.simulation.rules;
 import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import java.awt.Color;
+import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -73,6 +74,8 @@ public class SimulRuleStatisticalData {
         }
         delayList.add(delay);
         chartTrace.addPoint(when, delay);
+//        DecimalFormat df = new DecimalFormat("#.##");//round to two decimal places
+//        chartTrace.addPoint(when, Double.valueOf(df.format(delay)));
         fireStatisticalDataChangeEvent(new StatisticalDataEvent(this, rule, delay, when));
     }
 
