@@ -31,8 +31,6 @@ import org.apache.log4j.Logger;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
-import org.openide.windows.Mode;
-import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.events.topologystate.TopologyStateChangedEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.events.topologystate.TopologyStateChangedListener;
@@ -41,7 +39,6 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.ConfirmDialogPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.deletion.EdgeDeletionDialog;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs.SimulationLogTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyStateEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
@@ -108,8 +105,8 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                 vertexPopup.show(vv, e.getX(), e.getY());
                 //right clicking on a vertex makes it selected/picked
                 topology.deselectEdges();
-                topology.deselectVertices();
-                
+//                topology.deselectVertices();
+
                 topology.manuallySelectVertex(v, true);
             } else {
                 final TopologyEdge edge = pickSupport.getEdge(vv.getGraphLayout(), p.getX(), p.getY());
@@ -119,7 +116,7 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                     correctEdgePopup();
                     edgePopup.show(vv, e.getX(), e.getY());
                     //right clicking on a edge makes it selected/picked
-                    topology.deselectEdges();
+//                    topology.deselectEdges();
                     topology.deselectVertices();
 
                     topology.manuallySelectEdge(edge, true);
@@ -322,27 +319,13 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
 
     private class ShowSimulationLogsMenuItem implements ActionListener {
 
-        private SimulationLogTopComponent logTopComponent = new SimulationLogTopComponent();
-
         @Override
         public void actionPerformed(ActionEvent e) {
             if (topology.getSelectedVertices().isEmpty()) {
-                openSimulationLogTopcomponent(Arrays.asList(selectedVertex));
+                topology.getTopolElementTopComponent().openSimulationLogTopcomponent(Arrays.asList(selectedVertex));
             } else {
-                openSimulationLogTopcomponent(topology.getSelectedVertices());
+                topology.getTopolElementTopComponent().openSimulationLogTopcomponent(topology.getSelectedVertices());
             }
-        }
-
-        /**
-         * opens new simulation log top component associated with this topology
-         */
-        private void openSimulationLogTopcomponent(Collection<TopologyVertex> vertices) {
-            logTopComponent.setTopology(topology);
-            logTopComponent.showVetices(vertices);
-            Mode outputMode = WindowManager.getDefault().findMode("myoutput");
-            outputMode.dockInto(logTopComponent);
-            logTopComponent.open();
-            logTopComponent.requestActive();
         }
     }
 
