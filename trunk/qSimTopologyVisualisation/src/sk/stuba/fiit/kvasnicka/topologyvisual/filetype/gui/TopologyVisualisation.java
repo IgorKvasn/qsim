@@ -90,6 +90,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectio
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectionListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.AddSimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.SimulationTopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs.SimulationLogTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.NetworkNodeStatisticsTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.SimulRuleReviewTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels.VerticesSelectionPanel;
@@ -143,6 +144,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     private transient TopologyNavigatorTopComponent navigatorTopComponent;
     @Getter
     private transient NetworkNodeStatsManager networkNodeStatsManager;
+    private transient SimulationLogTopComponent logTopComponent;
 
     public TopologyVisualisation(TopologyFileTypeDataObject dataObject) {
         this.dataObject = dataObject;
@@ -165,6 +167,9 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         Mode navigatorMode = WindowManager.getDefault().findMode("navigator");
         navigatorMode.dockInto(navigatorTopComponent);
         navigatorTopComponent.open();
+        
+        //it is neccesary to init SimulationLogTopComponent before simulation starts, so user can open logs before he runs simulation
+        logTopComponent = new SimulationLogTopComponent(topology);
     }
 
     /**
@@ -208,6 +213,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             simulationFacade.addSimulationRuleListener(statManager);
             simulationFacade.addPingPacketDeliveredListener(statManager);
 
+           
 
             //opens all supporting windows for simulation
             openSimulationWindows(statManager, simulationFacade.getSimulationRules());
@@ -220,6 +226,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
                 networkNodeStatsManager = new NetworkNodeStatsManager(networkNodeList, simulationFacade);
                 networkNodeStatisticsTopComponent = new NetworkNodeStatisticsTopComponent(this, networkNodeStatsManager);
 
+                simulationFacade.addSimulationLogListener(logTopComponent);
                 simulationFacade.startTimer();
             }
 
@@ -266,6 +273,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         simulationFacade.removePingRuleListener(statManager);
         simulationFacade.removeSimulationRuleListener(statManager);
         simulationFacade.removePingPacketDeliveredListener(statManager);
+        simulationFacade.removeSimulationLogListener(logTopComponent);
 
         networkNodeStatsManager.removeStatisticsListeners();
         closeSimulationWindows();
@@ -608,7 +616,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         if (dialog.getUserInput() == null) {//user hit cancel
             return;
         }
-        
+
         edge.setEdge(dialog.getUserInput());
         topologyModified();
     }
@@ -633,6 +641,17 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             simulationTopComponent.closeAddSimulationTopComponent();
             simulationTopComponent = null;
         }
+    }
+
+    /**
+     * opens new simulation log top component associated with this topology
+     */
+    public void openSimulationLogTopcomponent(Collection<TopologyVertex> vertices) {
+        logTopComponent.showVetices(vertices);
+        Mode outputMode = WindowManager.getDefault().findMode("myoutput");
+        outputMode.dockInto(logTopComponent);
+        logTopComponent.open();
+        logTopComponent.requestActive();
     }
 
     private void openSimulationWindows(SimulRuleStatisticalDataManager statManager, List<SimulationRuleBean> simulRules) {

@@ -19,8 +19,11 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs;
 import java.awt.Color;
 import java.awt.Component;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.RowFilter;
 import javax.swing.table.*;
@@ -45,18 +48,19 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 /**
  * Top component which displays something.
  */
-@ConvertAsProperties(dtd = "-//sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs//SimulationLogTopComponent//EN",
-autostore = false)
+//@ConvertAsProperties(dtd = "-//sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs//SimulationLogTopComponent//EN",
+//autostore = false)
 @TopComponent.Description(preferredID = "SimulationLogTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
-persistenceType = TopComponent.PERSISTENCE_ALWAYS)
+persistenceType = TopComponent.PERSISTENCE_NEVER)
 @TopComponent.Registration(mode = "myoutput", openAtStartup = false)
 @ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs.SimulationLogTopComponent")
 //@ActionReference(path = "Menu/Window" /*
 // * , position = 333
 // */)
-@TopComponent.OpenActionRegistration(displayName = "#CTL_SimulationLogTopComponentAction" //        , preferredID = "SimulationLogTopComponent"
-)
+//@TopComponent.OpenActionRegistration(displayName = "#CTL_SimulationLogTopComponentAction" 
+//        , preferredID = "SimulationLogTopComponent"
+//)
 @Messages({
     "CTL_SimulationLogTopComponentAction=SimulationLogTopComponent",
     "CTL_SimulationLogTopComponent=SimulationLogTopComponent Window",
@@ -70,10 +74,11 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
      * TopologyVertex has got one SimulationLogPanel<br/> note: TopologyVertex
      * object is represented by its name (String)
      */
-    private Map<String, JXTable> panels = new HashMap<String, JXTable>();
+    private Map<String, JTable> panels = new HashMap<String, JTable>();
+    private Map<FilterMapKey, RowFilter<Object, Object>> tableFilterMap = new HashMap<FilterMapKey, RowFilter<Object, Object>>();
     private Topology topology;
 
-    public SimulationLogTopComponent() {
+    public SimulationLogTopComponent(Topology topology) {
         initComponents();
         setName(Bundle.CTL_SimulationLogTopComponent());
         setToolTipText(Bundle.HINT_SimulationLogTopComponent());
@@ -83,21 +88,13 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
 
         dropCategory.addDropDownHiddenListener(this);
         closeableTabbedPane1.addCloseableTabbedPaneListener(this);
+        this.topology = topology;
     }
 
     public void showVetices(Collection<TopologyVertex> vertices) {
         for (TopologyVertex v : vertices) {
             createSimulationLogPanel(v.getName());
         }
-    }
-
-    /**
-     * sets Topology object that will be bind to this simulation log
-     *
-     * @param topology
-     */
-    public void setTopology(Topology topology) {
-        this.topology = topology;
     }
 
     private void initCategoryDropDown() {
@@ -113,13 +110,42 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
      * @param selectedCheckBoxes list of selected checkboxes (categories)
      */
     private void updateLogs(List<String> selectedCheckBoxes) {
-        String regex = createRegex(selectedCheckBoxes);
+        final String regex = createRegex(selectedCheckBoxes);
 
-        for (Map.Entry<String, JXTable> entry : panels.entrySet()) {
-            JXTable table = entry.getValue();
+        for (Map.Entry<String, JTable> entry : panels.entrySet()) {
+            JTable table = entry.getValue();
 
-            table.setRowFilter(RowFilter.regexFilter(regex, table.convertColumnIndexToView(0)));
+            RowFilter<Object, Object> filter = getFilter(selectedCheckBoxes, regex);
+
+            TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(table.getModel());
+            sorter.setRowFilter(filter);
+            table.setRowSorter(sorter);
         }
+    }
+
+    /**
+     * creates RowFilter for specified selected check boxes <br>all filters are
+     * cached
+     *
+     * @param selectedCheckBoxes
+     * @param regex
+     * @return
+     */
+    private RowFilter<Object, Object> getFilter(List<String> selectedCheckBoxes, final String regex) {
+        FilterMapKey key = new FilterMapKey(selectedCheckBoxes);
+        if (tableFilterMap.containsKey(key)) {
+            return tableFilterMap.get(key);
+        }
+
+        RowFilter<Object, Object> filter = new RowFilter<Object, Object>() {
+            @Override
+            public boolean include(RowFilter.Entry entry) {
+                String severity = (String) entry.getValue(0);
+                return severity.matches(regex);
+            }
+        };
+        tableFilterMap.put(key, filter);
+        return filter;
     }
 
     private String createRegex(List<String> categoryList) {
@@ -128,7 +154,7 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
         }
         StringBuilder sb = new StringBuilder();
         for (String cat : categoryList) {
-            sb.append("(").append(cat).append(")|");
+            sb.append("(.*").append(cat).append(".*)|");
         }
         //remove the last |
         sb.deleteCharAt(sb.length() - 1);
@@ -140,14 +166,14 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
             throw new IllegalArgumentException("simulationLog is NULL");
         }
         if (simulationLog.getSourceName().equals(SimulationLogUtils.SOURCE_GENERAL)) {//all panels should be notified
-            for (Map.Entry<String, JXTable> entry : panels.entrySet()) {
-                JXTable table = entry.getValue();
+            for (Map.Entry<String, JTable> entry : panels.entrySet()) {
+                JTable table = entry.getValue();
                 ((DefaultTableModel) table.getModel()).addRow(new String[]{simulationLog.getCategory().toString(), simulationLog.getCause(), simulationLog.getFormattedSimulationTime()});
             }
             return;
         }
 
-        JXTable table = getSimulationLogPanel(simulationLog.getSourceName());
+        JTable table = getSimulationLogPanel(simulationLog.getSourceName());
         if (table == null) {//no one is interrested in this simulation log
             return;
         }
@@ -155,42 +181,46 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
     }
 
     private void createSimulationLogPanel(String vertex) {
-        JXTable table = new JXTable();
-        table.setModel(new javax.swing.table.DefaultTableModel(
-                new Object[][]{},
-                new String[]{
-                    "Category", "Message", "Simulation time"
-                }) {
+        if (getSimulationLogPanel(vertex) == null) {
+            JXTable table = new JXTable();
+            table.setModel(new javax.swing.table.DefaultTableModel(
+                    new Object[][]{},
+                    new String[]{
+                        "Category", "Message", "Simulation time"
+                    }) {
+                Class[] types = new Class[]{
+                    java.lang.String.class, java.lang.Object.class, java.lang.String.class
+                };
+                boolean[] canEdit = new boolean[]{
+                    false, false, false
+                };
 
-            Class[] types = new Class[]{
-                java.lang.String.class, java.lang.Object.class, java.lang.String.class
-            };
-            boolean[] canEdit = new boolean[]{
-                false, false, false
-            };
+                @Override
+                public Class getColumnClass(int columnIndex) {
+                    return types[columnIndex];
+                }
 
-            @Override
-            public Class getColumnClass(int columnIndex) {
-                return types[columnIndex];
-            }
+                @Override
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
+                    return canEdit[columnIndex];
+                }
+            });
 
-            @Override
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit[columnIndex];
-            }
-        });
+            //add sorter so table can be filtered
+            table.setRowSorter(new TableRowSorter<TableModel>(table.getModel()));
 
-        //add sorter so table can be filtered
-        table.setRowSorter(new TableRowSorter<TableModel>(table.getModel()));
+            //table highlighter
+            initTableRowHighlighter(table);
 
-        //table highlighter
-        initTableRowHighlighter(table);
+            table.setFillsViewportHeight(true);
 
-        //add table to hashmap
-        panels.put(vertex, table);
+            //add table to hashmap
+            panels.put(vertex, table);
+        }
+        JTable table = panels.get(vertex);
 
         //add table to tabbed pane
-        closeableTabbedPane1.addTab(vertex, table);
+        closeableTabbedPane1.addTab(vertex, new JScrollPane(table));
     }
 
     private void initTableRowHighlighter(JXTable table) {
@@ -201,7 +231,7 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
         }
     }
 
-    private JXTable getSimulationLogPanel(String vertex) {
+    private JTable getSimulationLogPanel(String vertex) {
         if (panels.containsKey(vertex)) {
             return panels.get(vertex);
         }
@@ -257,18 +287,10 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
 
     @Override
     public void componentOpened() {
-        if (topology == null) {
-            throw new IllegalStateException("topology is NULL; setTopology() method must be called");
-        }
-        topology.getTopolElementTopComponent().getSimulationFacade().addSimulationLogListener(this);
     }
 
     @Override
     public void componentClosed() {
-        if (topology == null) {
-            throw new IllegalStateException("topology is NULL; setTopology() method must be called");
-        }
-        topology.getTopolElementTopComponent().getSimulationFacade().removeSimulationLogListener(this);
     }
 
     void writeProperties(java.util.Properties p) {
@@ -295,6 +317,58 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
     public boolean closeTab(int index) {
         panelClosed(closeableTabbedPane1.getTitleAt(index));
         return true;
+    }
+
+    /**
+     * simple class that acts as key in hash map
+     */
+    private static class FilterMapKey {
+
+        private boolean info;
+        private boolean warning;
+        private boolean error;
+
+        private FilterMapKey(List<String> stringList) {
+            if (stringList.contains("INFO")) {
+                this.info = true;
+            }
+            if (stringList.contains("ERROR")) {
+                this.error = true;
+            }
+            if (stringList.contains("WARNING")) {
+                this.warning = true;
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 5;
+            hash = 37 * hash + (this.info ? 1 : 0);
+            hash = 37 * hash + (this.warning ? 1 : 0);
+            hash = 37 * hash + (this.error ? 1 : 0);
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final FilterMapKey other = (FilterMapKey) obj;
+            if (this.info != other.info) {
+                return false;
+            }
+            if (this.warning != other.warning) {
+                return false;
+            }
+            if (this.error != other.error) {
+                return false;
+            }
+            return true;
+        }
     }
 
     /**

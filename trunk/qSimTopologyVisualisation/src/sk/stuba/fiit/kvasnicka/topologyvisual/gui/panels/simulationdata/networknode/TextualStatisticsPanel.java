@@ -64,13 +64,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
         listModel = new DefaultListModel();
         listTextualNodes.setModel(listModel);
 
-        jXSearchField1.setSearchMode(JXSearchField.SearchMode.INSTANT);
-        jXSearchField1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                filterList(e.getActionCommand());
-            }
-        });
+      
 
         initTextualNodesList();
 
@@ -92,7 +86,6 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
     }
 
     private void initTextualNodesList() {
-        jXSearchField1.setText("");
         listTextualNodes.setRowFilter(null);
 
 
@@ -268,7 +261,6 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
     private void initComponents() {
 
         jPanel3 = new javax.swing.JPanel();
-        jXSearchField1 = new org.jdesktop.swingx.JXSearchField();
         jScrollPane2 = new javax.swing.JScrollPane();
         listTextualNodes = new org.jdesktop.swingx.JXList();
         jPanel1 = new javax.swing.JPanel();
@@ -276,10 +268,6 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
         setPreferredSize(new java.awt.Dimension(905, 284));
 
         jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-        jXSearchField1.setText(org.openide.util.NbBundle.getMessage(TextualStatisticsPanel.class, "TextualStatisticsPanel.jXSearchField1.text_1")); // NOI18N
-        jXSearchField1.setToolTipText(org.openide.util.NbBundle.getMessage(TextualStatisticsPanel.class, "TextualStatisticsPanel.jXSearchField1.toolTipText")); // NOI18N
-        jXSearchField1.setLayoutStyle(org.jdesktop.swingx.JXSearchField.LayoutStyle.VISTA);
 
         jScrollPane2.setViewportView(listTextualNodes);
 
@@ -289,18 +277,14 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jXSearchField1, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addGap(9, 9, 9)
-                .addComponent(jXSearchField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(16, Short.MAX_VALUE))
         );
 
@@ -335,14 +319,13 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(48, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane2;
-    private org.jdesktop.swingx.JXSearchField jXSearchField1;
     private org.jdesktop.swingx.JXList listTextualNodes;
     // End of variables declaration//GEN-END:variables
 

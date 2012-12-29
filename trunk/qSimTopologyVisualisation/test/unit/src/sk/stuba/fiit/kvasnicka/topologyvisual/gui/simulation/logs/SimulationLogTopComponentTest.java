@@ -20,7 +20,7 @@ public class SimulationLogTopComponentTest {
     @Test
     public void testCreateRegex() throws Exception {
         List<String> list = Arrays.asList("hello", "world");
-        SimulationLogTopComponent comp = new SimulationLogTopComponent();
+        SimulationLogTopComponent comp = new SimulationLogTopComponent(null);
 
         Method privateStringMethod = SimulationLogTopComponent.class.getDeclaredMethod("createRegex", List.class);
         privateStringMethod.setAccessible(true);
@@ -33,7 +33,7 @@ public class SimulationLogTopComponentTest {
     @Test
     public void testCreateRegex_single() throws Exception {
         List<String> list = Arrays.asList("hello");
-        SimulationLogTopComponent comp = new SimulationLogTopComponent();
+        SimulationLogTopComponent comp = new SimulationLogTopComponent(null);
 
         Method privateStringMethod = SimulationLogTopComponent.class.getDeclaredMethod("createRegex", List.class);
         privateStringMethod.setAccessible(true);
@@ -46,7 +46,7 @@ public class SimulationLogTopComponentTest {
     @Test
     public void testCreateRegex_empty() throws Exception {
         List<String> list = new LinkedList<String>();
-        SimulationLogTopComponent comp = new SimulationLogTopComponent();
+        SimulationLogTopComponent comp = new SimulationLogTopComponent(null);
 
         Method privateStringMethod = SimulationLogTopComponent.class.getDeclaredMethod("createRegex", List.class);
         privateStringMethod.setAccessible(true);
