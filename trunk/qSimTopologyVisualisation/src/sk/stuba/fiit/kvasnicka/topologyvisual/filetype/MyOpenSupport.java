@@ -16,6 +16,8 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.filetype;
 
+import org.netbeans.core.spi.multiview.CloseOperationHandler;
+import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewDescription;
 import org.netbeans.core.spi.multiview.MultiViewFactory;
 import org.openide.cookies.CloseCookie;
@@ -45,8 +47,18 @@ public class MyOpenSupport extends OpenSupport implements OpenCookie, CloseCooki
         MultiViewDescription[] descArry = {main1, main2};
 
         // Create the multiview:
-        CloneableTopComponent tc = MultiViewFactory.createCloneableMultiView(descArry, main1, null); 
+        CloneableTopComponent tc = MultiViewFactory.createCloneableMultiView(descArry, main1, createCloseOperationHandler()); 
         tc.setIcon(ImageResourceHelper.loadImage("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/qsimFileType.png").getImage());
         return tc;
+    }
+    
+    private CloseOperationHandler createCloseOperationHandler(){
+        return new CloseOperationHandler() {
+
+            @Override
+            public boolean resolveCloseOperation(CloseOperationState[] elements) {
+                return false;
+            }
+        };
     }
 }
