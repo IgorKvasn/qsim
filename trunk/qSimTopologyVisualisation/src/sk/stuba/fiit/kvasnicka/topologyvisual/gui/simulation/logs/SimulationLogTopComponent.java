@@ -94,8 +94,7 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
     public void showVetices(Collection<TopologyVertex> vertices) {
         for (TopologyVertex v : vertices) {
             //add table to tabbed pane
-            JTable table = getSimulationLogPanel(v.getName());
-            closeableTabbedPane1.addTab(v.getName(), new JScrollPane(table));
+            getSimulationLogPanel(v.getName());
         }
     }
 
@@ -294,11 +293,22 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
         }
     }
 
+    /**
+     *
+     * retrieves cached value of a table or creates new table<br> when new table
+     * is created it is also created new Tab for it
+     *
+     * @param vertex
+     * @return re
+     */
     private JTable getSimulationLogPanel(String vertex) {
         if (panels.containsKey(vertex)) {
             return panels.get(vertex);
         }
-        return createSimulationLogPanel(vertex);
+        JTable table = createSimulationLogPanel(vertex);
+        closeableTabbedPane1.addTab(vertex, new JScrollPane(table));//add a new tab
+        closeableTabbedPane1.setSelectedIndex(closeableTabbedPane1.getTabCount() - 1);//selects new tab to give it a focus
+        return table;
     }
 
     /**
