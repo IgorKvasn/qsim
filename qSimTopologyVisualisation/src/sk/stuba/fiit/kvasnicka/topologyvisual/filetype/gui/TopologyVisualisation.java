@@ -42,6 +42,7 @@ import org.apache.log4j.Logger;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
+import org.netbeans.core.spi.multiview.MultiViewFactory;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.StatusDisplayer;
@@ -167,7 +168,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         Mode navigatorMode = WindowManager.getDefault().findMode("navigator");
         navigatorMode.dockInto(navigatorTopComponent);
         navigatorTopComponent.open();
-        
+
         //it is neccesary to init SimulationLogTopComponent before simulation starts, so user can open logs before he runs simulation
         logTopComponent = new SimulationLogTopComponent(topology);
     }
@@ -213,7 +214,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             simulationFacade.addSimulationRuleListener(statManager);
             simulationFacade.addPingPacketDeliveredListener(statManager);
 
-           
+
 
             //opens all supporting windows for simulation
             openSimulationWindows(statManager, simulationFacade.getSimulationRules());
@@ -290,7 +291,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             logg.error("Could not find component TopologyPaletteTopComponent");
             return;
         }
-        palette.open();
+        palette.open();        
 
         this.requestFocus();
     }
@@ -1157,6 +1158,23 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
     @Override
     public CloseOperationState canCloseElement() {
+        if (isSimulationRunning()) {
+            //there is at least one simulation that is still running
+            NotifyDescriptor nd = new NotifyDescriptor(
+                    "<html>This simulation is still runnung. Are you sure you want to close it?<br>Simulation will be stopped.</html>",
+                    "Close simulation",
+                    NotifyDescriptor.YES_NO_OPTION,
+                    NotifyDescriptor.QUESTION_MESSAGE,
+                    null,
+                    NotifyDescriptor.YES_OPTION);
+
+            if (DialogDisplayer.getDefault().notify(nd) != NotifyDescriptor.YES_OPTION) {
+                return MultiViewFactory.createUnsafeCloseState("simulation-running", MultiViewFactory.NOOP_CLOSE_ACTION, MultiViewFactory.NOOP_CLOSE_ACTION);
+            }
+            //user wants to close anyway
+            stopSimulation();    
+            WindowManager.getDefault().findTopComponent("projectTabLogical_tc").requestVisible(); //workaround for a bug: when topComponent is closed when simulation is running, "Services" tab gets focus
+        }
         return CloseOperationState.STATE_OK;
     }
 

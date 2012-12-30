@@ -24,7 +24,7 @@ public class Installer extends ModuleInstall {
         //there is at least one simulation that is still running
         NotifyDescriptor nd = new NotifyDescriptor(
                 "<html>There are some simulations that are still running. Are you sure you want to exit?<br><ul>" + createList(RunningSimulationManager.getInstance().getRunningList()) + "</ul>",
-                "Title",
+                "Exit qSim",
                 NotifyDescriptor.YES_NO_OPTION,
                 NotifyDescriptor.QUESTION_MESSAGE,
                 null,
