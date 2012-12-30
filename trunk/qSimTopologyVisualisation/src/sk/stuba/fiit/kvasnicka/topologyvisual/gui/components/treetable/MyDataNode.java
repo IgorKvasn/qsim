@@ -28,15 +28,19 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
 public class MyDataNode {
 
     private static DecimalFormat twoDForm = new DecimalFormat("#.##");
-    public String name;
-    public double currentUsage;
-    public int maxCapacity;
-    public UsageStatistics usageStatistics;
-    public List<MyDataNode> children = new ArrayList<MyDataNode>();
-    public Boolean inChart;
+    private String name;
+    private double currentUsage;
+    private int maxCapacity;
+    private UsageStatistics usageStatistics;
+    private List<MyDataNode> children = new ArrayList<MyDataNode>();
+    private Boolean inChart;
 
-    public MyDataNode(String name, int maxCapacity, UsageStatistics usageStatistics) {
-        this.name = name;
+    public MyDataNode(String name, int maxCapacity, UsageStatistics usageStatistics, boolean leaf) {
+        if (leaf) {
+            this.name = " - " + name;
+        } else {
+            this.name = name;
+        }
         this.maxCapacity = maxCapacity;
         this.inChart = false;
         this.usageStatistics = usageStatistics;
@@ -65,7 +69,7 @@ public class MyDataNode {
         return (currentUsage * 100) / maxCapacity;
     }
 
-    public Boolean getInChart() {
+    public Boolean isInChart() {
         return inChart;
     }
 
@@ -95,6 +99,6 @@ public class MyDataNode {
 
     @Override
     public String toString() {
-        return name;
+        return getName();
     }
 }
