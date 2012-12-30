@@ -1,20 +1,8 @@
 /*
- * This file is part of qSim.
- *
- * qSim is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * qSim is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
  */
-package sk.stuba.fiit.kvasnicka.topologyvisual.options.display;
+package sk.stuba.fiit.kvasnicka.topologyvisual.options.logs;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -23,13 +11,15 @@ import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 
-@OptionsPanelController.TopLevelRegistration(categoryName = "#OptionsCategory_Name_Display",
-iconBase = "sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/display_32.png",
-keywords = "#OptionsCategory_Keywords_Display",
-keywordsCategory = "Display")
-public final class DisplayOptionsPanelController extends OptionsPanelController {
+@OptionsPanelController.TopLevelRegistration(
+        categoryName = "Simulation logs",
+iconBase = "sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/log.png",
+keywords = "#AdvancedOption_Keywords_SimulationLogs",
+keywordsCategory = "SimulationLogs/SimulationLogs")
+@org.openide.util.NbBundle.Messages({"AdvancedOption_DisplayName_SimulationLogs=Simulation logs", "AdvancedOption_Keywords_SimulationLogs=logs"})
+public final class SimulationLogsOptionsPanelController extends OptionsPanelController {
 
-    private DisplayPanel panel;
+    private SimulationLogsPanel panel;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     private boolean changed;
 
@@ -80,9 +70,9 @@ public final class DisplayOptionsPanelController extends OptionsPanelController 
         pcs.removePropertyChangeListener(l);
     }
 
-    private DisplayPanel getPanel() {
+    private SimulationLogsPanel getPanel() {
         if (panel == null) {
-            panel = new DisplayPanel(this);
+            panel = new SimulationLogsPanel(this);
         }
         return panel;
     }

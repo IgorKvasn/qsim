@@ -18,18 +18,17 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JViewport;
 import javax.swing.RowFilter;
 import javax.swing.table.*;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
-import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
@@ -38,11 +37,11 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogCategory;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLog;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
+import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.closeabletabbedpane.CloseableTabbedPaneListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.dropdownevent.DropDownHiddenEvent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.dropdownevent.DropDownHiddenListener;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.SimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 
 /**
@@ -77,6 +76,7 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
     private Map<String, JTable> panels = new HashMap<String, JTable>();
     private Map<FilterMapKey, RowFilter<Object, Object>> tableFilterMap = new HashMap<FilterMapKey, RowFilter<Object, Object>>();
     private Topology topology;
+    private Map<String, Integer> tableRowIndex = new HashMap<String, Integer>();
 
     public SimulationLogTopComponent(Topology topology) {
         initComponents();
@@ -93,7 +93,9 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
 
     public void showVetices(Collection<TopologyVertex> vertices) {
         for (TopologyVertex v : vertices) {
-            createSimulationLogPanel(v.getName());
+            //add table to tabbed pane
+            JTable table = getSimulationLogPanel(v.getName());
+            closeableTabbedPane1.addTab(v.getName(), new JScrollPane(table));
         }
     }
 
@@ -168,59 +170,120 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
         if (simulationLog.getSourceName().equals(SimulationLogUtils.SOURCE_GENERAL)) {//all panels should be notified
             for (Map.Entry<String, JTable> entry : panels.entrySet()) {
                 JTable table = entry.getValue();
-                ((DefaultTableModel) table.getModel()).addRow(new String[]{simulationLog.getCategory().toString(), simulationLog.getCause(), simulationLog.getFormattedSimulationTime()});
+                addRow(table, entry.getKey(), (DefaultTableModel) table.getModel(), new Object[]{(tableRowIndex.get(entry.getKey()) + 1), simulationLog.getCategory().toString(), simulationLog.getCause(), simulationLog.getFormattedSimulationTime()});
             }
             return;
         }
 
         JTable table = getSimulationLogPanel(simulationLog.getSourceName());
-        if (table == null) {//no one is interrested in this simulation log
-            return;
-        }
-        ((DefaultTableModel) table.getModel()).addRow(new String[]{simulationLog.getCategory().toString(), simulationLog.getCause(), simulationLog.getFormattedSimulationTime()});
+//        if (table == null) {//no one is interrested in this simulation log
+//            return;
+//        }
+        addRow(table, simulationLog.getSourceName(), (DefaultTableModel) table.getModel(), new Object[]{(tableRowIndex.get(simulationLog.getSourceName()) + 1), simulationLog.getCategory().toString(), simulationLog.getCause(), simulationLog.getFormattedSimulationTime()});
     }
 
-    private void createSimulationLogPanel(String vertex) {
-        if (getSimulationLogPanel(vertex) == null) {
-            JXTable table = new JXTable();
-            table.setModel(new javax.swing.table.DefaultTableModel(
-                    new Object[][]{},
-                    new String[]{
-                        "Category", "Message", "Simulation time"
-                    }) {
-                Class[] types = new Class[]{
-                    java.lang.String.class, java.lang.Object.class, java.lang.String.class
-                };
-                boolean[] canEdit = new boolean[]{
-                    false, false, false
-                };
+    private void addRow(JTable table, String tableName, DefaultTableModel model, Object[] row) {
+        int newRowIndex = (PreferenciesHelper.isAddNewSimulationLogsAtBottom() ? model.getRowCount() : 0);
 
-                @Override
-                public Class getColumnClass(int columnIndex) {
-                    return types[columnIndex];
+        tableRowIndex.put(tableName, tableRowIndex.get(tableName) + 1);
+
+        if (PreferenciesHelper.isUnlimitedSimulationLogs()) {
+            model.insertRow(newRowIndex, row);
+        } else {
+            int maxLogCount = PreferenciesHelper.getSimulationLogsCount();
+            if (model.getRowCount() >= maxLogCount) {
+                //there are too many rows - first I have to delete the oldest row
+                removeOldestRow(model);
+                if (PreferenciesHelper.isAddNewSimulationLogsAtBottom()) {//when adding at bottom, I have removed one line
+                    newRowIndex -= 1;
                 }
-
-                @Override
-                public boolean isCellEditable(int rowIndex, int columnIndex) {
-                    return canEdit[columnIndex];
-                }
-            });
-
-            //add sorter so table can be filtered
-            table.setRowSorter(new TableRowSorter<TableModel>(table.getModel()));
-
-            //table highlighter
-            initTableRowHighlighter(table);
-
-            table.setFillsViewportHeight(true);
-
-            //add table to hashmap
-            panels.put(vertex, table);
+            }
+            model.insertRow(newRowIndex, row);
         }
-        JTable table = panels.get(vertex);
 
-        //add table to tabbed pane
-        closeableTabbedPane1.addTab(vertex, new JScrollPane(table));
+        scrollToNewRow(table, newRowIndex, 0);
+    }
+
+    private static void scrollToNewRow(JTable table, int row, int col) {
+        JScrollPane sp = getScrollPane(table);
+        if (sp == null) {
+            return;
+        }
+        JViewport viewport = sp.getViewport();
+        Rectangle r = table.getCellRect(row, col, true);
+        Point p = viewport.getViewPosition();
+        r.setLocation(r.x - p.x, r.y - p.y + table.getRowHeight());
+        viewport.scrollRectToVisible(r);
+    }
+
+    private static JScrollPane getScrollPane(Component c) {
+        while ((c = c.getParent()) != null) {
+            if (c instanceof JScrollPane) {
+                return (JScrollPane) c;
+            }
+        }
+        return null;
+    }
+
+    private void removeOldestRow(DefaultTableModel model) {
+        int lowestRowValue = Integer.MAX_VALUE;
+        int lowestRowIndex = Integer.MAX_VALUE;
+
+        for (int i = 0; i < model.getRowCount(); i++) {
+            if (lowestRowValue > (Integer) model.getValueAt(i, 0)) {
+                lowestRowIndex = i;
+                lowestRowValue = (Integer) model.getValueAt(i, 0);
+            }
+        }
+
+        if (lowestRowIndex == Integer.MAX_VALUE) {
+            return;
+        }
+        model.removeRow(lowestRowIndex);
+
+    }
+
+    private JTable createSimulationLogPanel(String vertex) {
+
+        JXTable table = new JXTable();
+        table.setModel(new javax.swing.table.DefaultTableModel(
+                new Object[][]{},
+                new String[]{
+                    "#", "Category", "Message", "Simulation time"
+                }) {
+            Class[] types = new Class[]{
+                Integer.class, java.lang.String.class, java.lang.Object.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean[]{
+                false, false, false, false
+            };
+
+            @Override
+            public Class getColumnClass(int columnIndex) {
+                return types[columnIndex];
+            }
+
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit[columnIndex];
+            }
+        });
+
+
+        //add sorter so table can be filtered
+        table.setRowSorter(new TableRowSorter<TableModel>(table.getModel()));
+
+        //table highlighter
+        initTableRowHighlighter(table);
+
+        table.setFillsViewportHeight(true);
+
+        //add table to hashmap
+        panels.put(vertex, table);
+
+        tableRowIndex.put(vertex, 0);
+
+        return table;
     }
 
     private void initTableRowHighlighter(JXTable table) {
@@ -235,7 +298,7 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
         if (panels.containsKey(vertex)) {
             return panels.get(vertex);
         }
-        return null;
+        return createSimulationLogPanel(vertex);
     }
 
     /**
@@ -389,7 +452,7 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
                 boolean isSelected, boolean hasFocus, int row, int column) {
             Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-            int categoryColumn = table.convertColumnIndexToView(0);
+            int categoryColumn = table.convertColumnIndexToView(1);
             String category = (String) table.getValueAt(row, categoryColumn);
             Color foreground = Color.WHITE;
 
