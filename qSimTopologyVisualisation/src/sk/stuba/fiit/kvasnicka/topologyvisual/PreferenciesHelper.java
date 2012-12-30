@@ -56,6 +56,30 @@ public class PreferenciesHelper {
         NbPreferences.forModule(PreferenciesHelper.class).putBoolean("isNeverShowQosClassDeletedConfirmation", never);
     }
 
+    public static void setUnlimitedSimulationLogs(boolean selected) {
+        NbPreferences.forModule(PreferenciesHelper.class).putBoolean("isUnlimitedSimulationLogs", selected);
+    }
+
+    public static void setAddNewSimulationLogsAtBottom(boolean selected) {
+        NbPreferences.forModule(PreferenciesHelper.class).putBoolean("isAddNewSimulationLogsAtBottom", selected);
+    }
+
+    public static void setSimulationLogsCount(int count) {
+        NbPreferences.forModule(PreferenciesHelper.class).putInt("getSimulationLogsCount", count);
+    }
+
+    public static int getSimulationLogsCount() {
+        return NbPreferences.forModule(PreferenciesHelper.class).getInt("getSimulationLogsCount", 20);
+    }
+
+    public static boolean isAddNewSimulationLogsAtBottom() {
+        return NbPreferences.forModule(PreferenciesHelper.class).getBoolean("isAddNewSimulationLogsAtBottom", false);
+    }
+
+    public static boolean isUnlimitedSimulationLogs() {
+        return NbPreferences.forModule(PreferenciesHelper.class).getBoolean("isUnlimitedSimulationLogs", false);
+    }
+
     public static boolean isNeverShowQosClassDeletedConfirmation() {
         return NbPreferences.forModule(PreferenciesHelper.class).getBoolean("isNeverShowQosClassDeletedConfirmation", false);
     }
