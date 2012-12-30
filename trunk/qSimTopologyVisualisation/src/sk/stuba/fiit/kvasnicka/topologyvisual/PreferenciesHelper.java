@@ -69,7 +69,7 @@ public class PreferenciesHelper {
     }
 
     public static int getSimulationLogsCount() {
-        return NbPreferences.forModule(PreferenciesHelper.class).getInt("getSimulationLogsCount", 20);
+        return NbPreferences.forModule(PreferenciesHelper.class).getInt("getSimulationLogsCount", 19);
     }
 
     public static boolean isAddNewSimulationLogsAtBottom() {
