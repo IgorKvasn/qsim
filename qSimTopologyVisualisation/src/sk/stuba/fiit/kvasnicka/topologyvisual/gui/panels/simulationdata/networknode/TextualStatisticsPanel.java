@@ -6,8 +6,6 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.gui.panels.simulationdata.network
 
 import java.awt.Component;
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,7 +20,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellRenderer;
 import lombok.Getter;
-import org.jdesktop.swingx.JXSearchField;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.RxBuffer;
@@ -30,11 +27,9 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.TxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.timer.SimulationTimerEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.timer.SimulationTimerListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.treetable.MyAbstractTreeTableModel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.treetable.MyDataModel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.treetable.MyDataNode;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.treetable.MyTreeTable;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.treetable.MyTreeTableCellRenderer;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.treetable.MyTreeTableModelAdapter;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.NetworkNodeStatisticsTopComponent;
 
@@ -45,7 +40,6 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.Netw
 public class TextualStatisticsPanel extends javax.swing.JPanel implements SimulationTimerListener {
 
     private DefaultListModel listModel;
-    private RowFilter<ListModel, Object> listFilter;
     private List<TopologyVertex> nodeList;
     private NetworkNode selectedNode;
     private Map<NetworkNode, MyTreeTable> treeTableModelCache;//cache TreeTableModels, because it is quite expensive to build one...
@@ -64,7 +58,6 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
         listModel = new DefaultListModel();
         listTextualNodes.setModel(listModel);
 
-      
 
         initTextualNodesList();
 
@@ -78,11 +71,6 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
         jPanel1.add(new JScrollPane(myTreeTable));
         myTreeTable.setVisible(true);
 
-    }
-
-    private void filterList(String text) {
-        listFilter = RowFilter.regexFilter(text);
-        listTextualNodes.setRowFilter(listFilter);
     }
 
     private void initTextualNodesList() {
@@ -125,11 +113,11 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
         }
         MyDataModel model = (MyDataModel) ((MyTreeTableModelAdapter) myTreeTable.getModel()).getTreeTableModel();
 
-        model.inputQueueNode.currentUsage = selectedNode.getInputQueueUsage();
-        model.processingNode.currentUsage = selectedNode.getProcessingPackets();
-        model.outputRootNode.currentUsage = selectedNode.getAllOutputQueueUsage();
-        model.rxRootNode.currentUsage = selectedNode.getRXUsage();
-        model.txRootNode.currentUsage = selectedNode.getTXUsage();
+        model.inputQueueNode.setCurrentUsage(selectedNode.getInputQueueUsage());
+        model.processingNode.setCurrentUsage(selectedNode.getProcessingPackets());
+        model.outputRootNode.setCurrentUsage(selectedNode.getAllOutputQueueUsage());
+        model.rxRootNode.setCurrentUsage(selectedNode.getRXUsage());
+        model.txRootNode.setCurrentUsage(selectedNode.getTXUsage());
 
         //update RX nodes
         for (Map.Entry<NetworkNode, RxBuffer> e : selectedNode.getRxInterfaces().entrySet()) {
@@ -168,28 +156,28 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
             MyDataModel model = (MyDataModel) ((MyTreeTableModelAdapter) myTreeTable.getModel()).getTreeTableModel();
 
             //input queue
-            if (model.inputQueueNode.inChart) {
+            if (model.inputQueueNode.isInChart()) {
                 usages.add(model.inputQueueNode.getUsageStatistics());
             }
             //processing
-            if (model.processingNode.inChart) {
+            if (model.processingNode.isInChart()) {
                 usages.add(model.processingNode.getUsageStatistics());
             }
             //output queues
             for (MyDataNode oNode : model.outputNodes) {
-                if (oNode.inChart) {
+                if (oNode.isInChart()) {
                     usages.add(oNode.getUsageStatistics());
                 }
             }
             //RX
             for (MyDataNode rNode : model.rxNodes.values()) {
-                if (rNode.inChart) {
+                if (rNode.isInChart()) {
                     usages.add(rNode.getUsageStatistics());
                 }
             }
             //TX
             for (MyDataNode tNode : model.txNodes.values()) {
-                if (tNode.inChart) {
+                if (tNode.isInChart()) {
                     usages.add(tNode.getUsageStatistics());
                 }
             }
@@ -209,7 +197,7 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
 
             treeTableModelCache.put(node, myTreeTable);
             myTreeTable.expandAll();
-        }        
+        }
         return myTreeTable;
     }
 

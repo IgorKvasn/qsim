@@ -48,15 +48,15 @@ public class MyDataModel extends MyAbstractTreeTableModel {
             return;
         }
 
-        myroot = new MyDataNode("root - should not be visible", 0, null);
+        myroot = new MyDataNode("root - should not be visible", 0, null, false);
 
 
         //init input queue
-        inputQueueNode = new MyDataNode("Input queue", node.getMaxIntputQueueSize(), node.getInputQueue());
+        inputQueueNode = new MyDataNode("Input queue", node.getMaxIntputQueueSize(), node.getInputQueue(), false);
         myroot.getChildren().add(inputQueueNode);
 
         //init output nodes
-        outputRootNode = new MyDataNode("Output queue", node.getMaxOutputQueueSize(), node.getAllOutputQueues());
+        outputRootNode = new MyDataNode("Output queue", node.getMaxOutputQueueSize(), node.getAllOutputQueues(), false);
         myroot.getChildren().add(outputRootNode);
 
         outputNodes = generateOutputNodes(node);
@@ -65,7 +65,7 @@ public class MyDataModel extends MyAbstractTreeTableModel {
         }
 
         //init RX
-        rxRootNode = new MyDataNode("RX buffers", node.getMaxRxSizeTotal(), node.getAllRXBuffers());
+        rxRootNode = new MyDataNode("RX buffers", node.getMaxRxSizeTotal(), node.getAllRXBuffers(), false);
         myroot.getChildren().add(rxRootNode);
 
         rxNodes = generateRxNodes(node);
@@ -75,7 +75,7 @@ public class MyDataModel extends MyAbstractTreeTableModel {
         }
 
         //init TX
-        txRootNode = new MyDataNode("TX buffers", node.getMaxTxSizeTotal(), node.getAllTXBuffers());
+        txRootNode = new MyDataNode("TX buffers", node.getMaxTxSizeTotal(), node.getAllTXBuffers(), false);
         myroot.getChildren().add(txRootNode);
 
         txNodes = generateTxNodes(node);
@@ -85,7 +85,7 @@ public class MyDataModel extends MyAbstractTreeTableModel {
         }
 
         //init processing
-        processingNode = new MyDataNode("Processing packets", node.getMaxProcessingPackets(), node.getAllProcessingPackets());
+        processingNode = new MyDataNode("Processing packets", node.getMaxProcessingPackets(), node.getAllProcessingPackets(), false);
         myroot.getChildren().add(processingNode);
 
         super.setRoot(myroot);
@@ -95,7 +95,7 @@ public class MyDataModel extends MyAbstractTreeTableModel {
         Map<NetworkNode, MyDataNode> map = new HashMap<NetworkNode, MyDataNode>();
 
         for (Map.Entry<NetworkNode, RxBuffer> e : node.getRxInterfaces().entrySet()) {
-            MyDataNode treeNode = new MyDataNode(e.getKey().getName(), node.getMaxRxBufferSize(), e.getValue());
+            MyDataNode treeNode = new MyDataNode(e.getKey().getName(), node.getMaxRxBufferSize(), e.getValue(), true);
             map.put(e.getKey(), treeNode);
         }
 
@@ -106,7 +106,7 @@ public class MyDataModel extends MyAbstractTreeTableModel {
         Map<NetworkNode, MyDataNode> map = new HashMap<NetworkNode, MyDataNode>();
 
         for (Map.Entry<NetworkNode, TxBuffer> e : node.getTxInterfaces().entrySet()) {
-            MyDataNode treeNode = new MyDataNode(e.getKey().getName(), node.getMaxTxBufferSize(), e.getValue());
+            MyDataNode treeNode = new MyDataNode(e.getKey().getName(), node.getMaxTxBufferSize(), e.getValue(), true);
             map.put(e.getKey(), treeNode);
         }
 
@@ -118,7 +118,7 @@ public class MyDataModel extends MyAbstractTreeTableModel {
         OutputQueueManager outputQueues = node.getOutputQueueManager();
         int index = 1;
         for (OutputQueue qDef : outputQueues.getQueues()) {
-            MyDataNode n = new MyDataNode("#" + index, qDef.getMaxCapacity(), qDef);
+            MyDataNode n = new MyDataNode("#" + index, qDef.getMaxCapacity(), qDef, true);
             nodes.add(n);
         }
         return nodes;
@@ -188,7 +188,7 @@ public class MyDataModel extends MyAbstractTreeTableModel {
             case 3:
                 return treenode.calculateUsageAsDouble(); //progress bar
             case 4:
-                return treenode.getInChart();
+                return treenode.isInChart();
             default:
                 throw new IllegalStateException("unknown column number: " + column);
         }
