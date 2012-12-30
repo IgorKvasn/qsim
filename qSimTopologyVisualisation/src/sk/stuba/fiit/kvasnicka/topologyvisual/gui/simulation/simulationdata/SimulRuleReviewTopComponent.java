@@ -358,7 +358,6 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
 
     @Override
     public void componentClosed() {
-        simulationFacade.removeSimulationRuleActivatedListener(this);
         simulationFacade.removePingRuleListener(this);
         simulationFacade.removeSimulationRuleListener(this);
     }

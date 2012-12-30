@@ -133,7 +133,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     private boolean active = false;
     private VerticesSelectionPanel verticesSelectionPanel = null;//used as callback object when user is selecting vertex during simulation rules definition
     @Getter
-    private SimulationFacade simulationFacade = new SimulationFacade(); //todo serialise - SimulationManager and PingManager
+    private SimulationFacade simulationFacade;
     @Getter
     private transient SimulationData simulationData;
     @Getter
@@ -177,8 +177,17 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
      * starts the simulation
      */
     public void runSimulation() {
-        if (simulationFacade.isTimerRunning()) {
-            throw new IllegalStateException("simulation is already running");
+        if (simulationFacade != null) {//simulationFacade is null, when no previous simulation was started
+            if (simulationFacade.isTimerPaused()) {
+                //todo add new simulation rules - this is the only thing that can be added
+                //todo also old simulation rules can be activated/deactiated during simulation pause
+                simulationFacade.resumeTimer();
+                return;//nothing to do here anymore
+            } else {
+                if (simulationFacade.isTimerRunning()) {//just a security check so that topology can be "started" at most once
+                    throw new IllegalStateException("simulation is already running");
+                }
+            }
         }
 
         //are there any simulation logs to simulate?
@@ -192,6 +201,8 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
 
         try {
+            simulationFacade = new SimulationFacade();
+
             //finalise simulation rules = init routing
             List<SimulationRuleBean> simulationRules = simulationData.getSimulationRulesFinalised(); //very important method !!
             //add simulation rules into simulation facade
@@ -214,22 +225,17 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             simulationFacade.addSimulationRuleListener(statManager);
             simulationFacade.addPingPacketDeliveredListener(statManager);
 
-
-
             //opens all supporting windows for simulation
             openSimulationWindows(statManager, simulationFacade.getSimulationRules());
 
-            if (simulationFacade.isTimerPaused()) {
-                simulationFacade.resumeTimer();
-            } else {
-                List<NetworkNode> networkNodeList = VerticesUtil.convertTopologyVertexList2NetworkNodeList(topology.getVertexFactory().getAllVertices());
-                simulationFacade.initTimer(EdgeUtils.convertTopologyEdgeListToEdgeList(topology.getG().getEdges()), networkNodeList);
-                networkNodeStatsManager = new NetworkNodeStatsManager(networkNodeList, simulationFacade);
-                networkNodeStatisticsTopComponent = new NetworkNodeStatisticsTopComponent(this, networkNodeStatsManager);
+            List<NetworkNode> networkNodeList = VerticesUtil.convertTopologyVertexList2NetworkNodeList(topology.getVertexFactory().getAllVertices());
+            simulationFacade.initTimer(EdgeUtils.convertTopologyEdgeListToEdgeList(topology.getG().getEdges()), networkNodeList);
+            networkNodeStatsManager = new NetworkNodeStatsManager(networkNodeList, simulationFacade);
+            networkNodeStatisticsTopComponent = new NetworkNodeStatisticsTopComponent(this, networkNodeStatsManager);
 
-                simulationFacade.addSimulationLogListener(logTopComponent);
-                simulationFacade.startTimer();
-            }
+            simulationFacade.addSimulationLogListener(logTopComponent);
+            simulationFacade.startTimer();
+
 
             //add this simulation to list of all running simulations
             RunningSimulationManager.getInstance().simulationStarted(dataObject.getName());
@@ -244,18 +250,6 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         }
     }
 
-    public void openNetworkNodeSimulationTopcomponent() {
-        if (networkNodeStatisticsTopComponent == null) {
-            throw new IllegalStateException("networkNodeStatisticsTopComponent is NULL");
-        }
-        if (!networkNodeStatisticsTopComponent.isOpened()) {
-            Mode outputMode = WindowManager.getDefault().findMode("myoutput");
-            outputMode.dockInto(networkNodeStatisticsTopComponent);
-            networkNodeStatisticsTopComponent.open();
-        }
-        networkNodeStatisticsTopComponent.requestActive();
-    }
-
     /**
      * stops (cancels) the simulation
      */
@@ -268,6 +262,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             throw new IllegalStateException("statManager is NULL - it seems like simulation has not been started");
         }
 
+        simulationFacade.stopTimer();
         //change simulation state
         setSimulationState(TopologyStateEnum.NOTHING);
 
@@ -276,7 +271,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         simulationFacade.removePingPacketDeliveredListener(statManager);
         simulationFacade.removeSimulationLogListener(logTopComponent);
 
-        networkNodeStatsManager.removeStatisticsListeners();
+        //no need to do this - simulation timer is nulled anyway networkNodeStatsManager.removeStatisticsListeners();
         closeSimulationWindows();
 
         //user now can paste vertices
@@ -291,7 +286,8 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             logg.error("Could not find component TopologyPaletteTopComponent");
             return;
         }
-        palette.open();        
+        palette.open();
+        WindowManager.getDefault().findTopComponent("projectTabLogical_tc").requestVisible(); //workaround for a bug: when topComponent is closed when simulation is running, "Services" tab gets focus
 
         this.requestFocus();
     }
@@ -301,9 +297,21 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
      */
     public void pauseSimulation() {
         //change simulation state
+        simulationFacade.pauseTimer();
         setSimulationState(TopologyStateEnum.PAUSED);
-
         this.requestFocus();
+    }
+
+    public void openNetworkNodeSimulationTopcomponent() {
+        if (networkNodeStatisticsTopComponent == null) {
+            throw new IllegalStateException("networkNodeStatisticsTopComponent is NULL");
+        }
+        if (!networkNodeStatisticsTopComponent.isOpened()) {
+            Mode outputMode = WindowManager.getDefault().findMode("myoutput");
+            outputMode.dockInto(networkNodeStatisticsTopComponent);
+            networkNodeStatisticsTopComponent.open();
+        }
+        networkNodeStatisticsTopComponent.requestActive();
     }
 
     /**
@@ -670,7 +678,6 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
     private void closeSimulationWindows() {
         if (simulRuleReviewTopComponent != null) {//if null, this top component is not opened
-            simulationFacade.removeSimulationRuleActivatedListener(simulRuleReviewTopComponent);
             simulationFacade.removePingRuleListener(simulRuleReviewTopComponent);
             simulationFacade.removeSimulationRuleListener(simulRuleReviewTopComponent);
             simulRuleReviewTopComponent.close();
@@ -684,7 +691,6 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
         if (networkNodeStatisticsTopComponent != null) {
             networkNodeStatisticsTopComponent.close();
-            networkNodeStatisticsTopComponent.cleanUp();
             networkNodeStatisticsTopComponent = null;
         }
     }
@@ -1172,8 +1178,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
                 return MultiViewFactory.createUnsafeCloseState("simulation-running", MultiViewFactory.NOOP_CLOSE_ACTION, MultiViewFactory.NOOP_CLOSE_ACTION);
             }
             //user wants to close anyway
-            stopSimulation();    
-            WindowManager.getDefault().findTopComponent("projectTabLogical_tc").requestVisible(); //workaround for a bug: when topComponent is closed when simulation is running, "Services" tab gets focus
+            stopSimulation();
         }
         return CloseOperationState.STATE_OK;
     }

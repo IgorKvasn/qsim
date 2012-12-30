@@ -166,10 +166,18 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
         if (simulationLog == null) {
             throw new IllegalArgumentException("simulationLog is NULL");
         }
+
+        String simulTime;
+        if (simulationLog.getSimulationTime() == -1) {
+            simulTime = "N/A";
+        } else {
+            simulTime = simulationLog.getFormattedSimulationTime();
+        }
+
         if (simulationLog.getSourceName().equals(SimulationLogUtils.SOURCE_GENERAL)) {//all panels should be notified
             for (Map.Entry<String, JTable> entry : panels.entrySet()) {
                 JTable table = entry.getValue();
-                addRow(table, entry.getKey(), (DefaultTableModel) table.getModel(), new Object[]{(tableRowIndex.get(entry.getKey()) + 1), simulationLog.getCategory().toString(), simulationLog.getCause(), simulationLog.getFormattedSimulationTime()});
+                addRow(table, entry.getKey(), (DefaultTableModel) table.getModel(), new Object[]{(tableRowIndex.get(entry.getKey()) + 1), simulationLog.getCategory().toString(), simulationLog.getCause(), simulTime});
             }
             return;
         }
@@ -178,7 +186,7 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
 //        if (table == null) {//no one is interrested in this simulation log
 //            return;
 //        }
-        addRow(table, simulationLog.getSourceName(), (DefaultTableModel) table.getModel(), new Object[]{(tableRowIndex.get(simulationLog.getSourceName()) + 1), simulationLog.getCategory().toString(), simulationLog.getCause(), simulationLog.getFormattedSimulationTime()});
+        addRow(table, simulationLog.getSourceName(), (DefaultTableModel) table.getModel(), new Object[]{(tableRowIndex.get(simulationLog.getSourceName()) + 1), simulationLog.getCategory().toString(), simulationLog.getCause(), simulTime});
     }
 
     private void addRow(JTable table, String tableName, DefaultTableModel model, Object[] row) {
@@ -239,7 +247,28 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
             return;
         }
         model.removeRow(lowestRowIndex);
+    }
 
+    /**
+     * deletes all logs for currently visible log panel
+     */
+    private void clearLogs() {
+        JXTable table = getSelectedTable();
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        while (model.getRowCount() != 0) {
+            model.removeRow(0);
+        }
+    }
+
+    /**
+     * returns JXTable that is currently selected by user
+     *
+     * @return
+     */
+    private JXTable getSelectedTable() {
+        JScrollPane scrollPane = (JScrollPane) closeableTabbedPane1.getSelectedComponent();
+        
+        return (JXTable) scrollPane.getViewport().getView();
     }
 
     private JTable createSimulationLogPanel(String vertex) {
@@ -331,8 +360,17 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
 
         dropCategory = new sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton(false);
         closeableTabbedPane1 = new sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.closeabletabbedpane.CloseableTabbedPane();
+        jButton1 = new javax.swing.JButton();
 
         org.openide.awt.Mnemonics.setLocalizedText(dropCategory, org.openide.util.NbBundle.getMessage(SimulationLogTopComponent.class, "SimulationLogTopComponent.dropCategory.text")); // NOI18N
+
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/clear.png"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(SimulationLogTopComponent.class, "SimulationLogTopComponent.jButton1.text")); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -340,22 +378,31 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(22, 22, 22)
-                .addComponent(dropCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(dropCategory, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(41, 41, 41)
-                .addComponent(closeableTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 780, Short.MAX_VALUE))
+                .addComponent(closeableTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 763, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(23, 23, 23)
                 .addComponent(dropCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(289, Short.MAX_VALUE))
+                .addGap(44, 44, 44)
+                .addComponent(jButton1)
+                .addContainerGap(219, Short.MAX_VALUE))
             .addComponent(closeableTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        clearLogs();
+    }//GEN-LAST:event_jButton1ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.closeabletabbedpane.CloseableTabbedPane closeableTabbedPane1;
     private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton dropCategory;
+    private javax.swing.JButton jButton1;
     // End of variables declaration//GEN-END:variables
 
     @Override
@@ -466,14 +513,14 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
             String category = (String) table.getValueAt(row, categoryColumn);
             Color foreground = Color.WHITE;
 
-            if (category.equals(LogCategory.ERROR.toString())) {
+            if (category.contains(LogCategory.ERROR.toString())) {
                 foreground = HIGHLIGHT_COLOR_ERROR;
             }
 
-            if (category.equals(LogCategory.INFO.toString())) {
+            if (category.contains(LogCategory.INFO.toString())) {
                 foreground = HIGHLIGHT_COLOR_INFO;
             }
-            if (category.equals(LogCategory.WARNING.toString())) {
+            if (category.contains(LogCategory.WARNING.toString())) {
                 foreground = HIGHLIGHT_COLOR_WARNING;
             }
 
