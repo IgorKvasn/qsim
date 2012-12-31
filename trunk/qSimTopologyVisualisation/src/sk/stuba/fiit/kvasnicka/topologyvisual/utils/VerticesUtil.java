@@ -106,6 +106,19 @@ public abstract class VerticesUtil {
     }
 
     /**
+     * retrieves names of all selected vertices
+     *
+     * @return
+     */
+    public static List<String> getNodeNames(Collection<NetworkNode> vertices) {
+        List<String> result = new LinkedList<String>();
+        for (NetworkNode v : vertices) {
+            result.add(v.getName());
+        }
+        return result;
+    }
+
+    /**
      * Changes color of image's border to specified color. All occurrence of
      * color RGB 178, 186, 157 will be replaced with new one.
      *

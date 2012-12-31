@@ -399,6 +399,7 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         clearLogs();
     }//GEN-LAST:event_jButton1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.closeabletabbedpane.CloseableTabbedPane closeableTabbedPane1;
     private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton dropCategory;
