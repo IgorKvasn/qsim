@@ -343,6 +343,7 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
     private void btnStatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStatActionPerformed
         showStatisticalData();
     }//GEN-LAST:event_btnStatActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnActivate;
     private javax.swing.JButton btnRoute;
@@ -416,6 +417,9 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
         public void valueChanged(ListSelectionEvent e) {
 
             if (table.getSelectedRowCount() == 0) {
+                btnActivate.setEnabled(false);
+                btnRoute.setEnabled(false);
+                btnStat.setEnabled(false);
                 return;
             }
             updateActivateButton(table.getSelectedRow());

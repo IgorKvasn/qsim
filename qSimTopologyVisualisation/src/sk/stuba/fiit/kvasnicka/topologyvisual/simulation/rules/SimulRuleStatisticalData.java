@@ -7,6 +7,7 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.simulation.rules;
 import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,7 +26,8 @@ public class SimulRuleStatisticalData {
 
     @Getter
     private SimulationRuleBean rule;
-    private List<Double> delayList;
+    @Getter
+    private List<Point2D.Double> delayList;
     @Getter
     private ITrace2D chartTrace;
     private transient javax.swing.event.EventListenerList listenerList = new javax.swing.event.EventListenerList();
@@ -33,7 +35,7 @@ public class SimulRuleStatisticalData {
 
     public SimulRuleStatisticalData(SimulationRuleBean rule) {
         this.rule = rule;
-        delayList = new LinkedList<Double>();
+        delayList = new LinkedList<Point2D.Double>();
         chartTrace = createTrace(rule, generateRandomColor());
         chartTrace.setName(rule.getName());
     }
@@ -72,7 +74,7 @@ public class SimulRuleStatisticalData {
         if (delay < 0) {
             throw new IllegalStateException("packet delay is negative - something is wrong with simulation engine...");
         }
-        delayList.add(delay);
+        delayList.add(new Point2D.Double(when,delay));
         chartTrace.addPoint(when, delay);
 //        DecimalFormat df = new DecimalFormat("#.##");//round to two decimal places
 //        chartTrace.addPoint(when, Double.valueOf(df.format(delay)));
@@ -98,8 +100,8 @@ public class SimulRuleStatisticalData {
             return Double.NaN;
         }
         double av = 0;
-        for (double delay : delayList) {
-            av += delay;
+        for (Point2D.Double delay : delayList) {
+            av += delay.y;
         }
         return av / delayList.size();
     }
@@ -109,8 +111,8 @@ public class SimulRuleStatisticalData {
             return Double.NaN;
         }
         double min = Double.MAX_VALUE;
-        for (double delay : delayList) {
-            min = Math.min(min, delay);
+        for (Point2D.Double delay : delayList) {
+            min = Math.min(min, delay.y);
         }
         return min;
     }
@@ -120,8 +122,8 @@ public class SimulRuleStatisticalData {
             return Double.NaN;
         }
         double max = Double.MIN_VALUE;
-        for (double delay : delayList) {
-            max = Math.max(max, delay);
+        for (Point2D.Double delay : delayList) {
+            max = Math.max(max, delay.y);
         }
         return max;
     }
