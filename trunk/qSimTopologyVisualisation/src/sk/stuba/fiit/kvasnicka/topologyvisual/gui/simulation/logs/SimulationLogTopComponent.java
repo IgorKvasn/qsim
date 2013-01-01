@@ -51,8 +51,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 //autostore = false)
 @TopComponent.Description(preferredID = "SimulationLogTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
-persistenceType = TopComponent.PERSISTENCE_NEVER)
-@TopComponent.Registration(mode = "myoutput", openAtStartup = false)
+persistenceType = TopComponent.PERSISTENCE_ALWAYS)
+@TopComponent.Registration(mode = "output", openAtStartup = false)
 @ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs.SimulationLogTopComponent")
 //@ActionReference(path = "Menu/Window" /*
 // * , position = 333
@@ -75,10 +75,9 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
      */
     private Map<String, JTable> panels = new HashMap<String, JTable>();
     private Map<FilterMapKey, RowFilter<Object, Object>> tableFilterMap = new HashMap<FilterMapKey, RowFilter<Object, Object>>();
-    private Topology topology;
     private Map<String, Integer> tableRowIndex = new HashMap<String, Integer>();
 
-    public SimulationLogTopComponent(Topology topology) {
+    public SimulationLogTopComponent() {
         initComponents();
         setName(Bundle.CTL_SimulationLogTopComponent());
         setToolTipText(Bundle.HINT_SimulationLogTopComponent());
@@ -88,7 +87,6 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
 
         dropCategory.addDropDownHiddenListener(this);
         closeableTabbedPane1.addCloseableTabbedPaneListener(this);
-        this.topology = topology;
     }
 
     public void showVetices(Collection<TopologyVertex> vertices) {
