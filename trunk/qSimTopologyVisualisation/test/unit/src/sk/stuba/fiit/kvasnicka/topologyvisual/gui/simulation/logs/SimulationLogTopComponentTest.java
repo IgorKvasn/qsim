@@ -28,7 +28,7 @@ public class SimulationLogTopComponentTest {
 
     @Before
     public void before() {
-        comp = new SimulationLogTopComponent(null);
+        comp = new SimulationLogTopComponent();
     }
 
     @Test

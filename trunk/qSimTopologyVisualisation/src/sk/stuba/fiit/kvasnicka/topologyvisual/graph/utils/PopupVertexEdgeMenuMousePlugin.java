@@ -105,7 +105,7 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
                 vertexPopup.show(vv, e.getX(), e.getY());
                 //right clicking on a vertex makes it selected/picked
                 topology.deselectEdges();
-//                topology.deselectVertices();
+                topology.deselectVertices();//deselect all other vertices, so that user right clicks on multiple vertices it is not a multiselect
 
                 topology.manuallySelectVertex(v, true);
             } else {
@@ -324,7 +324,8 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
             if (topology.getSelectedVertices().isEmpty()) {
                 topology.getTopolElementTopComponent().openSimulationLogTopcomponent(Arrays.asList(selectedVertex));
             } else {
-                topology.getTopolElementTopComponent().openSimulationLogTopcomponent(topology.getSelectedVertices());
+                Set<TopologyVertex> selectedVertices = topology.getSelectedVertices();
+                topology.getTopolElementTopComponent().openSimulationLogTopcomponent(Arrays.asList(selectedVertices.toArray(new TopologyVertex[selectedVertices.size()])));
             }
         }
     }

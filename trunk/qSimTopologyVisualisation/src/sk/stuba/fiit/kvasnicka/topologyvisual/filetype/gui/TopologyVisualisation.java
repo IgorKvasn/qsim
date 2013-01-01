@@ -236,6 +236,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             networkNodeStatisticsTopComponent = new NetworkNodeStatisticsTopComponent(this, networkNodeStatsManager);
 
             simulationFacade.addSimulationLogListener(logTopComponent);
+            logTopComponent.init(topology.getVertexFactory().getAllVertices());
             simulationFacade.startTimer();
 
 
@@ -657,7 +658,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     /**
      * opens new simulation log top component associated with this topology
      */
-    public void openSimulationLogTopcomponent(Collection<TopologyVertex> vertices) {
+    public void openSimulationLogTopcomponent(List<TopologyVertex> vertices) {
         logTopComponent.showVetices(vertices);
         logTopComponent.open();
     }

@@ -76,6 +76,7 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
     private Map<String, JTable> panels = new HashMap<String, JTable>();
     private Map<FilterMapKey, RowFilter<Object, Object>> tableFilterMap = new HashMap<FilterMapKey, RowFilter<Object, Object>>();
     private Map<String, Integer> tableRowIndex = new HashMap<String, Integer>();
+    private Map<String, JScrollPane> tablesMap = new HashMap<String, JScrollPane>();
 
     public SimulationLogTopComponent() {
         initComponents();
@@ -87,13 +88,25 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
 
         dropCategory.addDropDownHiddenListener(this);
         closeableTabbedPane1.addCloseableTabbedPaneListener(this);
+
     }
 
-    public void showVetices(Collection<TopologyVertex> vertices) {
+    public void init(Collection<TopologyVertex> vertices) {
+        //init tables for all vertices
+        for (TopologyVertex v : vertices) {
+            createSimulationLogPanel(v.getName());
+        }
+    }
+
+    public void showVetices(List<TopologyVertex> vertices) {
+        if (panels.isEmpty()) {//simulation was not started yet
+            return;
+        }
         for (TopologyVertex v : vertices) {
             //add table to tabbed pane
-            getSimulationLogPanel(v.getName());
+            addSimulationLogPanel(v.getName());
         }
+        closeableTabbedPane1.setSelectedComponent(tablesMap.get(vertices.get(vertices.size() - 1).getName()));
     }
 
     private void initCategoryDropDown() {
@@ -180,7 +193,7 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
             return;
         }
 
-        JTable table = getSimulationLogPanel(simulationLog.getSourceName());
+        JTable table = addSimulationLogPanel(simulationLog.getSourceName());
 //        if (table == null) {//no one is interrested in this simulation log
 //            return;
 //        }
@@ -265,7 +278,7 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
      */
     private JXTable getSelectedTable() {
         JScrollPane scrollPane = (JScrollPane) closeableTabbedPane1.getSelectedComponent();
-        
+
         return (JXTable) scrollPane.getViewport().getView();
     }
 
@@ -328,13 +341,20 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
      * @param vertex
      * @return re
      */
-    private JTable getSimulationLogPanel(String vertex) {
-        if (panels.containsKey(vertex)) {
+    private JTable addSimulationLogPanel(String vertex) {
+        if (!panels.containsKey(vertex)) {
+            throw new IllegalStateException("table for simulation logs was not created");
+        }
+
+        if (tablesMap.containsKey(vertex)) {
             return panels.get(vertex);
         }
-        JTable table = createSimulationLogPanel(vertex);
-        closeableTabbedPane1.addTab(vertex, new JScrollPane(table));//add a new tab
-        closeableTabbedPane1.setSelectedIndex(closeableTabbedPane1.getTabCount() - 1);//selects new tab to give it a focus
+        JTable table = panels.get(vertex);//null check was already performed at the beginning of this method
+        //add table to hashmap
+        JScrollPane pane = new JScrollPane(table);
+        closeableTabbedPane1.addTab(vertex, pane);//add a new tab
+        closeableTabbedPane1.setSelectedComponent(pane);//selects tab to give it a focus
+        tablesMap.put(vertex, pane);
         return table;
     }
 
@@ -345,7 +365,7 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
      * panel
      */
     private void panelClosed(String vertex) {
-        panels.remove(vertex);
+        tablesMap.remove(vertex);
     }
 
     /**
@@ -397,7 +417,6 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         clearLogs();
     }//GEN-LAST:event_jButton1ActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.closeabletabbedpane.CloseableTabbedPane closeableTabbedPane1;
     private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DropDownButton dropCategory;
