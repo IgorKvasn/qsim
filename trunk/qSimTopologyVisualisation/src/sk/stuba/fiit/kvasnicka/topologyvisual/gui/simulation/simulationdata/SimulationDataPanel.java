@@ -48,6 +48,7 @@ public class SimulationDataPanel extends javax.swing.JPanel implements Statistic
     private void changeTraceColor() {
         Color newColor = JColorChooser.showDialog(WindowManager.getDefault().getMainWindow(), NbBundle.getMessage(SimulationDataPanel.class, "color_in_chart"), colorPreviewIcon.color);
         colorPreviewIcon.color = newColor;
+        statData.getChartTrace().setColor(newColor);
         lblColorPreview.repaint();
     }
 
@@ -156,11 +157,11 @@ public class SimulationDataPanel extends javax.swing.JPanel implements Statistic
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(lblNumber))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblColorPreview, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jCheckBox1))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton1)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );

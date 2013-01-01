@@ -9,6 +9,8 @@ import info.monitorenter.gui.chart.IAxis;
 import info.monitorenter.gui.chart.IAxisScalePolicy;
 import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.rangepolicies.RangePolicyForcedPoint;
+import java.awt.BorderLayout;
+import java.awt.LayoutManager;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -25,7 +27,6 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
@@ -95,7 +96,9 @@ public final class SimulationDataTopComponent extends TopComponent {
         SimulationDataPanel panel = new SimulationDataPanel(statisticalData, this, statisticalData.getChartTrace().getColor());
         statisticalData.addStatisticalDataChangedListener(panel);
         JXTaskPane pane = new JXTaskPane();
-        pane.add(panel);
+        pane.setLayout(new BorderLayout());
+        pane.add(panel, BorderLayout.CENTER);
+        pane.setAnimated(true);
         pane.setTitle(rule.getName());
         jXTaskPaneContainer1.add(pane);
         jXTaskPaneContainer1.revalidate();
@@ -152,7 +155,13 @@ public final class SimulationDataTopComponent extends TopComponent {
         }
     }
 
+    /**
+     * prepare data to export and show export dialog
+     */
     private void export() {
+        if (statDataManager.getStatisticalData().isEmpty()) {//nothing to export
+            return;
+        }
         try {
             BufferedImage bi = chart.snapShot();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -185,7 +194,6 @@ public final class SimulationDataTopComponent extends TopComponent {
         jButton1 = new javax.swing.JButton();
         jSplitPane1 = new javax.swing.JSplitPane();
         chart = new info.monitorenter.gui.chart.Chart2D();
-        jScrollPane2 = new javax.swing.JScrollPane();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jXTaskPaneContainer1 = new org.jdesktop.swingx.JXTaskPaneContainer();
@@ -216,26 +224,38 @@ public final class SimulationDataTopComponent extends TopComponent {
         chart.setLayout(chartLayout);
         chartLayout.setHorizontalGroup(
             chartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 634, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
         chartLayout.setVerticalGroup(
             chartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 229, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
 
         jSplitPane1.setRightComponent(chart);
 
         jPanel1.setLayout(new java.awt.BorderLayout());
 
+        LayoutManager originLayoutManager = jXTaskPaneContainer1.getLayout();
         jXTaskPaneContainer1.setOpaque(false);
-        jXTaskPaneContainer1.setLayout(new java.awt.GridLayout(0, 1));
+
+        javax.swing.GroupLayout jXTaskPaneContainer1Layout = new javax.swing.GroupLayout(jXTaskPaneContainer1);
+        jXTaskPaneContainer1.setLayout(jXTaskPaneContainer1Layout);
+        jXTaskPaneContainer1Layout.setHorizontalGroup(
+            jXTaskPaneContainer1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 880, Short.MAX_VALUE)
+        );
+        jXTaskPaneContainer1Layout.setVerticalGroup(
+            jXTaskPaneContainer1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 216, Short.MAX_VALUE)
+        );
+
+        jXTaskPaneContainer1.setLayout(originLayoutManager);
+
         jScrollPane1.setViewportView(jXTaskPaneContainer1);
 
         jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
-        jScrollPane2.setViewportView(jPanel1);
-
-        jSplitPane1.setLeftComponent(jScrollPane2);
+        jSplitPane1.setLeftComponent(jPanel1);
 
         add(jSplitPane1, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
@@ -249,7 +269,6 @@ public final class SimulationDataTopComponent extends TopComponent {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSplitPane jSplitPane1;
     private org.jdesktop.swingx.JXTaskPaneContainer jXTaskPaneContainer1;
     // End of variables declaration//GEN-END:variables
