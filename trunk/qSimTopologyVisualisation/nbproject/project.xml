@@ -215,6 +215,10 @@
                 <binary-origin>release/modules/ext/wstx-asl-3.2.6.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
+                <runtime-relative-path>ext/jackson-databind-2.1.1.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jackson-databind-2.1.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
                 <runtime-relative-path>ext/jung-algorithms-2.0.1.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jung-algorithms-2.0.1.jar</binary-origin>
             </class-path-extension>
@@ -279,6 +283,10 @@
                 <binary-origin>release/modules/ext/easymock-3.1.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
+                <runtime-relative-path>ext/jackson-core-2.1.1.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jackson-core-2.1.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
                 <runtime-relative-path>ext/jung-io-2.0.1-sources.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jung-io-2.0.1-sources.jar</binary-origin>
             </class-path-extension>
@@ -293,6 +301,10 @@
             <class-path-extension>
                 <runtime-relative-path>ext/jung-jai-samples-2.0.1.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jung-jai-samples-2.0.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jackson-annotations-2.1.1.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jackson-annotations-2.1.1.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/jung-visualization-2.0.1.jar</runtime-relative-path>

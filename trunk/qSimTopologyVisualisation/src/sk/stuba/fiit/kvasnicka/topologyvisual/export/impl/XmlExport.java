@@ -6,13 +6,10 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.export.impl;
 
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.List;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.log4j.Logger;
 import org.openide.util.Exceptions;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.ExportException;
@@ -30,7 +27,7 @@ public class XmlExport implements Exportable {
 
     {
         try {
-            contextObj = JAXBContext.newInstance(SimulRoot.class);
+            contextObj = JAXBContext.newInstance("sk.stuba.fiit.kvasnicka.topologyvisual.export.impl", XmlExport.class.getClassLoader());
         } catch (JAXBException ex) {
             Exceptions.printStackTrace(ex);
         }
@@ -54,21 +51,6 @@ public class XmlExport implements Exportable {
             return w.toString();
         } catch (JAXBException ex) {
             throw new ExportException(ex);
-        }
-    }
-
-    @XmlRootElement
-    private static class SimulRoot {
-
-        @XmlElement
-        public List<SimulationRulesExportBean> simRule;
-
-        public SimulRoot(List<SimulationRulesExportBean> simRules) {
-            this.simRule = simRules;
-
-        }
-
-        public SimulRoot() {
         }
     }
 }
