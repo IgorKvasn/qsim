@@ -170,7 +170,9 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         navigatorTopComponent.open();
 
         //it is neccesary to init SimulationLogTopComponent before simulation starts, so user can open logs before he runs simulation
-        logTopComponent = new SimulationLogTopComponent(topology);
+        logTopComponent = new SimulationLogTopComponent();
+        Mode outputMode = WindowManager.getDefault().findMode("myoutput");
+        outputMode.dockInto(logTopComponent);
     }
 
     /**
@@ -657,10 +659,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
      */
     public void openSimulationLogTopcomponent(Collection<TopologyVertex> vertices) {
         logTopComponent.showVetices(vertices);
-        Mode outputMode = WindowManager.getDefault().findMode("myoutput");
-        outputMode.dockInto(logTopComponent);
         logTopComponent.open();
-        logTopComponent.requestActive();
     }
 
     private void openSimulationWindows(SimulRuleStatisticalDataManager statManager, List<SimulationRuleBean> simulRules) {

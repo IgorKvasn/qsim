@@ -40,7 +40,7 @@ public class NetbeansWindowHelper {
     private final static NetbeansWindowHelper INSTANCE = new NetbeansWindowHelper();
     private static Logger logg = Logger.getLogger(NetbeansWindowHelper.class);
     private transient javax.swing.event.EventListenerList listenerList = new javax.swing.event.EventListenerList();
-
+    
     public static NetbeansWindowHelper getInstance() {
         return INSTANCE;
     }
