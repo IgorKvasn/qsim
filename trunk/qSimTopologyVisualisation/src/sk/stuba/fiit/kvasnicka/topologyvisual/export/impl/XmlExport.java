@@ -5,6 +5,7 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.export.impl;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.List;
 import javax.xml.bind.JAXBContext;
@@ -34,7 +35,7 @@ public class XmlExport implements Exportable {
     }
 
     @Override
-    public String serialize(List<SimulationRulesExportBean> simRules, InputStream chartImage) throws ExportException {
+    public void serialize(List<SimulationRulesExportBean> simRules, InputStream chartImage, OutputStream output) throws ExportException {
         if (simRules == null) {
             logg.error("simulation rules are NULL - nothing to export");
             throw new ExportException("simulation rules are NULL - nothing to export");
@@ -46,9 +47,7 @@ public class XmlExport implements Exportable {
 
             SimulRoot root = new SimulRoot(simRules);
 
-            StringWriter w = new StringWriter();
-            marshallerObj.marshal(root, w);
-            return w.toString();
+            marshallerObj.marshal(root, output);
         } catch (JAXBException ex) {
             throw new ExportException(ex);
         }

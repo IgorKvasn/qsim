@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="allRules" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ce9bc0f4-2572-4388-a19a-d5953b4a1771">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/home/igo/dimplomovka/ireports/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="datasource" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
+	<parameter name="chartImage" class="java.io.InputStream"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="61" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="c2ab41d2-5a72-4539-a615-b4a6123d5c2e" x="98" y="0" width="332" height="36"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="18"/>
+				</textElement>
+				<text><![CDATA[Simulation rules reports]]></text>
+			</staticText>
+			<textField pattern="HH:mm dd.MM.yyyy">
+				<reportElement uuid="cc3cf273-0f62-44b0-9728-ae32339f20c1" x="245" y="41" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="031150f0-b835-4790-b48e-e700666fce95" x="186" y="41" width="100" height="20"/>
+				<textElement/>
+				<text><![CDATA[Generated:]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="6" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="3" splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="133" splitType="Stretch">
+			<subreport>
+				<reportElement uuid="21001efd-5169-400b-8caa-208c85c803c1" x="40" y="0" width="432" height="69"/>
+				<dataSourceExpression><![CDATA[$P{datasource}]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "simulRuleReport.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+		<band height="290">
+			<image>
+				<reportElement uuid="54eb2dde-1dc6-401a-900a-bd507e63040c" x="23" y="71" width="515" height="197"/>
+				<imageExpression><![CDATA[$P{chartImage}]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement uuid="4694d5c2-811a-4ac5-80d6-4f4a659237ad" x="154" y="32" width="169" height="27"/>
+				<textElement>
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Chart]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="11" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="11" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="12" splitType="Stretch"/>
+	</summary>
+</jasperReport>

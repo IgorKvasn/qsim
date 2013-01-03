@@ -37,6 +37,10 @@ public class SimulationRulesExportBean {
         return sData.getDelayList();
     }
 
+    public double getActivationTime(){
+        return ruleBean.getActivationTime();
+    }
+    
     @XmlElement
     public String getSource() {
         return ruleBean.getSource().getName();
@@ -48,8 +52,11 @@ public class SimulationRulesExportBean {
     }
 
     @XmlElement
-    public int getNumberOfPackets() {
-        return ruleBean.getNumberOfPackets();
+    public String getPacketCount() {
+        if (ruleBean.getNumberOfPackets() == -1) {
+            return "INFINITY";
+        }
+        return String.valueOf(ruleBean.getNumberOfPackets());
     }
 
     @XmlElement
@@ -58,8 +65,8 @@ public class SimulationRulesExportBean {
     }
 
     @XmlElement
-    public Layer4TypeEnum getProtocol() {
-        return ruleBean.getLayer4Type();
+    public String getProtocol() {
+        return ruleBean.getLayer4Type().toString();
     }
 
     @XmlElement
@@ -68,22 +75,22 @@ public class SimulationRulesExportBean {
     }
 
     @XmlElement
-    public String getSimulationRuleName() {
+    public String getName() {
         return ruleBean.getName();
     }
 
     @XmlElement
-    public Integer getIpPrecedence() {
+    public String getIpTos() {
         if (ruleBean.getIpPrecedence() == null) {
-            return null;
+            return "Not set";
         }
-        return ruleBean.getIpPrecedence().getIntRepresentation();
+        return String.valueOf(ruleBean.getIpPrecedence().getIntRepresentation());
     }
 
     @XmlElement
-    public String getDscpValue() {
+    public String getDscp() {
         if (ruleBean.getDscpValue() == null) {
-            return null;
+            return "Not set";
         }
         return ruleBean.getDscpValue().getTextName();
     }
@@ -94,7 +101,7 @@ public class SimulationRulesExportBean {
     }
 
     @XmlElement
-    public int getDestPort() {
+    public int getDstPort() {
         return ruleBean.getDestPort();
     }
 
@@ -111,5 +118,10 @@ public class SimulationRulesExportBean {
     @XmlElement
     public double getMaxDelay() {
         return sData.getMaxDelay();
+    }
+
+    @XmlElement
+    public double getAvgDelay() {
+        return sData.calculateAverageDelay();
     }
 }
