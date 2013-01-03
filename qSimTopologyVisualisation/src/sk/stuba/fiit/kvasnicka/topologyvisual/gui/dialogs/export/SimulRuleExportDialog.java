@@ -5,9 +5,11 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.export;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -17,6 +19,7 @@ import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.ExportException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.export.Exportable;
 import sk.stuba.fiit.kvasnicka.topologyvisual.export.impl.JsonExport;
+import sk.stuba.fiit.kvasnicka.topologyvisual.export.impl.PdfExport;
 import sk.stuba.fiit.kvasnicka.topologyvisual.export.impl.XmlExport;
 import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.SimulationRulesExportBean;
 
@@ -54,18 +57,21 @@ public class SimulRuleExportDialog extends javax.swing.JDialog {
             return;
         }
         Exportable exportable;
-        switch (jComboBox1.getSelectedIndex()) {
-            case 0:
+        switch (getExportType()) {
+            case PDF:
+                exportable = new PdfExport();
+                break;
+            case XML:
                 exportable = new XmlExport();
                 break;
-            case 1:
+            case JSON:
                 exportable = new JsonExport();
                 break;
             default:
-                throw new IllegalStateException("unknown export type in combobox");
+                throw new IllegalStateException("unknown export type");
         }
+        OutputStream out = null;
         try {
-            String fileContent = exportable.serialize(exportBreans, chartImage);
             File file = new File(jXTextField1.getText());
             if (file.exists()) {
                 int n = JOptionPane.showConfirmDialog(
@@ -77,15 +83,37 @@ public class SimulRuleExportDialog extends javax.swing.JDialog {
                     return;
                 }
             }
-            FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write(fileContent);
-            fileWriter.close();
+            out = new FileOutputStream(file);
+            exportable.serialize(exportBreans, chartImage, out);
+
 
             JOptionPane.showMessageDialog(this, "Export sucessfull.");
         } catch (ExportException ex) {
             Exceptions.printStackTrace(ex);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Unable to save file.\nCause: " + e.getMessage(), "Export error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException ex) {
+                    //nothing to do anyway
+                }
+            }
+        }
+
+    }
+
+    private ExportType getExportType() {
+        switch (jComboBox1.getSelectedIndex()) {
+            case 0:
+                return ExportType.PDF;
+            case 1:
+                return ExportType.XML;
+            case 2:
+                return ExportType.JSON;
+            default:
+                throw new IllegalStateException("unknown export type in combobox");
         }
 
     }
@@ -94,6 +122,21 @@ public class SimulRuleExportDialog extends javax.swing.JDialog {
         int returnVal = fileChooser.showSaveDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             jXTextField1.setText(fileChooser.getSelectedFile().getAbsolutePath());
+        }
+        
+        //add file extension
+        switch (getExportType()) {
+            case PDF:
+                jXTextField1.setText(jXTextField1.getText() + ".pdf");
+                break;
+            case XML:
+                jXTextField1.setText(jXTextField1.getText() + ".xml");
+                break;
+            case JSON:
+                jXTextField1.setText(jXTextField1.getText() + ".json");
+                break;
+            default:
+                throw new IllegalStateException("unknown export type");
         }
     }
 
@@ -115,22 +158,25 @@ public class SimulRuleExportDialog extends javax.swing.JDialog {
         jXTextField1 = new org.jdesktop.swingx.JXTextField();
         jLabel3 = new javax.swing.JLabel();
         lblExportCount = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(SimulRuleExportDialog.class, "SimulRuleExportDialog.jLabel1.text")); // NOI18N
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "XML", "JSON" }));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "PDF", "XML", "JSON" }));
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(SimulRuleExportDialog.class, "SimulRuleExportDialog.jLabel2.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(SimulRuleExportDialog.class, "SimulRuleExportDialog.jButton1.text")); // NOI18N
+        jButton1.setFocusPainted(false);
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
 
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/export.png"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(jButton2, org.openide.util.NbBundle.getMessage(SimulRuleExportDialog.class, "SimulRuleExportDialog.jButton2.text")); // NOI18N
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -151,13 +197,15 @@ public class SimulRuleExportDialog extends javax.swing.JDialog {
 
         org.openide.awt.Mnemonics.setLocalizedText(lblExportCount, org.openide.util.NbBundle.getMessage(SimulRuleExportDialog.class, "SimulRuleExportDialog.lblExportCount.text")); // NOI18N
 
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(SimulRuleExportDialog.class, "SimulRuleExportDialog.jLabel4.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(97, 97, 97)
-                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(83, 83, 83)
+                .addComponent(jButton2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -174,12 +222,15 @@ public class SimulRuleExportDialog extends javax.swing.JDialog {
                             .addComponent(jLabel2))
                         .addGap(27, 27, 27)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabel4))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jXTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addGap(54, 54, 54))
+                .addGap(45, 45, 45))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -188,10 +239,11 @@ public class SimulRuleExportDialog extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(lblExportCount))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -227,7 +279,18 @@ public class SimulRuleExportDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private org.jdesktop.swingx.JXTextField jXTextField1;
     private javax.swing.JLabel lblExportCount;
     // End of variables declaration//GEN-END:variables
+
+    private enum ExportType {
+
+        JSON(2), XML(1), PDF(0);
+        private int comboboxIndex;
+
+        private ExportType(int comboboxIndex) {
+            this.comboboxIndex = comboboxIndex;
+        }
+    }
 }

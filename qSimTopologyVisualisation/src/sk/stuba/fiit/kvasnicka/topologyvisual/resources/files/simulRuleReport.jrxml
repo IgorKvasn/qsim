@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="simulRuleReport" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1f2a7a26-60f8-4389-90c0-0fefbf588bf9">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#FFBFBF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="Table Dataset 1" uuid="7f18953c-2a67-4f6c-98e7-8ddea286a164"/>
+	<field name="packetCount" class="java.lang.String"/>
+	<field name="packetSize" class="java.lang.Integer"/>
+	<field name="protocol" class="java.lang.String"/>
+	<field name="source" class="java.lang.String"/>
+	<field name="destination" class="java.lang.String"/>
+	<field name="avgDelay" class="java.lang.Double"/>
+	<field name="minDelay" class="java.lang.Double"/>
+	<field name="maxDelay" class="java.lang.Double"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="srcPort" class="java.lang.Integer"/>
+	<field name="dstPort" class="java.lang.Integer"/>
+	<field name="ipTos" class="java.lang.String"/>
+	<field name="dscp" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="13" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="16" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="328" splitType="Prevent">
+			<staticText>
+				<reportElement uuid="bb80dcd8-ee5c-4e83-9ba1-826e6590b999" style="table" x="106" y="222" width="149" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Average delay:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="14dea090-ae3d-495d-83b9-cc670422cfeb" style="table" x="106" y="242" width="149" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Minimum delay:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="1cdb6182-c746-4f71-b393-1c20ca99fef5" style="table" x="106" y="262" width="149" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Maximum delay:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="04d33a7c-718f-4291-8af2-483a4871a08d" x="38" y="19" width="268" height="20"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Simulation rule specification:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="04d33a7c-718f-4291-8af2-483a4871a08d" x="38" y="188" width="268" height="20"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Delay statistics:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="14dea090-ae3d-495d-83b9-cc670422cfeb" x="38" y="79" width="117" height="20"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Packet size:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="1cdb6182-c746-4f71-b393-1c20ca99fef5" x="38" y="99" width="117" height="20"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Protocol:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="bb80dcd8-ee5c-4e83-9ba1-826e6590b999" x="38" y="59" width="117" height="20"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Packet count:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="bb80dcd8-ee5c-4e83-9ba1-826e6590b999" x="306" y="59" width="108" height="20"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Source:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="bb80dcd8-ee5c-4e83-9ba1-826e6590b999" x="306" y="79" width="108" height="20"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Destination:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="9115818b-8407-43bd-936a-e195f0501339" x="155" y="79" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{packetSize}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="93626bf7-3f69-48ea-a37b-9f0270d96231" x="155" y="99" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{protocol}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="f0953e30-1f26-4c96-93fa-6fd03afaab9d" x="414" y="59" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{source}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="a2e68c95-faa2-4f55-95e8-34165e7aef13" x="414" y="79" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{destination}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="1c8939e4-0196-45af-97f5-1429b7c7647c" style="table" x="255" y="222" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{avgDelay}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="921edc83-b59a-4570-8559-7699a180004a" style="table" x="255" y="242" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{minDelay}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="37733d8e-355f-4606-a05e-2b3ca329f34e" style="table" x="255" y="262" width="100" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{maxDelay}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="4763cb8b-5410-40d8-a530-97b5d33c9db8" x="155" y="59" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{packetCount}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="502e988a-fa94-47b7-826a-dd0c06fcbeb1" x="306" y="19" width="208" height="20"/>
+				<textElement>
+					<font size="14" isItalic="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="5f550281-b4bb-4610-a019-bd234f1a67e8" x="0" y="311" width="514" height="1"/>
+			</line>
+			<staticText>
+				<reportElement uuid="bb80dcd8-ee5c-4e83-9ba1-826e6590b999" x="306" y="99" width="108" height="20"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Source port:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="bb80dcd8-ee5c-4e83-9ba1-826e6590b999" x="306" y="119" width="108" height="20"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Dest. port:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="1cdb6182-c746-4f71-b393-1c20ca99fef5" x="38" y="119" width="117" height="20"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[IP ToS:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="1cdb6182-c746-4f71-b393-1c20ca99fef5" x="38" y="139" width="117" height="20"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DSCP:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="a2695ea4-8646-4e09-b6c1-b0e2d74d109f" x="155" y="119" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{ipTos}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="9fe61513-095c-4c45-b4ea-d5b094892650" x="155" y="139" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{dscp}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="bed4ed4e-f2ff-45df-868f-c1cf80844f5d" x="414" y="99" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{srcPort}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="c39e0200-3c5c-4417-b340-fd0e6bdadfd1" x="414" y="119" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{dstPort}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="9" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="17" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="12" splitType="Stretch"/>
+	</summary>
+</jasperReport>

@@ -5,6 +5,7 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.export;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.ExportException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.SimulationRulesExportBean;
@@ -15,5 +16,5 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.SimulationRulesExportBe
  */
 public interface Exportable {
 
-    public String serialize(List<SimulationRulesExportBean> simRules, InputStream chartImage) throws ExportException;
+    public void serialize(List<SimulationRulesExportBean> simRules, InputStream chartImage, OutputStream output) throws ExportException;
 }
