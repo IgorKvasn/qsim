@@ -26,5 +26,5 @@ Propbably the hardest stage which involves:
 ===4. QoS mechanizms===
 The final stage when QoS mechanizms will be implemented.
 
-===4. Testing===
+===5. Testing===
 It is crucial that simulator's output corresponds reality. Testing and comparing results with *real hardware* is therefore _MUST_ priority.
