@@ -8,6 +8,7 @@ I divided the whole project into smaller, (more or less) independent stages:
   # routing (*done*)
   # sending packets (*done*)
   # QoS mechanisms (*in progress*)
+  # testing
 
 ===1. Creating topology===
 In this development stage is meant to create universal framework for creating network topology - routers, switches, computers and optionally hubs (or in fact _any_ network device). Creating edges between them. It involves data model (data representation of network topology) but also graphical representation.
@@ -24,3 +25,6 @@ Propbably the hardest stage which involves:
 
 ===4. QoS mechanizms===
 The final stage when QoS mechanizms will be implemented.
+
+===4. Testing===
+It is crucial that simulator's output corresponds reality. Testing and comparing results with *real hardware* is therefore _MUST_ priority.
