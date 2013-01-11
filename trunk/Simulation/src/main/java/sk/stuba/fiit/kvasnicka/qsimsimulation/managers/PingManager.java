@@ -74,6 +74,14 @@ public class PingManager implements PingPacketDeliveredListener {
     }
 
     /**
+     * removes all ping simulation rules
+     */
+    public void removeAllPing() {
+        pingDefinitions.clear();
+        rules.clear();
+    }
+
+    /**
      * returns list of all defined ping simulation beans
      *
      * @return
