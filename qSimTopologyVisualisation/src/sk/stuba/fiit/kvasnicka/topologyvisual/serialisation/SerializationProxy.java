@@ -59,7 +59,6 @@ public class SerializationProxy implements Serializable {
     private static final transient Logger logg = Logger.getLogger(SerializationProxy.class);
     private ArrayList<TopologyEdge> edges;
     private String topologyName, topologyDescription;
-    private Boolean distanceVectorRouting;
     private ArrayList<TopologyVertexSerialization> vertices;
     private ArrayList<SimulationData.Data> simulRulesData;
 
@@ -87,7 +86,7 @@ public class SerializationProxy implements Serializable {
      * initializes serialisation proxy - fills it with actual data that are
      * about to be saved
      */
-    public void prepareProxy(TopologyVertexFactory vertexFactory, AbstractGraph<TopologyVertex, TopologyEdge> graph, AbstractLayout<TopologyVertex, TopologyEdge> layout, String name, String description, boolean distanceVectorRouting, List<SimulationData.Data> simulRulesData) {
+    public void prepareProxy(TopologyVertexFactory vertexFactory, AbstractGraph<TopologyVertex, TopologyEdge> graph, AbstractLayout<TopologyVertex, TopologyEdge> layout, String name, String description, List<SimulationData.Data> simulRulesData) {
         //saving JUNG topology
         if (vertexFactory != null && graph != null) {
             this.vertices = getNetworkNodes(vertexFactory, layout);
@@ -97,16 +96,7 @@ public class SerializationProxy implements Serializable {
         //saving topology information
         this.topologyName = name;
         this.topologyDescription = description;
-        this.distanceVectorRouting = distanceVectorRouting;
         this.simulRulesData = new ArrayList<SimulationData.Data>(simulRulesData);
-    }
-
-    public boolean isDistanceVectorRouting() {
-        if (distanceVectorRouting == null) {
-            logg.debug("distance vector elemtent not found in XML - using default as user told me so: " + PreferenciesHelper.isRoutingDistanceProtocol());
-            distanceVectorRouting = PreferenciesHelper.isRoutingDistanceProtocol();
-        }
-        return distanceVectorRouting.booleanValue();
     }
 
     private ArrayList<TopologyVertexSerialization> getNetworkNodes(TopologyVertexFactory vertexFactory, AbstractLayout<TopologyVertex, TopologyEdge> layout) {

@@ -100,9 +100,9 @@ public class SimulationData {
     public List<Data> getSimulationDataContainingEdge(TopologyEdge e) {
         List<SimulationData.Data> list = new LinkedList<Data>();
 
-        boolean distanceVector = dataObject.getLoadSettings().isDistanceVectorRouting();
         //find edge within these route edges
         for (Data data : dataRules) {
+            boolean distanceVector = data.isDistanceVector();
             try {
                 //calculate route using TopologyFacade or anythong else (see route highlighting)
                 List<TopologyEdge> edges = RoutingHelper.retrieveEdges(topology.getG(), data.getSourceVertex(), data.getDestinationVertex(), distanceVector, data.getFixedVertices());
@@ -135,9 +135,9 @@ public class SimulationData {
         List<SimulationData.Data> list = new LinkedList<Data>();
         topology.getG().removeEdge(e);     //temporary remove the edge, so that new route can be calculated
 
-        boolean distanceVector = dataObject.getLoadSettings().isDistanceVectorRouting();
         //find edge within these route edges
         for (Data data : dataRules) {
+            boolean distanceVector = data.isDistanceVector();
             try {
                 //calculate route using TopologyFacade or anythong else (see route highlighting)
                 RoutingHelper.retrieveEdges(topology.getG(), data.getSourceVertex(), data.getDestinationVertex(), distanceVector, data.getFixedVertices());
@@ -205,7 +205,7 @@ public class SimulationData {
      * @return
      */
     private void finalizeSimulationRuleBean(SimulationRuleBean rule, Data data) throws RoutingException {
-        boolean distanceVector = dataObject.getLoadSettings().isDistanceVectorRouting();
+        boolean distanceVector = data.isDistanceVector();
 
         //1. calculate route using TopologyFacade or anythong else (see route highlighting)
         List<TopologyEdge> edges = RoutingHelper.retrieveEdges(topology.getG(), data.getSourceVertex(), data.getDestinationVertex(), distanceVector, data.getFixedVertices());
@@ -221,8 +221,8 @@ public class SimulationData {
     public List<Data> getSimulationData() {
         return dataRules;
     }
-    
-      /**
+
+    /**
      * returns simulation data that will be used to create simulation rules
      */
     public void setSimulationData(List<Data> dataRules) {
@@ -243,6 +243,10 @@ public class SimulationData {
             }
         }
         fireSimulationRuleChangedEvent(new SimulationRuleChangedEvent(this));
+    }
+
+    public void removeAllSimulationData() {
+        dataRules.clear();
     }
 
     public void addSimulationRuleChangedListener(SimulationRuleChangedListener listener) {
@@ -290,6 +294,7 @@ public class SimulationData {
         private String name;
         private TopologyVertex sourceVertex, destinationVertex;
         private List<TopologyVertex> fixedVertices;
+        private RoutingProtocol routingProtocol;
         private Layer4TypeEnum layer4protocol;
         private int packetSize;
         private int packetCount;
@@ -305,5 +310,14 @@ public class SimulationData {
         public boolean isPing() {
             return Layer4TypeEnum.ICMP == layer4protocol;
         }
+
+        private boolean isDistanceVector() {
+            return routingProtocol == RoutingProtocol.DISTANCE_VECTOR;
+        }
+    }
+
+    public enum RoutingProtocol {
+
+        DISTANCE_VECTOR, LINK_STATE
     }
 }

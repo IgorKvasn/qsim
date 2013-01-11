@@ -47,6 +47,7 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.StatusDisplayer;
 import org.openide.awt.UndoRedo;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.Mode;
@@ -105,6 +106,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyStateEnum;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.EdgeUtils;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.VerticesUtil;
 
 /**
@@ -181,10 +183,32 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     public void runSimulation() {
         if (simulationFacade != null) {//simulationFacade is null, when no previous simulation was started
             if (simulationFacade.isTimerPaused()) {
-                //todo add new simulation rules - this is the only thing that can be added
-                //todo also old simulation rules can be activated/deactiated during simulation pause
-                simulationFacade.resumeTimer();
-                return;//nothing to do here anymore
+                //change simulation state
+                setSimulationState(TopologyStateEnum.RUN);
+
+                //close palette, simulation top component, add simulation rule top component,... 
+                //everything that is no use for simulation
+                closeTopologyCreationWindows();
+
+                try {
+                    simulationFacade.removeAllSimulationRules();
+                    //finalise simulation rules = init routing
+                    List<SimulationRuleBean> simulationRules = simulationData.getSimulationRulesFinalised(); //very important method !!
+                    //add simulation rules into simulation facade
+                    for (SimulationRuleBean rule : simulationRules) {
+                        simulationFacade.addSimulationRule(rule);
+                    }
+
+                    simulationFacade.resumeTimer();
+                    return;//nothing to do here anymore
+                } catch (RoutingException ex) {
+                    JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),
+                            NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_part1") + "\n" + ex.getMessage() + "\n" + NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_part2"),
+                            NbBundle.getMessage(TopologyVisualisation.class, "simulation_rule_error_title"),
+                            JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    this.requestFocus();
+                }
             } else {
                 if (simulationFacade.isTimerRunning()) {//just a security check so that topology can be "started" at most once
                     throw new IllegalStateException("simulation is already running");
@@ -302,7 +326,24 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         //change simulation state
         simulationFacade.pauseTimer();
         setSimulationState(TopologyStateEnum.PAUSED);
+        updateSimulationRulesFromSimulation();
         this.requestFocus();
+    }
+
+    /**
+     * update packet count because some of these packets may be already sent
+     */
+    private void updateSimulationRulesFromSimulation() {
+        //simulation rules
+        for (SimulationRuleBean rule : simulationFacade.getSimulationRules()) {
+            Data data = simulationData.findSimulationData(rule.getUniqueID());
+            data.setPacketCount(rule.getNumberOfPackets());
+        }
+        //ping rules
+        for (SimulationRuleBean rule : simulationFacade.getPingSimulationRules()) {
+            Data data = simulationData.findSimulationData(rule.getUniqueID());
+            data.setPacketCount(rule.getNumberOfPackets());
+        }
     }
 
     public void openNetworkNodeSimulationTopcomponent() {

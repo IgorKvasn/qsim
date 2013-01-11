@@ -116,7 +116,7 @@ public class TopologyFileTypeDataObject extends MultiDataObject {
         logg.debug("saving topology");
         //create serialisation proxy
         SerializationProxy proxy = new SerializationProxy();
-        proxy.prepareProxy(getLoadSettings().getVertexFactory(), getLoadSettings().getG(), getLoadSettings().getLayout(), getLoadSettings().getName(), getLoadSettings().getDescription(), getLoadSettings().isDistanceVectorRouting(), getLoadSettings().getSimulRulesData());
+        proxy.prepareProxy(getLoadSettings().getVertexFactory(), getLoadSettings().getG(), getLoadSettings().getLayout(), getLoadSettings().getName(), getLoadSettings().getDescription(), getLoadSettings().getSimulRulesData());
         //call serialize() method
         serialize(proxy);
     }

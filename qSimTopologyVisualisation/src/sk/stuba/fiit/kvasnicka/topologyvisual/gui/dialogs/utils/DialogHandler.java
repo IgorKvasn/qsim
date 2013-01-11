@@ -78,6 +78,9 @@ public class DialogHandler {
      * shows dialog with computer configuration
      */
     public Computer showComputerConfigurationDialog() {
+        if (true) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
         logg.debug("showing computer configuration dialog");
         String computerName = vertexFactory.createComputerName();
         BlockingDialog bl = new ComputerConfigurationDialog(computerName);
