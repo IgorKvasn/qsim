@@ -199,6 +199,11 @@ public class SimulationFacade {
         }
     }
 
+    public void removeAllSimulationRules(){
+        pingManager.removeAllPing();
+        simulationManager.removeAllSimulationRule();
+    }
+
     private void addCommonSimulationRule(SimulationRuleBean rule) {
         simulationManager.addSimulationRule(rule);
     }

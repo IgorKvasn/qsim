@@ -66,6 +66,13 @@ public class SimulationManager {
     }
 
     /**
+     * removes all simulation rules
+     */
+    public void removeAllSimulationRule() {
+        rules.clear();
+    }
+
+    /**
      * returns list of simulation rules that cannot by modified (read-only)
      *
      * @return
