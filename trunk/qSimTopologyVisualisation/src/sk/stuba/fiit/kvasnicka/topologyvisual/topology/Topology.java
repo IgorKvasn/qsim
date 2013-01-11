@@ -543,13 +543,13 @@ public class Topology implements VertexCreatedListener {
      * @param sourceVertex
      * @param destinationVertex
      * @param vertices between them
+     * @param distanceVector true if distance vector routing protocol
      */
-    public void highlightEdgesFromTo(TopologyVertex source, TopologyVertex destination, List<TopologyVertex> fixedVertices) throws RoutingException {
+    public void highlightEdgesFromTo(TopologyVertex source, TopologyVertex destination, List<TopologyVertex> fixedVertices, boolean distanceVector) throws RoutingException {
         if (TopologyModeEnum.ROUTING != topologyMode) {
             return;
         }
-        //first retirieve edges between these two vertices
-        boolean distanceVector = topolElementTopComponent.getDataObject().getLoadSettings().isDistanceVectorRouting();
+        //first retirieve edges between these two vertices        
         final Collection<TopologyEdge> edges = RoutingHelper.retrieveEdges(getG(), source, destination, distanceVector, fixedVertices);
         if (!routingHelper.checkRouteForCycle(edges)) {
             throw new RoutingException(NbBundle.getMessage(Topology.class, "cycle_exception"));

@@ -69,7 +69,6 @@ public class SerialisationHelper {
 
         result.setDescription(serProxy.getTopologyDescription());
         result.setName(serProxy.getTopologyName());
-        result.setDistanceVectorRouting(serProxy.isDistanceVectorRouting());
         result.setG(g);
         result.setLayout(layout);
         result.setVertexFactory(new TopologyVertexFactory(verticesTopology));

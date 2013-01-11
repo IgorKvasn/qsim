@@ -327,7 +327,7 @@ public final class SimulationTopComponent extends TopComponent {
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        if (jXTable1.getSelectedRowCount() == 0) {            
+        if (jXTable1.getSelectedRowCount() == 0) {
             return;
         }
         int rowToRemove = jXTable1.convertRowIndexToModel(jXTable1.getSelectedRow());
@@ -337,7 +337,7 @@ public final class SimulationTopComponent extends TopComponent {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        if (jXTable1.getSelectedRowCount() == 0) {          
+        if (jXTable1.getSelectedRowCount() == 0) {
             return;
         }
 
@@ -375,7 +375,9 @@ public final class SimulationTopComponent extends TopComponent {
 
     @Override
     public void componentOpened() {
-
+        if (simulationFacade == null) {//simulation was not started, yet - nothing to load
+            return;
+        }
         List<SimulationRuleBean> simulationRules = simulationFacade.getSimulationRules();
         if (simulationRules == null) {
             throw new IllegalStateException("Simulation rules are NULL"); //this really should not happen

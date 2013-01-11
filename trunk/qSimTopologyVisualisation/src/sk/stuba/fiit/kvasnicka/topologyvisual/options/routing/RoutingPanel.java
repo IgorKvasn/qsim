@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  */
-package sk.stuba.fiit.kvasnicka.topologyvisual.options;
+package sk.stuba.fiit.kvasnicka.topologyvisual.options.routing;
 
 import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;

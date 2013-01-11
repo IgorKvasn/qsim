@@ -85,6 +85,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
     private ComboItem selectedPacketClassification; //to temporary store selected classification mechanism
     private ComboItem selectedQueueManag;
     private ComboItem selectedPacketSched;
+    private final double DEFAULT_TCP_TIMEOUT = 200;//www.6test.edu.cn/~lujx/linux_networking/0131777203_ch24lev1sec5.html
 
     /**
      * Creates new form RouterConfigurationDialog
@@ -107,6 +108,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
         selectedPacketClassification = ((ComboItem) comboQosClassif.getItemAt(0));
         selectedQueueManag = ((ComboItem) comboQosQueue.getItemAt(0));
         selectedPacketSched = ((ComboItem) comboQosScheduling.getItemAt(0));
+        spinTcpTimeout.setValue(DEFAULT_TCP_TIMEOUT);
     }
 
     /**
@@ -770,7 +772,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel7)
                     .addComponent(jLabel8))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 116, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 74, Short.MAX_VALUE)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(spinProcessingMin, javax.swing.GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE)
                     .addComponent(spinProcessingMax))
@@ -827,11 +829,11 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel10)
                             .addComponent(jLabel11)))
-                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel9)
-                        .addGap(153, 153, 153)
-                        .addComponent(spinTcpTimeout, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(30, 30, 30)
+                        .addComponent(spinTcpTimeout, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(52, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(

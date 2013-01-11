@@ -30,11 +30,13 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import org.openide.util.NbBundle;
+import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.RoutingException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
 import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
+import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 
 /**
@@ -60,7 +62,6 @@ public class RoutingPanel extends PanelInterface {
         tableComboBox = new JComboBox(new DefaultComboBoxModel());
         tableComboBox.setEditable(true);
         tableComboBox.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 List<TopologyVertex> vertices = getFixedVertices();
@@ -69,12 +70,12 @@ public class RoutingPanel extends PanelInterface {
         });
 
         initComponents();
+        initRoutingProtocol();
         this.tableModel = (DefaultTableModel) jTable1.getModel();
         jLabel1.setVisible(false);
 
 
         Action increase = new AbstractAction("+") {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 JTable table = (JTable) e.getSource();
@@ -83,7 +84,17 @@ public class RoutingPanel extends PanelInterface {
             }
         };
         ButtonColumn inc = new ButtonColumn(jTable1, increase, 1);
+    }
 
+    /**
+     * selects default routing protocol
+     */
+    private void initRoutingProtocol() {
+        if (PreferenciesHelper.isRoutingDistanceProtocol()) {
+            radioDistance.setSelected(true);
+        } else {
+            radioLinkState.setSelected(true);
+        }
     }
 
     /**
@@ -105,10 +116,19 @@ public class RoutingPanel extends PanelInterface {
         return list;
     }
 
+    /**
+     * returns true if user selected distance vector routing in this panel
+     *
+     * @return
+     */
+    private boolean isDistanceVectorSelected() {
+        return radioDistance.isSelected();
+    }
+
     private void showRoute(List<TopologyVertex> vertices) {
         try {
             jLabel1.setVisible(false);
-            activeTopology.highlightEdgesFromTo(iterator.getStoredData().getSourceVertex(), iterator.getStoredData().getDestinationVertex(), vertices);
+            activeTopology.highlightEdgesFromTo(iterator.getStoredData().getSourceVertex(), iterator.getStoredData().getDestinationVertex(), vertices, isDistanceVectorSelected());
         } catch (RoutingException ex) {
             jLabel1.setText(ex.getMessage());
             jLabel1.setVisible(true);
@@ -124,11 +144,15 @@ public class RoutingPanel extends PanelInterface {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        radioDistance = new javax.swing.JRadioButton();
+        jLabel3 = new javax.swing.JLabel();
+        radioLinkState = new javax.swing.JRadioButton();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -157,6 +181,14 @@ public class RoutingPanel extends PanelInterface {
 
         jLabel2.setText(org.openide.util.NbBundle.getMessage(RoutingPanel.class, "RoutingPanel.jLabel2.text")); // NOI18N
 
+        buttonGroup1.add(radioDistance);
+        radioDistance.setText(org.openide.util.NbBundle.getMessage(RoutingPanel.class, "RoutingPanel.radioDistance.text")); // NOI18N
+
+        jLabel3.setText(org.openide.util.NbBundle.getMessage(RoutingPanel.class, "RoutingPanel.jLabel3.text")); // NOI18N
+
+        buttonGroup1.add(radioLinkState);
+        radioLinkState.setText(org.openide.util.NbBundle.getMessage(RoutingPanel.class, "RoutingPanel.radioLinkState.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -166,12 +198,23 @@ public class RoutingPanel extends PanelInterface {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 453, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(29, 29, 29)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton1)
-                            .addComponent(jLabel1)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(29, 29, 29)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jButton1)
+                                    .addComponent(jLabel1)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(38, 38, 38)
+                                .addComponent(jLabel3))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(60, 60, 60)
+                                .addComponent(radioDistance))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(60, 60, 60)
+                                .addComponent(radioLinkState))))
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(267, Short.MAX_VALUE))
+                .addContainerGap(231, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -180,11 +223,17 @@ public class RoutingPanel extends PanelInterface {
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jButton1)
-                        .addGap(32, 32, 32)
-                        .addComponent(jLabel1))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(radioDistance)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(radioLinkState)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel1)))
                 .addContainerGap(24, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -193,11 +242,15 @@ public class RoutingPanel extends PanelInterface {
         addRow(null);
     }//GEN-LAST:event_jButton1ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JRadioButton radioDistance;
+    private javax.swing.JRadioButton radioLinkState;
     // End of variables declaration//GEN-END:variables
 
     private void addRow(TopologyVertex v) {
@@ -219,7 +272,8 @@ public class RoutingPanel extends PanelInterface {
         }
         try {
             jLabel1.setVisible(false);
-            activeTopology.highlightEdgesFromTo(iterator.getStoredData().getSourceVertex(), iterator.getStoredData().getDestinationVertex(), new LinkedList<TopologyVertex>());
+            boolean distVectorRouting = PreferenciesHelper.isRoutingDistanceProtocol();
+            activeTopology.highlightEdgesFromTo(iterator.getStoredData().getSourceVertex(), iterator.getStoredData().getDestinationVertex(), new LinkedList<TopologyVertex>(), distVectorRouting);
         } catch (RoutingException ex) {
             jLabel1.setText(ex.getMessage());
             jLabel1.setVisible(true);
@@ -229,11 +283,23 @@ public class RoutingPanel extends PanelInterface {
 
     @Override
     public boolean validateData() {
+        //routing protocol
+        SimulationData.RoutingProtocol routingProtocol;
+        if (isDistanceVectorSelected()) {
+            routingProtocol = SimulationData.RoutingProtocol.DISTANCE_VECTOR;
+        } else {
+            routingProtocol = SimulationData.RoutingProtocol.LINK_STATE;
+        }
+
+        iterator.getStoredData().setRoutingProtocol(routingProtocol);
+        boolean distanceVectorRouting = (routingProtocol == SimulationData.RoutingProtocol.DISTANCE_VECTOR);
+        //calculate route
+
         List<TopologyVertex> fixedVertices = getFixedVertices();
 
         //check for cycles
         try {
-            activeTopology.highlightEdgesFromTo(iterator.getStoredData().getSourceVertex(), iterator.getStoredData().getDestinationVertex(), fixedVertices);
+            activeTopology.highlightEdgesFromTo(iterator.getStoredData().getSourceVertex(), iterator.getStoredData().getDestinationVertex(), fixedVertices, distanceVectorRouting);
         } catch (RoutingException ex) {
             jLabel1.setText(ex.getMessage());
             jLabel1.setVisible(true);
@@ -245,25 +311,36 @@ public class RoutingPanel extends PanelInterface {
 //        fixedVertices.add(iterator.getStoredData().getDestinationVertex());
         iterator.getStoredData().setFixedVertices(fixedVertices);
 
+
         return true;
     }
 
     @Override
     public void initValues(Data data) {
-
-
         while (tableModel.getRowCount() != 0) {
             tableModel.removeRow(0);
         }
 
         List<TopologyVertex> fixedVertices = data.getFixedVertices();
-        
+
         if (fixedVertices == null) {
             return;
         }
 
         for (TopologyVertex v : fixedVertices) {
             addRow(v);
+        }
+        if (data.getRoutingProtocol() == null) {
+            boolean distVectorRouting = PreferenciesHelper.isRoutingDistanceProtocol();
+            radioDistance.setSelected(distVectorRouting);
+            radioLinkState.setSelected(!distVectorRouting);
+        } else {
+            //routing protocol
+            if (data.getRoutingProtocol() == SimulationData.RoutingProtocol.DISTANCE_VECTOR) {
+                radioDistance.setSelected(true);
+            } else {
+                radioLinkState.setSelected(true);
+            }
         }
 
     }

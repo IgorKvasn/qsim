@@ -42,7 +42,6 @@ public class DeserialisationResult {
     private AbstractGraph<TopologyVertex, TopologyEdge> g;
     private AbstractLayout<TopologyVertex, TopologyEdge> layout;
     private String name, description;
-    private boolean distanceVectorRouting;
     private TopologyVertexFactory vertexFactory;
     private List<SimulationData.Data> simulRulesData;
 
@@ -50,7 +49,7 @@ public class DeserialisationResult {
      * empty constructor used when it is a new file
      */
     public DeserialisationResult() {
-        distanceVectorRouting = PreferenciesHelper.isRoutingDistanceProtocol();
+
     }
 
     /**
@@ -61,12 +60,11 @@ public class DeserialisationResult {
      * @param name
      * @param description
      */
-    public DeserialisationResult(AbstractGraph<TopologyVertex, TopologyEdge> g, StaticLayout<TopologyVertex, TopologyEdge> layout, TopologyVertexFactory vertexFactory, Map<TopologyVertex, Point2D> vertexLocationMap, String name, String description, boolean distanceVectorRouting, List<SimulationData.Data> simulRulesData) {
+    public DeserialisationResult(AbstractGraph<TopologyVertex, TopologyEdge> g, StaticLayout<TopologyVertex, TopologyEdge> layout, TopologyVertexFactory vertexFactory, Map<TopologyVertex, Point2D> vertexLocationMap, String name, String description, List<SimulationData.Data> simulRulesData) {
         this.name = name;
         this.description = description;
         this.g = g;
         this.layout = layout;
-        this.distanceVectorRouting = distanceVectorRouting;
         this.vertexFactory = vertexFactory;
         this.simulRulesData = simulRulesData;
     }
@@ -77,10 +75,9 @@ public class DeserialisationResult {
      * @param name
      * @param description
      */
-    public DeserialisationResult(String name, String description, boolean distanceVectorRouting) {
+    public DeserialisationResult(String name, String description) {
         this.name = name;
         this.description = description;
-        this.distanceVectorRouting = distanceVectorRouting;
     }
 
     /**
