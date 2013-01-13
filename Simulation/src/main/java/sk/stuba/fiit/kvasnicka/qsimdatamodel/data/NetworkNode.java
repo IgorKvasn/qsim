@@ -414,7 +414,7 @@ public abstract class NetworkNode implements Serializable {
                 if (packet.getLayer4().isRetransmissionEnabled()) {
                     retransmittPacket(packet);
                 } else {
-                   packet.getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
+                    packet.getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
                 }
                 if (Layer4TypeEnum.TCP == packet.getLayer4()) {
                     nodeCongested(packet);
@@ -611,7 +611,9 @@ public abstract class NetworkNode implements Serializable {
             if (e.getPacket().getLayer4().isRetransmissionEnabled()) {
                 retransmittPacket(e.getPacket());
             } else {
-                fragment.getOriginalPacket().getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
+                if (fragment.getOriginalPacket().getSimulationRule().isPing()) {
+                    fragment.getOriginalPacket().getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
+                }
             }
             return;
         }
