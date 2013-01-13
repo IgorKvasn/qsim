@@ -45,7 +45,7 @@ public enum TopologyStateEnum {
     RUN {
         @Override
         public Set<ButtonEnum> getButtonsEnabled() {
-            return EnumSet.of(ButtonEnum.STOP, ButtonEnum.PAUSE, ButtonEnum.NODE_STATS);
+            return EnumSet.of(ButtonEnum.STOP, ButtonEnum.PAUSE, ButtonEnum.NODE_STATS, ButtonEnum.SPEED);
         }
     },
     /**
@@ -54,7 +54,7 @@ public enum TopologyStateEnum {
     PAUSED {
         @Override
         public Set<ButtonEnum> getButtonsEnabled() {
-            return EnumSet.of(ButtonEnum.RUN, ButtonEnum.STOP);
+            return EnumSet.of(ButtonEnum.RUN, ButtonEnum.STOP, ButtonEnum.SPEED);
         }
     };
 

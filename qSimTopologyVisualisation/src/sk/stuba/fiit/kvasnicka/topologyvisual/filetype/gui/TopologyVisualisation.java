@@ -64,6 +64,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.actions.ConfigureSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.NetworkNodeStatsAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.PauseSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.RunSimulationAction;
+import sk.stuba.fiit.kvasnicka.topologyvisual.actions.SimulationSpeedAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.StopSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.copypaste.CopyVertexAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.copypaste.PasteVertexAction;
@@ -122,6 +123,7 @@ position = 2000)
 public final class TopologyVisualisation extends JPanel implements VertexCreatedListener, DocumentListener, MultiViewElement, PaletteSelectionListener, SimulationRuleChangedListener {
 
     private static Logger logg = Logger.getLogger(TopologyVisualisation.class);
+    private final double SPEED_UP_INCREMENT = 0.5;
     private Topology topology;
     private TopologyElementCreatorHelper topologyElementCreator;
     private PaletteActionEnum selectedAction = null;
@@ -397,12 +399,14 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
                 StopSimulationAction.getInstance().updateState(null);
                 ConfigureSimulationAction.getInstance().updateState(null);
                 NetworkNodeStatsAction.getInstance().updateState(null);
+                SimulationSpeedAction.getInstance().updateState(null);
             } else {
                 RunSimulationAction.getInstance().updateState(simulationState);
                 PauseSimulationAction.getInstance().updateState(simulationState);
                 StopSimulationAction.getInstance().updateState(simulationState);
                 ConfigureSimulationAction.getInstance().updateState(simulationState);
                 NetworkNodeStatsAction.getInstance().updateState(simulationState);
+                SimulationSpeedAction.getInstance().updateState(simulationState);
             }
         }
     }
@@ -1131,6 +1135,11 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         updateToolbarButtons(false);
         updateCopyPasteButtons(true);
         getSimulationData().addSimulationRuleChangedListener(this);
+        if (simulationFacade == null) {
+            SimulationSpeedAction.getInstance().updateSpeed(SimulationFacade.getDefaultSimulationSpeed());
+        } else {
+            SimulationSpeedAction.getInstance().updateSpeed(simulationFacade.getSimulationSpeed());
+        }
 
         if (navigatorTopComponent != null) {
             Mode navigatorMode = WindowManager.getDefault().findMode("navigator");
@@ -1226,5 +1235,31 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
     public boolean isSimulationRunning() {
         return simulationState == TopologyStateEnum.RUN || simulationState == TopologyStateEnum.PAUSED;
+    }
+
+    /**
+     * make simulation run faster
+     *
+     * @param actionButton toolbar action button that invoked this
+     */
+    public void increaseSpeedSimulation(SimulationSpeedAction actionButton) {
+        if (simulationFacade == null) {
+            throw new IllegalStateException("simulation is not running - this should not happen");
+        }
+        simulationFacade.setTimerDelay(simulationFacade.getSimulationSpeed() + SPEED_UP_INCREMENT);
+        actionButton.updateSpeed(simulationFacade.getSimulationSpeed());
+    }
+
+    /**
+     * make simulation run slower
+     *
+     * @param actionButton toolbar action button that invoked this
+     */
+    public void decreaseSpeedSimulation(SimulationSpeedAction actionButton) {
+        if (simulationFacade == null) {
+            throw new IllegalStateException("simulation is not running - this should not happen");
+        }
+        simulationFacade.setTimerDelay(simulationFacade.getSimulationSpeed() - SPEED_UP_INCREMENT);
+        actionButton.updateSpeed(simulationFacade.getSimulationSpeed());
     }
 }

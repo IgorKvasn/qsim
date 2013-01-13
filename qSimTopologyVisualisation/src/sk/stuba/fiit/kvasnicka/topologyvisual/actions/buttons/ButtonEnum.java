@@ -31,5 +31,6 @@ public enum ButtonEnum {
     PAUSE,
     STOP,
     CONFIGURE,
-    NODE_STATS
+    NODE_STATS,
+    SPEED
 }
