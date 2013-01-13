@@ -78,7 +78,6 @@ public class SimulationFacade {
         if (timer.isRunning()) {
             throw new IllegalStateException("Starting timer: simulation timeris already running.");
         }
-
         timer.startSimulationTimer(simulationManager, pingManager, listenerToBeAdded);
     }
 
@@ -95,8 +94,8 @@ public class SimulationFacade {
         if (timer.isRunning()) {
             throw new IllegalStateException("Starting timer: simulation timeris already running.");
         }
-        timer.setTimerDelay(initialSpeedUp);
         startTimer();
+        timer.setTimerDelay(initialSpeedUp);
         pausedsimulation = false;
     }
 
@@ -145,6 +144,14 @@ public class SimulationFacade {
     public void setTimerDelay(double speedUp) {
         if (timer == null) throw new IllegalStateException("Change timer delay: timer has not been started");
         timer.setTimerDelay(speedUp);
+    }
+
+    /**
+     * returns default simulation speed
+     * @return
+     */
+    public static double getDefaultSimulationSpeed(){
+        return SimulationTimer.DEFAULT_SIMULATION_SPEED_UP;
     }
 
     /**
@@ -289,6 +296,15 @@ public class SimulationFacade {
     public double getSimulationTime() {
         if (timer == null) throw new IllegalStateException("timer is NULL");
         return timer.getSimulationTime();
+    }
+
+    /**
+     * returns speed of simulation
+     * @return
+     */
+    public double getSimulationSpeed(){
+        if (timer == null) throw new IllegalStateException("timer is NULL");
+        return timer.getSpeedUp();
     }
 
     /**
