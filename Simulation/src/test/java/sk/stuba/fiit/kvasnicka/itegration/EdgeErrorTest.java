@@ -21,16 +21,22 @@ import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.powermock.api.easymock.PowerMock;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.PacketCreationDelayFunction;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.creationdelay.GaussNormalCreationDelay;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.LogCategory;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.logs.SimulationLogUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PacketManager;
@@ -58,6 +64,8 @@ import static sk.stuba.fiit.kvasnicka.TestUtils.setWithoutSetter;
 /**
  * @author Igor Kvasnicka
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(DelayHelper.class)
 public class EdgeErrorTest {
 
     QosMechanismDefinition qosMechanism;
@@ -68,8 +76,6 @@ public class EdgeErrorTest {
 
     @Before
     public void before() {
-
-
         qosMechanism = EasyMock.createMock(QosMechanismDefinition.class);
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
         EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
@@ -83,8 +89,10 @@ public class EdgeErrorTest {
         }).times(100);
         EasyMock.replay(qosMechanism);
 
-        node1 = new Router("node1", null, qosMechanism, 10, 10, 50, 10, 10, 2.1, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, 10, 10, 50, 10, 10, 2.1, 0, 0);
+        PacketCreationDelayFunction creation1 = new GaussNormalCreationDelay(0,1,0,1);
+
+        node1 = new Router("node1", null, qosMechanism, creation1, 10, 10, 50, 10, 10, 2.1, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, creation1, 10, 10, 50, 10, 10, 2.1, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
 
@@ -115,6 +123,7 @@ public class EdgeErrorTest {
      */
     @Test
     public void testSinglePacketSimulation_TCP() throws Exception {
+
 
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2), new SimulationLogUtils());
 

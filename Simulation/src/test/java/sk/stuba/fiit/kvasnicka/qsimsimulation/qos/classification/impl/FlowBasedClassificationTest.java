@@ -42,7 +42,7 @@ public class FlowBasedClassificationTest {
     @Before
     public void before() {
         classification = new FlowBasedClassification();
-        node1 = new Router("node1", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, null,null, 100, 10, 50, 10, 10, 100, 0, 0);
 
         packet = new Packet(14, null, null, 10);
         initRoute(packet);
@@ -53,7 +53,7 @@ public class FlowBasedClassificationTest {
 
         Packet packet1 = new Packet(14, null, null, 10);
 
-        NetworkNode node2 = new Router("node2", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node2 = new Router("node2", null, null,null, 100, 10, 50, 10, 10, 100, 0, 0);
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, Layer4TypeEnum.UDP, null, null, 1, 2);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
@@ -70,7 +70,7 @@ public class FlowBasedClassificationTest {
 
         Packet packet2 = new Packet(14, null, null, 10);
 
-        NetworkNode node3 = new Router("node3", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node3 = new Router("node3", null, null,null, 100, 10, 50, 10, 10, 100, 0, 0);
         SimulationRuleBean simulationRuleBean2 = new SimulationRuleBean("", node1, node3, 1, 1, 100, Layer4TypeEnum.UDP, null, null, 1, 2);
         simulationRuleBean2.setRoute(Arrays.asList(node1, node3));
 
@@ -121,7 +121,7 @@ public class FlowBasedClassificationTest {
     }
 
     private void initRoute(Packet... packets) {
-        NetworkNode node2 = new Router("node2", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node2 = new Router("node2", null, null,null, 100, 10, 50, 10, 10, 100, 0, 0);
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, Layer4TypeEnum.UDP, null, null, 10, 11);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 

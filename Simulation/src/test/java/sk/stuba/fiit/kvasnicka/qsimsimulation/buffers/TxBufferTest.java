@@ -88,8 +88,8 @@ public class TxBufferTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", null, qosMechanism, MAX_TX_SIZE, 10, 50, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, MAX_TX_SIZE, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism,null, MAX_TX_SIZE, 10, 50, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism,null, MAX_TX_SIZE, 10, 50, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
