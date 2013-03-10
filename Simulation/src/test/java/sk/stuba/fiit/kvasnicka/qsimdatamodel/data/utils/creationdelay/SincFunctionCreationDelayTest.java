@@ -46,7 +46,7 @@ import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
 /**
  * @author Igo
  */
-public class GaussNormalCreationDelayTest {
+public class SincFunctionCreationDelayTest {
     PacketManager packetManager;
     SimulationTimer timer;
     QosMechanismDefinition qosMechanism;
@@ -110,28 +110,13 @@ public class GaussNormalCreationDelayTest {
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_maxDelay() {
-        new GaussNormalCreationDelay(- 1, 10, 0.0, 1.0);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_period_negative() {
-        new GaussNormalCreationDelay(10, - 10, 0.0, 1.0);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_period_zero() {
-        new GaussNormalCreationDelay(10, 0, 0.0, 1.0);
-    }
-
     /**
      * tests if function length is correct
      * packet delay in 11 msec should be the same as in 21 and 31 msec, when function length is set to 10
      */
     @Test
     public void testCreation_function_length() {
-        TestUtils.setWithoutSetter(NetworkNode.class, node1, "packetCreationDelayFunction", new GaussNormalCreationDelay(10, 10, 0.0, 1.0));
+        TestUtils.setWithoutSetter(NetworkNode.class, node1, "packetCreationDelayFunction", new SincFunctionCreationDelay(10, 10));
 
         double res = node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 11);
 
@@ -140,12 +125,31 @@ public class GaussNormalCreationDelayTest {
     }
 
     @Test
-    public void testCreation_maximum() {
-        double maxValue = 18.6;
+    public void testCreation_zero() {
 
-        TestUtils.setWithoutSetter(NetworkNode.class, node1, "packetCreationDelayFunction", new GaussNormalCreationDelay(maxValue, 10, 0.0, 1.0));
+        double maxDelay = 10;
+
+        TestUtils.setWithoutSetter(NetworkNode.class, node1, "packetCreationDelayFunction", new SincFunctionCreationDelay(maxDelay, 10));
 
         double res = node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 0);
-        Assert.assertEquals(maxValue, res);
+        Assert.assertEquals(maxDelay, res, 0.0);
+    }
+
+    @Test
+    public void testCreation_non_zero() {
+
+        TestUtils.setWithoutSetter(NetworkNode.class, node1, "packetCreationDelayFunction", new SincFunctionCreationDelay(1, 10));
+
+        double res = node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 3);
+        Assert.assertEquals(Math.sin(3) / 3, res, 0.0);
+    }
+
+    @Test
+    public void testCreation_max() {
+        double maxValue = 11;
+        TestUtils.setWithoutSetter(NetworkNode.class, node1, "packetCreationDelayFunction", new SincFunctionCreationDelay(maxValue, 10));
+
+        double res = node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 3);
+        Assert.assertEquals(Math.sin(3) / 3 * maxValue, res, 0.0);
     }
 }
