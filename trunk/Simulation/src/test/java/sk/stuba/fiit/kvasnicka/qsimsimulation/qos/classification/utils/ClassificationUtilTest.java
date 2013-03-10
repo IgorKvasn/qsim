@@ -39,8 +39,8 @@ public class ClassificationUtilTest {
     public void testIsClassificationRuleApplied_destination_IN_list() throws ClassificationException {
 
 
-        NetworkNode node1 = new Router("node1", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node2 = new Router("node2", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -57,8 +57,8 @@ public class ClassificationUtilTest {
     @Test
     public void testIsClassificationRuleApplied_destination_single() throws ClassificationException {
 
-        NetworkNode node1 = new Router("node1", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node2 = new Router("node2", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -75,8 +75,8 @@ public class ClassificationUtilTest {
     @Test
     public void testIsClassificationRuleApplied_destination_negation() throws ClassificationException {
 
-        NetworkNode node1 = new Router("node1", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node2 = new Router("node2", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -96,8 +96,8 @@ public class ClassificationUtilTest {
     @Test
     public void testIsClassificationRuleApplied_source_IN_list() throws ClassificationException {
 
-        NetworkNode node1 = new Router("node1", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node2 = new Router("node2", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -114,8 +114,8 @@ public class ClassificationUtilTest {
     @Test
     public void testIsClassificationRuleApplied_source_single() throws ClassificationException {
 
-        NetworkNode node1 = new Router("node1", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node2 = new Router("node2", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -133,8 +133,8 @@ public class ClassificationUtilTest {
     @Test
     public void testIsClassificationRuleApplied_source_single_regex() throws ClassificationException {
 
-        NetworkNode node1 = new Router("node1", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node2 = new Router("node2", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -155,8 +155,8 @@ public class ClassificationUtilTest {
     @Test
     public void testIsClassificationRuleApplied_source_IN_list_regex() throws ClassificationException {
 
-        NetworkNode node1 = new Router("node1", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node2 = new Router("node2", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -176,8 +176,8 @@ public class ClassificationUtilTest {
 
     @Test
     public void testIsClassificationRuleApplied_source_negation() throws ClassificationException {
-        NetworkNode node1 = new Router("node1", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node2 = new Router("node2", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -197,8 +197,8 @@ public class ClassificationUtilTest {
     @Test
     public void testIsClassificationRuleApplied_packet_size() throws ClassificationException {
 
-        NetworkNode node1 = new Router("node1", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node2 = new Router("node2", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -215,8 +215,8 @@ public class ClassificationUtilTest {
     @Test
     public void testIsClassificationRuleApplied_packet_size_compare() throws ClassificationException {
 
-        NetworkNode node1 = new Router("node1", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node2 = new Router("node2", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -233,8 +233,8 @@ public class ClassificationUtilTest {
     @Test
     public void testIsClassificationRuleApplied_multiple_conditions() throws ClassificationException {
 
-        NetworkNode node1 = new Router("node1", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node2 = new Router("node2", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -253,8 +253,8 @@ public class ClassificationUtilTest {
 
     @Test
     public void testIsClassificationRuleApplied_ip_preference() throws ClassificationException {
-        NetworkNode node1 = new Router("node1", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
-        NetworkNode node2 = new Router("node2", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node1 = new Router("node1", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node2 = new Router("node2", null, null, null, 10, 10, 50, 10, 10, 100, 0, 0);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_1, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));

@@ -28,6 +28,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.PacketCreationDelayFunction;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.creationdelay.GaussNormalCreationDelay;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
@@ -90,9 +92,11 @@ public class IntegrationTest {
         }).times(100);
         EasyMock.replay(qosMechanism);
 
-        node1 = new Router("node1", null, qosMechanism, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
-        node3 = new Router("node3", null, qosMechanism, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        PacketCreationDelayFunction creation1 = new GaussNormalCreationDelay(0,1,0,1);
+
+        node1 = new Router("node1", null, qosMechanism,creation1, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node2 = new Router("node2", null, qosMechanism,creation1, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node3 = new Router("node3", null, qosMechanism,creation1, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
@@ -207,7 +211,7 @@ public class IntegrationTest {
     public void testMultiplePacketsSimulation_simultaneous() throws NoSuchFieldException, IllegalAccessException {
         //all packets will be created at once - packet creation delay is set to 0
         PowerMock.mockStatic(DelayHelper.class);
-        EasyMock.expect(DelayHelper.calculatePacketCreationDelay(EasyMock.anyObject(NetworkNode.class), EasyMock.anyInt())).andReturn(0.0).times(10);
+        EasyMock.expect(DelayHelper.calculatePacketCreationDelay(EasyMock.anyObject(SimulationRuleBean.class), EasyMock.anyInt(), EasyMock.anyDouble())).andReturn(0.0).times(10);
         EasyMock.expect(DelayHelper.calculatePropagationDelay(EasyMock.anyObject(Edge.class))).andReturn(3.0).times(10);
         EasyMock.expect(DelayHelper.calculateProcessingDelay(EasyMock.anyObject(NetworkNode.class))).andReturn(1.0).times(10);
         EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Packet.class), EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(0.2).times(10);

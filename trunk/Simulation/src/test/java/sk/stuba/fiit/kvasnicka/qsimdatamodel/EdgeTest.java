@@ -94,8 +94,8 @@ public class EdgeTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", null, qosMechanism, MAX_TX_SIZE, 10, 50, 10, 2, 100, 0, 0);//max processing packets are set to 2
-        node2 = new Router("node2", null, qosMechanism, MAX_TX_SIZE, 10, 50, 10, 2, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism,null, MAX_TX_SIZE, 10, 50, 10, 2, 100, 0, 0);//max processing packets are set to 2
+        node2 = new Router("node2", null, qosMechanism,null, MAX_TX_SIZE, 10, 50, 10, 2, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -237,7 +237,7 @@ public class EdgeTest {
     @Test
     public void testFindOppositeNetworkNode_unknown_node() {
         try {
-            NetworkNode node3 = new Router("new node that is not placed on the edge", null, qosMechanism, MAX_TX_SIZE, 10, 50, 10, 2, 100, 0, 0);
+            NetworkNode node3 = new Router("new node that is not placed on the edge", null, qosMechanism,null, MAX_TX_SIZE, 10, 50, 10, 2, 100, 0, 0);
 
             edge.findOppositeNetworkNode(node3);
             fail("IllegalStateException should be thrown");
@@ -254,7 +254,7 @@ public class EdgeTest {
 
     @Test
     public void testContainsNode_unknown_node() {
-        NetworkNode node3 = new Router("new node that is not placed on the edge", null, qosMechanism, MAX_TX_SIZE, 10, 50, 10, 2, 100, 0, 0);
+        NetworkNode node3 = new Router("new node that is not placed on the edge", null, qosMechanism,null, MAX_TX_SIZE, 10, 50, 10, 2, 100, 0, 0);
 
         assertFalse(edge.containsNode(node3));
     }

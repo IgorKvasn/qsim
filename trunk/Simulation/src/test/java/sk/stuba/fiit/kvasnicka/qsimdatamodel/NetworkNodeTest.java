@@ -29,6 +29,7 @@ import org.junit.runner.RunWith;
 import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import sk.stuba.fiit.kvasnicka.TestUtils;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
@@ -36,6 +37,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.RxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.InputQueue;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.creationdelay.GaussNormalCreationDelay;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.PacketGenerator;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
@@ -114,8 +116,8 @@ public class NetworkNodeTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", null, qosMechanism, MAX_TX_SIZE, 10, 50, 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, MAX_TX_SIZE, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, null, MAX_TX_SIZE, 10, 50, 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, null, MAX_TX_SIZE, 10, 50, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -210,8 +212,8 @@ public class NetworkNodeTest {
     @Test
     public void testAddToTxBuffer_overflow() throws Exception {
         //redefine nodes, to make maxTxSize smaller number
-        node1 = new Router("node1", null, qosMechanism, 3, 10, 50, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, 0, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, null, 3, 10, 50, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, null, 0, 10, 50, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -659,15 +661,16 @@ public class NetworkNodeTest {
 
     /**
      * creating new packets according to SimulationRuleBean
+     * there is no packet creation delay
      */
     @Test
-    public void testGeneratePackets() throws Exception {
+    public void testGeneratePackets_no_packet_creation_delay() throws Exception {
 
         PowerMock.mockStatic(DelayHelper.class);
-        EasyMock.expect(DelayHelper.calculatePacketCreationDelay(EasyMock.anyObject(NetworkNode.class), EasyMock.anyInt())).andReturn(SimulationTimer.TIME_QUANTUM / 2).times(2);
+        EasyMock.expect(DelayHelper.calculatePacketCreationDelay(EasyMock.anyObject(SimulationRuleBean.class), EasyMock.anyInt(), EasyMock.anyDouble())).andReturn(SimulationTimer.TIME_QUANTUM / 2).times(2);
         PowerMock.replayAll();
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 2, 50, 0, layer4, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 2, 50, 0, layer4, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2), new SimulationLogUtils());
@@ -696,6 +699,81 @@ public class NetworkNodeTest {
     }
 
     /**
+     * creating new packets according to SimulationRuleBean
+     * with packet creation delay
+     */
+    @Test
+    public void testGeneratePackets() throws Exception {
+
+        TestUtils.setWithoutSetter(NetworkNode.class, node1, "packetCreationDelayFunction", new GaussNormalCreationDelay(0.7, 100, 0.0, 1.0));
+
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 2, 50, 0, layer4, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
+        rule.setRoute(Arrays.asList(node1, node2));
+
+        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2), new SimulationLogUtils());
+
+        SimulationManager simulationManager = new SimulationManager();
+        simulationManager.addSimulationRule(rule);
+
+        setWithoutSetter(SimulationTimer.class, timer, "simulationManager", simulationManager);
+
+        timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>()); //need to init all the stuff
+
+
+        Field privateStringField = SimulationTimer.class.getDeclaredField("packetGenerator");
+        privateStringField.setAccessible(true);
+        PacketGenerator generator = (PacketGenerator) privateStringField.get(timer);
+
+        generator.generatePackets(0, SimulationTimer.TIME_QUANTUM);
+        generator.generatePackets(SimulationTimer.TIME_QUANTUM, SimulationTimer.TIME_QUANTUM);  //I need 2 time quantums
+
+        PowerMock.verifyAll();
+
+        assertNotNull(node1.getTxInterfaces());
+        assertNotNull(node1.getTxInterfaces().get(node2));
+        int fragments = node1.getTxInterfaces().get(node2).getFragmentsCount();
+        assertEquals(1, fragments); //only one fragment will be created instead of 2 in previous test with no packet creation delay
+    }
+
+    /**
+     * creating new packets according to SimulationRuleBean
+     * with packet creation delay
+     */
+    @Test
+    public void testGeneratePackets_multiple_packets_created() throws Exception {
+
+        TestUtils.setWithoutSetter(NetworkNode.class, node1, "packetCreationDelayFunction", new GaussNormalCreationDelay(0.7, 100, 0.0, 1.0));
+
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 2, 50, 0, layer4, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
+        rule.setRoute(Arrays.asList(node1, node2));
+
+        SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2), new SimulationLogUtils());
+
+        SimulationManager simulationManager = new SimulationManager();
+        simulationManager.addSimulationRule(rule);
+
+        setWithoutSetter(SimulationTimer.class, timer, "simulationManager", simulationManager);
+
+        timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>()); //need to init all the stuff
+
+
+        Field privateStringField = SimulationTimer.class.getDeclaredField("packetGenerator");
+        privateStringField.setAccessible(true);
+        PacketGenerator generator = (PacketGenerator) privateStringField.get(timer);
+
+        generator.generatePackets(0, SimulationTimer.TIME_QUANTUM);
+        generator.generatePackets(SimulationTimer.TIME_QUANTUM, SimulationTimer.TIME_QUANTUM);
+        generator.generatePackets(SimulationTimer.TIME_QUANTUM * 3, SimulationTimer.TIME_QUANTUM); //I need 3 time quantums
+
+        PowerMock.verifyAll();
+
+        assertNotNull(node1.getTxInterfaces());
+        assertNotNull(node1.getTxInterfaces().get(node2));
+        int fragments = node1.getTxInterfaces().get(node2).getFragmentsCount();
+        assertEquals(2, fragments);
+    }
+
+    /**
      * one fragment was dropped
      * this is a test to check if no packet is created and the rest of the fragments are removed after the last fragment came
      *
@@ -704,8 +782,8 @@ public class NetworkNodeTest {
     @Test
     public void testAddToRxBuffer_overflow_fragments_remove() throws Exception {
         //redefine nodes, to make maxTxSize smaller number
-        node1 = new Router("node1", null, qosMechanism, 3, 1, 50, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, 0, 3, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, null, 3, 1, 50, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, null, 0, 3, 50, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -754,8 +832,8 @@ public class NetworkNodeTest {
     @Test
     public void testAddToRxBuffer_overflow_fragments_remove_last_fragment_dropped() throws Exception {
 
-        node1 = new Router("node1", null, qosMechanism, 3, 300, 50, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, 0, 300, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, null, 3, 300, 50, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, null, 0, 300, 50, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -792,7 +870,7 @@ public class NetworkNodeTest {
 
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {

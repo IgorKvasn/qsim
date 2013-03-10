@@ -41,10 +41,10 @@ public class TopologyManagerTest {
 
     @Before
     public void before() {
-        node1 = new Router("node1", null, null, 0, 10, 50, 10, 2, 100, 0, 0);
-        node2 = new Router("node2", null, null, 0, 10, 50, 10, 2, 100, 0, 0);
-        node3 = new Router("node3", null, null, 0, 10, 50, 10, 2, 100, 0, 0);
-        node4 = new Router("node4", null, null, 0, 10, 50, 10, 2, 100, 0, 0);
+        node1 = new Router("node1", null, null,null, 0, 10, 50, 10, 2, 100, 0, 0);
+        node2 = new Router("node2", null, null,null, 0, 10, 50, 10, 2, 100, 0, 0);
+        node3 = new Router("node3", null, null,null, 0, 10, 50, 10, 2, 100, 0, 0);
+        node4 = new Router("node4", null, null,null, 0, 10, 50, 10, 2, 100, 0, 0);
 
 
         edge_12 = new Edge(0, 1, 2, 0, node1, node2);
@@ -101,7 +101,7 @@ public class TopologyManagerTest {
 
     @Test
     public void testFindNetworkNode_unknown_node() {
-        NetworkNode newNode = new Router("this is a new node", null, null, 1, 10, 50, 10, 2, 100, 0, 0);
+        NetworkNode newNode = new Router("this is a new node", null, null,null, 1, 10, 50, 10, 2, 100, 0, 0);
         try {
             topologyManager.findNetworkNode(newNode.getName());
             fail("IllegalStateException should be thrown");
@@ -172,7 +172,7 @@ public class TopologyManagerTest {
 
     @Test
     public void testFindEdge_not_found_new_node() {
-        NetworkNode newNode = new Router("this is a new node", null, null, 1, 10, 50, 10, 2, 100, 0, 0);
+        NetworkNode newNode = new Router("this is a new node", null, null,null, 1, 10, 50, 10, 2, 100, 0, 0);
 
         try {
             topologyManager.findEdge(newNode.getName(), node2.getName());

@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 /**
  * here all delays are calculated
@@ -74,11 +75,23 @@ public abstract class DelayHelper {
      * determines delay between packet creation
      * this delay is NOT QoS related
      *
-     * @param node           network node where packets are being created
+     * @param rule       simulation rule that is creating new packets
      * @param packetSize
      * @return
      */
-    public static double calculatePacketCreationDelay(NetworkNode node, int packetSize) {
-        return PACKET_CREATION_DELAY;
+    public static double calculatePacketCreationDelay(SimulationRuleBean rule, int packetSize, double simulationTime) {
+        if (rule==null){
+            throw new IllegalArgumentException("simulation rule is NULL");
+        }
+
+        if (rule.getSource()==null){
+            throw new IllegalArgumentException("src network node is NULL");
+        }
+
+        if (rule.getSource().getPacketCreationDelayFunction() == null) {
+            throw new IllegalArgumentException("packet creation delay function is NULL");
+        }
+
+        return rule.getSource().getPacketCreationDelayFunction().calculateDelay(rule, simulationTime);
     }
 }
