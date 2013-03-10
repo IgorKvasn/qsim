@@ -25,15 +25,16 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 public abstract class PacketCreationDelayFunction {
 
     protected double maxDelay;
-    protected double functionLength;
+    protected double period;
 
-    protected PacketCreationDelayFunction(double maxDelay, double functionLength) {
+    protected PacketCreationDelayFunction(double maxDelay, double period) {
         this.maxDelay = maxDelay;
-        this.functionLength = functionLength;
+        this.period = period;
     }
 
     /**
      * calculates packet creation delay
+     * when you want to create function that gives repetitive results in time, it is advised to perform (simulationTime % period)
      * @return
      */
     public abstract double calculateDelay(SimulationRuleBean rule, double simulationTime);

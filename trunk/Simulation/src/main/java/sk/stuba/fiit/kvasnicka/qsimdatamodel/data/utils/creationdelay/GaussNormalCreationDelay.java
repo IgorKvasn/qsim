@@ -41,7 +41,7 @@ public class GaussNormalCreationDelay extends PacketCreationDelayFunction {
 
     @Override
     public double calculateDelay(SimulationRuleBean rule, double simulationTime) {
-        double time = simulationTime % functionLength;
+        double time = simulationTime % period;
         return distribution.density(time) * maxDelay * Math.sqrt(2*Math.PI); //it must be doubled by sqrt(2*pi), because max value of Gauss's normal distribution is 1/sqrt(2*pi)
     }
 }
