@@ -88,10 +88,10 @@ public abstract class DelayHelper {
             throw new IllegalArgumentException("src network node is NULL");
         }
 
-        if (rule.getSource().getPacketCreationDelayFunction() == null) {
+        if (rule.getPacketCreationDelayFunction() == null) {
             throw new IllegalArgumentException("packet creation delay function is NULL");
         }
 
-        return rule.getSource().getPacketCreationDelayFunction().calculateDelay(rule, simulationTime);
+        return rule.getPacketCreationDelayFunction().calculateDelay(rule, simulationTime);
     }
 }

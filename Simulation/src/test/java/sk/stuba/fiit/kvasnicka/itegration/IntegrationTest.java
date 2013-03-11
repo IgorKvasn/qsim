@@ -73,6 +73,8 @@ public class IntegrationTest {
     Edge edge1, edge2;
     private SimulationManager simulationManager;
     int packetDelivered;
+    PacketCreationDelayFunction creation1;
+
 
     @Before
     public void before() {
@@ -92,11 +94,10 @@ public class IntegrationTest {
         }).times(100);
         EasyMock.replay(qosMechanism);
 
-        PacketCreationDelayFunction creation1 = new GaussNormalCreationDelay(0,1,0,1);
 
-        node1 = new Router("node1", null, qosMechanism,creation1, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
-        node2 = new Router("node2", null, qosMechanism,creation1, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
-        node3 = new Router("node3", null, qosMechanism,creation1, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node3 = new Router("node3", null, qosMechanism, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
@@ -106,6 +107,8 @@ public class IntegrationTest {
 
         edge1 = new Edge(100, 100, 2, 0, node1, node2);
         edge2 = new Edge(100, 100, 3, 0, node2, node3);
+
+        creation1 = new GaussNormalCreationDelay(0,1,0,1);
     }
 
     /**
@@ -149,7 +152,8 @@ public class IntegrationTest {
             }
         });
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, creation1, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
@@ -184,7 +188,7 @@ public class IntegrationTest {
             }
         });
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 2, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, creation1,2, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
@@ -229,7 +233,7 @@ public class IntegrationTest {
             }
         });
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 2, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, creation1,2, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
         simulationManager.addSimulationRule(rule);
 
@@ -268,7 +272,7 @@ public class IntegrationTest {
             }
         });
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 2, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, creation1,1, 50, 2, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
@@ -320,7 +324,7 @@ public class IntegrationTest {
             }
         });
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 2, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, creation1,2, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
@@ -353,7 +357,7 @@ public class IntegrationTest {
             }
         });
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node3, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node3, creation1,1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
         rule.setRoute(Arrays.asList(node1, node2, node3));
 
         simulationManager.addSimulationRule(rule);
@@ -391,7 +395,7 @@ public class IntegrationTest {
                 }
             }
         });
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, creation1,1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
         simulationManager.addSimulationRule(rule);
 
@@ -403,7 +407,7 @@ public class IntegrationTest {
 
 
         //now create and add new simulation rule
-        SimulationRuleBean rule2 = new SimulationRuleBean("", node1, node2, 1, 50, 1, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean rule2 = new SimulationRuleBean("", node1, node2, creation1,1, 50, 1, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
         rule2.setRoute(Arrays.asList(node1, node2));
         simulationManager.addSimulationRule(rule2);
         timer.actionPerformed(null);
@@ -431,7 +435,7 @@ public class IntegrationTest {
         setWithoutSetter(Edge.class, edge1, "packetErrorRate", 1);
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, .05, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, creation1,1, 50, .05, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);

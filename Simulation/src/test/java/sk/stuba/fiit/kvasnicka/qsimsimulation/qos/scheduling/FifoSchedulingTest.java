@@ -51,7 +51,7 @@ public class FifoSchedulingTest {
     public void testDecitePacketsToMoveFromOutputQueue() {
         QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null,null, null);
 
-        node1 = new Router("node1", null, qosMechanism,null, 200, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0);
 
         final Packet p1 = new Packet(10, null, null, 0);
         final Packet p2 = new Packet(10, null, null, 0);
@@ -75,7 +75,7 @@ public class FifoSchedulingTest {
     public void testDecitePacketsToMoveFromOutputQueue_multiple_queues() {
         QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null,null, null, null);
 
-        node1 = new Router("node1", null, qosMechanism,null, 200, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0);
 
         Packet p1 = new Packet(10, null, null, 0);
         Packet p2 = new Packet(10, null, null, 0);

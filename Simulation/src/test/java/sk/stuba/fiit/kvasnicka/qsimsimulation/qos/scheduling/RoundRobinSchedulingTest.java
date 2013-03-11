@@ -52,7 +52,7 @@ public class RoundRobinSchedulingTest {
     public void testDecitePacketsToMoveFromOutputQueue_one_queue() {
         QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null,null, null, null);
 
-        node1 = new Router("node1", null, qosMechanism,null, 200, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0);
 
         final Packet p1 = new Packet(10, null, null, 0);
         final Packet p2 = new Packet(10, null, null, 0);
@@ -78,7 +78,7 @@ public class RoundRobinSchedulingTest {
     public void testDecitePacketsToMoveFromOutputQueue_multiple_queues() {
         QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null,null, null);
 
-        node1 = new Router("node1", null, qosMechanism,null, 200, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0);
 
         final Packet p1 = new Packet(10, null, null, 0);
         final Packet p2 = new Packet(10, null, null, 0);
@@ -105,7 +105,7 @@ public class RoundRobinSchedulingTest {
     public void testDecitePacketsToMoveFromOutputQueue_multiple_queues_multiple_calls() {
         QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null,null, null);
 
-        node1 = new Router("node1", null, qosMechanism,null, 200, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0);
 
         final Packet p1 = new Packet(10, null, null, 0);
         final Packet p2 = new Packet(10, null, null, 0);
@@ -136,7 +136,7 @@ public class RoundRobinSchedulingTest {
     public void testDecitePacketsToMoveFromOutputQueue_empty_queues_1() {
         QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null,null, null);
 
-        node1 = new Router("node1", null, qosMechanism,null, 200, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0);
 
         final Packet p1 = new Packet(10, null, null, 0);
         final Packet p2 = new Packet(10, null, null, 0);
@@ -164,7 +164,7 @@ public class RoundRobinSchedulingTest {
     public void testDecitePacketsToMoveFromOutputQueue_empty_queues_2() {
         QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null,null, null, null);
 
-        node1 = new Router("node1", null, qosMechanism,null, 200, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 200, 10, 50, 10, 10, 100, 0, 0);
 
 
         Map<Integer, List<Packet>> outputPackets = new HashMap<Integer, List<Packet>>();

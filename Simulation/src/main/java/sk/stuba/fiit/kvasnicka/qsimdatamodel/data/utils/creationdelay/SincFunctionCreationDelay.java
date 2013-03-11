@@ -25,6 +25,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
  * sinc(x) = sin(x) / x            otherwise
  * <p/>
  * the result of the sinc(x) is is multiplied by "maxDelay" argument
+ * the result is never negative (absolute value will be applied)
  *
  * @author Igo
  */
@@ -38,6 +39,6 @@ public class SincFunctionCreationDelay extends PacketCreationDelayFunction {
     public double calculateDelay(SimulationRuleBean rule, double simulationTime) {
         double time = simulationTime % period;
         if (time == 0) return maxDelay;
-        return (Math.sin(time) / time) * maxDelay;
+        return Math.abs((Math.sin(time) / time) * maxDelay);
     }
 }

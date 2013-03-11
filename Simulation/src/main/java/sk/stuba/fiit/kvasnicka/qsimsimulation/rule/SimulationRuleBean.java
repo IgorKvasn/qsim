@@ -25,6 +25,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.PacketCreationDelayFunction;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent;
@@ -96,6 +97,10 @@ public class SimulationRuleBean {
      * can be created
      */
     private boolean canCreateNewPacket = true;
+
+    @Getter
+    private PacketCreationDelayFunction packetCreationDelayFunction;
+
     /**
      * list of all who wants to be notified, when packet is delivered
      * especially useful when waiting for a ping to be delivered
@@ -118,7 +123,8 @@ public class SimulationRuleBean {
      * @param destPort
      * @see #setRoute(java.util.List)
      */
-    public SimulationRuleBean(String name, NetworkNode source, NetworkNode destination, int numberOfPackets, int packetSize, double activeDelay, Layer4TypeEnum layer4Type, IpPrecedence ipPrecedence, DscpValuesEnum dscpValue, int srcPort, int destPort) {
+    public SimulationRuleBean(String name, NetworkNode source, NetworkNode destination, PacketCreationDelayFunction packetCreationDelayFunction, int numberOfPackets, int packetSize, double activeDelay, Layer4TypeEnum layer4Type, IpPrecedence ipPrecedence, DscpValuesEnum dscpValue, int srcPort, int destPort) {
+        this.packetCreationDelayFunction = packetCreationDelayFunction;
         if ((dscpValue != null) && (ipPrecedence != null)) {
             throw new IllegalArgumentException("DSCP and IP ToS must not be sent both");
         }

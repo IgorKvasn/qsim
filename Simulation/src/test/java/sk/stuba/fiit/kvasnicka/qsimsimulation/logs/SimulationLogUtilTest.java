@@ -22,10 +22,13 @@ import org.easymock.IAnswer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.easymock.PowerMock;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
@@ -33,6 +36,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.PingManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.SimulationManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
@@ -52,6 +56,8 @@ import static sk.stuba.fiit.kvasnicka.TestUtils.initNetworkNode;
 /**
  * @author Igor Kvasnicka
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(DelayHelper.class)
 public class SimulationLogUtilTest {
     private QosMechanismDefinition qosMechanism;
     private NetworkNode node1, node2;
@@ -68,6 +74,14 @@ public class SimulationLogUtilTest {
         listener = new ListenerClass();
         simulationLogUtils = new SimulationLogUtils();
 
+        PowerMock.mockStatic(DelayHelper.class);
+        EasyMock.expect(DelayHelper.calculatePacketCreationDelay(EasyMock.anyObject(SimulationRuleBean.class), EasyMock.anyInt(), EasyMock.anyDouble())).andReturn(0.0).times(10);
+        EasyMock.expect(DelayHelper.calculateSerialisationDelay(EasyMock.anyObject(Packet.class), EasyMock.anyObject(Edge.class), EasyMock.anyInt())).andReturn(0.0).times(10);
+        EasyMock.expect(DelayHelper.calculatePropagationDelay( EasyMock.anyObject(Edge.class))).andReturn(0.0).times(10);
+
+
+        PowerMock.replay(DelayHelper.class);
+
 
         qosMechanism = EasyMock.createMock(QosMechanismDefinition.class);
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
@@ -82,8 +96,8 @@ public class SimulationLogUtilTest {
         }).times(100);
         EasyMock.replay(qosMechanism);
 
-        node1 = new Router("node1", null, qosMechanism,null, 10, 10, 50, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", null, qosMechanism,null, 10, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
 
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -111,7 +125,7 @@ public class SimulationLogUtilTest {
         //run simulation
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge1), Arrays.asList(node1, node2), simulationLogUtils);
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0,  Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, null, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);
@@ -132,16 +146,10 @@ public class SimulationLogUtilTest {
     @Test
     public void testMultipleSimulationLogs() {
 
-        OutputQueueManager outputQueueManager11 = new OutputQueueManager(50);
-        OutputQueueManager outputQueueManager12 = new OutputQueueManager(50);
-        OutputQueueManager outputQueueManager21 = new OutputQueueManager(50);
-        OutputQueueManager outputQueueManager22 = new OutputQueueManager(50);
-
-
-        NetworkNode node11 = new Router("node11", null, qosMechanism,null, 10, 10, 50, 10, 10, 100, 0, 0);
-        NetworkNode node12 = new Router("node12", null, qosMechanism,null, 10, 10, 50, 10, 10, 100, 0, 0);
-        NetworkNode node21 = new Router("node21", null, qosMechanism,null, 10, 10, 50, 10, 10, 100, 0, 0);
-        NetworkNode node22 = new Router("node22", null, qosMechanism,null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node11 = new Router("node11", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node12 = new Router("node12", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node21 = new Router("node21", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node22 = new Router("node22", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
 
 
         Edge edge1 = new Edge(100, 100, 2, 0, node11, node12);
