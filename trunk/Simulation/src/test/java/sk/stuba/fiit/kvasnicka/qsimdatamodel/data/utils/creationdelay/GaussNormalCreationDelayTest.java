@@ -87,8 +87,8 @@ public class GaussNormalCreationDelayTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", null, qosMechanism, null, 10, 10, 50, 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 10, 10, 50, 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -106,7 +106,7 @@ public class GaussNormalCreationDelayTest {
 
         packetManager = new PacketManager(timer);
 
-        simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
+        simulationRuleBean = new SimulationRuleBean("", node1, node2, null,1, 1, 100, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
     }
 
@@ -131,21 +131,21 @@ public class GaussNormalCreationDelayTest {
      */
     @Test
     public void testCreation_function_length() {
-        TestUtils.setWithoutSetter(NetworkNode.class, node1, "packetCreationDelayFunction", new GaussNormalCreationDelay(10, 10, 0.0, 1.0));
+        TestUtils.setWithoutSetter(SimulationRuleBean.class, simulationRuleBean, "packetCreationDelayFunction", new GaussNormalCreationDelay(10, 10, 0.0, 1.0));
 
-        double res = node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 11);
+        double res = simulationRuleBean.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 11);
 
-        Assert.assertEquals(res, node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 21));
-        Assert.assertEquals(res, node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 31));
+        Assert.assertEquals(res, simulationRuleBean.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 21));
+        Assert.assertEquals(res, simulationRuleBean.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 31));
     }
 
     @Test
     public void testCreation_maximum() {
         double maxValue = 18.6;
 
-        TestUtils.setWithoutSetter(NetworkNode.class, node1, "packetCreationDelayFunction", new GaussNormalCreationDelay(maxValue, 10, 0.0, 1.0));
+        TestUtils.setWithoutSetter(SimulationRuleBean.class, simulationRuleBean, "packetCreationDelayFunction", new GaussNormalCreationDelay(maxValue, 10, 0.0, 1.0));
 
-        double res = node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 0);
+        double res = simulationRuleBean.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 0);
         Assert.assertEquals(maxValue, res);
     }
 }

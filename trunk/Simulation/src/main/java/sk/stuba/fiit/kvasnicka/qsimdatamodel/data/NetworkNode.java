@@ -26,7 +26,6 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.RxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.TxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.InputQueue;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.PacketCreationDelayFunction;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredEvent;
@@ -140,9 +139,6 @@ public abstract class NetworkNode implements Serializable {
     @Getter
     private transient UsageStatistics allProcessingPackets;
 
-    @Getter
-    private PacketCreationDelayFunction packetCreationDelayFunction;
-
     /**
      * creates new network node
      *
@@ -155,12 +151,10 @@ public abstract class NetworkNode implements Serializable {
      * @param tcpDelay             TCP delay (time after retransmission happens when no ACK was retrieved)
      * @param minProcessingDelay   minimum time processing of one packet takes
      * @param maxProcessingDelay   maximum time processing of one packet takes
-     * @param packetCreationDelayFunction function thet defines packet creation delay
      */
-    protected NetworkNode(String name, String description, QosMechanismDefinition qosMechanism, int maxTxBufferSize, int maxRxBufferSize, int maxOutputQueueSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay, PacketCreationDelayFunction packetCreationDelayFunction) {
+    protected NetworkNode(String name, String description, QosMechanismDefinition qosMechanism, int maxTxBufferSize, int maxRxBufferSize, int maxOutputQueueSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
         this.description = description;
         this.name = name;
-        this.packetCreationDelayFunction = packetCreationDelayFunction;
         this.outputQueueManager = new OutputQueueManager(maxOutputQueueSize);
         this.qosMechanism = qosMechanism;
         this.maxTxBufferSize = maxTxBufferSize;

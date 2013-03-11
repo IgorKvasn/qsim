@@ -45,13 +45,13 @@ public class PingManagerTest {
     public void before() {
         pingManager = new PingManager();
 
-        node1 = new Router("node1", null, null,null, 10, 10, 50, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", null, null,null, 10, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
     }
 
     @Test
     public void testPingAdd() {
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 0, 0, 0,  Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2,null, 0, 0, 0,  Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
         setWithoutSetter(SimulationRuleBean.class, rule, "route", Arrays.asList(node1, node2));
         pingManager.addPing(rule, 1);
 

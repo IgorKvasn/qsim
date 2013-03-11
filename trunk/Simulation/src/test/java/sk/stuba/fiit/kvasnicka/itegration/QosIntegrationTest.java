@@ -88,12 +88,9 @@ public class QosIntegrationTest {
             put(RandomEarlyDetection.MIN_THRESHOLD, .1);
         }}));
 
-        PacketCreationDelayFunction creation1 = new GaussNormalCreationDelay(0,1,0,1);
-
-
-        node1 = new Router("node1", null, qosMechanism1,creation1, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
-        node2 = new Router("node2", null, qosMechanism2,creation1, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
-        node3 = new Router("node3", null, qosMechanism3,creation1, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node1 = new Router("node1", null, qosMechanism1, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node2 = new Router("node2", null, qosMechanism2, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node3 = new Router("node3", null, qosMechanism3, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
@@ -121,7 +118,9 @@ public class QosIntegrationTest {
             }
         });
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node3, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        PacketCreationDelayFunction creation1 = new GaussNormalCreationDelay(0,1,0,1);
+
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node3, creation1, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
         rule.setRoute(Arrays.asList(node1, node2, node3));
 
         simulationManager.addSimulationRule(rule);

@@ -87,8 +87,8 @@ public class SincFunctionCreationDelayTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", null, qosMechanism, null, 10, 10, 50, 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 10, 10, 50, 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism,  10, 10, 50, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -106,7 +106,7 @@ public class SincFunctionCreationDelayTest {
 
         packetManager = new PacketManager(timer);
 
-        simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
+        simulationRuleBean = new SimulationRuleBean("", node1, node2, null, 1, 1, 100, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
     }
 
@@ -116,12 +116,12 @@ public class SincFunctionCreationDelayTest {
      */
     @Test
     public void testCreation_function_length() {
-        TestUtils.setWithoutSetter(NetworkNode.class, node1, "packetCreationDelayFunction", new SincFunctionCreationDelay(10, 10));
+        TestUtils.setWithoutSetter(SimulationRuleBean.class, simulationRuleBean, "packetCreationDelayFunction", new SincFunctionCreationDelay(10, 10));
 
-        double res = node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 11);
+        double res = simulationRuleBean.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 11);
 
-        Assert.assertEquals(res, node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 21));
-        Assert.assertEquals(res, node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 31));
+        Assert.assertEquals(res, simulationRuleBean.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 21));
+        Assert.assertEquals(res, simulationRuleBean.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 31));
     }
 
     @Test
@@ -129,27 +129,27 @@ public class SincFunctionCreationDelayTest {
 
         double maxDelay = 10;
 
-        TestUtils.setWithoutSetter(NetworkNode.class, node1, "packetCreationDelayFunction", new SincFunctionCreationDelay(maxDelay, 10));
+        TestUtils.setWithoutSetter(SimulationRuleBean.class, simulationRuleBean, "packetCreationDelayFunction", new SincFunctionCreationDelay(maxDelay, 10));
 
-        double res = node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 0);
+        double res = simulationRuleBean.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 0);
         Assert.assertEquals(maxDelay, res, 0.0);
     }
 
     @Test
     public void testCreation_non_zero() {
 
-        TestUtils.setWithoutSetter(NetworkNode.class, node1, "packetCreationDelayFunction", new SincFunctionCreationDelay(1, 10));
+        TestUtils.setWithoutSetter(SimulationRuleBean.class, simulationRuleBean, "packetCreationDelayFunction", new SincFunctionCreationDelay(1, 10));
 
-        double res = node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 3);
+        double res = simulationRuleBean.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 3);
         Assert.assertEquals(Math.sin(3) / 3, res, 0.0);
     }
 
     @Test
     public void testCreation_max() {
         double maxValue = 11;
-        TestUtils.setWithoutSetter(NetworkNode.class, node1, "packetCreationDelayFunction", new SincFunctionCreationDelay(maxValue, 10));
+        TestUtils.setWithoutSetter(SimulationRuleBean.class, simulationRuleBean, "packetCreationDelayFunction", new SincFunctionCreationDelay(maxValue, 10));
 
-        double res = node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 3);
+        double res = simulationRuleBean.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 3);
         Assert.assertEquals(Math.sin(3) / 3 * maxValue, res, 0.0);
     }
 }

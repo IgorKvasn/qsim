@@ -87,8 +87,8 @@ public class ConstantNoiseCreationDelayTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", null, qosMechanism, null, 10, 10, 50, 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 10, 10, 50, 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -106,7 +106,7 @@ public class ConstantNoiseCreationDelayTest {
 
         packetManager = new PacketManager(timer);
 
-        simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
+        simulationRuleBean = new SimulationRuleBean("", node1, node2,null, 1, 1, 100, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
     }
 
@@ -114,12 +114,12 @@ public class ConstantNoiseCreationDelayTest {
     public void testCreation_function_length() {
         double maxValue = 18.6;
 
-        TestUtils.setWithoutSetter(NetworkNode.class, node1, "packetCreationDelayFunction", new ConstantNoiseCreationDelay(maxValue, 0));
+        TestUtils.setWithoutSetter(SimulationRuleBean.class, simulationRuleBean, "packetCreationDelayFunction", new ConstantNoiseCreationDelay(maxValue, 0));
 
-        double res = node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 11);
+        double res = simulationRuleBean.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 11);
 
-        Assert.assertEquals(res, node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 21));
-        Assert.assertEquals(res, node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 31));
+        Assert.assertEquals(res, simulationRuleBean.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 21));
+        Assert.assertEquals(res, simulationRuleBean.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, 31));
     }
 
     @Test
@@ -128,10 +128,10 @@ public class ConstantNoiseCreationDelayTest {
         double noise = 1;
 
         double res;
-        TestUtils.setWithoutSetter(NetworkNode.class, node1, "packetCreationDelayFunction", new ConstantNoiseCreationDelay(maxValue, noise));
+        TestUtils.setWithoutSetter(SimulationRuleBean.class, simulationRuleBean, "packetCreationDelayFunction", new ConstantNoiseCreationDelay(maxValue, noise));
 
         for (int i = 0; i < 50; i++) {
-            res = node1.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, i);
+            res = simulationRuleBean.getPacketCreationDelayFunction().calculateDelay(simulationRuleBean, i);
             Assert.assertTrue(res <= maxValue + noise);
             Assert.assertTrue(res >= maxValue - noise);
         }

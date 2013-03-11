@@ -115,9 +115,9 @@ public class TcpCongestionInputQueueTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", null, qosMechanism,null, MAX_TX_SIZE, 10, 10, 1, 0, 100, 0, 0);//notice, that 0 packets should be in processing - all will be placed into input queue
-        node2 = new Router("node2", null, qosMechanism,null, MAX_TX_SIZE, 10, 10, 1, 0, 100, 0, 0);
-        node3 = new Router("node3", null, qosMechanism,null, MAX_TX_SIZE, 10, 10, 1, 0, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, MAX_TX_SIZE, 10, 10, 1, 0, 100, 0, 0);//notice, that 0 packets should be in processing - all will be placed into input queue
+        node2 = new Router("node2", null, qosMechanism, MAX_TX_SIZE, 10, 10, 1, 0, 100, 0, 0);
+        node3 = new Router("node3", null, qosMechanism, MAX_TX_SIZE, 10, 10, 1, 0, 100, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
@@ -224,7 +224,7 @@ public class TcpCongestionInputQueueTest {
 
 
     private void initRoute(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node3, 1, 1, 100, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node3, null, 1, 1, 100, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2, node3));
 
         for (Packet p : packets) {
@@ -243,7 +243,7 @@ public class TcpCongestionInputQueueTest {
 
 
     private void initRoute2(Packet... packets) {
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node3, 1, 1, 100, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node3, null, 1, 1, 100, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2, node3));
 
         for (Packet p : packets) {

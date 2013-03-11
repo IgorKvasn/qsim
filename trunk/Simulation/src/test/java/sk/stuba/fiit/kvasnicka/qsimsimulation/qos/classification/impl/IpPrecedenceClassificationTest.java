@@ -46,7 +46,7 @@ public class IpPrecedenceClassificationTest {
     public void before() {
         classification = new IpPrecedenceClassification();
 
-        node1 = new Router("node1", null, null,null, 100, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
 
         packet = new Packet(14, null, null, 10);
         initRoute(packet);
@@ -73,8 +73,8 @@ public class IpPrecedenceClassificationTest {
     }
 
     private void initRoute(Packet... packets) {
-        NetworkNode node2 = new Router("node2", null, null,null, 100, 10, 50, 10, 10, 100, 0, 0);
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, 1, 1, 100, Layer4TypeEnum.UDP, null, null, 0, 0);
+        NetworkNode node2 = new Router("node2", null, null, 100, 10, 50, 10, 10, 100, 0, 0);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, null,1, 1, 100, Layer4TypeEnum.UDP, null, null, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {

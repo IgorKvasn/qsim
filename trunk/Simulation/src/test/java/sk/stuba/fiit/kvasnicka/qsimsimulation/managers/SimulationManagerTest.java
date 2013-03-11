@@ -40,13 +40,13 @@ public class SimulationManagerTest {
     public void before() {
         simulationManager = new SimulationManager();
 
-        node1 = new Router("node1", null, null,null, 10, 10, 50, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", null, null,null, 10, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
     }
 
     @Test
     public void testPingAdd() {
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 0, 0, 0,  Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, null, 0, 0, 0,  Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
         simulationManager.addSimulationRule(rule);
 
         assertNotNull(simulationManager.getRulesUnmodifiable());

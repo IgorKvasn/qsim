@@ -17,7 +17,6 @@
 
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data;
 
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.PacketCreationDelayFunction;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -37,9 +36,9 @@ public class Router extends NetworkNode {
      * <p/>
      * see NetworkNode javadoc for more explanation
      *
-     * @see NetworkNode#NetworkNode(String, String, sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition, int, int, int, int, int, double, double, double, sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.PacketCreationDelayFunction)
+     * @see NetworkNode#NetworkNode(String, String, sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition, int, int, int, int, int, double, double, double)
      */
-    public Router(String name, String description, QosMechanismDefinition qosMechanism, PacketCreationDelayFunction packetCreationDelayFunction, int maxTxBufferSize, int maxRxBufferSize, int maxOutputQueueSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
-        super(name, description, qosMechanism, maxTxBufferSize, maxRxBufferSize, maxOutputQueueSize, maxIntputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay, packetCreationDelayFunction);
+    public Router(String name, String description, QosMechanismDefinition qosMechanism, int maxTxBufferSize, int maxRxBufferSize, int maxOutputQueueSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
+        super(name, description, qosMechanism, maxTxBufferSize, maxRxBufferSize, maxOutputQueueSize, maxIntputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay);
     }
 }

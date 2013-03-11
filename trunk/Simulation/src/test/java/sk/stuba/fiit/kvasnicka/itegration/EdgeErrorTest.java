@@ -89,10 +89,10 @@ public class EdgeErrorTest {
         }).times(100);
         EasyMock.replay(qosMechanism);
 
-        PacketCreationDelayFunction creation1 = new GaussNormalCreationDelay(0,1,0,1);
 
-        node1 = new Router("node1", null, qosMechanism, creation1, 10, 10, 50, 10, 10, 2.1, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, creation1, 10, 10, 50, 10, 10, 2.1, 0, 0);
+
+        node1 = new Router("node1", null, qosMechanism, 10, 10, 50, 10, 10, 2.1, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 10, 10, 50, 10, 10, 2.1, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
 
@@ -128,7 +128,8 @@ public class EdgeErrorTest {
         SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2), new SimulationLogUtils());
 
         simulationManager = new SimulationManager();
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, 1, 50, 0, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
+        PacketCreationDelayFunction creation1 = new GaussNormalCreationDelay(0,1,0,1);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2,creation1, 1, 50, 0, Layer4TypeEnum.TCP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         simulationManager.addSimulationRule(rule);

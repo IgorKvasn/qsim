@@ -39,10 +39,10 @@ public class Switch extends NetworkNode {
      * <p/>
      * see NetworkNode javadoc for more explanation
      *
-     * @see NetworkNode#NetworkNode(String, String, sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition, int, int, int, int, int, double, double, double, sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.PacketCreationDelayFunction)
+     * @see NetworkNode#NetworkNode(String, String, sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition, int, int, int, int, int, double, double, double)
      */
     public Switch(String name, String description, QosMechanismDefinition qosMechanism, int maxTxBufferSize, int maxRxBufferSize, int maxOutputQueueSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
-        super(name, description, qosMechanism, maxTxBufferSize, maxRxBufferSize, maxIntputQueueSize, maxOutputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay, null);
+        super(name, description, qosMechanism, maxTxBufferSize, maxRxBufferSize, maxIntputQueueSize, maxOutputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay);
     }
 
 
