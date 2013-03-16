@@ -19,7 +19,6 @@ package sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
@@ -39,8 +38,6 @@ public class OutputQueue implements UsageStatistics, Serializable {
     private int maxCapacity;
     private int queueNumber;
 
-    private OutputQueueManager queueManager;
-
     private transient List<Packet> packets;
 
 
@@ -55,11 +52,9 @@ public class OutputQueue implements UsageStatistics, Serializable {
      * creates new QoS queue
      *
      * @param maxCapacity  maximum capacity of this queue; all packets above this capacity will be dropped
-     * @param queueManager output queue manager that owns this queue
      */
-    public OutputQueue(int maxCapacity, OutputQueueManager queueManager, int queueNumber) {
+    public OutputQueue(int maxCapacity, int queueNumber) {
         this.maxCapacity = maxCapacity;
-        this.queueManager = queueManager;
         this.queueNumber = queueNumber;
         this.packets = new LinkedList<Packet>();
     }

@@ -89,9 +89,9 @@ public class PacketDeliveryListenerTest {
 
         creation1 = new GaussNormalCreationDelay(0,1,0,1);
 
-        node1 = new Router("node1", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
-        node3 = new Router("node3", null, qosMechanism, 10, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 10, 10, null, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 10, 10, null, 10, 10, 100, 0, 0);
+        node3 = new Router("node3", null, qosMechanism, 10, 10, null, 10, 10, 100, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
 

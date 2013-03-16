@@ -75,11 +75,11 @@ public class SerialisationTest implements Serializable {
         }}));
 
 
-        NetworkNode testNode1 = new Computer("comp", null, null, 10, 11, 10, 12, 13, 14, 15, 16);
-        NetworkNode testNode2 = new Computer("comp2", null, null, 10, 11, 10, 12, 13, 14, 15, 16);
+        NetworkNode testNode1 = new Computer("comp", null, null, 10, 11, null, 12, 13, 14, 15, 16);
+        NetworkNode testNode2 = new Computer("comp2", null, null, 10, 11, null, 12, 13, 14, 15, 16);
         edge = new Edge(100, 101, 102, 103, testNode1, testNode2);
 
-        node = new Router("node1", null, qosMechanism, 10, 10, 10, 1, 0, 100, 0, 0);
+        node = new Router("node1", null, qosMechanism, 10, 10,null, 1, 0, 100, 0, 0);
 
         topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(testNode1, testNode2));
 

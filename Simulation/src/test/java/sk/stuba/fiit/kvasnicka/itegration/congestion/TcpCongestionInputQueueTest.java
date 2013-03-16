@@ -24,7 +24,6 @@ import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.OutputQueueManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
@@ -69,7 +68,6 @@ public class TcpCongestionInputQueueTest {
     Edge edge1, edge2;
     private final int MAX_TX_SIZE = 0;
     private final int MTU = 100;
-    private OutputQueueManager outputQueueManager1, outputQueueManager2, outputQueueManager3;
     private OutputQueue q2;
 
     @Before
@@ -77,11 +75,6 @@ public class TcpCongestionInputQueueTest {
         simulationTime = 10L;
 
         qosMechanism = EasyMock.createMock(QosMechanismDefinition.class);
-
-
-        outputQueueManager1 = new OutputQueueManager(10);
-        outputQueueManager2 = new OutputQueueManager(10);
-        outputQueueManager3 = new OutputQueueManager(10);
 
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
         EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
@@ -114,10 +107,13 @@ public class TcpCongestionInputQueueTest {
 
         EasyMock.replay(qosMechanism);
 
+        OutputQueue q1 = new OutputQueue(10, 0);
+        OutputQueue q2 = new OutputQueue(10, 0);
+        OutputQueue q3 = new OutputQueue(10, 0);
 
-        node1 = new Router("node1", null, qosMechanism, MAX_TX_SIZE, 10, 10, 1, 0, 100, 0, 0);//notice, that 0 packets should be in processing - all will be placed into input queue
-        node2 = new Router("node2", null, qosMechanism, MAX_TX_SIZE, 10, 10, 1, 0, 100, 0, 0);
-        node3 = new Router("node3", null, qosMechanism, MAX_TX_SIZE, 10, 10, 1, 0, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, MAX_TX_SIZE, 10, Arrays.asList(q1), 1, 0, 100, 0, 0);//notice, that 0 packets should be in processing - all will be placed into input queue
+        node2 = new Router("node2", null, qosMechanism, MAX_TX_SIZE, 10, Arrays.asList(q2), 1, 0, 100, 0, 0);
+        node3 = new Router("node3", null, qosMechanism, MAX_TX_SIZE, 10, Arrays.asList(q3), 1, 0, 100, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
@@ -141,8 +137,8 @@ public class TcpCongestionInputQueueTest {
 
 
     /**
-     * adding packets to output queue - the first packet will be added to TX, but there will be not enough space for the second packet
-     * so it will be added to output queue
+     * adding packets to input queue - the first packet will be added to TX, but there will be not enough space for the second packet
+     * so it will be added to input queue
      */
     @Test
     public void testMoveFromRxToInputQueue_overflow() {

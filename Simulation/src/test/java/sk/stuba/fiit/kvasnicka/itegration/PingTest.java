@@ -89,9 +89,9 @@ public class PingTest {
 
         creation1 = new GaussNormalCreationDelay(0,1,0,1);
 
-        node1 = new Router("node1", null, qosMechanism, 1, 1, 1, 1, 1, 0, 0.5, 0.5);
-        node2 = new Router("node2", null, qosMechanism, 1, 1, 1, 1, 1, 0, 0.5, 0.5);
-        node3 = new Router("node3", null, qosMechanism, 1, 1, 1, 1, 1, 0, 0.5, 0.5);
+        node1 = new Router("node1", null, qosMechanism, 1, 1, null, 1, 1, 0, 0.5, 0.5);
+        node2 = new Router("node2", null, qosMechanism, 1, 1, null, 1, 1, 0, 0.5, 0.5);
+        node3 = new Router("node3", null, qosMechanism, 1, 1, null, 1, 1, 0, 0.5, 0.5);
 
 
         edge1 = new Edge(100000000, 100, 2000, 0, node1, node2);

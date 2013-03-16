@@ -115,9 +115,11 @@ public class NetworkNodeTest {
 
         EasyMock.replay(qosMechanism);
 
+        OutputQueue q0 = new OutputQueue(10, 0);
+        OutputQueue q1 = new OutputQueue(10, 1);
 
-        node1 = new Router("node1", null, qosMechanism, MAX_TX_SIZE, 10, 50, 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, MAX_TX_SIZE, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, MAX_TX_SIZE, 10, Arrays.asList(q0,q1), 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, MAX_TX_SIZE, 10, null, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -212,8 +214,8 @@ public class NetworkNodeTest {
     @Test
     public void testAddToTxBuffer_overflow() throws Exception {
         //redefine nodes, to make maxTxSize smaller number
-        node1 = new Router("node1", null, qosMechanism, 3, 10, 50, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, 0, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 3, 10, null, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 0, 10, null, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -781,8 +783,8 @@ public class NetworkNodeTest {
     @Test
     public void testAddToRxBuffer_overflow_fragments_remove() throws Exception {
         //redefine nodes, to make maxTxSize smaller number
-        node1 = new Router("node1", null, qosMechanism, 3, 1, 50, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, 0, 3, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 3, 1, null, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 0, 3, null, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -831,8 +833,8 @@ public class NetworkNodeTest {
     @Test
     public void testAddToRxBuffer_overflow_fragments_remove_last_fragment_dropped() throws Exception {
 
-        node1 = new Router("node1", null, qosMechanism, 3, 300, 50, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, 0, 300, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 3, 300, null, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 0, 300, null, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);

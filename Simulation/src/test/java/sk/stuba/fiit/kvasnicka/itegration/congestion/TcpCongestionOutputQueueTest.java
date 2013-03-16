@@ -68,7 +68,7 @@ public class TcpCongestionOutputQueueTest {
     private final int MAX_TX_SIZE = 0;
     private final int MTU = 100;
     private static final int MAX_PROCESSING_PACKETS = 3;
-    private OutputQueue q2;
+    private OutputQueue q1,q2,q3;
 
     @Before
     public void before() {
@@ -76,10 +76,9 @@ public class TcpCongestionOutputQueueTest {
 
         qosMechanism = EasyMock.createMock(QosMechanismDefinition.class);
 
-
-        OutputQueueManager outputQueueManager1 = new OutputQueueManager(10);
-        OutputQueueManager outputQueueManager2 = new OutputQueueManager(1);
-        OutputQueueManager outputQueueManager3 = new OutputQueueManager(10);
+        q1 = new OutputQueue(10,0);
+        q2 = new OutputQueue(1,0);
+        q3 = new OutputQueue(10,0);
 
         EasyMock.expect(qosMechanism.classifyAndMarkPacket(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Packet.class))).andReturn(0).times(100);
         EasyMock.expect(qosMechanism.decitePacketsToMoveFromOutputQueue(EasyMock.anyObject(NetworkNode.class), EasyMock.anyObject(Map.class))).andAnswer(new IAnswer<List<Packet>>() {
@@ -111,9 +110,9 @@ public class TcpCongestionOutputQueueTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", null, qosMechanism, MAX_TX_SIZE, 10, 10, 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, MAX_TX_SIZE, 10, 1, 10, 10, 100, 0, 0);
-        node3 = new Router("node3", null, qosMechanism, MAX_TX_SIZE, 10, 10, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, MAX_TX_SIZE, 10, Arrays.asList(q1), 10, MAX_PROCESSING_PACKETS, 100, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, MAX_TX_SIZE, 10, Arrays.asList(q2), 10, 10, 100, 0, 0);
+        node3 = new Router("node3", null, qosMechanism, MAX_TX_SIZE, 10, Arrays.asList(q3), 10, 10, 100, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);

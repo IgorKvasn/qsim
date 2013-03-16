@@ -17,13 +17,13 @@
 
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components;
 
-import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,13 +39,15 @@ public class OutputQueueManager implements Serializable {
     private static final long serialVersionUID = - 2867356876883962827L;
     private HashMap<Integer, OutputQueue> queues; //key=queue number, value = output queue
     private NetworkNode node;
-    @Getter
-    private int maxCapacity;
 
 
-    public OutputQueueManager(int maxCapacity) {
-        this.maxCapacity = maxCapacity;
-        this.queues = new HashMap<Integer, OutputQueue>();
+    public OutputQueueManager(List<OutputQueue> outputQueues) {
+        if (outputQueues==null) outputQueues= Collections.<OutputQueue>emptyList();
+        this.queues = new HashMap<Integer, OutputQueue>(outputQueues.size()*3/4);
+        for (OutputQueue q:outputQueues){
+            queues.put(q.getQueueNumber(),q);
+        }
+
     }
 
 
@@ -156,7 +158,8 @@ public class OutputQueueManager implements Serializable {
 
         //dynamically create new output queue if needed
         if (! queues.containsKey(p.getQosQueue())) {
-            queues.put(p.getQosQueue(), new OutputQueue(maxCapacity, this, p.getQosQueue()));
+            throw new IllegalStateException("output queue not defined for QoS queue: " + p.getQosQueue());
+            //queues.put(p.getQosQueue(), new OutputQueue(maxCapacity, this, p.getQosQueue()));
         }
 
         //retrieve packets in output queue within time this packet arrives
