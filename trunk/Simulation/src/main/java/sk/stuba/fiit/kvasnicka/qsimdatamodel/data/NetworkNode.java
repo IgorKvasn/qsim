@@ -26,6 +26,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.RxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.TxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.InputQueue;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredEvent;
@@ -152,15 +153,15 @@ public abstract class NetworkNode implements Serializable {
      * @param minProcessingDelay   minimum time processing of one packet takes
      * @param maxProcessingDelay   maximum time processing of one packet takes
      */
-    protected NetworkNode(String name, String description, QosMechanismDefinition qosMechanism, int maxTxBufferSize, int maxRxBufferSize, int maxOutputQueueSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
+    protected NetworkNode(String name, String description, QosMechanismDefinition qosMechanism, int maxTxBufferSize, int maxRxBufferSize, List<OutputQueue> outputQueues, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
         this.description = description;
         this.name = name;
-        this.outputQueueManager = new OutputQueueManager(maxOutputQueueSize);
+        this.outputQueueManager = new OutputQueueManager(outputQueues);
         this.qosMechanism = qosMechanism;
         this.maxTxBufferSize = maxTxBufferSize;
         this.maxRxBufferSize = maxRxBufferSize;
         this.maxIntputQueueSize = maxIntputQueueSize;
-        inputQueue = new InputQueue(maxIntputQueueSize, this);
+        inputQueue = new InputQueue(this.maxIntputQueueSize, this);
         this.maxProcessingPackets = maxProcessingPackets;
         this.tcpDelay = tcpDelay;
         this.minProcessingDelay = minProcessingDelay;
@@ -329,7 +330,12 @@ public abstract class NetworkNode implements Serializable {
      * @return
      */
     public int getMaxOutputQueueSize() {
-        return outputQueueManager.getQueueCount() * outputQueueManager.getMaxCapacity();
+        int size = 0;
+        for (OutputQueue q:outputQueueManager.getQueues()){
+            size +=q.getMaxCapacity();
+        }
+
+        return size;
     }
 
     /**

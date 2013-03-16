@@ -46,8 +46,8 @@ public class SimulationFacadeTest {
     public void before() {
         facade = new SimulationFacade();
 
-        node1 = new Router("node1", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
-        node2 = new Router("node2", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        node1 = new Router("node1", null, null, 10, 10, null, 10, 10, 100, 0, 0);
+        node2 = new Router("node2", null, null, 10, 10, null, 10, 10, 100, 0, 0);
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
         initNetworkNode(node2, simulationLogUtils);
@@ -71,7 +71,7 @@ public class SimulationFacadeTest {
     @Test
     public void testGetSimulRulesThatContainsNode_none() {
 
-        NetworkNode node3 = new Router("node3", null, null, 10, 10, 50, 10, 10, 100, 0, 0);
+        NetworkNode node3 = new Router("node3", null, null, 10, 10, null, 10, 10, 100, 0, 0);
         List<SimulationRuleBean> rules = facade.getSimulRulesThatContainsNode(node3);
         assertNotNull(rules);
         assertEquals(0, rules.size());

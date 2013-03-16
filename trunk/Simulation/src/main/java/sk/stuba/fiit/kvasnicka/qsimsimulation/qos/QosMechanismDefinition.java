@@ -64,7 +64,11 @@ public class QosMechanismDefinition implements Serializable {
      * @param activeQueueManagement active queue management mechanism
      */
     public QosMechanismDefinition(ClassDefinition[] classDefinitions, PacketScheduling packetScheduling, PacketClassification packetClassification, ActiveQueueManagement activeQueueManagement) {
-        this.classDefinitions = Arrays.copyOf(classDefinitions, classDefinitions.length);
+        if (classDefinitions == null) {
+            this.classDefinitions = new ClassDefinition[0];
+        } else {
+            this.classDefinitions = Arrays.copyOf(classDefinitions, classDefinitions.length);
+        }
         this.packetScheduling = packetScheduling;
         this.packetClassification = packetClassification;
         this.activeQueueManagement = activeQueueManagement;

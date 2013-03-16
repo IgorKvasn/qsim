@@ -95,9 +95,9 @@ public class IntegrationTest {
         EasyMock.replay(qosMechanism);
 
 
-        node1 = new Router("node1", null, qosMechanism, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
-        node3 = new Router("node3", null, qosMechanism, 10, 10, 50, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 10, 10, null, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 10, 10, null, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node3 = new Router("node3", null, qosMechanism, 10, 10, null, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);

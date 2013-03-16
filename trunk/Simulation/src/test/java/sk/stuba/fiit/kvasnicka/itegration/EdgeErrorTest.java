@@ -91,8 +91,8 @@ public class EdgeErrorTest {
 
 
 
-        node1 = new Router("node1", null, qosMechanism, 10, 10, 50, 10, 10, 2.1, 0, 0);
-        node2 = new Router("node2", null, qosMechanism, 10, 10, 50, 10, 10, 2.1, 0, 0);
+        node1 = new Router("node1", null, qosMechanism, 10, 10, null, 10, 10, 2.1, 0, 0);
+        node2 = new Router("node2", null, qosMechanism, 10, 10, null, 10, 10, 2.1, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
 
