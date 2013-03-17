@@ -90,8 +90,8 @@ public class DialogHandler {
             vertexFactory.decrementNumberOfRouters();
             throw new IllegalStateException("user hit cancel");
         }
-
-        return new Computer(resultObject.getName(), resultObject.getDescription(), resultObject.getQosMechanismDefinition(), resultObject.getMaxTxBufferSize(), resultObject.getMaxRxBufferSize(), resultObject.getMaxOutputQueueSize(), resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay(), resultObject.getMinProcessingDelay(), resultObject.getMaxProcessingDelay());
+       //todo output queues are currently set to null - DO NOT forget to fix that
+        return new Computer(resultObject.getName(), resultObject.getDescription(), resultObject.getQosMechanismDefinition(), resultObject.getMaxTxBufferSize(), resultObject.getMaxRxBufferSize(), null, resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay(), resultObject.getMinProcessingDelay(), resultObject.getMaxProcessingDelay());
     }
 
     /**

@@ -18,10 +18,13 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.panels;
 
 import java.util.Random;
 import lombok.Getter;
+import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpValuesEnum;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.SimulationRuleIterator;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.wizard.dialogs.PacketGenerationRateDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.utils.SimulationData.Data;
 
 /**
@@ -33,6 +36,7 @@ public class PacketSendingPanel extends PanelInterface {
     private static final int MAX_PORT_VALUE = 65536;
     private SimulationRuleIterator iterator;
     private static final Random random = new Random();
+    private PacketGenerationRateDialog packetGenerationRateDialog = new PacketGenerationRateDialog(WindowManager.getDefault().getMainWindow());
 
     /**
      * Creates new form PacketSendingPanel
@@ -105,6 +109,8 @@ public class PacketSendingPanel extends PanelInterface {
             iterator.getStoredData().setDscpValuesEnum((DscpValuesEnum) ((ComboItem) comboDSCP.getSelectedItem()).getValue());
         }
 
+        
+        iterator.getStoredData().setPacketCreationDelayFunction(packetGenerationRateDialog.getUserInput());
         return true;
     }
 
@@ -151,6 +157,8 @@ public class PacketSendingPanel extends PanelInterface {
             comboTos.setSelectedIndex(0);
             comboDSCP.setSelectedIndex(getSelectedIndexDscp(data.getDscpValuesEnum()));
         }
+        
+        packetGenerationRateDialog.setData(data.getPacketCreationDelayFunction());
     }
 
     private int generateRandomPortNumber() {
@@ -261,6 +269,7 @@ public class PacketSendingPanel extends PanelInterface {
         radioDscp = new javax.swing.JRadioButton();
         comboDSCP = new javax.swing.JComboBox();
         comboTos = new javax.swing.JComboBox();
+        jButton1 = new javax.swing.JButton();
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jPanel1.border.title"))); // NOI18N
 
@@ -295,7 +304,7 @@ public class PacketSendingPanel extends PanelInterface {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(radioActiveOnStart)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(spinActive, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jRadioButton1))
@@ -379,6 +388,13 @@ public class PacketSendingPanel extends PanelInterface {
                 .addContainerGap())
         );
 
+        jButton1.setText(org.openide.util.NbBundle.getMessage(PacketSendingPanel.class, "PacketSendingPanel.jButton1.text")); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -408,7 +424,8 @@ public class PacketSendingPanel extends PanelInterface {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 52, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton1))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -442,8 +459,10 @@ public class PacketSendingPanel extends PanelInterface {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(27, Short.MAX_VALUE))
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton1)))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -458,6 +477,10 @@ public class PacketSendingPanel extends PanelInterface {
             spinDestPort.setEnabled(true);
         }
     }//GEN-LAST:event_comboLayer4ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        packetGenerationRateDialog.showDialog();        
+    }//GEN-LAST:event_jButton1ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
@@ -465,6 +488,7 @@ public class PacketSendingPanel extends PanelInterface {
     private javax.swing.JComboBox comboLayer4;
     private javax.swing.JComboBox comboTos;
     private javax.swing.JLabel errorLabel;
+    private javax.swing.JButton jButton1;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

@@ -36,6 +36,7 @@ import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
@@ -81,6 +82,8 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
     private RedQueueManagementDialog redQueueManagementDialog;
     private WredQueueManagementDialog wredQueueManagementDialog;
     private ClassDefinitionDialog classDefinitionDialog;
+    private OutputQueuesConfigDialog outputQueuesConfigDialog;
+    
     private boolean creatingComboboxes; //all comboboxes are listening for changes, what is not good when creating (populating) comboboxes
     private ComboItem selectedPacketClassification; //to temporary store selected classification mechanism
     private ComboItem selectedQueueManag;
@@ -105,6 +108,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
         initQosComboboxes();
         initQosConfigurationButtons();
 
+        outputQueuesConfigDialog = new OutputQueuesConfigDialog(WindowManager.getDefault().getMainWindow());
         selectedPacketClassification = ((ComboItem) comboQosClassif.getItemAt(0));
         selectedQueueManag = ((ComboItem) comboQosQueue.getItemAt(0));
         selectedPacketSched = ((ComboItem) comboQosScheduling.getItemAt(0));
@@ -124,7 +128,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
         spinTcpTimeout.setValue(router.getTcpDelay());
         spinProcessing.setValue(router.getMaxProcessingPackets());
         spinInputQueue.setValue(router.getMaxIntputQueueSize());
-        spinOutputQueue.setValue(router.getOutputQueueManager().getMaxCapacity());
+        outputQueuesConfigDialog.setOutputQueues(router.getOutputQueueManager().getQueues());
         spinTx.setValue(router.getMaxTxBufferSize());
         spinRx.setValue(router.getMaxRxBufferSize());
 
@@ -665,8 +669,8 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
         spinTcpTimeout = new javax.swing.JSpinner();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
         jLabel12 = new javax.swing.JLabel();
-        spinOutputQueue = new javax.swing.JSpinner();
         jPanel5 = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         jLabel13 = new javax.swing.JLabel();
@@ -709,7 +713,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 479, Short.MAX_VALUE)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 520, Short.MAX_VALUE)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel3Layout.createSequentialGroup()
@@ -798,9 +802,9 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
 
         jLabel11.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel11.text")); // NOI18N
 
-        jLabel12.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel12.text")); // NOI18N
+        jButton2.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jButton2.text")); // NOI18N
 
-        spinOutputQueue.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
+        jLabel12.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel12.text")); // NOI18N
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -809,6 +813,11 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel9)
+                        .addGap(30, 30, 30)
+                        .addComponent(spinTcpTimeout, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel3)
@@ -820,20 +829,17 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
                             .addComponent(jLabel12))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(spinInputQueue, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(spinRx, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(spinTx, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(spinProcessing, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(spinOutputQueue, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel10)
-                            .addComponent(jLabel11)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel9)
-                        .addGap(30, 30, 30)
-                        .addComponent(spinTcpTimeout, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jButton2)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(spinInputQueue, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(spinRx, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(spinTx, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(spinProcessing, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel10)
+                                    .addComponent(jLabel11))))))
                 .addContainerGap(52, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -857,17 +863,17 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(spinInputQueue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(11, 11, 11)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(spinOutputQueue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2)
                     .addComponent(jLabel12))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
                     .addComponent(spinTcpTimeout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(13, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jPanel1.TabConstraints.tabTitle"), jPanel1); // NOI18N
@@ -932,7 +938,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
                 .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
-                        .addGap(0, 63, Short.MAX_VALUE)
+                        .addGap(0, 104, Short.MAX_VALUE)
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel6Layout.createSequentialGroup()
                                 .addComponent(comboQosClassif, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1088,12 +1094,12 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
         Double tcptimeout = (Double) spinTcpTimeout.getValue();
         Integer processingPackets = (Integer) spinProcessing.getValue();
         Integer inputQueue = (Integer) spinInputQueue.getValue();
-        Integer outputQueue = (Integer) spinOutputQueue.getValue();
+        List<OutputQueue> outputQueueList = outputQueuesConfigDialog.getUserInput();
         Integer rxSize = (Integer) spinRx.getValue();
         Integer txSize = (Integer) spinTx.getValue();
         try {
             QosMechanismDefinition qosMechanismDefinition = createQosMechanismDefinition();
-            Router resultObject = new Router(txtName.getText(), txtDescription.getText(), qosMechanismDefinition, txSize, rxSize, outputQueue, inputQueue, processingPackets, tcptimeout, minProcessingDelay, maxProcessingDelay);
+            Router resultObject = new Router(txtName.getText(), txtDescription.getText(), qosMechanismDefinition, txSize, rxSize, outputQueueList, inputQueue, processingPackets, tcptimeout, minProcessingDelay, maxProcessingDelay);
             setUserInput(resultObject);
             closeDialog();
         } catch (QosCreationException ex) {
@@ -1246,6 +1252,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
     private javax.swing.JComboBox comboQosQueue;
     private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DisabledItemsComboBox comboQosScheduling;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton8;
     private javax.swing.JLabel jLabel1;
@@ -1272,7 +1279,6 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JLabel lblError;
     private javax.swing.JSpinner spinInputQueue;
-    private javax.swing.JSpinner spinOutputQueue;
     private javax.swing.JSpinner spinProcessing;
     private javax.swing.JSpinner spinProcessingMax;
     private javax.swing.JSpinner spinProcessingMin;

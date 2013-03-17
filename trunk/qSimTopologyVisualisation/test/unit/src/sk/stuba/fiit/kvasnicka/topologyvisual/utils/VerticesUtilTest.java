@@ -23,9 +23,9 @@ public class VerticesUtilTest {
 
     @Before
     public void before() {
-        NetworkNode n1 = new Router("node1", null, null, 0, 0, 0, 0, 0, 0, 0, 0);
-        NetworkNode n2 = new Router("node2", null, null, 0, 0, 0, 0, 0, 0, 0, 0);
-        NetworkNode n3 = new Router("node3", null, null, 0, 0, 0, 0, 0, 0, 0, 0);
+        NetworkNode n1 = new Router("node1", null, null, 0, 0, null, 0, 0, 0, 0, 0);
+        NetworkNode n2 = new Router("node2", null, null, 0, 0, null, 0, 0, 0, 0, 0);
+        NetworkNode n3 = new Router("node3", null, null, 0, 0, null, 0, 0, 0, 0, 0);
 
 
         v1 = new RouterVertex(n1);
