@@ -28,6 +28,7 @@ import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.openide.util.Exceptions;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.PacketCreationDelayFunction;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
@@ -299,6 +300,7 @@ public class SimulationData {
         private int packetSize;
         private int packetCount;
         private int activationDelay;
+        private PacketCreationDelayFunction packetCreationDelayFunction;
 
         private void setId() {
             if (id != null) {

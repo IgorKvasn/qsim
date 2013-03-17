@@ -23,10 +23,10 @@ public class RoutingHelperTest {
 
     @Test
     public void testCreateRouteFromEdgeList_1() {
-        NetworkNode n1 = new Router("node1", null, null, 0, 0, 0, 0, 0, 0, 0, 0);
-        NetworkNode n2 = new Router("node2", null, null, 0, 0, 0, 0, 0, 0, 0, 0);
-        NetworkNode n3 = new Router("node3", null, null, 0, 0, 0, 0, 0, 0, 0, 0);
-        NetworkNode n4 = new Router("node4", null, null, 0, 0, 0, 0, 0, 0, 0, 0);
+        NetworkNode n1 = new Router("node1", null, null, 0, 0, null, 0, 0, 0, 0, 0);
+        NetworkNode n2 = new Router("node2", null, null, 0, 0, null, 0, 0, 0, 0, 0);
+        NetworkNode n3 = new Router("node3", null, null, 0, 0, null, 0, 0, 0, 0, 0);
+        NetworkNode n4 = new Router("node4", null, null, 0, 0, null, 0, 0, 0, 0, 0);
 
         TopologyVertex v1 = new RouterVertex(n1);
         TopologyVertex v2 = new RouterVertex(n2);
@@ -54,10 +54,10 @@ public class RoutingHelperTest {
 
     @Test
     public void testCreateRouteFromEdgeList_2() {
-        NetworkNode n1 = new Router("node1", null, null, 0, 0, 0, 0, 0, 0, 0, 0);
-        NetworkNode n2 = new Router("node2", null, null, 0, 0, 0, 0, 0, 0, 0, 0);
-        NetworkNode n3 = new Router("node3", null, null, 0, 0, 0, 0, 0, 0, 0, 0);
-        NetworkNode n4 = new Router("node4", null, null, 0, 0, 0, 0, 0, 0, 0, 0);
+        NetworkNode n1 = new Router("node1", null, null, 0, 0, null, 0, 0, 0, 0, 0);
+        NetworkNode n2 = new Router("node2", null, null, 0, 0, null, 0, 0, 0, 0, 0);
+        NetworkNode n3 = new Router("node3", null, null, 0, 0, null, 0, 0, 0, 0, 0);
+        NetworkNode n4 = new Router("node4", null, null, 0, 0, null, 0, 0, 0, 0, 0);
 
         TopologyVertex v1 = new RouterVertex(n1);
         TopologyVertex v2 = new RouterVertex(n2);
@@ -85,10 +85,10 @@ public class RoutingHelperTest {
 
     @Test
     public void testCreateVerticesDataModelList() {
-        NetworkNode n1 = new Router("node1", null, null, 0, 0, 0, 0, 0, 0, 0, 0);
-        NetworkNode n2 = new Router("node2", null, null, 0, 0, 0, 0, 0, 0, 0, 0);
-        NetworkNode n3 = new Router("node3", null, null, 0, 0, 0, 0, 0, 0, 0, 0);
-        NetworkNode n4 = new Router("node4", null, null, 0, 0, 0, 0, 0, 0, 0, 0);
+        NetworkNode n1 = new Router("node1", null, null, 0, 0, null, 0, 0, 0, 0, 0);
+        NetworkNode n2 = new Router("node2", null, null, 0, 0, null, 0, 0, 0, 0, 0);
+        NetworkNode n3 = new Router("node3", null, null, 0, 0, null, 0, 0, 0, 0, 0);
+        NetworkNode n4 = new Router("node4", null, null, 0, 0, null, 0, 0, 0, 0, 0);
 
         TopologyVertex v1 = new RouterVertex(n1);
         TopologyVertex v2 = new RouterVertex(n2);
