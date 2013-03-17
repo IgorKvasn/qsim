@@ -17,14 +17,20 @@
 
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils;
 
+import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
+
+import java.io.Serializable;
 
 /**
  * @author Igo
  */
-public abstract class PacketCreationDelayFunction {
+public abstract class PacketCreationDelayFunction implements Serializable {
+    private static final long serialVersionUID = - 8172630266705558036L;
 
+   @Getter
     protected double maxDelay;
+    @Getter
     protected double period;
 
     protected PacketCreationDelayFunction(double maxDelay, double period) {

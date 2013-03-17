@@ -1,5 +1,6 @@
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.creationdelay;
 
+import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.PacketCreationDelayFunction;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
@@ -13,7 +14,9 @@ import java.util.Random;
  * @author Igo
  */
 public class ConstantNoiseCreationDelay extends PacketCreationDelayFunction {
-    private Random rand = new Random();
+    private static final long serialVersionUID = 2063582603195288259L;
+    private transient Random rand = new Random();
+    @Getter
     private double noise;
 
     public ConstantNoiseCreationDelay(double delay, double noise) {

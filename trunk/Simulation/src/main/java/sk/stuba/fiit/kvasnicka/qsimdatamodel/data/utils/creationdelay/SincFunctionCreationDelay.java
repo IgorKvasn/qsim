@@ -31,6 +31,8 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
  */
 public class SincFunctionCreationDelay extends PacketCreationDelayFunction {
 
+    private static final long serialVersionUID = - 2834248177322026522L;
+
     public SincFunctionCreationDelay(double maxDelay, double period) {
         super(maxDelay, period);
     }
