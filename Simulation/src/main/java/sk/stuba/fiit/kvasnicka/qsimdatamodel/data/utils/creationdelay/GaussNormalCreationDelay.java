@@ -17,6 +17,7 @@
 
 package sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.creationdelay;
 
+import lombok.Getter;
 import org.apache.commons.math.distribution.NormalDistribution;
 import org.apache.commons.math.distribution.NormalDistributionImpl;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.PacketCreationDelayFunction;
@@ -26,22 +27,36 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
  * @author Igo
  */
 public class GaussNormalCreationDelay extends PacketCreationDelayFunction {
-    private NormalDistribution distribution;
+    private static final long serialVersionUID = - 8806656614913165161L;
+    private transient NormalDistribution distribution;
+    @Getter
+    private double mean;
+    @Getter
+    private double standardDistribution;
 
     /**
      * recommended values:
      * mean = 0.0
      * standard deviation = 1.0
      */
-    public GaussNormalCreationDelay(double maxDelay, double functionLength, double  mean, double standardDistribution) {
+    public GaussNormalCreationDelay(double maxDelay, double functionLength, double mean, double standardDistribution) {
         super(maxDelay, functionLength);
-        distribution = new NormalDistributionImpl(mean,standardDistribution);
+        this.mean = mean;
+        this.standardDistribution = standardDistribution;
+        distribution = new NormalDistributionImpl(mean, standardDistribution);
+    }
+
+
+    private void readObject(java.io.ObjectInputStream stream) throws java.io.IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+
+        distribution = new NormalDistributionImpl(mean, standardDistribution);
     }
 
 
     @Override
     public double calculateDelay(SimulationRuleBean rule, double simulationTime) {
         double time = simulationTime % period;
-        return distribution.density(time) * maxDelay * Math.sqrt(2*Math.PI); //it must be doubled by sqrt(2*pi), because max value of Gauss's normal distribution is 1/sqrt(2*pi)
+        return distribution.density(time) * maxDelay * Math.sqrt(2 * Math.PI); //it must be doubled by sqrt(2*pi), because max value of Gauss's normal distribution is 1/sqrt(2*pi)
     }
 }
