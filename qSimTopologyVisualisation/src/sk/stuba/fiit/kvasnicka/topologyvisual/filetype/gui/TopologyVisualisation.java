@@ -527,10 +527,10 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             }
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             NetworkNode pasteNode = (NetworkNode) clipboard.getData(ClipboardWrapper.networkNodeFlavor);
-            pasteNode.setName("");
+           
 
             if (pasteNode instanceof Router) {
-                RouterConfigurationDialog dialog = new RouterConfigurationDialog((Router) pasteNode);
+                RouterConfigurationDialog dialog = new RouterConfigurationDialog((Router) pasteNode, true);
                 dialog.showDialog();
                 if (dialog.getUserInput() == null) {//user hit cancel
                     return;

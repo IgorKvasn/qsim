@@ -67,7 +67,7 @@ public class DialogHandler {
      * null if user hit cancel
      */
     public Router showRouterConfigurationDialog(Router router) {
-        BlockingDialog bl = new RouterConfigurationDialog(router);
+        BlockingDialog bl = new RouterConfigurationDialog(router, false);
         bl.showDialog();
         Router resultObject = (Router) bl.getUserInput();
         //user hitting cancel is handled elsewhere

@@ -29,6 +29,7 @@ public class OutputQueuesConfigDialog extends BlockingDialog<List<OutputQueue>> 
         initComponents();
         jTable1.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         tableModel = (DefaultTableModel) jTable1.getModel();
+        setUserInput(createOutputQueues());//default value
     }
 
     private List<OutputQueue> createOutputQueues() {
@@ -283,7 +284,7 @@ public class OutputQueuesConfigDialog extends BlockingDialog<List<OutputQueue>> 
         List<OutputQueue> queues = createOutputQueues();
 
         setUserInput(queues);
-        cancelDialog();
+        this.setVisible(false);
     }//GEN-LAST:event_jButton3ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
@@ -312,7 +313,7 @@ public class OutputQueuesConfigDialog extends BlockingDialog<List<OutputQueue>> 
         while (tableModel.getRowCount() != 0) {
             tableModel.removeRow(0);
         }
-        if (isAllEqual(queues)) {
+        if (!isAllEqual(queues)) {
             jRadioButton2.setSelected(true);
             for (OutputQueue queue : queues) {
                 tableModel.addRow(new Object[]{queue.getQueueNumber(), queue.getMaxCapacity()});
