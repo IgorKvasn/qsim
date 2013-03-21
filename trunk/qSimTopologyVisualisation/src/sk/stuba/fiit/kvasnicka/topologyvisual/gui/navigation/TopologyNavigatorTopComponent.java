@@ -19,9 +19,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -51,9 +54,9 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
 //    dtd = "-//sk.stuba.fiit.kvasnicka.topologyvisual.gui.navigation//TopologyNavigator//EN",
 //autostore = false)
 @TopComponent.Description(
-    preferredID = "TopologyNavigatorTopComponent",
-iconBase = "sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/compass.png",
-persistenceType = TopComponent.PERSISTENCE_NEVER)
+        preferredID = "TopologyNavigatorTopComponent",
+        iconBase = "sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/compass.png",
+        persistenceType = TopComponent.PERSISTENCE_NEVER)
 @TopComponent.Registration(mode = "navigator", openAtStartup = false)
 @ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.gui.navigation.TopologyNavigatorTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
@@ -89,6 +92,20 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
         jTree1.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
         initPopupMenu();
+
+        //disable jtree collapsing
+        jTree1.addTreeWillExpandListener(new TreeWillExpandListener() {
+            @Override
+            public void treeWillExpand(TreeExpansionEvent e) {
+            }
+
+            @Override
+            public void treeWillCollapse(TreeExpansionEvent e)
+                    throws ExpandVetoException {
+                throw new ExpandVetoException(e, "you can't collapse this JTree");
+            }
+        });
+
 
         //attach popup on node
         jTree1.addMouseListener(new MouseAdapter() {
@@ -313,6 +330,7 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
         if (newVertex instanceof SwitchVertex) {
             treeModel.insertNodeInto(new DefaultMutableTreeNode(newVertex), switchNode, 0);
         }
+        expandTree(jTree1);
     }
 
     @Override

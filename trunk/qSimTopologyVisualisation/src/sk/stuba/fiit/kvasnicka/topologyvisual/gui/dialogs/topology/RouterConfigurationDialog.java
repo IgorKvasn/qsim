@@ -83,7 +83,6 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
     private WredQueueManagementDialog wredQueueManagementDialog;
     private ClassDefinitionDialog classDefinitionDialog;
     private OutputQueuesConfigDialog outputQueuesConfigDialog;
-    
     private boolean creatingComboboxes; //all comboboxes are listening for changes, what is not good when creating (populating) comboboxes
     private ComboItem selectedPacketClassification; //to temporary store selected classification mechanism
     private ComboItem selectedQueueManag;
@@ -120,9 +119,9 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
      *
      * @param existingRouter
      */
-    public RouterConfigurationDialog(Router router) {
+    public RouterConfigurationDialog(Router router, boolean copied) {        
         this(router.getName());
-
+              
         spinProcessingMax.setValue(router.getMaxProcessingDelay());
         spinProcessingMin.setValue(router.getMinProcessingDelay());
         spinTcpTimeout.setValue(router.getTcpDelay());
@@ -134,6 +133,11 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
 
         txtName.setText(router.getName());
         txtDescription.setText(router.getDescription());
+        
+          if (copied){
+            setTitle(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.title"));
+            txtName.setText("");
+        }
 
         PacketClassification.Available packetClassifEnum = retirevePacketClassifEnum(router.getQosMechanism().getPacketClassification());
         switch (packetClassifEnum) {
@@ -803,6 +807,11 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
         jLabel11.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel11.text")); // NOI18N
 
         jButton2.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jButton2.text")); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jLabel12.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel12.text")); // NOI18N
 
@@ -1243,6 +1252,10 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         showClassesConfiguration();
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        outputQueuesConfigDialog.showDialog();
+    }//GEN-LAST:event_jButton2ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bntOk;
     private javax.swing.JButton btnConfigClassif;
