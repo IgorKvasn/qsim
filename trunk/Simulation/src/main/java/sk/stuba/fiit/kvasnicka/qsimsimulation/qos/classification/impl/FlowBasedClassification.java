@@ -57,6 +57,8 @@ public class FlowBasedClassification extends PacketClassification {
 
     @Override
     public int classifyAndMarkPacket(NetworkNode networkNode, Packet packet) {
+        if (networkNode==null) throw new IllegalArgumentException("networkNode is NULL");
+        if (networkNode.getOutputQueueManager().getQueueCount()==0) throw new IllegalArgumentException("at least one output queue must be defined");
         if (packet == null) throw new IllegalArgumentException("packet is NULL");
         if (packet.getSimulationRule() == null) throw new IllegalArgumentException("simulation rule is NULL");
 
@@ -66,7 +68,7 @@ public class FlowBasedClassification extends PacketClassification {
             return flows.get(flow);
         }
 
-        int queue = nextQueueNumber;
+        int queue = nextQueueNumber % networkNode.getOutputQueueManager().getQueueCount();
         nextQueueNumber++;
         flows.put(flow, queue);
         return queue;
