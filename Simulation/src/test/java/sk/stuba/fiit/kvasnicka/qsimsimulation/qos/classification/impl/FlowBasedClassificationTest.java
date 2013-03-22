@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
@@ -42,7 +43,10 @@ public class FlowBasedClassificationTest {
     @Before
     public void before() {
         classification = new FlowBasedClassification();
-        node1 = new Router("node1", null, null, 100, 10, null, 10, 10, 100, 0, 0);
+        OutputQueue o1 = new OutputQueue(10, 0);
+        OutputQueue o2 = new OutputQueue(10, 1);
+        OutputQueue o3 = new OutputQueue(10, 2);
+        node1 = new Router("node1", null, null, 100, 10, Arrays.asList(o1, o2, o3), 10, 10, 100, 0, 0);
 
         packet = new Packet(14, null, null, 10);
         initRoute(packet);
@@ -54,7 +58,7 @@ public class FlowBasedClassificationTest {
         Packet packet1 = new Packet(14, null, null, 10);
 
         NetworkNode node2 = new Router("node2", null, null, 100, 10, null, 10, 10, 100, 0, 0);
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, null,1, 1, 100, Layer4TypeEnum.UDP, null, null, 1, 2);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, null, 1, 1, 100, Layer4TypeEnum.UDP, null, null, 1, 2);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
         Field f = null;
@@ -71,7 +75,7 @@ public class FlowBasedClassificationTest {
         Packet packet2 = new Packet(14, null, null, 10);
 
         NetworkNode node3 = new Router("node3", null, null, 100, 10, null, 10, 10, 100, 0, 0);
-        SimulationRuleBean simulationRuleBean2 = new SimulationRuleBean("", node1, node3, null,1, 1, 100, Layer4TypeEnum.UDP, null, null, 1, 2);
+        SimulationRuleBean simulationRuleBean2 = new SimulationRuleBean("", node1, node3, null, 1, 1, 100, Layer4TypeEnum.UDP, null, null, 1, 2);
         simulationRuleBean2.setRoute(Arrays.asList(node1, node3));
 
         Field f2 = null;
@@ -86,7 +90,7 @@ public class FlowBasedClassificationTest {
         }
 
         Packet packet3 = new Packet(14, null, null, 10);
-        SimulationRuleBean simulationRuleBean3 = new SimulationRuleBean("", node2, node1, null,1, 1, 100, Layer4TypeEnum.UDP, null, null, 3, 2);
+        SimulationRuleBean simulationRuleBean3 = new SimulationRuleBean("", node2, node1, null, 1, 1, 100, Layer4TypeEnum.UDP, null, null, 3, 2);
         simulationRuleBean3.setRoute(Arrays.asList(node1, node2));
 
         Field f3 = null;
@@ -113,11 +117,27 @@ public class FlowBasedClassificationTest {
             e.printStackTrace();
         }
 
+        SimulationRuleBean simulationRuleBean5 = new SimulationRuleBean("", node2, node1, null, 1, 1, 100, Layer4TypeEnum.UDP, null, null, 4, 5);
+        simulationRuleBean5.setRoute(Arrays.asList(node1, node2));
+        Packet packet5 = new Packet(14, null, null, 10);
+
+        Field f5 = null;
+        try {
+            f5 = Packet.class.getDeclaredField("simulationRule");
+            f5.setAccessible(true);
+            f5.set(packet5, simulationRuleBean5);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
 
         assertEquals(0, classification.classifyAndMarkPacket(node1, packet));
         assertEquals(1, classification.classifyAndMarkPacket(node1, packet1));
         assertEquals(2, classification.classifyAndMarkPacket(node1, packet2));
         assertEquals(1, classification.classifyAndMarkPacket(node1, packet4));
+        assertEquals(0, classification.classifyAndMarkPacket(node1, packet5));
     }
 
     private void initRoute(Packet... packets) {

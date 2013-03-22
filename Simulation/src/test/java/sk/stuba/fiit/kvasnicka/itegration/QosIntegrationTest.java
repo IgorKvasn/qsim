@@ -22,6 +22,7 @@ import org.junit.Test;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.PacketCreationDelayFunction;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.creationdelay.GaussNormalCreationDelay;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
@@ -88,9 +89,13 @@ public class QosIntegrationTest {
             put(RandomEarlyDetection.MIN_THRESHOLD, .1);
         }}));
 
-        node1 = new Router("node1", null, qosMechanism1, 10, 10, null, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
-        node2 = new Router("node2", null, qosMechanism2, 10, 10, null, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
-        node3 = new Router("node3", null, qosMechanism3, 10, 10, null, 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        OutputQueue o1 = new OutputQueue(10,0);
+        OutputQueue o2 = new OutputQueue(10,0);
+        OutputQueue o3 = new OutputQueue(10,0);
+
+        node1 = new Router("node1", null, qosMechanism1, 10, 10, Arrays.asList(o1), 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node2 = new Router("node2", null, qosMechanism2, 10, 10,  Arrays.asList(o2), 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node3 = new Router("node3", null, qosMechanism3, 10, 10,  Arrays.asList(o3), 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
