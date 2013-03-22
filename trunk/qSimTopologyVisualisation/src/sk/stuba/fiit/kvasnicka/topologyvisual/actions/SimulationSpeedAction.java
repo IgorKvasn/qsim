@@ -7,6 +7,7 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.actions;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.AbstractAction;
@@ -42,7 +43,7 @@ public class SimulationSpeedAction extends AbstractAction implements Presenter.T
     private JButton buttonPlus = new JButton();
     private JButton buttonMinus = new JButton();
     private JLabel lblSpeed = new JLabel();
-    private JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    private JPanel buttonPanel = new JPanel(new GridLayout(1,3));
     private static SimulationSpeedAction INSTANCE;
 
     public SimulationSpeedAction() {

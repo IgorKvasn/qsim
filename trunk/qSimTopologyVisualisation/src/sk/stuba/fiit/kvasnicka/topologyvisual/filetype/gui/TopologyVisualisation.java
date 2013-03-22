@@ -114,16 +114,17 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.utils.VerticesUtil;
  * Top component which displays something.
  */
 @MultiViewElement.Registration(displayName = "#LBL_TopologyCreatorMultiview",
-iconBase = "sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/qsimFileType.png",
-mimeType = "text/qsim",
-persistenceType = TopComponent.PERSISTENCE_NEVER,
-preferredID = "TopologyMultiviewElement",
-position = 2000)
+        iconBase = "sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/qsimFileType.png",
+        mimeType = "text/qsim",
+        persistenceType = TopComponent.PERSISTENCE_NEVER,
+        preferredID = "TopologyMultiviewElement",
+        position = 2000)
 @NbBundle.Messages("LBL_TopologyCreatorMultiview=Topology")
 public final class TopologyVisualisation extends JPanel implements VertexCreatedListener, DocumentListener, MultiViewElement, PaletteSelectionListener, SimulationRuleChangedListener {
 
     private static Logger logg = Logger.getLogger(TopologyVisualisation.class);
     private final double SPEED_UP_INCREMENT = 0.5;
+    private final double SPEED_UP_INCREMENT_BELOW_1 = 0.1;
     private Topology topology;
     private TopologyElementCreatorHelper topologyElementCreator;
     private PaletteActionEnum selectedAction = null;
@@ -527,7 +528,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             }
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             NetworkNode pasteNode = (NetworkNode) clipboard.getData(ClipboardWrapper.networkNodeFlavor);
-           
+
 
             if (pasteNode instanceof Router) {
                 RouterConfigurationDialog dialog = new RouterConfigurationDialog((Router) pasteNode, true);
@@ -1246,7 +1247,16 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         if (simulationFacade == null) {
             throw new IllegalStateException("simulation is not running - this should not happen");
         }
-        simulationFacade.setTimerDelay(simulationFacade.getSimulationSpeed() + SPEED_UP_INCREMENT);
+
+        double incr;
+        if (simulationFacade.getSimulationSpeed() < 1) {
+            incr = SPEED_UP_INCREMENT_BELOW_1;
+        } else {
+            incr = SPEED_UP_INCREMENT;
+        }
+
+
+        simulationFacade.setTimerDelay(simulationFacade.getSimulationSpeed() + incr);
         actionButton.updateSpeed(simulationFacade.getSimulationSpeed());
     }
 
@@ -1259,7 +1269,19 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         if (simulationFacade == null) {
             throw new IllegalStateException("simulation is not running - this should not happen");
         }
-        simulationFacade.setTimerDelay(simulationFacade.getSimulationSpeed() - SPEED_UP_INCREMENT);
+
+        double decr;
+        if (simulationFacade.getSimulationSpeed() <= 1) {
+            decr = SPEED_UP_INCREMENT_BELOW_1;
+        } else {
+            decr = SPEED_UP_INCREMENT;
+        }
+
+        if (simulationFacade.getSimulationSpeed() - decr <= 0) {//speed  cannot be equal or below zero
+            return;
+        }
+
+        simulationFacade.setTimerDelay(simulationFacade.getSimulationSpeed() - decr);
         actionButton.updateSpeed(simulationFacade.getSimulationSpeed());
     }
 }
