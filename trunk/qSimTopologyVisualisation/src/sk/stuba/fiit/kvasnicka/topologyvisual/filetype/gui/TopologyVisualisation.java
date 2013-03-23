@@ -79,11 +79,13 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexC
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.events.vertexcreated.VertexCreatedListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.PopupVertexEdgeMenuMousePlugin;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyElementCreatorHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.ComputerVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.RouterVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.ConfirmDialogPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.deletion.VertexDeletionDialog;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.ComputerConfigurationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.EdgeConfigurationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.RouterConfigurationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.DialogHandler;
@@ -553,22 +555,18 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
             }
 
-            //todo computer paste
             if (pasteNode instanceof Computer) {
-                throw new UnsupportedOperationException("not yet implemented");
-//                 SwitchConfigurationDialog dialog = new SwitchConfigurationDialog((Switch) pasteNode);
-//                dialog.showDialog();
-//                if (dialog.getUserInput() == null) {//user hit cancel
-//                    return;
-//                }
-//                pasteNode = dialog.getUserInput();
-//                topology.addVertex(new ComputerVertex(pasteNode), location);
+                ComputerConfigurationDialog dialog = new ComputerConfigurationDialog((Computer) pasteNode, true);
+                dialog.showDialog();
+                if (dialog.getUserInput() == null) {//user hit cancel
+                    return;
+                }
+                pasteNode = dialog.getUserInput();
+                topology.addVertex(new ComputerVertex(pasteNode), location);
 
             }
 
             //create new TopologyVertex with coordinates of the new vertex
-
-
 
 
         } catch (UnsupportedFlavorException ex) {
@@ -943,10 +941,16 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             }
 
 
-            //todo add switch and computer editing - just like lines above
+            //todo add switch  editing - just like lines above
 
 
         }
+          if (vertex instanceof ComputerVertex) {
+            editedModel = dialogHandler.showComputerConfigurationDialog((Computer) vertex.getDataModel());
+            if (editedModel == null) {//user hit cancel
+                return;
+            }
+          }
         //set edited data model as new
         vertex.setDataModel(editedModel);
     }

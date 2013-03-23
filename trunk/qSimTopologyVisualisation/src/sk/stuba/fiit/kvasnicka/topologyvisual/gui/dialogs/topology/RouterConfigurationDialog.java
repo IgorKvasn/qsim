@@ -87,7 +87,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
     private ComboItem selectedPacketClassification; //to temporary store selected classification mechanism
     private ComboItem selectedQueueManag;
     private ComboItem selectedPacketSched;
-    private final double DEFAULT_TCP_TIMEOUT = 200;//www.6test.edu.cn/~lujx/linux_networking/0131777203_ch24lev1sec5.html
+    public static final double DEFAULT_TCP_TIMEOUT = 200;//www.6test.edu.cn/~lujx/linux_networking/0131777203_ch24lev1sec5.html
 
     /**
      * Creates new form RouterConfigurationDialog
@@ -119,9 +119,9 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
      *
      * @param existingRouter
      */
-    public RouterConfigurationDialog(Router router, boolean copied) {        
+    public RouterConfigurationDialog(Router router, boolean copied) {
         this(router.getName());
-              
+
         spinProcessingMax.setValue(router.getMaxProcessingDelay());
         spinProcessingMin.setValue(router.getMinProcessingDelay());
         spinTcpTimeout.setValue(router.getTcpDelay());
@@ -133,8 +133,8 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
 
         txtName.setText(router.getName());
         txtDescription.setText(router.getDescription());
-        
-          if (copied){
+
+        if (copied) {
             setTitle(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.title"));
             txtName.setText("");
         }
@@ -1311,6 +1311,11 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
             return false;
         }
 
+        if (!NetbeansWindowHelper.getInstance().getActiveTopology().getVertexFactory().isVertexNameUnique(txtName.getName())) {
+            showError("Name must be unique.");
+            return false;
+        }
+
         if ((Double) spinProcessingMin.getValue() > (Double) spinProcessingMax.getValue()) {
             showError("Minimal processing delay must not be greater than maximal proc. delay.");
             return false;
@@ -1324,39 +1329,6 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
     private void showError(String text) {
         lblError.setText(text);
         lblError.setVisible(true);
-    }
-
-    /**
-     * object that stores users input
-     */
-    @Getter
-    public static class ResultObject {
-
-        private String name;
-        private String description;
-        private QosMechanismDefinition qosMechanismDefinition;
-        private int maxTxBufferSize;
-        private int maxIntputQueueSize;
-        private int maxOutputQueueSize;
-        private int maxRxBufferSize;
-        private int maxProcessingPackets;
-        private double tcpDelay;
-        private double minProcessingDelay;
-        private double maxProcessingDelay;
-
-        public ResultObject(String name, String description, QosMechanismDefinition qosMechanismDefinition, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxOutputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
-            this.name = name;
-            this.description = description;
-            this.qosMechanismDefinition = qosMechanismDefinition;
-            this.maxTxBufferSize = maxTxBufferSize;
-            this.maxIntputQueueSize = maxIntputQueueSize;
-            this.maxOutputQueueSize = maxOutputQueueSize;
-            this.maxRxBufferSize = maxRxBufferSize;
-            this.maxProcessingPackets = maxProcessingPackets;
-            this.tcpDelay = tcpDelay;
-            this.minProcessingDelay = minProcessingDelay;
-            this.maxProcessingDelay = maxProcessingDelay;
-        }
     }
 
     private static class ComboItem {
