@@ -77,21 +77,29 @@ public class DialogHandler {
     /**
      * shows dialog with computer configuration
      */
-    public Computer showComputerConfigurationDialog() {
-        if (true) {
-            throw new UnsupportedOperationException("not yet implemented");
-        }
-        logg.debug("showing computer configuration dialog");
+    public Computer showComputerConfigurationDialog() {      
         String computerName = vertexFactory.createComputerName();
         BlockingDialog bl = new ComputerConfigurationDialog(computerName);
         bl.showDialog();
-        ComputerConfigurationDialog.ResultObject resultObject = (ComputerConfigurationDialog.ResultObject) bl.getUserInput();
+        Computer resultObject = (Computer) bl.getUserInput();
         if (resultObject == null) {
             vertexFactory.decrementNumberOfRouters();
             throw new IllegalStateException("user hit cancel");
         }
-       //todo output queues are currently set to null - DO NOT forget to fix that
-        return new Computer(resultObject.getName(), resultObject.getDescription(), resultObject.getQosMechanismDefinition(), resultObject.getMaxTxBufferSize(), resultObject.getMaxRxBufferSize(), null, resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay(), resultObject.getMinProcessingDelay(), resultObject.getMaxProcessingDelay());
+        return resultObject;
+    }
+    
+       /**
+     * shows dialog with computer configuration
+     *
+     * null if user hit cancel
+     */
+    public Computer showComputerConfigurationDialog(Computer computer) {
+        BlockingDialog bl = new ComputerConfigurationDialog(computer, false);
+        bl.showDialog();
+        Computer resultObject = (Computer) bl.getUserInput();
+        //user hitting cancel is handled elsewhere
+        return resultObject;
     }
 
     /**
@@ -111,7 +119,7 @@ public class DialogHandler {
 //            throw new IllegalStateException("user hit cancel");
 //        }
         //Switch sw = new Switch(resultObject.getName(), resultObject.getQosMechanism(), resultObject.getSwQueues(), resultObject.getMaxTxBufferSize(), resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay());
-        //todo finish this
+        //todo showSwitchConfigurationDialog
         throw new UnsupportedOperationException("not yet implemented");
     }
 
