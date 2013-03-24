@@ -221,7 +221,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             }
         }
 
-        //are there any simulation logs to simulate?
+        //are there any simulation rules to simulate?
         if (simulationData.getSimulationData().isEmpty()) {
             JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),
                     NbBundle.getMessage(TopologyVisualisation.class, "no_simulation_rules"),

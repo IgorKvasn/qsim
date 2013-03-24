@@ -19,7 +19,8 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 /**
  *
- * gathers statistical data (SimulRuleStatisticalData object) for all simulation rules
+ * gathers statistical data (SimulRuleStatisticalData object) for all simulation
+ * rules
  *
  * @author Igor Kvasnicka
  */
@@ -30,9 +31,7 @@ public final class SimulRuleStatisticalDataManager implements PingRuleListener, 
     public SimulRuleStatisticalDataManager(List<SimulationRuleBean> rules) {
         dataMap = new HashMap<String, SimulRuleStatisticalData>(rules.size() * 4 / 3);
         for (SimulationRuleBean rule : rules) {
-            if (rule.isPing()) {
-                addData(rule);
-            }
+            addData(rule);
         }
     }
 
