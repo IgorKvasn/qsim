@@ -331,8 +331,8 @@ public abstract class NetworkNode implements Serializable {
      */
     public int getMaxOutputQueueSize() {
         int size = 0;
-        for (OutputQueue q:outputQueueManager.getQueues()){
-            size +=q.getMaxCapacity();
+        for (OutputQueue q : outputQueueManager.getQueues()) {
+            size += q.getMaxCapacity();
         }
 
         return size;
@@ -460,7 +460,13 @@ public abstract class NetworkNode implements Serializable {
             logg.debug("packet has been delivered to destination " + packet.getDestination() + " - it took " + (packet.getSimulationTime() - packet.getCreationTime()) + " msec");
         }
         if (packet.getSimulationRule().isPing()) {
-            simulLog.log(new SimulationLog(LogCategory.INFO, "Ping packet delivered in: " + (packet.getSimulationTime() - packet.getCreationTime()) + " msec", packet.getSimulationRule().getSource().getName(), LogSource.VERTEX, packet.getSimulationTime()));
+            String name;
+            if (packet.getSimulationRule().isPing()) {
+                name = packet.getSimulationRule().getSource().getName();
+            } else {
+                name = packet.getSimulationRule().getDestination().getName();
+            }
+            simulLog.log(new SimulationLog(LogCategory.INFO, "Ping packet delivered in: " + (packet.getSimulationTime() - packet.getCreationTime()) + " msec", name, LogSource.VERTEX, packet.getSimulationTime()));
             packet.getSimulationRule().firePingPacketDeliveredEvent(new PingPacketDeliveredEvent(this, packet));
         } else {
             simulLog.log(new SimulationLog(LogCategory.INFO, "Packet has been delivered", packet.getSimulationRule().getSource().getName(), LogSource.VERTEX, packet.getSimulationTime()));
