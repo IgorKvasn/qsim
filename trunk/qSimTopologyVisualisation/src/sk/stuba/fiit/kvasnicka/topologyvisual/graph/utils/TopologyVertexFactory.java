@@ -226,7 +226,7 @@ public class TopologyVertexFactory implements Factory<TopologyVertex> {
         return v;
     }
 
-    private void addVertexToList(TopologyVertex vertex) {
+    public void addVertexToList(TopologyVertex vertex) {
         if (vertex == null) {
             throw new IllegalArgumentException("vertex is NULL");
         }

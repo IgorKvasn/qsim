@@ -78,6 +78,8 @@ public class SimulationSpeedAction extends AbstractAction implements Presenter.T
                 NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().decreaseSpeedSimulation(SimulationSpeedAction.this);
             }
         });
+        
+        lblSpeed.setEnabled(false);
 
         buttonPanel.add(buttonMinus);
         buttonPanel.add(lblSpeed);

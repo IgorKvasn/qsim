@@ -64,6 +64,7 @@ public class PacketGenerationRateDialog extends BlockingDialog<PacketCreationDel
             spinConstantDelay.setValue(function.getMaxDelay());
             spinConstantVariance.setValue(((ConstantNoiseCreationDelay) function).getNoise());
              setUserInput(createFunction());
+             return;
         }
         if (function instanceof GaussNormalCreationDelay) {
             jRadioButton2.setSelected(true);
@@ -72,12 +73,14 @@ public class PacketGenerationRateDialog extends BlockingDialog<PacketCreationDel
             spinGausMean.setValue(((GaussNormalCreationDelay) function).getMean());
             spinGausSD.setValue(((GaussNormalCreationDelay) function).getStandardDistribution());
              setUserInput(createFunction());
+             return ;
         }
         if (function instanceof SincFunctionCreationDelay) {
             jRadioButton3.setSelected(true);
             enablePeriod(function.getPeriod());
             spinSincDelay.setValue(function.getMaxDelay());
             setUserInput(createFunction());
+            return;
         }
 
         throw new IllegalStateException("unknown packet creation function");

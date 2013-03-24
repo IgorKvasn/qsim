@@ -524,6 +524,8 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
      */
     public void performVertexPaste(Point location) {
         try {
+            TopologyVertex vertex = null;
+            
             if (isClipboardEmpty()) {
                 logg.error("user hits 'Paste', but there is nothing to paste - this should not happen");
                 return;
@@ -539,7 +541,8 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
                     return;
                 }
                 pasteNode = dialog.getUserInput();
-                topology.addVertex(new RouterVertex(pasteNode), location);
+                vertex = new RouterVertex(pasteNode);
+                topology.addVertex(vertex, location);
             }
 
             //todo switch paste
@@ -562,12 +565,13 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
                     return;
                 }
                 pasteNode = dialog.getUserInput();
-                topology.addVertex(new ComputerVertex(pasteNode), location);
+                vertex = new ComputerVertex(pasteNode);
+                topology.addVertex(vertex, location);
 
             }
 
             //create new TopologyVertex with coordinates of the new vertex
-
+            topology.getVertexFactory().addVertexToList(vertex);
 
         } catch (UnsupportedFlavorException ex) {
             throw new IllegalStateException(ex);
@@ -945,12 +949,12 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
 
         }
-          if (vertex instanceof ComputerVertex) {
+        if (vertex instanceof ComputerVertex) {
             editedModel = dialogHandler.showComputerConfigurationDialog((Computer) vertex.getDataModel());
             if (editedModel == null) {//user hit cancel
                 return;
             }
-          }
+        }
         //set edited data model as new
         vertex.setDataModel(editedModel);
     }
