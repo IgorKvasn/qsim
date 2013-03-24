@@ -26,7 +26,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.PacketCreationDelayFunction;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.creationdelay.GaussNormalCreationDelay;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.creationdelay.ConstantNoiseCreationDelay;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
@@ -87,7 +87,7 @@ public class PingTest {
 
         EasyMock.replay(qosMechanism);
 
-        creation1 = new GaussNormalCreationDelay(0,1,0,1);
+        creation1 = new ConstantNoiseCreationDelay(1, 0);
 
         node1 = new Router("node1", null, qosMechanism, 1, 1, null, 1, 1, 0, 0.5, 0.5);
         node2 = new Router("node2", null, qosMechanism, 1, 1, null, 1, 1, 0, 0.5, 0.5);
@@ -105,7 +105,7 @@ public class PingTest {
     @Test
     public void testSinglePacketSimulation() throws NoSuchFieldException, IllegalAccessException {
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, creation1, 2, 50, 0, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, creation1, 2, 50, 0, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
 
         SimulationFacade simulationFacade = new SimulationFacade();
@@ -149,7 +149,7 @@ public class PingTest {
     @Test
     public void testSinglePacket_3Nodes() throws NoSuchFieldException, IllegalAccessException {
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node3, creation1, 1, 50, 0, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node3, creation1, 1, 50, 0, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2, node3));
 
         SimulationFacade simulationFacade = new SimulationFacade();
@@ -177,6 +177,10 @@ public class PingTest {
         timer.actionPerformed(null);
         timer.actionPerformed(null);
         timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
 
 
         assertTrue(timer.isEndOfSimulation());
@@ -192,7 +196,7 @@ public class PingTest {
      */
     @Test
     public void testSinglePacketSimulation_infinitePing() throws Exception {
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, creation1, - 1, 50, 0, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);    //notice this -1
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, creation1, - 1, 50, 0, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);    //notice this -1
         rule.setRoute(Arrays.asList(node1, node2));
 
         SimulationFacade simulationFacade = new SimulationFacade();
@@ -234,7 +238,6 @@ public class PingTest {
         //simulate many timer ticks
         for (int i = 0; i < 125; i++) {
             timerTicks++;
-            System.out.println("--------------- i = " + i);
             timer.actionPerformed(null);
         }
 
@@ -249,7 +252,7 @@ public class PingTest {
      */
     @Test
     public void testSinglePacketSimulation_infinitePing_crc_error() throws Exception {
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, creation1, - 1, 50, 0, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);    //notice this -1
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, creation1, - 1, 50, 0, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);    //notice this -1
         rule.setRoute(Arrays.asList(node1, node2));
 
         setWithoutSetter(Edge.class, edge1, "packetErrorRate", 1.0);

@@ -4,6 +4,8 @@ import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.PacketCreationDelayFunction;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Random;
 
 /**
@@ -22,6 +24,11 @@ public class ConstantNoiseCreationDelay extends PacketCreationDelayFunction {
     public ConstantNoiseCreationDelay(double delay, double noise) {
         super(delay, 1);
         this.noise = noise;
+    }
+
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        ois.defaultReadObject();
+        rand = new Random();
     }
 
     @Override

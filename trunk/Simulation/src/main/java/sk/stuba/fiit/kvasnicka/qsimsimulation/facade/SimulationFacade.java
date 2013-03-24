@@ -21,6 +21,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.pingrule.PingRuleListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ruleactivation.SimulationRuleActivationListener;
@@ -360,6 +361,28 @@ public class SimulationFacade {
         }
         simulationLogUtils.removeSimulationLogListener(l);
     }
+
+    /**
+        * adds listener to be notified when non-ping packet reaches its destination
+        *
+        * @param l
+        */
+       public void addPacketDeliveredListener(PacketDeliveredListener l) {
+           for (SimulationRuleBean rule : getSimulationRules()) {
+               rule.addPacketDeliveredListener(l);
+           }
+       }
+
+       /**
+        * removes listener
+        *
+        * @param l
+        */
+       public void removePacketDeliveredListener(PacketDeliveredListener l) {
+           for (SimulationRuleBean rule : getSimulationRules()) {
+               rule.addPacketDeliveredListener(l);
+           }
+       }
 
     /**
      * adds listener to be notified when ping packet reaches its destination

@@ -56,32 +56,39 @@ public class PacketGenerator {
      * @param timeQuantum    time quantum - this is used when creating new packets to not create all packets at once, but as many as time quantum allows
      */
     public void generatePackets(double simulationTime, double timeQuantum) {
+        boolean createdPacket = false;
+
         for (SimulationRuleBean rule : simulationRules) {
+            createdPacket = false;
             if (rule.isFinished()) continue; //I don't care about finished simulation rules
             if (! rule.isCanCreateNewPacket()) continue; //this rule simply cannot generate new packet
 
             if (rule.isActive()) {//rule has been activated and it is not finished yet
-                addPacketsToNetworkNode(timeQuantum, rule, simulationTime);
+               createdPacket= addPacketsToNetworkNode(timeQuantum, rule, simulationTime);
             } else {//check if the time came to activate this rule
                 if (checkRuleActivate(rule, simulationTime)) {//yes, I should activate it
                     fireSimulationRuleActivatedEvent(new SimulationRuleActivationEvent(this, rule));
                     rule.setActive(true);
-                    addPacketsToNetworkNode(timeQuantum, rule, simulationTime);
+                    createdPacket = addPacketsToNetworkNode(timeQuantum, rule, simulationTime);
                     rule.increaseActivationTime(timeQuantum);
                 }
             }
 
             //new packet has been generated - now it's a good time to decide if other new packets can be created (this is only for ping rules)
-            if (rule.isPing()) {
+            if (rule.isPing() && createdPacket) {
                 rule.setCanCreateNewPacket(false);
             }
         }
     }
 
-
-    private void addPacketsToNetworkNode(double timeQuantum, SimulationRuleBean rule, double simulationTime) {
+    /**
+     * adds and inits new packets
+     * @return true if at least one packet is created
+     */
+    private boolean addPacketsToNetworkNode(double timeQuantum, SimulationRuleBean rule, double simulationTime) {
         List<Packet> packets = generatePacketsFromSimulRule(rule, timeQuantum, simulationTime);
         packetManager.initPackets(rule.getSource(), packets);
+        return !packets.isEmpty();
     }
 
     /**
