@@ -31,11 +31,11 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.TopologyStateEnum;
  *
  * @author Igor Kvasnicka
  */
-@ActionID(category = "Simulation",
-id = "sk.stuba.fiit.kvasnicka.topologyvisual.actions.SimulationSeedAction")
-@ActionRegistration( lazy = false, displayName = "#CTL_SimulationSeedAction")
+@ActionID(category = "SimulationSpeed",
+        id = "sk.stuba.fiit.kvasnicka.topologyvisual.actions.SimulationSeedAction")
+@ActionRegistration(lazy = false, displayName = "#CTL_SimulationSeedAction")
 @ActionReferences({
-    @ActionReference(path = "Toolbars/Simulation", position = 3633)
+    @ActionReference(path = "Toolbars/SimulationSpeed", position = 3633)
 })
 @NbBundle.Messages("CTL_SimulationSeedAction=Speed")
 public class SimulationSpeedAction extends AbstractAction implements Presenter.Toolbar {
@@ -43,27 +43,32 @@ public class SimulationSpeedAction extends AbstractAction implements Presenter.T
     private static Logger logg = Logger.getLogger(RunSimulationAction.class);
     private JButton buttonPlus = new JButton();
     private JButton buttonMinus = new JButton();
-    private JLabel lblSpeed = new JLabel();
-    private JPanel buttonPanel = new JPanel(new GridLayout(1,3));
+    private JLabel lblSpeed = new JLabel("0x");
+    private JPanel buttonPanel = new JPanel(new GridLayout(1, 3));
     private static SimulationSpeedAction INSTANCE;
 
     public SimulationSpeedAction() {
+        buttonPanel.setSize(100, 40);
+        buttonPanel.setPreferredSize(new Dimension(100, buttonPanel.getHeight()));
+        buttonPanel.setMaximumSize(new Dimension(100, buttonPanel.getHeight()));
+        buttonPanel.setOpaque(false);
+
         buttonPlus.setContentAreaFilled(false);
         buttonPlus.setEnabled(false);
+        buttonPlus.setOpaque(false);
         buttonPlus.setIcon(ImageResourceHelper.loadImage("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/plus.png"));
         buttonPlus.setFocusPainted(false);
         buttonPlus.setBorderPainted(false);
-        buttonPlus.setOpaque(true);
         buttonPlus.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 NetbeansWindowHelper.getInstance().getActiveTopologyVisualisation().increaseSpeedSimulation(SimulationSpeedAction.this);
             }
         });
-        
+
         buttonMinus.setContentAreaFilled(false);
         buttonMinus.setFocusPainted(false);
-        buttonMinus.setOpaque(true);
+        buttonMinus.setOpaque(false);
         buttonMinus.setBorderPainted(false);
         buttonMinus.setEnabled(false);
         buttonMinus.setIcon(ImageResourceHelper.loadImage("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/minus.png"));
@@ -77,9 +82,8 @@ public class SimulationSpeedAction extends AbstractAction implements Presenter.T
         buttonPanel.add(buttonMinus);
         buttonPanel.add(lblSpeed);
         buttonPanel.add(buttonPlus);
-        buttonPanel.setSize(100, buttonPanel.getHeight());     
-        buttonPanel.setPreferredSize(new Dimension(100, buttonPanel.getHeight()));     
-        
+
+
 
         INSTANCE = this;
     }
