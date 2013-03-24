@@ -1098,6 +1098,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
         if (!validateInput()) {
             return;
         }
+
         Double maxProcessingDelay = (Double) spinProcessingMax.getValue();
         Double minProcessingDelay = (Double) spinProcessingMin.getValue();
         Double tcptimeout = (Double) spinTcpTimeout.getValue();
@@ -1108,6 +1109,10 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
         Integer txSize = (Integer) spinTx.getValue();
         try {
             QosMechanismDefinition qosMechanismDefinition = createQosMechanismDefinition();
+            if ((qosMechanismDefinition.getPacketScheduling() instanceof FifoScheduling) && outputQueueList.size() != 1) {
+                throw new QosCreationException("There can be only one output queue defined for this packet scheduling algorithm.");
+            }
+
             Router resultObject = new Router(txtName.getText(), txtDescription.getText(), qosMechanismDefinition, txSize, rxSize, outputQueueList, inputQueue, processingPackets, tcptimeout, minProcessingDelay, maxProcessingDelay);
             setUserInput(resultObject);
             closeDialog();

@@ -152,7 +152,7 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
         RowFilter<Object, Object> filter = new RowFilter<Object, Object>() {
             @Override
             public boolean include(RowFilter.Entry entry) {
-                String severity = (String) entry.getValue(0);
+                String severity = (String) entry.getValue(1);
                 return severity.matches(regex);
             }
         };

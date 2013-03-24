@@ -26,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
@@ -89,6 +88,8 @@ public final class SimulationTopComponent extends TopComponent {
         jXTable1.removeColumn(jXTable1.getColumnModel().getColumn(0));
         this.simulationFacade = simulationFacade;
         this.simulationData = simulationData;
+        
+        loadSimulationRules();
     }
 
     /**

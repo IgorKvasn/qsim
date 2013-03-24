@@ -253,6 +253,10 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
             Mode outputMode = WindowManager.getDefault().findMode("myoutput");
             outputMode.dockInto(simulDataTopComponent);
             simulDataTopComponent.open();
+            simulDataTopComponent.requestActive();
+        }else{
+            simulDataTopComponent.requestActive();
+            simulDataTopComponent.requestFocus();
         }
     }
 
