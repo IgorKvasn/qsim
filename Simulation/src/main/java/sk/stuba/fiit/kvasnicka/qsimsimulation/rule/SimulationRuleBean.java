@@ -91,6 +91,9 @@ public class SimulationRuleBean {
     private int srcPort;
     @Getter
     private int destPort;
+    @Setter
+    private double creationTimeSaved = 0;
+
     @Getter
     /**
      * this is a flag that is used mainly (only) for ping - ping simulation rule may be active, but when a packet did not finish its round-trip, no new packet

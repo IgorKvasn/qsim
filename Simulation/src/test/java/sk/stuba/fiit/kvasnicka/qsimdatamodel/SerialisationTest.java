@@ -25,6 +25,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Computer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.BestEffortClassification;
@@ -75,11 +76,14 @@ public class SerialisationTest implements Serializable {
         }}));
 
 
-        NetworkNode testNode1 = new Computer("comp", null, null, 10, 11, null, 12, 13, 14, 15, 16);
-        NetworkNode testNode2 = new Computer("comp2", null, null, 10, 11, null, 12, 13, 14, 15, 16);
+        OutputQueue o1 = new OutputQueue(10,1);
+
+
+        NetworkNode testNode1 = new Computer("comp", null, 10, 11,null , 12, 13, 14, 15, 16);
+        NetworkNode testNode2 = new Computer("comp2", null, 10, 11, null, 12, 13, 14, 15, 16);
         edge = new Edge(100, 101, 102, 103, testNode1, testNode2);
 
-        node = new Router("node1", null, qosMechanism, 10, 10,null, 1, 0, 100, 0, 0);
+        node = new Router("node1", null, qosMechanism, 10, 10,Arrays.asList(o1), 1, 0, 100, 0, 0);
 
         topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(testNode1, testNode2));
 
@@ -140,10 +144,17 @@ public class SerialisationTest implements Serializable {
         assertNotNull(copy.getOutputQueueManager().getNode());
         assertNotNull(copy.getOutputQueueManager().getQueues());
         assertTrue(copy.getOutputQueueManager().getNode().equals(node.getOutputQueueManager().getNode()));
-        assertNotNull(node.getAllOutputQueues());
-        assertNotNull(node.getAllProcessingPackets());
-        assertNotNull(node.getAllRXBuffers());
-        assertNotNull(node.getAllTXBuffers());
+        assertNotNull(copy.getAllOutputQueues());
+        assertNotNull(copy.getAllProcessingPackets());
+        assertNotNull(copy.getAllRXBuffers());
+        assertNotNull(copy.getAllTXBuffers());
+        assertNotNull(copy.getOutputQueueManager());
+        assertNotNull(copy.getOutputQueueManager().getQueues());
+        assertEquals(1,copy.getOutputQueueManager().getQueues().size());
+        OutputQueue oq = copy.getOutputQueueManager().getQueues().iterator().next();
+        assertNotNull(oq);
+        assertEquals(10,oq.getMaxCapacity());
+        assertEquals(1,oq.getQueueNumber());
 
         //there is some problem with edgeList in topology manager - serialisation is OK, but EqualsBuilder seems to be unable to handle it
         //but TopologyManager is tested separately and it is OK

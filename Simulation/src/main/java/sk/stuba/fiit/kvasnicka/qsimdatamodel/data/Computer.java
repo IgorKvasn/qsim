@@ -19,6 +19,10 @@ package sk.stuba.fiit.kvasnicka.qsimdatamodel.data;
 
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.BestEffortClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.BestEffortQueueManagement;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.FifoScheduling;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -38,8 +42,12 @@ public class Computer extends NetworkNode {
      * see NetworkNode javadoc for more explanation
      *
      */
-    public Computer(String name, String description, QosMechanismDefinition qosMechanism, int maxTxBufferSize, int maxRxBufferSize, List<OutputQueue> queues, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
-        super(name, description, qosMechanism, maxTxBufferSize, maxRxBufferSize, queues, maxIntputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay);
+    public Computer(String name, String description, int maxTxBufferSize, int maxRxBufferSize, List<OutputQueue> queues, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
+        super(name, description, createQosDef(), maxTxBufferSize, maxRxBufferSize, queues, maxIntputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay);
+    }
+
+    private static QosMechanismDefinition createQosDef() {
+        return new QosMechanismDefinition(new ClassDefinition[0],new FifoScheduling(),new BestEffortClassification(),new BestEffortQueueManagement());
     }
 
 

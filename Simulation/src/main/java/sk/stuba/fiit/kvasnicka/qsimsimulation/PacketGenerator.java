@@ -108,7 +108,7 @@ public class PacketGenerator {
      */
     private List<Packet> generatePacketsFromSimulRule(SimulationRuleBean rule, double timeQuantum, double simulationTime) {
         List<Packet> packets = new LinkedList<Packet>();
-        double timeSpent = 0;
+        double timeSpent = 0 - rule.getCreationTimeSaved();
         double creationTime = rule.getActivationTime() % timeQuantum;
 
         while (timeSpent <= creationTime && (rule.getNumberOfPackets() > 0 || rule.getNumberOfPackets() == - 1)) {
@@ -128,6 +128,7 @@ public class PacketGenerator {
         if (logg.isDebugEnabled()) {
             logg.debug("Packets created: " + packets.size());
         }
+        rule.setCreationTimeSaved(timeQuantum-timeSpent);
         return packets;
     }
 
