@@ -63,6 +63,7 @@ public final class SimulationTopComponent extends TopComponent {
     private static Logger logg = Logger.getLogger(SimulationTopComponent.class);
     private RowFilter<TableModel, Object> sourceFilter = null;
     private RowFilter<TableModel, Object> destinationFilter = null;
+    private RowFilter<TableModel, Object> nameFilter = null;
     private List<RowFilter<TableModel, Object>> filters = new LinkedList<RowFilter<TableModel, Object>>();
     private RowFilter<TableModel, Object> compoundRowFilter = null;
     private TableRowSorter<TableModel> sorterSimRules;
@@ -115,10 +116,19 @@ public final class SimulationTopComponent extends TopComponent {
 
     private void updateFilter() {
         filters.clear();
+        
+          if (!StringUtils.isEmpty(txtName.getText())) {
+            try {
+                nameFilter = RowFilter.regexFilter(txtName.getText(), 1);
+                filters.add(nameFilter);
+            } catch (java.util.regex.PatternSyntaxException e) {
+                return;
+            }
+        }
 
         if (!StringUtils.isEmpty(txtSource.getText())) {
             try {
-                sourceFilter = RowFilter.regexFilter(txtSource.getText(), 1);
+                sourceFilter = RowFilter.regexFilter(txtSource.getText(), 2);
                 filters.add(sourceFilter);
             } catch (java.util.regex.PatternSyntaxException e) {
                 return;
@@ -127,7 +137,7 @@ public final class SimulationTopComponent extends TopComponent {
 
         if (!StringUtils.isEmpty(txtDest.getText())) {
             try {
-                destinationFilter = RowFilter.regexFilter(txtDest.getText(), 2);
+                destinationFilter = RowFilter.regexFilter(txtDest.getText(), 3);
                 filters.add(destinationFilter);
             } catch (java.util.regex.PatternSyntaxException e) {
                 return;
@@ -156,7 +166,7 @@ public final class SimulationTopComponent extends TopComponent {
 
         //add new simulation rules
         for (Data rule : dataList) {
-            model.addRow(new Object[]{rule.getId(), rule.getSourceVertex().getName(), rule.getDestinationVertex().getName(), rule.isPing()});
+            model.addRow(new Object[]{rule.getId(), rule.getName(), rule.getSourceVertex().getName(), rule.getDestinationVertex().getName(), rule.isPing()});
         }
     }
 
@@ -176,6 +186,8 @@ public final class SimulationTopComponent extends TopComponent {
         txtSource = new javax.swing.JTextField();
         txtDest = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        txtName = new javax.swing.JTextField();
         jScrollPane2 = new javax.swing.JScrollPane();
         jXTable1 = new org.jdesktop.swingx.JXTable();
 
@@ -221,12 +233,24 @@ public final class SimulationTopComponent extends TopComponent {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jLabel2.text")); // NOI18N
 
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jLabel3.text")); // NOI18N
+
+        txtName.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtNameKeyReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(13, Short.MAX_VALUE)
+                .addComponent(jLabel3)
+                .addGap(44, 44, 44)
+                .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(46, 46, 46)
                 .addComponent(jLabel1)
                 .addGap(44, 44, 44)
                 .addComponent(txtSource, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -234,7 +258,7 @@ public final class SimulationTopComponent extends TopComponent {
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtDest, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(141, Short.MAX_VALUE))
+                .addGap(123, 123, 123))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -245,7 +269,9 @@ public final class SimulationTopComponent extends TopComponent {
                         .addComponent(txtDest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel1)
-                        .addComponent(txtSource, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(txtSource, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel3)
+                        .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(0, 12, Short.MAX_VALUE))
         );
 
@@ -254,14 +280,14 @@ public final class SimulationTopComponent extends TopComponent {
 
             },
             new String [] {
-                "ID", "Source", "Destination", "Ping"
+                "ID", "Name", "Source", "Destination", "Ping"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false
+                false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -272,18 +298,20 @@ public final class SimulationTopComponent extends TopComponent {
                 return canEdit [columnIndex];
             }
         });
+        jXTable1.setColumnSelectionAllowed(true);
         jXTable1.setSortable(false);
         jXTable1.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(jXTable1);
         jXTable1.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jXTable1.getColumnModel().getColumn(0).setResizable(false);
         jXTable1.getColumnModel().getColumn(0).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jXTable1.columnModel.title2")); // NOI18N
-        jXTable1.getColumnModel().getColumn(1).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jXTable1.columnModel.title0")); // NOI18N
-        jXTable1.getColumnModel().getColumn(2).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jXTable1.columnModel.title1")); // NOI18N
-        jXTable1.getColumnModel().getColumn(3).setMinWidth(50);
-        jXTable1.getColumnModel().getColumn(3).setPreferredWidth(70);
-        jXTable1.getColumnModel().getColumn(3).setMaxWidth(100);
-        jXTable1.getColumnModel().getColumn(3).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jXTable1.columnModel.title3")); // NOI18N
+        jXTable1.getColumnModel().getColumn(1).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jXTable1.columnModel.title4")); // NOI18N
+        jXTable1.getColumnModel().getColumn(2).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jXTable1.columnModel.title0")); // NOI18N
+        jXTable1.getColumnModel().getColumn(3).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jXTable1.columnModel.title1")); // NOI18N
+        jXTable1.getColumnModel().getColumn(4).setMinWidth(50);
+        jXTable1.getColumnModel().getColumn(4).setPreferredWidth(70);
+        jXTable1.getColumnModel().getColumn(4).setMaxWidth(100);
+        jXTable1.getColumnModel().getColumn(4).setHeaderValue(org.openide.util.NbBundle.getMessage(SimulationTopComponent.class, "SimulationTopComponent.jXTable1.columnModel.title3")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -292,15 +320,15 @@ public final class SimulationTopComponent extends TopComponent {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 643, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnAdd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(167, Short.MAX_VALUE))
+                            .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -361,16 +389,23 @@ public final class SimulationTopComponent extends TopComponent {
     private void txtDestKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtDestKeyReleased
         updateFilter();
     }//GEN-LAST:event_txtDestKeyReleased
+
+    private void txtNameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNameKeyReleased
+          updateFilter();
+    }//GEN-LAST:event_txtNameKeyReleased
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane2;
     private org.jdesktop.swingx.JXTable jXTable1;
     private javax.swing.JTextField txtDest;
+    private javax.swing.JTextField txtName;
     private javax.swing.JTextField txtSource;
     // End of variables declaration//GEN-END:variables
 

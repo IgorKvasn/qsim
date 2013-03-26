@@ -79,7 +79,7 @@ public class VertexDeletionDialog extends javax.swing.JDialog {
         }
 
         for (SimulationData.Data data : dataList) {          
-            tableModel.addRow(new Object[]{data.getSourceVertex().getName(), data.getDestinationVertex().getName(), data.isPing()});
+            tableModel.addRow(new Object[]{data.getName(), data.getSourceVertex().getName(), data.getDestinationVertex().getName(), data.isPing()});
         }
     }
 
@@ -126,14 +126,14 @@ public class VertexDeletionDialog extends javax.swing.JDialog {
 
             },
             new String [] {
-                "Source", "Destination", "Ping"
+                "Name", "Source", "Destination", "Ping"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false
+                false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -146,6 +146,11 @@ public class VertexDeletionDialog extends javax.swing.JDialog {
         });
         jTable1.setColumnSelectionAllowed(true);
         jScrollPane1.setViewportView(jTable1);
+        jTable1.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+        jTable1.getColumnModel().getColumn(0).setHeaderValue(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jTable1.columnModel.title3_1")); // NOI18N
+        jTable1.getColumnModel().getColumn(1).setHeaderValue(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jTable1.columnModel.title0")); // NOI18N
+        jTable1.getColumnModel().getColumn(2).setHeaderValue(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jTable1.columnModel.title1")); // NOI18N
+        jTable1.getColumnModel().getColumn(3).setHeaderValue(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jTable1.columnModel.title2")); // NOI18N
 
         jLabel4.setText(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jLabel4.text")); // NOI18N
 

@@ -47,6 +47,9 @@ public class SimulationDataPanel extends javax.swing.JPanel implements Statistic
 
     private void changeTraceColor() {
         Color newColor = JColorChooser.showDialog(WindowManager.getDefault().getMainWindow(), NbBundle.getMessage(SimulationDataPanel.class, "color_in_chart"), colorPreviewIcon.color);
+        if (newColor == null) {
+            return;
+        }
         colorPreviewIcon.color = newColor;
         statData.getChartTrace().setColor(newColor);
         lblColorPreview.repaint();

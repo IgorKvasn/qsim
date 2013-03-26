@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.pingrule.PingRuleEvent;
@@ -24,7 +26,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
  *
  * @author Igor Kvasnicka
  */
-public final class SimulRuleStatisticalDataManager implements PingRuleListener, SimulationRuleListener, PingPacketDeliveredListener {
+public final class SimulRuleStatisticalDataManager implements PingRuleListener, SimulationRuleListener, PingPacketDeliveredListener, PacketDeliveredListener {
 
     private Map<String, SimulRuleStatisticalData> dataMap;//key=unique ID of simul rule; value = statistical data
 
@@ -95,6 +97,11 @@ public final class SimulRuleStatisticalDataManager implements PingRuleListener, 
 
     @Override
     public void pingPacketDeliveredOccurred(PingPacketDeliveredEvent evt) {
+        packetDelivered(evt.getPacket());
+    }
+
+    @Override
+    public void packetDeliveredOccurred(PacketDeliveredEvent evt) {
         packetDelivered(evt.getPacket());
     }
 }

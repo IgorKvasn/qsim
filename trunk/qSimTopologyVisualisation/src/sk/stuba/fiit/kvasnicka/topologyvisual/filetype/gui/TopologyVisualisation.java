@@ -255,6 +255,8 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             simulationFacade.addPingRuleListener(statManager);
             simulationFacade.addSimulationRuleListener(statManager);
             simulationFacade.addPingPacketDeliveredListener(statManager);
+            simulationFacade.addPacketDeliveredListener(statManager);
+            
 
             //opens all supporting windows for simulation
             openSimulationWindows(statManager, simulationFacade.getSimulationRules());
