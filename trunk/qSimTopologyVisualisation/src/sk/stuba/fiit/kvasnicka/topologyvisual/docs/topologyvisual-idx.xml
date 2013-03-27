@@ -19,5 +19,6 @@ along with qSim.  If not, see &lt;http://www.gnu.org/licenses/>.
 
 <!DOCTYPE index PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Index Version 2.0//EN" "http://java.sun.com/products/javahelp/index_2_0.dtd">
 <index version="2.0">
-    <indexitem text="About qSimTopologyVisualisation" target="sk.stuba.fiit.kvasnicka.topologyvisual.about"/>
+    <indexitem text="About qSim" target="sk.stuba.fiit.kvasnicka.topologyvisual.about"/>
+    <indexitem text="Router" target="sk.stuba.fiit.kvasnicka.topologyvisual.router"/>
 </index>
