@@ -88,6 +88,7 @@
         <file name="RunProject_hidden"/>
         <file name="Source_hidden"/>
         <folder name="Tools">
+            <file name="I18N_hidden"/>
             <file name="JavaPlatformsCustomizerAction.shadow_hidden"/>
             <file name="LibrariesCustomizerAction.shadow_hidden"/>
             <file name="PaletteManager_hidden"/>
@@ -119,8 +120,24 @@
         </folder>
         <file name="org-netbeans-modules-quicksearch-QuickSearchAction.shadow_hidden"/>
     </folder>
-    <folder name="OptionsDialog"/>
-    <folder name="Services"/>
+    <folder name="OptionsDialog">
+        <file name="Advanced.instance_hidden"/>
+        <file name="Editor.instance_hidden"/>
+        <file name="FontsAndColors.instance_hidden"/>
+        <file name="Java.instance_hidden"/>
+        <file name="Java_hidden"/>
+    </folder>
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="git-helpset.xml_hidden"/>
+            <file name="mercurial-helpset.xml_hidden"/>
+            <file name="org-netbeans-modules-db-docs.xml_hidden"/>
+            <file name="org-netbeans-modules-dbschema-docs.xml_hidden"/>
+            <file name="org-netbeans-modules-java-helpset.xml_hidden"/>
+            <file name="org-netbeans-modules-maven-docs.xml_hidden"/>
+            <file name="org-netbeans-modules-subversion-resources-helpset.xml_hidden"/>
+        </folder>
+    </folder>
     <folder name="Templates">
         <file name="AWTForms_hidden"/>
         <file name="Beans_hidden"/>

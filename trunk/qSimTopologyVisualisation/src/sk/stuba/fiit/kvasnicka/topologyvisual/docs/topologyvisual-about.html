@@ -4,15 +4,49 @@ and open the template in the editor.
 -->
 <html>
     <head>
-        <title>About qSimTopologyVisualisation</title>
+        <title>About qSim</title>
         <link rel="stylesheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
-        <h2>About qSimTopologyVisualisation</h2>
-        <p>
-            <!-- TODO describe your module, add more pages... -->
-        </p>
+        <h2>What is qSim?</h2>
+
+        <i>qSim</i> is a QoS simulator that you can use to measure, how different QoS mechanizms work.</br>
+        The simulator is supposed to be as realistic as possible, so here is a list of parameters you can specify during simulation:
+        <ul>
+            <li>link bitrate and length [meters]</li>
+            <li>link reliability</li>
+            <li>simulation of input/output queues</li>
+            <li>simulation of RX/TX buffers</li>
+            <li>size of routers' buffers/queues</li>
+            <li>and many more</li>
+        </ul>
+
+
+
+        <h2>Why qSim?</h2>
+        There are plenty of network simulators out there (NS2, Packet Tracer,...), but you really need to know these programs well, before you can start using them.
+        Sometimes you even need to me your own programs/scripts to start a simple simulation. This is just wrong!
+        </br>
+        qSim was designed to make network simulation easy and fast. And not only that - existing network simulators cannot visualise all the data you need to optimise your network in terms of QoS.
+        There are no charts that can tell you, how packet delay changed, there are no statistical data about buffer usage, etc. So these are the reasons, why was qSim created.
+
+        <h2>Who created qSim?</h2>
+        qSim is developed at 
+        <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+            <param name="content" value="http://www.fiit.sk/">
+            <param name="text" value="Faculty of Informatics and Information Technologies, Slovak University of Technology">
+            <param name="textFontSize" value="medium">
+            <param name="textColor" value="blue"> 
+        </object> in Bratislava, Slovakia by Igor Kvasnička as part of his master's thesis.</br>
+        The official website can be found here: 
+        <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+            <param name="content" value="https://code.google.com/p/qsim/">
+            <param name="text" value="https://code.google.com/p/qsim/">
+            <param name="textFontSize" value="medium">
+            <param name="textColor" value="blue"> 
+        </object>
+
     </body>
 </html>
 <!--
