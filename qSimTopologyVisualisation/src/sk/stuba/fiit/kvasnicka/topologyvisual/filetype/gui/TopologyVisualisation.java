@@ -47,7 +47,6 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.StatusDisplayer;
 import org.openide.awt.UndoRedo;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.Mode;
@@ -256,7 +255,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             simulationFacade.addSimulationRuleListener(statManager);
             simulationFacade.addPingPacketDeliveredListener(statManager);
             simulationFacade.addPacketDeliveredListener(statManager);
-            
+
 
             //opens all supporting windows for simulation
             openSimulationWindows(statManager, simulationFacade.getSimulationRules());
@@ -527,7 +526,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     public void performVertexPaste(Point location) {
         try {
             TopologyVertex vertex = null;
-            
+
             if (isClipboardEmpty()) {
                 logg.error("user hits 'Paste', but there is nothing to paste - this should not happen");
                 return;
@@ -537,7 +536,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
 
             if (pasteNode instanceof Router) {
-                RouterConfigurationDialog dialog = new RouterConfigurationDialog((Router) pasteNode, ((Router) pasteNode).getName(),true);
+                RouterConfigurationDialog dialog = new RouterConfigurationDialog((Router) pasteNode, ((Router) pasteNode).getName(), true);
                 dialog.showDialog();
                 if (dialog.getUserInput() == null) {//user hit cancel
                     return;
@@ -561,7 +560,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             }
 
             if (pasteNode instanceof Computer) {
-                ComputerConfigurationDialog dialog = new ComputerConfigurationDialog((Computer) pasteNode,((Computer) pasteNode).getName(), true);
+                ComputerConfigurationDialog dialog = new ComputerConfigurationDialog((Computer) pasteNode, ((Computer) pasteNode).getName(), true);
                 dialog.showDialog();
                 if (dialog.getUserInput() == null) {//user hit cancel
                     return;
@@ -957,8 +956,19 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
                 return;
             }
         }
-        //set edited data model as new
-        vertex.setDataModel(editedModel);
+        
+        if (editedModel==null) throw new IllegalStateException("edited model is NULL");
+        
+        if (!vertex.getName().equals(editedModel.getName())) {//user changed vertex's name
+            navigatorTopComponent.updateData();
+            vertex.setDataModel(editedModel);
+            topology.deselectVertices();
+            topology.deselectEdges();
+            reloadSimulationRuleData();          
+        } else {
+            vertex.setDataModel(editedModel);
+        }
+        topologyModified();
     }
 
     /**

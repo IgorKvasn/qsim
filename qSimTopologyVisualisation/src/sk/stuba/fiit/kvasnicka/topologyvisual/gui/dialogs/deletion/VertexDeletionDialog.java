@@ -52,6 +52,7 @@ public class VertexDeletionDialog extends javax.swing.JDialog {
         tableModel = (DefaultTableModel) jTable1.getModel();
 
         initAffectedVerticesComboBox();
+        setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
     }
 
     private void initAffectedVerticesComboBox() {
