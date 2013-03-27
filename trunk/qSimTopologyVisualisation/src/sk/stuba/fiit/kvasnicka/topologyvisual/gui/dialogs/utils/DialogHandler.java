@@ -67,7 +67,7 @@ public class DialogHandler {
      * null if user hit cancel
      */
     public Router showRouterConfigurationDialog(Router router) {
-        BlockingDialog bl = new RouterConfigurationDialog(router, false);
+        BlockingDialog bl = new RouterConfigurationDialog(router, router.getName(),false);//todo do the same with computer
         bl.showDialog();
         Router resultObject = (Router) bl.getUserInput();
         //user hitting cancel is handled elsewhere
@@ -95,7 +95,7 @@ public class DialogHandler {
      * null if user hit cancel
      */
     public Computer showComputerConfigurationDialog(Computer computer) {
-        BlockingDialog bl = new ComputerConfigurationDialog(computer, false);
+        BlockingDialog bl = new ComputerConfigurationDialog(computer, computer.getName(), false);
         bl.showDialog();
         Computer resultObject = (Computer) bl.getUserInput();
         //user hitting cancel is handled elsewhere

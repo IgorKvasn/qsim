@@ -76,7 +76,7 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
         }
         //dscp queries
         for (DscpDefinition def : dscpManager.getDefinitions()) {
-            tableModel.addRow(new Object[]{DscpClassification.findDscpValueByQueueNumber(def.getQueueNumber()), def.getQuery()});
+            tableModel.addRow(new Object[]{new ComboItem(def.getQueueNumber(),DscpClassification.findDscpValueByQueueNumber(def.getQueueNumber()).getTextName()), def.getQuery()});
         }
     }
 
@@ -179,7 +179,7 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
 
             },
             new String [] {
-                "Queue #", "DSCP query"
+                "Queue #", "ACL query"
             }
         ) {
             Class[] types = new Class [] {
@@ -269,7 +269,7 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(12, 12, 12)
                                 .addComponent(errLabel)))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

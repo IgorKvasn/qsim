@@ -88,6 +88,8 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
     private ComboItem selectedQueueManag;
     private ComboItem selectedPacketSched;
     public static final double DEFAULT_TCP_TIMEOUT = 200;//www.6test.edu.cn/~lujx/linux_networking/0131777203_ch24lev1sec5.html
+    private String name = null; //workaround for a SwingX bug, when JXTextField does not return getText() value correctly, when set programmatically
+    private String originalName = null;//used when editing
 
     /**
      * Creates new form RouterConfigurationDialog
@@ -101,6 +103,8 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
         ((SpinnerNumberModel) spinProcessingMax.getModel()).setMinimum(DelayHelper.MIN_PROCESSING_DELAY);
         ((SpinnerNumberModel) spinProcessingMax.getModel()).setValue(DelayHelper.MIN_PROCESSING_DELAY);
         txtName.setText(routerName);
+        name = routerName;
+        originalName = null;
         lblError.setVisible(false);
         this.setSize(489, 423);
         this.setMinimumSize(new Dimension(489, 423));
@@ -119,8 +123,16 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
      *
      * @param existingRouter
      */
-    public RouterConfigurationDialog(Router router, boolean copied) {
+    public RouterConfigurationDialog(Router router, String originalName, boolean copied) {
         this(router.getName());
+        
+        if (copied) {
+            setTitle(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.title"));
+            txtName.setText("");
+            this.originalName = null;
+        } else {
+            this.originalName = originalName;
+        }
 
         spinProcessingMax.setValue(router.getMaxProcessingDelay());
         spinProcessingMin.setValue(router.getMinProcessingDelay());
@@ -134,10 +146,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
         txtName.setText(router.getName());
         txtDescription.setText(router.getDescription());
 
-        if (copied) {
-            setTitle(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.title"));
-            txtName.setText("");
-        }
+
 
         PacketClassification.Available packetClassifEnum = retirevePacketClassifEnum(router.getQosMechanism().getPacketClassification());
         switch (packetClassifEnum) {
@@ -1095,6 +1104,10 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
     private void bntOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bntOkActionPerformed
         //OK button
 
+        if ((txtName.getText() != null)) {
+            name = txtName.getText();
+        }
+
         if (!validateInput()) {
             return;
         }
@@ -1113,7 +1126,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
                 throw new QosCreationException("There can be only one output queue defined for this packet scheduling algorithm.");
             }
 
-            Router resultObject = new Router(txtName.getText(), txtDescription.getText(), qosMechanismDefinition, txSize, rxSize, outputQueueList, inputQueue, processingPackets, tcptimeout, minProcessingDelay, maxProcessingDelay);
+            Router resultObject = new Router(name, txtDescription.getText(), qosMechanismDefinition, txSize, rxSize, outputQueueList, inputQueue, processingPackets, tcptimeout, minProcessingDelay, maxProcessingDelay);
             setUserInput(resultObject);
             closeDialog();
         } catch (QosCreationException ex) {
@@ -1310,15 +1323,15 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
     private boolean validateInput() {
         lblError.setVisible(false);
 
-        //todo validate input - router configuration dialog
-        if (StringUtils.isEmpty(txtName.getText())) {//name is required
+        if (StringUtils.isEmpty(name)) {//name is required
             showError("Name is required.");
             return false;
         }
-
-        if (!NetbeansWindowHelper.getInstance().getActiveTopology().getVertexFactory().isVertexNameUnique(txtName.getName())) {
-            showError("Name must be unique.");
-            return false;
+        if (!name.equals(originalName)) {
+            if (!NetbeansWindowHelper.getInstance().getActiveTopology().getVertexFactory().isVertexNameUnique(name)) {
+                showError("Name must be unique.");
+                return false;
+            }
         }
 
         if ((Double) spinProcessingMin.getValue() > (Double) spinProcessingMax.getValue()) {

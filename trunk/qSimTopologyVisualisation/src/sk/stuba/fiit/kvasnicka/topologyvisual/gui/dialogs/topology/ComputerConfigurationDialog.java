@@ -5,19 +5,14 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology;
 
 import java.util.List;
-import javax.swing.JOptionPane;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.netbeans.api.javahelp.Help;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
-import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Computer;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
-import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.BlockingDialog;
 
@@ -29,6 +24,8 @@ public class ComputerConfigurationDialog extends BlockingDialog<Computer> {
 
     private static Logger logg = Logger.getLogger(ComputerConfigurationDialog.class);
     private OutputQueuesConfigDialog outputQueuesConfigDialog;
+    private String name = null; //workaround for a SwingX bug, when JXTextField does not return getText() value correctly, when set programmatically
+    private String originalName = null;//used when editing
 
     /**
      * Creates new form ComputerConfigurationDialog
@@ -43,8 +40,16 @@ public class ComputerConfigurationDialog extends BlockingDialog<Computer> {
         lblError.setVisible(false);
     }
 
-    public ComputerConfigurationDialog(Computer computer, boolean copied) {
+    public ComputerConfigurationDialog(Computer computer, String originalName, boolean copied) {
         this(computer.getName());
+
+        if (copied) {
+            setTitle(org.openide.util.NbBundle.getMessage(ComputerConfigurationDialog.class, "ComputerConfigurationDialog.title"));
+            txtName.setText("");
+            this.originalName = null;
+        } else {
+            this.originalName = originalName;
+        }
 
         spinProcessingMax.setValue(computer.getMaxProcessingDelay());
         spinProcessingMin.setValue(computer.getMinProcessingDelay());
@@ -57,12 +62,6 @@ public class ComputerConfigurationDialog extends BlockingDialog<Computer> {
 
         txtName.setText(computer.getName());
         txtDescription.setText(computer.getDescription());
-
-        if (copied) {
-            setTitle(org.openide.util.NbBundle.getMessage(ComputerConfigurationDialog.class, "ComputerConfigurationDialog.title"));
-            txtName.setText("");
-        }
-
     }
 
     /**
@@ -382,14 +381,15 @@ public class ComputerConfigurationDialog extends BlockingDialog<Computer> {
     private boolean validateInput() {
         lblError.setVisible(false);
 
-        if (StringUtils.isEmpty(txtName.getText())) {//name is required
+        if (StringUtils.isEmpty(name)) {//name is required
             showError("Name is required.");
             return false;
         }
-
-        if (!NetbeansWindowHelper.getInstance().getActiveTopology().getVertexFactory().isVertexNameUnique(txtName.getName())) {
-            showError("Name must be unique.");
-            return false;
+        if (!name.equals(originalName)) {
+            if (!NetbeansWindowHelper.getInstance().getActiveTopology().getVertexFactory().isVertexNameUnique(name)) {
+                showError("Name must be unique.");
+                return false;
+            }
         }
 
         if ((Double) spinProcessingMin.getValue() > (Double) spinProcessingMax.getValue()) {
@@ -408,6 +408,11 @@ public class ComputerConfigurationDialog extends BlockingDialog<Computer> {
     }
 
     private void btnOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOkActionPerformed
+
+        if ((txtName.getText() != null)) {
+            name = txtName.getText();
+        }
+
         if (!validateInput()) {
             return;
         }
@@ -420,7 +425,7 @@ public class ComputerConfigurationDialog extends BlockingDialog<Computer> {
         Integer rxSize = (Integer) spinRx.getValue();
         Integer txSize = (Integer) spinTx.getValue();
 
-        Computer resultObject = new Computer(txtName.getText(), txtDescription.getText(), txSize, rxSize, outputQueueList, inputQueue, processingPackets, tcptimeout, minProcessingDelay, maxProcessingDelay);
+        Computer resultObject = new Computer(name, txtDescription.getText(), txSize, rxSize, outputQueueList, inputQueue, processingPackets, tcptimeout, minProcessingDelay, maxProcessingDelay);
 
         setUserInput(resultObject);
         closeDialog();
