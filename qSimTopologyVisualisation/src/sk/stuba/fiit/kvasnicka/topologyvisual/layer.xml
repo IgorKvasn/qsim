@@ -126,6 +126,9 @@ along with qSim.  If not, see &lt;http://www.gnu.org/licenses/>.
             <file name="sk-stuba-fiit-kvasnicka-topologyvisual-palette-gui-TopologyMultiviewElement.shadow_hidden"/>
         </folder>
     </folder>
+    <folder name="OptionsDialog">
+        <file name="Editor_hidden"/>
+    </folder>
     <folder name="Services">
         <folder name="MIMEResolver">
          
