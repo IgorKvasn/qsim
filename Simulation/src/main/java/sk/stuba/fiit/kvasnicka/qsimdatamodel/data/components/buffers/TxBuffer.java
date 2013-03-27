@@ -27,6 +27,9 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.QueueingHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,11 +37,12 @@ import java.util.List;
 /**
  * @author Igor Kvasnicka
  */
-public class TxBuffer implements UsageStatistics {
+public class TxBuffer implements UsageStatistics, Serializable {
 
     private static final Logger logg = Logger.getLogger(TxBuffer.class);
+    private static final long serialVersionUID = 1758488306110030406L;
 
-    private List<Fragment> fragments = new LinkedList<Fragment>();
+    private transient List<Fragment> fragments = new LinkedList<Fragment>();
     /**
      * determines when packet serialisation is done and next packet is ready to be serialised
      */
@@ -64,6 +68,11 @@ public class TxBuffer implements UsageStatistics {
         this.networknodeNextHop = networknodeNextHop;
         edge = topologyManager.findEdge(currentNode.getName(), networknodeNextHop.getName());
         name = currentNode.getName() + ": TX buffer - " + networknodeNextHop.getName();
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        fragments = new LinkedList<Fragment>();
     }
 
     public void addFragment(Fragment packet) {
@@ -98,7 +107,7 @@ public class TxBuffer implements UsageStatistics {
 
             if (fragment.getReceivedTime() > simulationTime) {//this fragment is not ready to serialise, yet
                 if (logg.isDebugEnabled()) {
-                   logg.debug("this fragment is not ready to serialise: " + fragment.getReceivedTime() + " " + simulationTime);
+                    logg.debug("this fragment is not ready to serialise: " + fragment.getReceivedTime() + " " + simulationTime);
                 }
                 continue;
             }

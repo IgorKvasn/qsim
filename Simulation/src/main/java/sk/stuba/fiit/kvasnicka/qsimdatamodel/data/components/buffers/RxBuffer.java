@@ -27,13 +27,17 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.PacketCrcErrorException
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Fragment;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author Igor Kvasnicka
  */
-public class RxBuffer implements UsageStatistics {
+public class RxBuffer implements UsageStatistics, Serializable {
+    private static final long serialVersionUID = - 5143512384596564892L;
     private static Logger logg = Logger.getLogger(RxBuffer.class);
 
     /**
@@ -60,6 +64,11 @@ public class RxBuffer implements UsageStatistics {
         this.edge = edge;
         fragmentMap = new HashMap<String, Integer>();
         name = currentNode.getName() + ": RX buffer - " + edge.findOppositeNetworkNode(currentNode).getName();
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        fragmentMap = new HashMap<String, Integer>();
     }
 
     /**
