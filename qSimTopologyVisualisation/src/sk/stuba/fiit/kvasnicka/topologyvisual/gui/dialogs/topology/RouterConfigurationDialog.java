@@ -1098,7 +1098,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         Help help = Lookup.getDefault().lookup(Help.class);
-        help.showHelp(new HelpCtx("ahoj"));//todo router configuration - help
+        help.showHelp(new HelpCtx("sk.stuba.fiit.kvasnicka.topologyvisual.router"));
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void bntOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bntOkActionPerformed
