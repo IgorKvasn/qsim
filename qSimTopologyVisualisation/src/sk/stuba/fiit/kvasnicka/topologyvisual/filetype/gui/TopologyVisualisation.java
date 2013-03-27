@@ -537,7 +537,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
 
             if (pasteNode instanceof Router) {
-                RouterConfigurationDialog dialog = new RouterConfigurationDialog((Router) pasteNode, true);
+                RouterConfigurationDialog dialog = new RouterConfigurationDialog((Router) pasteNode, ((Router) pasteNode).getName(),true);
                 dialog.showDialog();
                 if (dialog.getUserInput() == null) {//user hit cancel
                     return;
@@ -561,7 +561,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             }
 
             if (pasteNode instanceof Computer) {
-                ComputerConfigurationDialog dialog = new ComputerConfigurationDialog((Computer) pasteNode, true);
+                ComputerConfigurationDialog dialog = new ComputerConfigurationDialog((Computer) pasteNode,((Computer) pasteNode).getName(), true);
                 dialog.showDialog();
                 if (dialog.getUserInput() == null) {//user hit cancel
                     return;
