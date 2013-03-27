@@ -51,6 +51,7 @@ public class EdgeDeletionDialog extends javax.swing.JDialog {
 
         tableModel = (DefaultTableModel) jTable1.getModel();
         initTable();
+        setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
     }
 
     /**

@@ -46,6 +46,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.RouterVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.SwitchVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageResourceHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType;
+import static sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType.TOPOLOGY_VERTEX_COMPUTER;
 
 /**
  * Top component which displays something.
@@ -405,6 +407,13 @@ public final class TopologyNavigatorTopComponent extends TopComponent implements
 
     void readProperties(java.util.Properties p) {
         String version = p.getProperty("version");
+    }
+
+    /**
+     * some data have been changed - I need to refresh JTree
+     */
+    public void updateData() {
+        jTree1.repaint();
     }
 
     class CustomIconRenderer extends DefaultTreeCellRenderer {

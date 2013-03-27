@@ -19,6 +19,7 @@ package sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices;
 import edu.uci.ics.jung.visualization.LayeredIcon;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.UUID;
 import javax.swing.Icon;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -52,6 +53,7 @@ public abstract class TopologyVertex implements Serializable {
     protected String description = "NA";
     protected String name;
     protected NetworkNode networkNode;
+    private String id;
 
     /**
      * creates new instance
@@ -66,6 +68,7 @@ public abstract class TopologyVertex implements Serializable {
         if (icon == null) {
             throw new IllegalStateException("icon not loaded");
         }
+        id = UUID.randomUUID().toString();
     }
 
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -130,6 +133,8 @@ public abstract class TopologyVertex implements Serializable {
             return;
         }
         this.networkNode = networkNode;
+        this.name = networkNode.getName();
+        this.description = networkNode.getDescription();
     }
 
     /**
@@ -151,6 +156,14 @@ public abstract class TopologyVertex implements Serializable {
     }
 
     @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 67 * hash + (this.imageType != null ? this.imageType.hashCode() : 0);
+        hash = 67 * hash + (this.id != null ? this.id.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == null) {
             return false;
@@ -159,11 +172,12 @@ public abstract class TopologyVertex implements Serializable {
             return false;
         }
         final TopologyVertex other = (TopologyVertex) obj;
-        return other.getName().equals(getName());
-    }
-
-    @Override
-    public int hashCode() {
-        return getName().hashCode();
+        if (this.imageType != other.imageType) {
+            return false;
+        }
+        if ((this.id == null) ? (other.id != null) : !this.id.equals(other.id)) {
+            return false;
+        }
+        return true;
     }
 }
