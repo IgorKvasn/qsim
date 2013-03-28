@@ -136,6 +136,7 @@
             <file name="org-netbeans-modules-java-helpset.xml_hidden"/>
             <file name="org-netbeans-modules-maven-docs.xml_hidden"/>
             <file name="org-netbeans-modules-subversion-resources-helpset.xml_hidden"/>
+            <file name="org-netbeans-modules-usersguide-helpset.xml_hidden"/>
         </folder>
     </folder>
     <folder name="Templates">

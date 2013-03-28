@@ -301,7 +301,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
         comboQosClassif.addItem(new ComboItem(PacketClassification.Available.BEST_EFFORT, "Best effort"));
         comboQosClassif.addItem(new ComboItem(PacketClassification.Available.DSCP, "DSCP"));
         comboQosClassif.addItem(new ComboItem(PacketClassification.Available.FLOW_BASED, "Flow based"));
-        comboQosClassif.addItem(new ComboItem(PacketClassification.Available.IP_PRECEDENCE, "IP precedence"));
+        comboQosClassif.addItem(new ComboItem(PacketClassification.Available.IP_PRECEDENCE, "Type of service"));
         comboQosClassif.addItem(new ComboItem(PacketClassification.Available.NONE, "Use previous"));
 
         comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.FIFO, "FIFO"));//0

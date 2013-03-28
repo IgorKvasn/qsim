@@ -1,0 +1,69 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Simulation rule</title>
+        <link rel="stylesheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <h1>Simulation rule</h1>
+        <h2>What is it <i>simulation rule</i></h2>
+        <i>Simulation rule</i> determines data flow that is sent from source to destination vertex.<br/>
+        Here is a list of parameters to configure:
+        <ul>
+            <li>name - to make it recognisable by user</li>
+            <li>source and destination vertices</li>            
+            <li>routing - more <a href="#routing">here</a></li>
+            <li>number of packets</li>
+            <li>size of each packet (all packets within the same simulation rule have the same size)</li>
+            <li>source and destination ports</li>
+            <li>activation time - time when will the simulation rule become active</li>
+            <li>protocol used (TCP, UDP or ICMP)</li>
+            <li>QoS classification - IP ToS or DSCP value</li>
+            <li>packet generation delay - more <a href="#generation_delay">here</a></li>
+        </ul>
+        <a name="routing"><h2>How to define routing</h2></a>
+        Routing can be defined within simulation rule wizard. It is possible to defined <i>fixed points</i> - route MUST go through these vertices.
+        There are two options of routing: distance vector or link state routing. These options may help and ease creation of routes.
+        <br/>
+        Calculated route is displayed on the topology with blue lines.
+        <br/>
+        <b>Note:</b> after the simulation rule is created (with a routing configured) and user deletes a vertex that is part of the route, 
+        new route will be automatically calculated, but there is no guarantee, the route will exist. In this case, simulation cannot start.
+
+        <a name="generation_delay"><h2>What is packet generation delay</h2></a>
+        It is possible to configure packet creation delay, so packets will be generated with variable delays. This way, it is possible
+        to simulate realistic packet traffic, when packet spawn at "random" rate.
+        qSim supports 3 packet generation delay functions:
+        <ol>
+            <li>constant rate with variable "noise" - constant delay with random variations</li>           
+            <li>Normal distribution</li>
+            <li>Psi function</li>
+        </ol>
+        Each of these functions can be repeated within time.</br>
+        The function itself determines, "how long will the new packet will take to create" - this way it is possible to indirectly determine delay between packets.
+        <h2>How to create a <i>simulation rule</i></h2>
+        <ol>
+            <li>in upper toolbar select button with wheel symbol <img src="images/settings_16.png"/></li>
+            <li>panel on the bottom will open</li>
+            <li>click "Add" button</li>
+            <li>proceed the wizard where the simulation rule can be configured</li>
+        </ol>
+
+    </body>
+</html>
+<!--
+Tip: to create a link which will open in an external web browser, try:
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+    <param name="content" value="http://www.netbeans.org/">
+    <param name="text" value="<html><u>http://www.netbeans.org/</u></html>">
+    <param name="textFontSize" value="medium">
+    <param name="textColor" value="blue">
+</object>
+To create a link to a help set from another module, you need to know the code name base and path, e.g.:
+<a href="nbdocs://org.netbeans.modules.usersguide/org/netbeans/modules/usersguide/configure/configure_options.html">Using the Options Window</a>
+(This link will behave sanely if that module is disabled or missing.)
+-->

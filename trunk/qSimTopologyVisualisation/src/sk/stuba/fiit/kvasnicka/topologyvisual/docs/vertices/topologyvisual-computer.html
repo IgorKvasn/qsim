@@ -4,24 +4,23 @@ and open the template in the editor.
 -->
 <html>
     <head>
-        <title>Router</title>
+        <title>Computer</title>
         <link rel="stylesheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
-        <h1>Router</h1>
+        <h1>Computer</h1>
 
-        <h2>How to create <i>router</i></h2>
+        <h2>How to create <i>computer</i></h2>
         <ol>
             <li>select <i>Palette</i></li>
-            <li>choose <i>Router</i></li>
-            <li>click anywhere on the topology - here will be the new router placed</li>
-            <li>configure your router</li>
+            <li>choose <i>Computer</i></li>
+            <li>click anywhere on the topology - here will be the new computer placed</li>
+            <li>configure your computer</li>
             <li>press OK button</li>
         </ol>
 
-        <h2>Router configuration</h2>
-        <h3>Hardware</h3>
+        <h2>Computer hardware configuration</h2>
         <ul>
             <li>maximum number of packets that can be processed in paralel</li>
             <li>TX and RX buffers' size (number of fragments)</li>
@@ -29,35 +28,7 @@ and open the template in the editor.
             <li>output queue count and size (number of packets)</li>
             <li>packet processing delay (depends on currenct number of processing packets - more packets are being processed, longer the delay)</li>
             <li>TCP retransmission delay - number of msecs, before supposedly lost packet will be retransmitted</li>
-        </ul>
-        <h3>Quality of service</h3>
-
-        <h4>Classification</h4>
-        <ol>
-            <li>Best effort</li>
-            <li>DSCP</li>    
-            <li>Flow based</li>    
-            <li>Type of service</li>    
-            <li>Use previous</li>    
-        </ol>
-        <h4>Active queue management</h4>
-        <ol>
-            <li>Random early detection (RED)</li>
-            <li>Weighted RED</li>      
-        </ol>
-        <h4>Packet scheduling</h4>
-        <ol>
-            <li>Fair queueing (FIFO)</li>
-            <li>Priority queueing</li>
-            <li>Round robin</li>
-            <li>Weighted round robin</li>
-            <li>Weighted fair queueing (WFQ)</li>
-            <li>Class based WFQ</li>
-        </ol>
-
-        <p>
-            Some QoS mechanisms need to be configured. This can be done by clicking on appropriate <i>Configure</i> button.
-        </p>
+        </ul>       
     </body>
 </html>
 <!--

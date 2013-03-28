@@ -1,0 +1,48 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Statistics</title>
+        <link rel="stylesheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <h1>Statistics</h1>
+
+        <h2>Vertex statistics</h2>
+        Vertex statistics allows you to view load on selected vertices (routers, switches or computers).</br>
+        Following statistical data can be observed:
+        <ul>
+            <li>RX and TX - overall or per interface</li>
+            <li>input queues</li>
+            <li>output queues - overall or per queue</li>
+            <li>number of packets currently in processing</li>
+        </ul>
+        Each of these items can be observed in textual form in table or drawn onto chart.<br/>
+        All values are updated automatically in real-time.
+        <h3>How to select vertex statistics</h3>
+        Vertex statistics can be opened by clicking on upper toolbar's "chart" icon <img src="images/statistics.png"/>. Panel in bottom will be opened.
+        <h2>Simulation rule statistics</h2>
+        Simulation rule statistics can visualise packet delay variation throughout the time. Minimum, maximum and average packet delay is calculated, 
+        together with chart showing packet delay history.
+        Statistical data are updated automatically, when new packet is delivered to its final destination. For ICMP packets (ping), their <i>final destination</i>
+        is the source that created these packets.
+        <h3>How to select simulation rule statistics</h3>
+        Basic simulation rule statistics are shown on upper left side, after simulation is started. It is possible to display detail statistics about 
+        each simulation rule by clicking on button "Show stats". This will open a panel on the bottom with all statistical data.
+    </body>
+</html>
+<!--
+Tip: to create a link which will open in an external web browser, try:
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+    <param name="content" value="http://www.netbeans.org/">
+    <param name="text" value="<html><u>http://www.netbeans.org/</u></html>">
+    <param name="textFontSize" value="medium">
+    <param name="textColor" value="blue">
+</object>
+To create a link to a help set from another module, you need to know the code name base and path, e.g.:
+<a href="nbdocs://org.netbeans.modules.usersguide/org/netbeans/modules/usersguide/configure/configure_options.html">Using the Options Window</a>
+(This link will behave sanely if that module is disabled or missing.)
+-->

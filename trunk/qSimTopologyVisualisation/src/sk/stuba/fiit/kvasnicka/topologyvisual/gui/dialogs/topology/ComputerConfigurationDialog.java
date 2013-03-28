@@ -442,7 +442,7 @@ public class ComputerConfigurationDialog extends BlockingDialog<Computer> {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         Help help = Lookup.getDefault().lookup(Help.class);
-        help.showHelp(new HelpCtx("ahoj"));//todo computer configuration - help
+        help.showHelp(new HelpCtx("sk.stuba.fiit.kvasnicka.topologyvisual.computer"));
     }//GEN-LAST:event_jButton3ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnOk;

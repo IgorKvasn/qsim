@@ -22,7 +22,11 @@ along with qSim.  If not, see &lt;http://www.gnu.org/licenses/>.
     <tocitem text="qSim">
         <tocitem text="Vertices">
             <tocitem text="Router" target="sk.stuba.fiit.kvasnicka.topologyvisual.router"/>
+            <tocitem text="Computer" target="sk.stuba.fiit.kvasnicka.topologyvisual.computer"/>
         </tocitem>
+        <tocitem text="Edge" target="sk.stuba.fiit.kvasnicka.topologyvisual.edge"/>
+        <tocitem text="Simulation rule" target="sk.stuba.fiit.kvasnicka.topologyvisual.simulrule"/> 
+        <tocitem text="Statistics" target="sk.stuba.fiit.kvasnicka.topologyvisual.stats"/> 
         <tocitem text="About qSim" target="sk.stuba.fiit.kvasnicka.topologyvisual.about"/>        
     </tocitem>
 </toc>

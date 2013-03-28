@@ -21,4 +21,8 @@ along with qSim.  If not, see &lt;http://www.gnu.org/licenses/>.
 <index version="2.0">
     <indexitem text="About qSim" target="sk.stuba.fiit.kvasnicka.topologyvisual.about"/>
     <indexitem text="Router" target="sk.stuba.fiit.kvasnicka.topologyvisual.router"/>
+    <indexitem text="Computer" target="sk.stuba.fiit.kvasnicka.topologyvisual.computer"/>
+    <indexitem text="Edge" target="sk.stuba.fiit.kvasnicka.topologyvisual.edge"/>   
+    <indexitem text="Simulation rule" target="sk.stuba.fiit.kvasnicka.topologyvisual.simulrule"/>
+    <indexitem text="Statistics" target="sk.stuba.fiit.kvasnicka.topologyvisual.stats"/>
 </index>
