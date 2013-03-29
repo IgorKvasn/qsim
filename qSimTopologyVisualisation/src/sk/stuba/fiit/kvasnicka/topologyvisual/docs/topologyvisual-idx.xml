@@ -26,4 +26,5 @@ along with qSim.  If not, see &lt;http://www.gnu.org/licenses/>.
     <indexitem text="Simulation rule" target="sk.stuba.fiit.kvasnicka.topologyvisual.simulrule"/>
     <indexitem text="Statistics" target="sk.stuba.fiit.kvasnicka.topologyvisual.stats"/>
     <indexitem text="Controls" target="sk.stuba.fiit.kvasnicka.topologyvisual.controls"/>
+    <indexitem text="ACL" target="sk.stuba.fiit.kvasnicka.topologyvisual.acl"/>
 </index>
