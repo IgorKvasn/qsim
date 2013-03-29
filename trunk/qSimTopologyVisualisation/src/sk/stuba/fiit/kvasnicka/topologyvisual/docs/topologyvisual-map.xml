@@ -25,4 +25,5 @@ along with qSim.  If not, see &lt;http://www.gnu.org/licenses/>.
     <mapID target="sk.stuba.fiit.kvasnicka.topologyvisual.edge" url="edges/topologyvisual-edge.html"/>
     <mapID target="sk.stuba.fiit.kvasnicka.topologyvisual.simulrule" url="topologyvisual-simulRule.html"/>
     <mapID target="sk.stuba.fiit.kvasnicka.topologyvisual.stats" url="topologyvisual-stats.html"/>
+    <mapID target="sk.stuba.fiit.kvasnicka.topologyvisual.controls" url="topologyvisual-controls.html"/>
 </map>

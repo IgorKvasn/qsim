@@ -20,6 +20,7 @@ along with qSim.  If not, see &lt;http://www.gnu.org/licenses/>.
 <!DOCTYPE toc PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN" "http://java.sun.com/products/javahelp/toc_2_0.dtd">
 <toc version="2.0">
     <tocitem text="qSim">
+        <tocitem text="Controls" target="sk.stuba.fiit.kvasnicka.topologyvisual.controls"/> 
         <tocitem text="Vertices">
             <tocitem text="Router" target="sk.stuba.fiit.kvasnicka.topologyvisual.router"/>
             <tocitem text="Computer" target="sk.stuba.fiit.kvasnicka.topologyvisual.computer"/>
