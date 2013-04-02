@@ -115,6 +115,7 @@ public class DscpQueryDialog extends javax.swing.JDialog {
         jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle(org.openide.util.NbBundle.getMessage(DscpQueryDialog.class, "DscpQueryDialog.title")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(DscpQueryDialog.class, "DscpQueryDialog.jLabel1.text")); // NOI18N
 

@@ -54,8 +54,8 @@ persistenceType = TopComponent.PERSISTENCE_NEVER)
 //preferredID = "SimulationTopComponent")
 @Messages({
     "CTL_SimulationAction=Simulation",
-    "CTL_SimulationTopComponent=Simulation Window",
-    "HINT_SimulationTopComponent=This is a Simulation window",
+    "CTL_SimulationTopComponent=Simulation rules overview",
+    "HINT_SimulationTopComponent=Simulation rules overview",
     "not_selected_row_error=No row has been selected."
 })
 public final class SimulationTopComponent extends TopComponent {

@@ -37,7 +37,7 @@ public class SimulRuleExportDialog extends javax.swing.JDialog {
      * Creates new form SimulRuleExportDialog
      */
     public SimulRuleExportDialog() {
-        super(WindowManager.getDefault().getMainWindow());
+        super(WindowManager.getDefault().getMainWindow());//todo help for this dialog
         initComponents();
         setLocationRelativeTo(WindowManager.getDefault().getMainWindow());
         jXTextField1.setPrompt("Path");
@@ -161,6 +161,7 @@ public class SimulRuleExportDialog extends javax.swing.JDialog {
         jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle(org.openide.util.NbBundle.getMessage(SimulRuleExportDialog.class, "SimulRuleExportDialog.title")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(SimulRuleExportDialog.class, "SimulRuleExportDialog.jLabel1.text")); // NOI18N
 

@@ -47,8 +47,8 @@ persistenceType = TopComponent.PERSISTENCE_NEVER)
 //preferredID = "SimulRuleReviewTopComponent")
 @Messages({
     "CTL_SimulRuleReviewAction=SimlRuleReview",
-    "CTL_SimulRuleReviewTopComponent=SimlRuleReview Window",
-    "HINT_SimulRuleReviewTopComponent=This is a SimlRuleReview window",
+    "CTL_SimulRuleReviewTopComponent=Simulation rules data panel",
+    "HINT_SimulRuleReviewTopComponent=Simulation rules data panel",
     "active=active",
     "finished=finished"
 })

@@ -52,8 +52,8 @@ persistenceType = TopComponent.PERSISTENCE_NEVER)
 //preferredID = "SimulationDataTopComponent")
 @Messages({
     "CTL_SimulationDataAction=SimulationData",
-    "CTL_SimulationDataTopComponent=SimulationData Window",
-    "HINT_SimulationDataTopComponent=This is a SimulationData window"
+    "CTL_SimulationDataTopComponent=Simulation data",
+    "HINT_SimulationDataTopComponent=Simulation data"
 })
 public final class SimulationDataTopComponent extends TopComponent {
 

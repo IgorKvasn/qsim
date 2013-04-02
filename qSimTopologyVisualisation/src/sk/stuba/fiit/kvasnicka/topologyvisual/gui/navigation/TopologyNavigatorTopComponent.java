@@ -67,8 +67,8 @@ import static sk.stuba.fiit.kvasnicka.topologyvisual.resources.ImageType.TOPOLOG
 //preferredID = "TopologyNavigatorTopComponent")
 @Messages({
     "CTL_TopologyNavigatorAction=TopologyNavigator",
-    "CTL_TopologyNavigatorTopComponent=TopologyNavigator Window",
-    "HINT_TopologyNavigatorTopComponent=This is a TopologyNavigator window"
+    "CTL_TopologyNavigatorTopComponent=Topology Navigator",
+    "HINT_TopologyNavigatorTopComponent=Topology Navigator"
 })
 public final class TopologyNavigatorTopComponent extends TopComponent implements VertexCreatedListener, VertexDeletedListener {
 

@@ -135,7 +135,8 @@ public class PacketGenerationRateDialog extends BlockingDialog<PacketCreationDel
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setTitle(org.openide.util.NbBundle.getMessage(PacketGenerationRateDialog.class, "PacketGenerationRateDialog.title")); // NOI18N
 
         buttonGroup1.add(jRadioButton1);
         jRadioButton1.setSelected(true);
