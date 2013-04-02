@@ -39,7 +39,6 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
  *
  * @author Igor Kvasnicka
  */
-
 public class TopologyInformation extends javax.swing.JPanel implements MultiViewElement {
 
     private JToolBar toolBar = new JToolBar();
@@ -52,7 +51,12 @@ public class TopologyInformation extends javax.swing.JPanel implements MultiView
         jTextField1.setText(obj.getLoadSettings().getName());
         jTextArea1.setText(obj.getLoadSettings().getDescription());
         if (obj.getLoadSettings().getG() != null) {//topology was loaded
-            jLabel1.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_nodes") + ": " + obj.getLoadSettings().getVertexFactory().getAllVertices().size());
+            lblNodeCount.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_nodes") + ": " + obj.getLoadSettings().getVertexFactory().getAllVertices().size());
+            lblRouters.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_routers") + ": " + obj.getLoadSettings().getVertexFactory().getVertexRouterList().size());
+            lblSwitches.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_switches") + ": " + obj.getLoadSettings().getVertexFactory().getVertexSwitchList().size());
+            lblComputers.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_computers") + ": " + obj.getLoadSettings().getVertexFactory().getVertexComputerList().size());
+            lblEdges.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_edges") + ": " + obj.getLoadSettings().getLayout().getGraph().getEdgeCount());
+            lblSimulRules.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_simulRules") + ": " + obj.getLoadSettings().getSimulRulesData().size());
         }
         initDocumentListeners();
     }
@@ -76,7 +80,6 @@ public class TopologyInformation extends javax.swing.JPanel implements MultiView
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         jLabel2 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
@@ -84,78 +87,109 @@ public class TopologyInformation extends javax.swing.JPanel implements MultiView
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-
-        setLayout(new java.awt.GridBagLayout());
+        lblNodeCount = new javax.swing.JLabel();
+        lblRouters = new javax.swing.JLabel();
+        lblSwitches = new javax.swing.JLabel();
+        lblComputers = new javax.swing.JLabel();
+        lblEdges = new javax.swing.JLabel();
+        lblSimulRules = new javax.swing.JLabel();
 
         jLabel2.setText(org.openide.util.NbBundle.getMessage(TopologyInformation.class, "TopologyInformation.jLabel2.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
-        add(jLabel2, gridBagConstraints);
 
         jTextField1.setText(org.openide.util.NbBundle.getMessage(TopologyInformation.class, "TopologyInformation.jTextField1.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.ipadx = 311;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
-        add(jTextField1, gridBagConstraints);
 
         jLabel3.setText(org.openide.util.NbBundle.getMessage(TopologyInformation.class, "TopologyInformation.jLabel3.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(18, 0, 0, 0);
-        add(jLabel3, gridBagConstraints);
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 6;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.ipadx = 389;
-        gridBagConstraints.ipady = 156;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(12, 10, 0, 68);
-        add(jScrollPane1, gridBagConstraints);
-
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(TopologyInformation.class, "TopologyInformation.jPanel1.border.title"))); // NOI18N
 
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(TopologyInformation.class, "TopologyInformation.jLabel1.text")); // NOI18N
-        jPanel1.add(jLabel1);
+        lblNodeCount.setText(org.openide.util.NbBundle.getMessage(TopologyInformation.class, "TopologyInformation.lblNodeCount.text")); // NOI18N
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 5;
-        gridBagConstraints.ipadx = 202;
-        gridBagConstraints.ipady = 77;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(25, 12, 12, 0);
-        add(jPanel1, gridBagConstraints);
+        lblRouters.setText(org.openide.util.NbBundle.getMessage(TopologyInformation.class, "TopologyInformation.lblRouters.text")); // NOI18N
+
+        lblSwitches.setText(org.openide.util.NbBundle.getMessage(TopologyInformation.class, "TopologyInformation.lblSwitches.text_1")); // NOI18N
+
+        lblComputers.setText(org.openide.util.NbBundle.getMessage(TopologyInformation.class, "TopologyInformation.lblComputers.text_1")); // NOI18N
+
+        lblEdges.setText(org.openide.util.NbBundle.getMessage(TopologyInformation.class, "TopologyInformation.lblEdges.text_1")); // NOI18N
+
+        lblSimulRules.setText(org.openide.util.NbBundle.getMessage(TopologyInformation.class, "TopologyInformation.lblSimulRules.text_1")); // NOI18N
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(lblNodeCount)
+            .addComponent(lblRouters)
+            .addComponent(lblSwitches)
+            .addComponent(lblComputers)
+            .addComponent(lblEdges)
+            .addComponent(lblSimulRules)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(lblNodeCount)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                .addComponent(lblRouters)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lblSwitches)
+                .addGap(18, 18, 18)
+                .addComponent(lblComputers)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lblEdges)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lblSimulRules)
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jLabel2)
+                .addGap(12, 12, 12)
+                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jLabel3)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(266, 266, 266)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 406, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jLabel3)
+                .addGap(12, 12, 12)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(25, 25, 25)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JLabel lblComputers;
+    private javax.swing.JLabel lblEdges;
+    private javax.swing.JLabel lblNodeCount;
+    private javax.swing.JLabel lblRouters;
+    private javax.swing.JLabel lblSimulRules;
+    private javax.swing.JLabel lblSwitches;
     // End of variables declaration//GEN-END:variables
 
     @Override

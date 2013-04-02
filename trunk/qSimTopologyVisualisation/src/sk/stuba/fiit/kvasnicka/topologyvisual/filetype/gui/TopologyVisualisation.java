@@ -80,8 +80,10 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.PopupVertexEdgeMenuMou
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.TopologyElementCreatorHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.ComputerVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.RouterVertex;
+import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.SwitchVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.vertices.TopologyVertex;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.SwitchConfigurationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.ConfirmDialogPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.deletion.VertexDeletionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.ComputerConfigurationDialog;
@@ -546,17 +548,16 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
                 topology.addVertex(vertex, location);
             }
 
-            //todo switch paste
-            if (pasteNode instanceof Switch) {
-                throw new UnsupportedOperationException("not yet implemented");
-//                 SwitchConfigurationDialog dialog = new SwitchConfigurationDialog((Switch) pasteNode);
-//                dialog.showDialog();
-//                if (dialog.getUserInput() == null) {//user hit cancel
-//                    return;
-//                }
-//                pasteNode = dialog.getUserInput();
-//                topology.addVertex(new SwitchVertex(pasteNode), location);
 
+            if (pasteNode instanceof Switch) {
+                SwitchConfigurationDialog dialog = new SwitchConfigurationDialog((Switch) pasteNode, ((Switch) pasteNode).getName(), true);
+                dialog.showDialog();
+                if (dialog.getUserInput() == null) {//user hit cancel
+                    return;
+                }
+                pasteNode = dialog.getUserInput();
+                vertex = new SwitchVertex(pasteNode);
+                topology.addVertex(vertex, location);
             }
 
             if (pasteNode instanceof Computer) {
@@ -944,11 +945,13 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
             if (editedModel == null) {//user hit cancel
                 return;
             }
+        }
 
-
-            //todo add switch  editing - just like lines above
-
-
+        if (vertex instanceof SwitchVertex) {
+            editedModel = dialogHandler.showSwitchConfigurationDialog((Switch) vertex.getDataModel());
+            if (editedModel == null) {//user hit cancel
+                return;
+            }
         }
         if (vertex instanceof ComputerVertex) {
             editedModel = dialogHandler.showComputerConfigurationDialog((Computer) vertex.getDataModel());
@@ -956,15 +959,18 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
                 return;
             }
         }
-        
-        if (editedModel==null) throw new IllegalStateException("edited model is NULL");
-        
+
+        if (editedModel == null) {
+            logg.error("edited model is NULL");
+            return;
+        }
+
         if (!vertex.getName().equals(editedModel.getName())) {//user changed vertex's name
             navigatorTopComponent.updateData();
             vertex.setDataModel(editedModel);
             topology.deselectVertices();
             topology.deselectEdges();
-            reloadSimulationRuleData();          
+            reloadSimulationRuleData();
         } else {
             vertex.setDataModel(editedModel);
         }
@@ -1224,7 +1230,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     public void setMultiViewCallback(MultiViewElementCallback callback) {
         this.callback = callback;
         if (dataObject == null) {
-            return;
+            return;            
         }
         if (dataObject.isDirty()) {
             callback.updateTitle(dataObject.getPrimaryFile().getNameExt() + "*");
