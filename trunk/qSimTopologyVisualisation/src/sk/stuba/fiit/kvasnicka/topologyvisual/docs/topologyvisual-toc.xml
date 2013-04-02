@@ -29,6 +29,7 @@ along with qSim.  If not, see &lt;http://www.gnu.org/licenses/>.
         <tocitem text="Simulation rule" target="sk.stuba.fiit.kvasnicka.topologyvisual.simulrule"/> 
         <tocitem text="Statistics" target="sk.stuba.fiit.kvasnicka.topologyvisual.stats"/> 
         <tocitem text="ACL" target="sk.stuba.fiit.kvasnicka.topologyvisual.acl"/>        
+        <tocitem text="About qSim" target="sk.stuba.fiit.kvasnicka.topologyvisual.export"/>        
         <tocitem text="About qSim" target="sk.stuba.fiit.kvasnicka.topologyvisual.about"/>        
     </tocitem>
 </toc>
