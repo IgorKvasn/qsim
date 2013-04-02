@@ -17,18 +17,23 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
-              <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
-              <Component id="jTextField1" min="-2" pref="315" max="-2" attributes="0"/>
-          </Group>
-          <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
-          <Group type="102" attributes="0">
-              <EmptySpace min="266" pref="266" max="-2" attributes="0"/>
-              <Component id="jScrollPane1" min="-2" pref="406" max="-2" attributes="0"/>
-          </Group>
-          <Group type="102" attributes="0">
-              <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
-              <Component id="jPanel1" min="-2" pref="263" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
+                      <Component id="jTextField1" min="-2" pref="315" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <EmptySpace min="266" pref="266" max="-2" attributes="0"/>
+                      <Component id="jScrollPane1" min="-2" pref="406" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace pref="285" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -45,7 +50,7 @@
               <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
               <Component id="jScrollPane1" min="-2" pref="182" max="-2" attributes="0"/>
               <EmptySpace min="25" pref="25" max="-2" attributes="0"/>
-              <Component id="jPanel1" min="-2" pref="189" max="-2" attributes="0"/>
+              <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -101,12 +106,17 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="lblNodeCount" min="-2" max="-2" attributes="0"/>
-              <Component id="lblRouters" min="-2" max="-2" attributes="0"/>
-              <Component id="lblSwitches" min="-2" max="-2" attributes="0"/>
-              <Component id="lblComputers" min="-2" max="-2" attributes="0"/>
-              <Component id="lblEdges" min="-2" max="-2" attributes="0"/>
-              <Component id="lblSimulRules" min="-2" max="-2" attributes="0"/>
+              <Group type="102" attributes="0">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="lblNodeCount" min="-2" max="-2" attributes="0"/>
+                      <Component id="lblRouters" min="-2" max="-2" attributes="0"/>
+                      <Component id="lblSwitches" min="-2" max="-2" attributes="0"/>
+                      <Component id="lblComputers" min="-2" max="-2" attributes="0"/>
+                      <Component id="lblEdges" min="-2" max="-2" attributes="0"/>
+                      <Component id="lblSimulRules" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace pref="306" max="32767" attributes="0"/>
+              </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">

@@ -78,7 +78,8 @@ public class OutputQueuesConfigDialog extends BlockingDialog<List<OutputQueue>> 
         jLabel2 = new javax.swing.JLabel();
         jSpinner2 = new javax.swing.JSpinner();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setTitle(org.openide.util.NbBundle.getMessage(OutputQueuesConfigDialog.class, "OutputQueuesConfigDialog.title")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(jButton3, org.openide.util.NbBundle.getMessage(OutputQueuesConfigDialog.class, "OutputQueuesConfigDialog.jButton3.text")); // NOI18N
         jButton3.addActionListener(new java.awt.event.ActionListener() {

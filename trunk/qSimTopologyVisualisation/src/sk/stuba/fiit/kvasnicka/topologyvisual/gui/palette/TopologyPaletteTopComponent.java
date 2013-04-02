@@ -43,8 +43,8 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 preferredID = "TopologyPaletteTopComponent")
 @Messages({
     "CTL_TopologyPaletteAction=TopologyPalette",
-    "CTL_TopologyPaletteTopComponent=TopologyPalette Window",
-    "HINT_TopologyPaletteTopComponent=This is a TopologyPalette window",
+    "CTL_TopologyPaletteTopComponent=Topology Palette",
+    "HINT_TopologyPaletteTopComponent=Topology Palette",
     "nodes=Nodes",
     "edges=Edges"
 })

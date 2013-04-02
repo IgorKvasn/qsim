@@ -172,6 +172,7 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
         jLabel2 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox();
 
+        setTitle(org.openide.util.NbBundle.getMessage(DscpClassificationDialog.class, "DscpClassificationDialog.title")); // NOI18N
         setMinimumSize(new java.awt.Dimension(583, 511));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(

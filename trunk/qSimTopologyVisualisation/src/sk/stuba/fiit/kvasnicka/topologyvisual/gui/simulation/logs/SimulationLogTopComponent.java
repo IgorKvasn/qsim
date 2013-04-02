@@ -62,8 +62,8 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 //)
 @Messages({
     "CTL_SimulationLogTopComponentAction=SimulationLogTopComponent",
-    "CTL_SimulationLogTopComponent=SimulationLogTopComponent Window",
-    "HINT_SimulationLogTopComponent=This is a SimulationLogTopComponent window"
+    "CTL_SimulationLogTopComponent=Logs",
+    "HINT_SimulationLogTopComponent=Logs"
 })
 public final class SimulationLogTopComponent extends TopComponent implements SimulationLogListener, DropDownHiddenListener, CloseableTabbedPaneListener {
 

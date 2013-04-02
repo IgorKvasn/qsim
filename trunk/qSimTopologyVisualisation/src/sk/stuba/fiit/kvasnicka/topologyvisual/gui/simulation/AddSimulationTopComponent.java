@@ -49,7 +49,7 @@ persistenceType = TopComponent.PERSISTENCE_NEVER)
 @Messages({
     "CTL_AddSimulationAction=Add new simulation rule",
     "CTL_AddSimulationTopComponent=Add new simulation rule",
-    "HINT_AddSimulationTopComponent=This is a AddSimulation window"
+    "HINT_AddSimulationTopComponent=Add new simulation rule"
 })
 public final class AddSimulationTopComponent extends TopComponent {
 

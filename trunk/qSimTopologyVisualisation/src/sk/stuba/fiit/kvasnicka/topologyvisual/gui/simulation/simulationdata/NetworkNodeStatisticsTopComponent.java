@@ -39,8 +39,8 @@ persistenceType = TopComponent.PERSISTENCE_NEVER)
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @Messages({
     "CTL_PokusTopComponentAction=PokusTopComponent",
-    "CTL_PokusTopComponentTopComponent=PokusTopComponent Window",
-    "HINT_PokusTopComponentTopComponent=This is a PokusTopComponent window"
+    "CTL_PokusTopComponentTopComponent=Statistics",
+    "HINT_PokusTopComponentTopComponent=Statistics"
 })
 public final class NetworkNodeStatisticsTopComponent extends TopComponent {
 

@@ -102,7 +102,8 @@ public class VertexDeletionDialog extends javax.swing.JDialog {
         jLabel4 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setTitle(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.title")); // NOI18N
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(VertexDeletionDialog.class, "VertexDeletionDialog.jLabel1.text")); // NOI18N
 

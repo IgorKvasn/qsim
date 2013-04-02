@@ -104,6 +104,9 @@ public class EdgeConfigurationDialog extends BlockingDialog<Edge> {
         txtLength = new javax.swing.JTextField();
         txtMTU = new javax.swing.JTextField();
 
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setTitle(org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.title")); // NOI18N
+
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "bitrate.bit.s")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "length.m")); // NOI18N
@@ -156,7 +159,7 @@ public class EdgeConfigurationDialog extends BlockingDialog<Edge> {
                     .addComponent(txtBer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(13, Short.MAX_VALUE))
         );
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(EdgeConfigurationDialog.class, "EdgeConfigurationDialog.jLabel3.text")); // NOI18N
