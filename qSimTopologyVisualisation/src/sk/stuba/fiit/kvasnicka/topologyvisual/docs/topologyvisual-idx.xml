@@ -27,4 +27,5 @@ along with qSim.  If not, see &lt;http://www.gnu.org/licenses/>.
     <indexitem text="Statistics" target="sk.stuba.fiit.kvasnicka.topologyvisual.stats"/>
     <indexitem text="Controls" target="sk.stuba.fiit.kvasnicka.topologyvisual.controls"/>
     <indexitem text="ACL" target="sk.stuba.fiit.kvasnicka.topologyvisual.acl"/>
+        <indexitem text="Export" target="sk.stuba.fiit.kvasnicka.topologyvisual.export"/>
 </index>

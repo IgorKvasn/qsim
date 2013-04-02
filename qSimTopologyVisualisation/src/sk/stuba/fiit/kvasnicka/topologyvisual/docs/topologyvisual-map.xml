@@ -27,4 +27,5 @@ along with qSim.  If not, see &lt;http://www.gnu.org/licenses/>.
     <mapID target="sk.stuba.fiit.kvasnicka.topologyvisual.stats" url="topologyvisual-stats.html"/>
     <mapID target="sk.stuba.fiit.kvasnicka.topologyvisual.controls" url="topologyvisual-controls.html"/>
     <mapID target="sk.stuba.fiit.kvasnicka.topologyvisual.acl" url="topologyvisual-acl.html"/>
+    <mapID target="sk.stuba.fiit.kvasnicka.topologyvisual.export" url="topologyvisual-export.html"/>
 </map>
