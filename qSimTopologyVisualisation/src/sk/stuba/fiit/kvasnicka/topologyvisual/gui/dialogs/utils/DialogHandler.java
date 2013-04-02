@@ -23,6 +23,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Switch;
 import sk.stuba.fiit.kvasnicka.topologyvisual.graph.utils.VertexFactory;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.SwitchConfigurationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.ComputerConfigurationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.EdgeConfigurationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.RouterConfigurationDialog;
@@ -67,7 +68,7 @@ public class DialogHandler {
      * null if user hit cancel
      */
     public Router showRouterConfigurationDialog(Router router) {
-        BlockingDialog bl = new RouterConfigurationDialog(router, router.getName(),false);//todo do the same with computer
+        BlockingDialog bl = new RouterConfigurationDialog(router, router.getName(),false);
         bl.showDialog();
         Router resultObject = (Router) bl.getUserInput();
         //user hitting cancel is handled elsewhere
@@ -102,25 +103,33 @@ public class DialogHandler {
         return resultObject;
     }
 
-    /**
-     * shows dialog with switch configuration
+   /**
+     * shows dialog with router configuration
      */
     public Switch showSwitchConfigurationDialog() {
-        if (true) {
-            throw new UnsupportedOperationException("not yet implemented");
-        }
-        logg.debug("showing switch configuration dialog");
         String switchName = vertexFactory.createSwitchName();
-//        BlockingDialog bl = new SwitchConfigurationDialog(switchName);
-//        bl.showDialog();
-//        Object obj = bl.getUserInput();
-//        if (obj == null) {
-//            VertexFactory.getInstance().decrementNumberOfRouters();
-//            throw new IllegalStateException("user hit cancel");
-//        }
-        //Switch sw = new Switch(resultObject.getName(), resultObject.getQosMechanism(), resultObject.getSwQueues(), resultObject.getMaxTxBufferSize(), resultObject.getMaxIntputQueueSize(), resultObject.getMaxProcessingPackets(), resultObject.getTcpDelay());
-        //todo showSwitchConfigurationDialog
-        throw new UnsupportedOperationException("not yet implemented");
+        BlockingDialog bl = new SwitchConfigurationDialog(switchName);
+        bl.showDialog();
+        Switch resultObject = (Switch) bl.getUserInput();
+        if (resultObject == null) {
+            vertexFactory.decrementNumberOfSwitches();
+            throw new IllegalStateException("user hit cancel");
+        }
+
+        return resultObject;
+    }
+
+    /**
+     * shows dialog with router configuration
+     *
+     * null if user hit cancel
+     */
+    public Switch showSwitchConfigurationDialog(Switch witch) {
+        BlockingDialog bl = new SwitchConfigurationDialog(witch, witch.getName(),false);
+        bl.showDialog();
+        Switch resultObject = (Switch) bl.getUserInput();
+        //user hitting cancel is handled elsewhere
+        return resultObject;
     }
 
     /**
