@@ -5,15 +5,29 @@
 package sk.stuba.fiit.kvasnicka.topologyvisual.install;
 
 import java.util.Collection;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.modules.ModuleInstall;
+import org.openide.util.Exceptions;
 import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.RunningSimulationManager;
 
 public class Installer extends ModuleInstall {
 
     @Override
     public void restored() {
+        try {
+            UIManager.setLookAndFeel("com.pagosoft.plaf.PgsLookAndFeel");
+        } catch (ClassNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (InstantiationException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (IllegalAccessException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (UnsupportedLookAndFeelException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
 
     @Override
