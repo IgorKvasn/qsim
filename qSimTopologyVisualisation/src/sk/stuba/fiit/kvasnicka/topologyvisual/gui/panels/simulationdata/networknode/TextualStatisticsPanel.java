@@ -100,6 +100,9 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
         jPanel1.add(new JScrollPane(myTreeTable));
 
         myTreeTable.repaint();
+        jPanel1.repaint();
+        jPanel1.revalidate();
+
     }
 
     @Override

@@ -57,6 +57,13 @@ public class TopologyInformation extends javax.swing.JPanel implements MultiView
             lblComputers.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_computers") + ": " + obj.getLoadSettings().getVertexFactory().getVertexComputerList().size());
             lblEdges.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_edges") + ": " + obj.getLoadSettings().getLayout().getGraph().getEdgeCount());
             lblSimulRules.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_simulRules") + ": " + obj.getLoadSettings().getSimulRulesData().size());
+        } else {
+            lblNodeCount.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_nodes") + ": 0");
+            lblRouters.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_routers") + ": 0");
+            lblSwitches.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_switches") + ": 0");
+            lblComputers.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_computers") + ": 0");
+            lblEdges.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_edges") + ": 0");
+            lblSimulRules.setText(NbBundle.getMessage(TopologyInformation.class, "number_of_simulRules") + ": 0");
         }
         initDocumentListeners();
     }
