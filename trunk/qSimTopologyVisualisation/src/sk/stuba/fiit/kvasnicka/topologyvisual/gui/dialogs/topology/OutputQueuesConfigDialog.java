@@ -283,7 +283,9 @@ public class OutputQueuesConfigDialog extends BlockingDialog<List<OutputQueue>> 
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         List<OutputQueue> queues = createOutputQueues();
-
+        if (queues == null) {//user made a mistake
+            return;
+        }
         setUserInput(queues);
         closeDialog();
     }//GEN-LAST:event_jButton3ActionPerformed
@@ -319,7 +321,7 @@ public class OutputQueuesConfigDialog extends BlockingDialog<List<OutputQueue>> 
             for (OutputQueue queue : queues) {
                 tableModel.addRow(new Object[]{queue.getQueueNumber(), queue.getMaxCapacity()});
             }
-        }else{
+        } else {
             jRadioButton1.setSelected(true);
             jSpinner1.setValue(queues.size());
             jSpinner2.setValue(queues.iterator().next().getMaxCapacity());
@@ -338,7 +340,9 @@ public class OutputQueuesConfigDialog extends BlockingDialog<List<OutputQueue>> 
                 val = q.getMaxCapacity();
                 continue;
             }
-            if (val != q.getMaxCapacity()) return false;
+            if (val != q.getMaxCapacity()) {
+                return false;
+            }
         }
         return true;
     }
