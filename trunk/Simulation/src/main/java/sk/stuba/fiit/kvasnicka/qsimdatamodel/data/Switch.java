@@ -26,7 +26,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,8 +42,8 @@ public class Switch extends NetworkNode {
      * see NetworkNode javadoc for more explanation
      *
      */
-    public Switch(String name, String description, QosMechanismDefinition qosMechanism, int maxTxBufferSize, int maxRxBufferSize, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
-        super(name, description, qosMechanism, maxTxBufferSize, maxRxBufferSize, Collections.<OutputQueue>emptyList(), maxIntputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay);
+    public Switch(String name, String description, QosMechanismDefinition qosMechanism, int maxTxBufferSize, int maxRxBufferSize,  List<OutputQueue> queues,int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
+        super(name, description, qosMechanism, maxTxBufferSize, maxRxBufferSize, queues, maxIntputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay);
     }
 
 
