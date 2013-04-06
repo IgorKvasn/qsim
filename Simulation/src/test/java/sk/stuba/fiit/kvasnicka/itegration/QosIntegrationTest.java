@@ -89,13 +89,13 @@ public class QosIntegrationTest {
             put(RandomEarlyDetection.MIN_THRESHOLD, .1);
         }}));
 
-        OutputQueue o1 = new OutputQueue(10,0);
-        OutputQueue o2 = new OutputQueue(10,0);
-        OutputQueue o3 = new OutputQueue(10,0);
+        OutputQueue o1 = new OutputQueue(10, 0);
+        OutputQueue o2 = new OutputQueue(10, 0);
+        OutputQueue o3 = new OutputQueue(10, 0);
 
         node1 = new Router("node1", null, qosMechanism1, 10, 10, Arrays.asList(o1), 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
-        node2 = new Router("node2", null, qosMechanism2, 10, 10,  Arrays.asList(o2), 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
-        node3 = new Router("node3", null, qosMechanism3, 10, 10,  Arrays.asList(o3), 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node2 = new Router("node2", null, qosMechanism2, 10, 10, Arrays.asList(o2), 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
+        node3 = new Router("node3", null, qosMechanism3, 10, 10, Arrays.asList(o3), 10, 10, SimulationTimer.TIME_QUANTUM * 3 / 2, 0, 0);
 
         SimulationLogUtils simulationLogUtils = new SimulationLogUtils();
         initNetworkNode(node1, simulationLogUtils);
@@ -123,9 +123,9 @@ public class QosIntegrationTest {
             }
         });
         simulationManager = new SimulationManager();
-        PacketCreationDelayFunction creation1 = new GaussNormalCreationDelay(0,1,0,1);
+        PacketCreationDelayFunction creation1 = new GaussNormalCreationDelay(0, 1, 0, 1);
 
-        SimulationRuleBean rule = new SimulationRuleBean("", node1, node3, creation1, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean("", node1, node3, creation1, 1, 50, 0, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2, node3));
 
         simulationManager.addSimulationRule(rule);
@@ -134,6 +134,12 @@ public class QosIntegrationTest {
         rule.addPacketDeliveredListener(testListenerClass);
 
         timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>());     //here timer is started, however JUnit cannot handle Timers, so I have to simulate timer scheduling (see lines below)
+
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
 
         timer.actionPerformed(null);
         timer.actionPerformed(null);

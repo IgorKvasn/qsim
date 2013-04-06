@@ -69,13 +69,14 @@ public class SimulationTimer implements ActionListener {
     private static final double MIN_SPEED_UP = 0.5;
     private static final double MAX_SPEED_UP = 20;
 
-    private static final int MIN_TIMER_DELAY = 10; //[msec]
-    private static final int MAX_TIMER_DELAY = 2000;//[msec]
+    private static final int MIN_TIMER_DELAY = 5; //[msec]
+    private static final int MAX_TIMER_DELAY = 1000;//[msec]
 
     private javax.swing.event.EventListenerList listenerList = new javax.swing.event.EventListenerList();
     private SimulationLogUtils simulationLogUtils;
     @Getter
     private double speedUp = 1;
+    private boolean doSimulation = false;
 
 
     public SimulationTimer(List<Edge> edgeList, List<NetworkNode> nodeList, SimulationLogUtils simulationLogUtils) {
@@ -189,6 +190,12 @@ public class SimulationTimer implements ActionListener {
      * @param event
      */
     public void actionPerformed(ActionEvent event) {
+        doSimulation = !doSimulation;
+
+        if (!doSimulation){ //only every other timer tick will make simulation active
+            fireSimulationTimerEvent(new SimulationTimerEvent(this, simulationTime));
+            return;
+        }
         try {
 
             simulationTime += TIME_QUANTUM;//increase simulation clock

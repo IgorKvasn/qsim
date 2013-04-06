@@ -155,6 +155,14 @@ public class EdgeErrorTest {
         timer.actionPerformed(null);
 
 
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+
+
         assertTrue(timer.isEndOfSimulation());
 
         checkNoPacketsInTopology(timer);

@@ -139,6 +139,19 @@ public class PingTest {
         timer.actionPerformed(null);
         timer.actionPerformed(null);
 
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+
+
         assertTrue(timer.isEndOfSimulation());
         assertEquals(2, packetsDelivered);
     }
@@ -182,6 +195,19 @@ public class PingTest {
         timer.actionPerformed(null);
         timer.actionPerformed(null);
 
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+        timer.actionPerformed(null);
+
 
         assertTrue(timer.isEndOfSimulation());
         assertEquals(1, packetsDelivered);
@@ -194,6 +220,8 @@ public class PingTest {
      * @throws NoSuchFieldException
      * @throws IllegalAccessException
      */
+    int ticks = 0;
+
     @Test
     public void testSinglePacketSimulation_infinitePing() throws Exception {
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, creation1, - 1, 50, 0, Layer4TypeEnum.ICMP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);    //notice this -1
@@ -218,12 +246,12 @@ public class PingTest {
                         if (previousTimerTicks == 0) {
                             previousTimerTicks = timerTicks;
                             timerTicks = 0;
+                            ticks = previousTimerTicks;
                             return;
                         }
 
-                        if (Math.abs(timerTicks - previousTimerTicks) > 1) {
+                        if (Math.abs(ticks - previousTimerTicks) > 1) {
                             fail("number of timer ticks is not constant - previous number of ticks: " + previousTimerTicks + " current number: " + timerTicks);
-                            logg.error("rozdiel v timer tickoch: povodny = " + previousTimerTicks + " novy: " + timerTicks);
                         }
                         previousTimerTicks = timerTicks;
                         timerTicks = 0;
