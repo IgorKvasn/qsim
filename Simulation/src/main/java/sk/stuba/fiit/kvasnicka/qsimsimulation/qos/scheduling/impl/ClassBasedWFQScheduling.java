@@ -17,10 +17,12 @@
 
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl;
 
+import org.apache.log4j.Logger;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.ClassificationException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.FlowClassDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ParameterException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.QosUtils;
 
@@ -42,12 +44,12 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
     private transient List<List<Integer>> savedBits; //first parameter is class number, second is queue number within the class
 
     public static final String CLASS_DEFINITIONS = "class_definitions";
+    private static final Logger logg = Logger.getLogger(ClassBasedWFQScheduling.class);
 
     public ClassBasedWFQScheduling(HashMap<String, Object> parameters) {
         super(parameters);
         try {
-            QosUtils.checkParameter(parameters, ClassDefinition[].class, CLASS_DEFINITIONS);
-            QosUtils.checkClassDefinition((ClassDefinition[]) parameters.get(CLASS_DEFINITIONS));
+            QosUtils.checkParameter(parameters, FlowClassDefinition[].class, CLASS_DEFINITIONS);
         } catch (ParameterException e) {
             throw new IllegalArgumentException(e);
         }
@@ -56,7 +58,7 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
 
     @Override
     public List<Packet> decitePacketsToMoveFromOutputQueue(NetworkNode networkNode, Map<Integer, List<Packet>> outputQueuePackets) {
-        ClassDefinition[] classDefinitions = (ClassDefinition[]) parameters.get(CLASS_DEFINITIONS);
+        FlowClassDefinition[] classDefinitions = (FlowClassDefinition[]) parameters.get(CLASS_DEFINITIONS);
 
         unprocessedPacketsInClass = new int[classDefinitions.length];
 
@@ -70,7 +72,7 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
         savedBits = new LinkedList<List<Integer>>();
         for (int i = 0; i < classCount; i++) {
             List<Integer> qClass = new LinkedList<Integer>();
-            for (int j = 0; j < classDefinitions[i].getQueueNumbers().size(); j++) {
+            for (int j = 0; j < getNumberOfQueuesPerClass(classDefinitions[i], outputQueuePackets); j++) {
                 qClass.add(j);
             }
             savedBits.add(qClass);
@@ -115,17 +117,49 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
     }
 
     /**
+     * returns how many queues are there in this class
+     *
+     * @param classDefinition
+     * @param outputQueuePackets
+     * @return
+     */
+    private int getNumberOfQueuesPerClass(FlowClassDefinition classDefinition, Map<Integer, List<Packet>> outputQueuePackets) {
+        int result = 0;
+        for (Map.Entry<Integer, List<Packet>> e : outputQueuePackets.entrySet()) {
+            if (e.getValue().isEmpty()) continue;
+            try {
+                if (classDefinition.isPacketInFlow(e.getValue().get(0))) {
+                    result++;
+                }
+            } catch (ClassificationException e1) {
+                logg.error(e1);
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * returns all queues within same class
      *
      * @param classDefinition
      * @param allQueues
      * @return
      */
-    private List<List<Packet>> extractQosClass(ClassDefinition classDefinition, Map<Integer, List<Packet>> allQueues) {
+    private List<List<Packet>> extractQosClass(FlowClassDefinition classDefinition, Map<Integer, List<Packet>> allQueues) {
         List<List<Packet>> result = new LinkedList<List<Packet>>();
-        for (int queue : classDefinition.getQueueNumbers()) {
-            result.add(allQueues.get(queue));
+
+        for (Map.Entry<Integer, List<Packet>> e : allQueues.entrySet()) {
+            if (e.getValue().isEmpty()) continue;
+            try {
+                if (classDefinition.isPacketInFlow(e.getValue().get(0))) {
+                    result.add(e.getValue());
+                }
+            } catch (ClassificationException e1) {
+                logg.error(e1);
+            }
         }
+
         return result;
     }
 

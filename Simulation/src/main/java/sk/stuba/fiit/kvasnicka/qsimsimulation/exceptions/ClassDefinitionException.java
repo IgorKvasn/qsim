@@ -15,13 +15,13 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling;
-
-import java.io.Serializable;
+package sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions;
 
 /**
  * @author Igor Kvasnicka
  */
-public interface QosMechanism extends Serializable {
-    boolean hasParameters();
+public class ClassDefinitionException extends Exception {
+    public ClassDefinitionException(String s) {
+        super(s);
+    }
 }

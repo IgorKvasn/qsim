@@ -19,7 +19,7 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement;
 
 import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
 
 import java.util.HashMap;
 import java.util.List;
