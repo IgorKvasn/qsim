@@ -25,10 +25,8 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.ActiveQueueManagement;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -52,23 +50,15 @@ public class QosMechanismDefinition implements Serializable {
     @Getter
     private ActiveQueueManagement activeQueueManagement;
 
-    @Getter
-    private ClassDefinition[] classDefinitions;
 
     /**
      * creates new object that defines QoS
      *
-     * @param classDefinitions      null if no classes are used
      * @param packetScheduling      packet scheduling mechanism
      * @param packetClassification  packet classification mechanism
      * @param activeQueueManagement active queue management mechanism
      */
-    public QosMechanismDefinition(ClassDefinition[] classDefinitions, PacketScheduling packetScheduling, PacketClassification packetClassification, ActiveQueueManagement activeQueueManagement) {
-        if (classDefinitions == null) {
-            this.classDefinitions = new ClassDefinition[0];
-        } else {
-            this.classDefinitions = Arrays.copyOf(classDefinitions, classDefinitions.length);
-        }
+    public QosMechanismDefinition(PacketScheduling packetScheduling, PacketClassification packetClassification, ActiveQueueManagement activeQueueManagement) {
         this.packetScheduling = packetScheduling;
         this.packetClassification = packetClassification;
         this.activeQueueManagement = activeQueueManagement;

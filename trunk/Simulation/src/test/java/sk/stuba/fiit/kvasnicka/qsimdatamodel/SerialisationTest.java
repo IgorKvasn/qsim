@@ -26,6 +26,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.ClassDefinitionException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.managers.TopologyManager;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.BestEffortClassification;
@@ -33,7 +34,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.ActiveQueueMan
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.RandomEarlyDetection;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.ClassBasedWFQScheduling;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.FlowClassDefinition;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -59,14 +60,14 @@ public class SerialisationTest implements Serializable {
     QosMechanismDefinition qosMechanism;
 
     @Before
-    public void before() {
+    public void before() throws ClassDefinitionException {
 
 
-        final ClassDefinition[] classDef = new ClassDefinition[2];
-        classDef[0] = new ClassDefinition(0, 1);
-        classDef[1] = new ClassDefinition(2, 3);
+        final FlowClassDefinition[] classDef = new FlowClassDefinition[2];
+        classDef[0] = new FlowClassDefinition("className1", "srcPort!=3");
+        classDef[1] = new FlowClassDefinition("className2", "srcPort=3");
 
-        qosMechanism = new QosMechanismDefinition(null,new ClassBasedWFQScheduling(new HashMap<String, Object>() {{
+        qosMechanism = new QosMechanismDefinition(new ClassBasedWFQScheduling(new HashMap<String, Object>() {{
             put(ClassBasedWFQScheduling.CLASS_DEFINITIONS, classDef);
         }}), new BestEffortClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
             put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, .6);
@@ -76,14 +77,14 @@ public class SerialisationTest implements Serializable {
         }}));
 
 
-        OutputQueue o1 = new OutputQueue(10,1);
+        OutputQueue o1 = new OutputQueue(10, 1);
 
 
-        NetworkNode testNode1 = new Computer("comp", null, 10, 11,null , 12, 13, 14, 15, 16);
+        NetworkNode testNode1 = new Computer("comp", null, 10, 11, null, 12, 13, 14, 15, 16);
         NetworkNode testNode2 = new Computer("comp2", null, 10, 11, null, 12, 13, 14, 15, 16);
         edge = new Edge(100, 101, 102, 103, testNode1, testNode2);
 
-        node = new Router("node1", null, qosMechanism, 10, 10,Arrays.asList(o1), 1, 0, 100, 0, 0);
+        node = new Router("node1", null, qosMechanism, 10, 10, Arrays.asList(o1), 1, 0, 100, 0, 0);
 
         topologyManager = new TopologyManager(Arrays.asList(edge), Arrays.asList(testNode1, testNode2));
 
@@ -150,11 +151,11 @@ public class SerialisationTest implements Serializable {
         assertNotNull(copy.getAllTXBuffers());
         assertNotNull(copy.getOutputQueueManager());
         assertNotNull(copy.getOutputQueueManager().getQueues());
-        assertEquals(1,copy.getOutputQueueManager().getQueues().size());
+        assertEquals(1, copy.getOutputQueueManager().getQueues().size());
         OutputQueue oq = copy.getOutputQueueManager().getQueues().iterator().next();
         assertNotNull(oq);
-        assertEquals(10,oq.getMaxCapacity());
-        assertEquals(1,oq.getQueueNumber());
+        assertEquals(10, oq.getMaxCapacity());
+        assertEquals(1, oq.getQueueNumber());
 
         //there is some problem with edgeList in topology manager - serialisation is OK, but EqualsBuilder seems to be unable to handle it
         //but TopologyManager is tested separately and it is OK
@@ -210,9 +211,9 @@ public class SerialisationTest implements Serializable {
 
     @Test
     public void testPacketScheduling() throws Exception {
-        final ClassDefinition[] classDef = new ClassDefinition[2];
-        classDef[0] = new ClassDefinition(0, 1);
-        classDef[1] = new ClassDefinition("test", 2);
+        final FlowClassDefinition[] classDef = new FlowClassDefinition[2];
+        classDef[0] = new FlowClassDefinition("className1", "srcPort!=3");
+        classDef[1] = new FlowClassDefinition("className2", "srcPort=3");
 
         PacketScheduling packetScheduling = new ClassBasedWFQScheduling(new HashMap<String, Object>() {{
             put(ClassBasedWFQScheduling.CLASS_DEFINITIONS, classDef);
