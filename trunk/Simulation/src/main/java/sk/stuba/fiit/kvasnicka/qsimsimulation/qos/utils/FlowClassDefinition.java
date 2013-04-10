@@ -31,7 +31,8 @@ import java.io.Serializable;
  * @author Igor Kvasnicka
  */
 public class FlowClassDefinition implements Serializable {
-    private static final String[] forbiddenPacketFields = new String[]{"size", "ipTos", "dscp", "protocol"};
+    private static String[] forbiddenPacketFields = new String[]{"size", "ipTos", "dscp", "protocol"};
+    private static final long serialVersionUID = 2952133632407116099L;
     @Getter
     private String name;
     @Getter
