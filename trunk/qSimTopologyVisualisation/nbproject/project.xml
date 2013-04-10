@@ -267,6 +267,10 @@
                 <binary-origin>release/modules/ext/jasperreports-4.7.1.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
+                <runtime-relative-path>ext/jchart2d-3.3.2.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jchart2d-3.3.2.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
                 <runtime-relative-path>ext/bcprov-jdk14-1.38.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/bcprov-jdk14-1.38.jar</binary-origin>
             </class-path-extension>
@@ -317,10 +321,6 @@
             <class-path-extension>
                 <runtime-relative-path>ext/jackson-databind-2.1.1.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jackson-databind-2.1.1.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jchart2d-3.2.2.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/jchart2d-3.2.2.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/poi-ooxml-schemas-3.7.jar</runtime-relative-path>

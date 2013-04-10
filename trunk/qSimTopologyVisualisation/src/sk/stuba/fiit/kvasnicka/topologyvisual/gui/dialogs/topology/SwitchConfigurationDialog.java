@@ -16,7 +16,6 @@
  */
 package sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology;
 
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.*;
 import java.awt.Dimension;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,7 +34,6 @@ import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
-import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Switch;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
@@ -55,6 +53,11 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.RandomEar
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.WeightedRED;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.WeightedRED.WredDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
+import static sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling.Available.FIFO;
+import static sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling.Available.PRIORITY_QUEUEING;
+import static sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling.Available.ROUND_ROBIN;
+import static sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling.Available.WEIGHTED_ROUND_ROBIN;
+import static sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling.Available.WFQ;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.FifoScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.PriorityQueuingScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.RoundRobinScheduling;
@@ -67,6 +70,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.ConfirmDialogPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.ClassDefinitionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.DscpClassificationDialog;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.FlowClassDefinitionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.RedQueueManagementDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.WredQueueManagementDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.BlockingDialog;
@@ -82,6 +86,7 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
     private RedQueueManagementDialog redQueueManagementDialog;
     private WredQueueManagementDialog wredQueueManagementDialog;
     private ClassDefinitionDialog classDefinitionDialog;
+    private FlowClassDefinitionDialog flowClassDefinitionDialog;
     private OutputQueuesConfigDialog outputQueuesConfigDialog;
     private boolean creatingComboboxes; //all comboboxes are listening for changes, what is not good when creating (populating) comboboxes
     private ComboItem selectedPacketClassification; //to temporary store selected classification mechanism
@@ -125,7 +130,7 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
      */
     public SwitchConfigurationDialog(Switch swi, String originalName, boolean copied) {
         this(swi.getName());
-        
+
         if (copied) {
             setTitle(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "SwitchConfigurationDialog.title"));
             txtName.setText("");
@@ -214,6 +219,9 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
 
         if (swi.getQosMechanism().getClassDefinitions() != null) {
             classDefinitionDialog = new ClassDefinitionDialog(this, swi.getQosMechanism().getClassDefinitions());
+        }
+        if (swi.getQosMechanism().getFlowClassDefinitions() != null) {
+            flowClassDefinitionDialog = new FlowClassDefinitionDialog(this, swi.getQosMechanism().getFlowClassDefinitions());
         }
 
         selectedPacketClassification = (ComboItem) comboQosClassif.getSelectedItem();
@@ -470,18 +478,17 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
         }
 
         //finally create QoS mechanism definition        
-        QosMechanismDefinition qosMechanismDefinition = new QosMechanismDefinition(classes, packetScheduling, packetClassification, activeQueueManagement);
+        QosMechanismDefinition qosMechanismDefinition = new QosMechanismDefinition(classes, null, packetScheduling, packetClassification, activeQueueManagement);
         return qosMechanismDefinition;
     }
 
     private PacketScheduling createPacketScheduling() throws QosCreationException {
-        PacketScheduling packetScheduling;
+       PacketScheduling packetScheduling;
         PacketScheduling.Available schedAvailableEnum = ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());
 
         //check for classes to be defined - if class based scheduling is selected
         if ((PacketScheduling.Available.WEIGHTED_ROUND_ROBIN == schedAvailableEnum)) {
             if (!areClassesDefined()) {
-
 
                 int result = JOptionPane.showConfirmDialog(this, "Some of your QoS mechanisms require QoS classes to be configured."
                         + "\nDo you want to configure them now?"
@@ -502,7 +509,7 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
         switch (schedAvailableEnum) {
             case FIFO:
                 packetScheduling = new FifoScheduling();
-                break;          
+                break;
             case PRIORITY_QUEUEING:
                 packetScheduling = new PriorityQueuingScheduling();
                 break;
@@ -676,7 +683,6 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
         btnConfigScheduling = new javax.swing.JButton();
         btnConfigClassif = new javax.swing.JButton();
         comboQosScheduling = new sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DisabledItemsComboBox();
-        jButton1 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         bntOk = new javax.swing.JButton();
         jButton8 = new javax.swing.JButton();
@@ -921,13 +927,6 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
             }
         });
 
-        jButton1.setText(org.openide.util.NbBundle.getMessage(SwitchConfigurationDialog.class, "SwitchConfigurationDialog.jButton1.text")); // NOI18N
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
@@ -957,10 +956,7 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
                             .addComponent(jLabel14)
                             .addComponent(jLabel13)
                             .addComponent(jLabel15))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -983,9 +979,7 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnConfigScheduling)
                     .addComponent(comboQosScheduling, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
-                .addComponent(jButton1)
-                .addContainerGap())
+                .addContainerGap(71, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
@@ -1247,10 +1241,6 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
 
     }//GEN-LAST:event_comboQosSchedulingActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        showClassesConfiguration();
-    }//GEN-LAST:event_jButton1ActionPerformed
-
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         outputQueuesConfigDialog.showDialog();
     }//GEN-LAST:event_jButton2ActionPerformed
@@ -1262,7 +1252,6 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
     private javax.swing.JComboBox comboQosClassif;
     private javax.swing.JComboBox comboQosQueue;
     private sk.stuba.fiit.kvasnicka.topologyvisual.gui.components.DisabledItemsComboBox comboQosScheduling;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton8;

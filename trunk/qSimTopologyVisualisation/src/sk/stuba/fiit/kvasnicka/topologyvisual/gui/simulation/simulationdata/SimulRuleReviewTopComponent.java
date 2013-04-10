@@ -277,7 +277,6 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
         jPanel1 = new javax.swing.JPanel();
         btnActivate = new javax.swing.JButton();
         btnStat = new javax.swing.JButton();
-        btnRoute = new javax.swing.JButton();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -333,10 +332,6 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
         });
         jPanel1.add(btnStat);
 
-        org.openide.awt.Mnemonics.setLocalizedText(btnRoute, org.openide.util.NbBundle.getMessage(SimulRuleReviewTopComponent.class, "SimulRuleReviewTopComponent.btnRoute.text")); // NOI18N
-        btnRoute.setEnabled(false);
-        jPanel1.add(btnRoute);
-
         add(jPanel1, java.awt.BorderLayout.PAGE_END);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -350,7 +345,6 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnActivate;
-    private javax.swing.JButton btnRoute;
     private javax.swing.JButton btnStat;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane3;
@@ -422,12 +416,10 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
 
             if (table.getSelectedRowCount() == 0) {
                 btnActivate.setEnabled(false);
-                btnRoute.setEnabled(false);
                 btnStat.setEnabled(false);
                 return;
             }
             updateActivateButton(table.getSelectedRow());
-            btnRoute.setEnabled(true);
             btnStat.setEnabled(true);
         }
     }
