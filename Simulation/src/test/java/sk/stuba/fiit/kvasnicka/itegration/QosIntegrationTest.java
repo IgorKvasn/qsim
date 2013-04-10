@@ -15,6 +15,23 @@
  * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+/*******************************************************************************
+ * This file is part of qSim.
+ *
+ * qSim is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * qSim is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with qSim.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+
 package sk.stuba.fiit.kvasnicka.itegration;
 
 import org.junit.Before;
@@ -68,21 +85,21 @@ public class QosIntegrationTest {
     public void before() {
         packetDelivered = 0;
 
-        QosMechanismDefinition qosMechanism1 = new QosMechanismDefinition(null, new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
+        QosMechanismDefinition qosMechanism1 = new QosMechanismDefinition(new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
             put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, .02);
             put(RandomEarlyDetection.MAX_PROBABILITY, .9);
             put(RandomEarlyDetection.MAX_THRESHOLD, .2);
             put(RandomEarlyDetection.MIN_THRESHOLD, .1);
         }}));
 
-        QosMechanismDefinition qosMechanism2 = new QosMechanismDefinition(null, new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
+        QosMechanismDefinition qosMechanism2 = new QosMechanismDefinition(new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
             put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, .02);
             put(RandomEarlyDetection.MAX_PROBABILITY, .9);
             put(RandomEarlyDetection.MAX_THRESHOLD, .2);
             put(RandomEarlyDetection.MIN_THRESHOLD, .1);
         }}));
 
-        QosMechanismDefinition qosMechanism3 = new QosMechanismDefinition(null, new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
+        QosMechanismDefinition qosMechanism3 = new QosMechanismDefinition(new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
             put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, .02);
             put(RandomEarlyDetection.MAX_PROBABILITY, .9);
             put(RandomEarlyDetection.MAX_THRESHOLD, .2);

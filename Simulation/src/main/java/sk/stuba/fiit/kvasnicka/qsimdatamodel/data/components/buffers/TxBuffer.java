@@ -39,7 +39,7 @@ import java.util.List;
  */
 public class TxBuffer implements UsageStatistics, Serializable {
 
-    private static final Logger logg = Logger.getLogger(TxBuffer.class);
+    private static Logger logg = Logger.getLogger(TxBuffer.class);
     private static final long serialVersionUID = 1758488306110030406L;
 
     private transient List<Fragment> fragments = new LinkedList<Fragment>();

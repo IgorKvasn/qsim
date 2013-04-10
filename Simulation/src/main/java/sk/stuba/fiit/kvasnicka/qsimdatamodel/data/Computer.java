@@ -22,7 +22,6 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.BestEffortClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.BestEffortQueueManagement;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.FifoScheduling;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -47,7 +46,7 @@ public class Computer extends NetworkNode {
     }
 
     private static QosMechanismDefinition createQosDef() {
-        return new QosMechanismDefinition(new ClassDefinition[0],new FifoScheduling(),new BestEffortClassification(),new BestEffortQueueManagement());
+        return new QosMechanismDefinition(new FifoScheduling(),new BestEffortClassification(),new BestEffortQueueManagement());
     }
 
 
