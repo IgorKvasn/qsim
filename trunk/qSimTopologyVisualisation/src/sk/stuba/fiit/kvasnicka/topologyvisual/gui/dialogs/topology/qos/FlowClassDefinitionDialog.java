@@ -32,6 +32,7 @@ public class FlowClassDefinitionDialog extends javax.swing.JDialog {
         super(parent, true);
         initComponents();
         tableModel = (DefaultTableModel) jTable1.getModel();
+        jTable1.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
         for (FlowClassDefinition def : classes) {
             addRow(def.getName(), def.getAcl());
@@ -45,6 +46,7 @@ public class FlowClassDefinitionDialog extends javax.swing.JDialog {
     public FlowClassDefinitionDialog(JDialog parent) {
         super(parent, true);
         initComponents();
+        jTable1.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         tableModel = (DefaultTableModel) jTable1.getModel();
 
         setLocationRelativeTo(parent);
@@ -59,7 +61,7 @@ public class FlowClassDefinitionDialog extends javax.swing.JDialog {
     }
 
     private void showQueryDialog(int row) {
-        DscpQueryDialog queryDialog = new DscpQueryDialog(this, (String) jTable1.getValueAt(row, 1));
+        DscpQueryDialog queryDialog = new DscpQueryDialog(this, (String) jTable1.getValueAt(row, 1), true);
         queryDialog.setVisible(true);
 
         String result = queryDialog.getDscpQuery();

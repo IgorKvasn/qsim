@@ -28,14 +28,14 @@ public class DscpQueryDialog extends javax.swing.JDialog {
     /**
      * Creates new form DscpQueryDialog
      */
-    public DscpQueryDialog(JDialog parent, String defaultQuery) {
+    public DscpQueryDialog(JDialog parent, String defaultQuery, boolean flow) {
         super(parent, true);
         initComponents();
         jXTextArea1.setPrompt("DSCP query");
         listOperands.addListSelectionListener(new QueryListSelectionHandler(listOperands));
         listOperators.addListSelectionListener(new QueryListSelectionHandler(listOperators));
         initOperatorsList();
-        initOperandsList();
+        initOperandsList(flow);
         lblError.setVisible(false);
         jXTextArea1.setText(defaultQuery);
     }
@@ -54,12 +54,13 @@ public class DscpQueryDialog extends javax.swing.JDialog {
 
     }
 
-    private void initOperandsList() {
+    private void initOperandsList(boolean flow) {
         DefaultListModel model = new DefaultListModel();
         listOperands.setModel(model);
         model.clear();
-
-        model.addElement(new ListItem("size", 0));
+        if (!flow) {
+            model.addElement(new ListItem("size", 0));
+        }
         model.addElement(new ListItem("source", 2, "source('')"));
         model.addElement(new ListItem("sourceIn", 3, "sourceIn([''])"));
         model.addElement(new ListItem("notSource", 2, "notSource('')"));
@@ -70,8 +71,12 @@ public class DscpQueryDialog extends javax.swing.JDialog {
         model.addElement(new ListItem("notDestinationIn", 3, "notDestinationIn([''])"));
         model.addElement(new ListItem("srcPort", 0));
         model.addElement(new ListItem("destPort", 0));
-        model.addElement(new ListItem("protocol", 0));
-        model.addElement(new ListItem("ipPrecedence", 0));
+        if (!flow) {
+            model.addElement(new ListItem("protocol", 0));
+        }
+        if (!flow) {
+            model.addElement(new ListItem("ipPrecedence", 0));
+        }
     }
 
     private void addToText(ListItem selected, int moveCaretLeft) {

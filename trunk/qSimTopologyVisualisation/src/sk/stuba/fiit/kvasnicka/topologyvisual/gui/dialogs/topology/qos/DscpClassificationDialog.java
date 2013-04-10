@@ -76,12 +76,12 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
         }
         //dscp queries
         for (DscpDefinition def : dscpManager.getDefinitions()) {
-            tableModel.addRow(new Object[]{new ComboItem(def.getQueueNumber(),DscpClassification.findDscpValueByQueueNumber(def.getQueueNumber()).getTextName()), def.getQuery()});
+            tableModel.addRow(new Object[]{new ComboItem(def.getQueueNumber(), DscpClassification.findDscpValueByQueueNumber(def.getQueueNumber()).getTextName()), def.getQuery()});
         }
     }
 
     private void showQueryDialog(int row) {
-        DscpQueryDialog queryDialog = new DscpQueryDialog(this, (String) jTable1.getValueAt(row, 1));
+        DscpQueryDialog queryDialog = new DscpQueryDialog(this, (String) jTable1.getValueAt(row, 1), false);
         queryDialog.setVisible(true);
 
         String result = queryDialog.getDscpQuery();
