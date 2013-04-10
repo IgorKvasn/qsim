@@ -58,17 +58,20 @@ public abstract class PacketScheduling implements QosMechanism {
 
 
     public enum Available {
-        CB_WFQ(true),
-        WFQ(false),
-        FIFO(false),
-        PRIORITY_QUEUEING(false),
-        ROUND_ROBIN(false),
-        WEIGHTED_ROUND_ROBIN(true);
+        CB_WFQ(true, true),
+        WFQ(false, true),
+        FIFO(false, false),
+        PRIORITY_QUEUEING(false, false),
+        ROUND_ROBIN(false, false),
+        WEIGHTED_ROUND_ROBIN(true, false);
 
         private boolean parameters;
+        @Getter
+        private boolean flowBased;
 
-        private Available(boolean hasParameters) {
+        private Available(boolean hasParameters, boolean flowBased) {
             this.parameters = hasParameters;
+            this.flowBased = flowBased;
         }
 
         public boolean hasParameters() {
