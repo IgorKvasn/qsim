@@ -3,7 +3,7 @@
 <wiki:toc max_depth="2" />
 
 ==What can be added (programmed) into qSim?==
-Basically qSim consists of 2 separate modules: simulation core and GUI. Both these modules can be extended.
+Basically qSim consists of 2 separate modules: *simulation core* and *GUI*. Both these modules can be extended.
 
 == Extending simulation core ==
 The whole simulation core was designed in flexibility and scalability in mind.
