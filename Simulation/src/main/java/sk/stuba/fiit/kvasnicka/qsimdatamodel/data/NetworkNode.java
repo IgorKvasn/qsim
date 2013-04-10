@@ -61,8 +61,6 @@ import java.util.Map;
  * @author Igor Kvasnicka
  */
 
-//todo Cav, future me: potom nezabudni, ze ak max size TX alebo RX je -1, tak sa to berie ako nekonecno - uz to je nakodene, len v GUI na to nezabudni ;)
-
 
 @EqualsAndHashCode(of = {"name"})
 public abstract class NetworkNode implements Serializable {
@@ -170,42 +168,19 @@ public abstract class NetworkNode implements Serializable {
 
         routingRules = new HashMap<Class, Integer>();
         fillForbiddenRoutingRules(routingRules);
-        processingPackets = new LinkedList<Packet>();
         txInterfaces = new HashMap<NetworkNode, TxBuffer>();
         rxInterfaces = new HashMap<NetworkNode, RxBuffer>();
 
-        allOutputQueues = new UsageStatistics() {
-            @Override
-            public double getUsage() {
-                return getAllOutputQueueUsage();
-            }
-        };
-
-        allRXBuffers = new UsageStatistics() {
-            @Override
-            public double getUsage() {
-                return getRXUsage();
-            }
-        };
-
-        allTXBuffers = new UsageStatistics() {
-            @Override
-            public double getUsage() {
-                return getTXUsage();
-            }
-        };
-
-        allProcessingPackets = new UsageStatistics() {
-            @Override
-            public double getUsage() {
-                return getProcessingPackets();
-            }
-        };
+        initUsageStatistcs();
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
 
+        initUsageStatistcs();
+    }
+
+    private void initUsageStatistcs() {
         processingPackets = new LinkedList<Packet>();
 
         allOutputQueues = new UsageStatistics() {
@@ -460,13 +435,13 @@ public abstract class NetworkNode implements Serializable {
             logg.debug("packet has been delivered to destination " + packet.getDestination() + " - it took " + (packet.getSimulationTime() - packet.getCreationTime()) + " msec");
         }
         if (packet.getSimulationRule().isPing()) {
-            String name;
+            String nametoLog;
             if (packet.getSimulationRule().isPing()) {
-                name = packet.getSimulationRule().getSource().getName();
+                nametoLog = packet.getSimulationRule().getSource().getName();
             } else {
-                name = packet.getSimulationRule().getDestination().getName();
+                nametoLog = packet.getSimulationRule().getDestination().getName();
             }
-            simulLog.log(new SimulationLog(LogCategory.INFO, "Ping packet delivered in: " + (packet.getSimulationTime() - packet.getCreationTime()) + " msec", name, LogSource.VERTEX, packet.getSimulationTime()));
+            simulLog.log(new SimulationLog(LogCategory.INFO, "Ping packet delivered in: " + (packet.getSimulationTime() - packet.getCreationTime()) + " msec", nametoLog, LogSource.VERTEX, packet.getSimulationTime()));
             packet.getSimulationRule().firePingPacketDeliveredEvent(new PingPacketDeliveredEvent(this, packet));
         } else {
             simulLog.log(new SimulationLog(LogCategory.INFO, "Packet has been delivered", packet.getSimulationRule().getSource().getName(), LogSource.VERTEX, packet.getSimulationTime()));

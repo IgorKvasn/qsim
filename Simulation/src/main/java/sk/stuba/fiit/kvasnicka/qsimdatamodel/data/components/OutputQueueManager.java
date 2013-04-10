@@ -23,7 +23,6 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,12 +41,14 @@ public class OutputQueueManager implements Serializable {
 
 
     public OutputQueueManager(List<OutputQueue> outputQueues) {
-        if (outputQueues==null) outputQueues= Collections.<OutputQueue>emptyList();
-        this.queues = new HashMap<Integer, OutputQueue>(outputQueues.size()*3/4);
-        for (OutputQueue q:outputQueues){
-            queues.put(q.getQueueNumber(),q);
+        if (outputQueues == null) {
+            this.queues = new HashMap<Integer, OutputQueue>();
+        } else {
+            this.queues = new HashMap<Integer, OutputQueue>(outputQueues.size() * 3 / 4);
+            for (OutputQueue q : outputQueues) {
+                queues.put(q.getQueueNumber(), q);
+            }
         }
-
     }
 
 

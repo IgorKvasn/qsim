@@ -44,7 +44,7 @@ public class ClassBasedWFQScheduling extends PacketScheduling {
     private transient List<List<Integer>> savedBits; //first parameter is class number, second is queue number within the class
 
     public static final String CLASS_DEFINITIONS = "class_definitions";
-    private static final Logger logg = Logger.getLogger(ClassBasedWFQScheduling.class);
+    private static Logger logg = Logger.getLogger(ClassBasedWFQScheduling.class);
 
     public ClassBasedWFQScheduling(HashMap<String, Object> parameters) {
         super(parameters);

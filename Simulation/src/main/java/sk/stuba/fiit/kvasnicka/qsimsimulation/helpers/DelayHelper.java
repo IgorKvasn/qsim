@@ -36,7 +36,7 @@ public abstract class DelayHelper {
     private static UnivariateRealInterpolator interpolator = new LinearInterpolator();
 
     private static Logger logg = Logger.getLogger(DelayHelper.class);
-    public static final double MIN_PROCESSING_DELAY = 0.5; //msec     //todo change to 0.018 or possibly another value - 0.5 msec is simply too big
+    public static final double MIN_PROCESSING_DELAY = 0.5; //msec
     public static final double PACKET_CREATION_DELAY = 0.1;
 
 
@@ -59,7 +59,7 @@ public abstract class DelayHelper {
      * @param networkNode
      * @return
      */
-    public static double calculateProcessingDelay(NetworkNode networkNode) {  //todo cache all iterpolation objects so that they need not to be initialised over and over
+    public static double calculateProcessingDelay(NetworkNode networkNode) {
         UnivariateRealFunction function = null;
         try {
             function = interpolator.interpolate(new double[]{0.0, networkNode.getMaxProcessingPackets()}, new double[]{networkNode.getMinProcessingDelay(), networkNode.getMaxProcessingDelay()});
