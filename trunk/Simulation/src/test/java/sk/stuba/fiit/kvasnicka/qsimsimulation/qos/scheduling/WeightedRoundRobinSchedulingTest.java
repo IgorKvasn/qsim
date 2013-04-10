@@ -102,7 +102,7 @@ public class WeightedRoundRobinSchedulingTest {
             }
         });
 
-        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null, null, null);
 
         node1 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
 
@@ -150,7 +150,7 @@ public class WeightedRoundRobinSchedulingTest {
             }
         });
 
-        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null, null, null);
 
         node1 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
 
@@ -198,7 +198,7 @@ public class WeightedRoundRobinSchedulingTest {
                 put(WeightedRoundRobinScheduling.CLASS_DEFINITIONS, classDef);
             }
         });
-        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null, null, null);
 
         node1 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
 

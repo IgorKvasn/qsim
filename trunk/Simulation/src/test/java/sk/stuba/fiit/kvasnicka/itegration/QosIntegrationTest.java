@@ -85,21 +85,21 @@ public class QosIntegrationTest {
     public void before() {
         packetDelivered = 0;
 
-        QosMechanismDefinition qosMechanism1 = new QosMechanismDefinition(new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
+        QosMechanismDefinition qosMechanism1 = new QosMechanismDefinition(null,null,new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
             put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, .02);
             put(RandomEarlyDetection.MAX_PROBABILITY, .9);
             put(RandomEarlyDetection.MAX_THRESHOLD, .2);
             put(RandomEarlyDetection.MIN_THRESHOLD, .1);
         }}));
 
-        QosMechanismDefinition qosMechanism2 = new QosMechanismDefinition(new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
+        QosMechanismDefinition qosMechanism2 = new QosMechanismDefinition(null,null,new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
             put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, .02);
             put(RandomEarlyDetection.MAX_PROBABILITY, .9);
             put(RandomEarlyDetection.MAX_THRESHOLD, .2);
             put(RandomEarlyDetection.MIN_THRESHOLD, .1);
         }}));
 
-        QosMechanismDefinition qosMechanism3 = new QosMechanismDefinition(new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
+        QosMechanismDefinition qosMechanism3 = new QosMechanismDefinition(null,null,new RoundRobinScheduling(), new FlowBasedClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
             put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, .02);
             put(RandomEarlyDetection.MAX_PROBABILITY, .9);
             put(RandomEarlyDetection.MAX_THRESHOLD, .2);

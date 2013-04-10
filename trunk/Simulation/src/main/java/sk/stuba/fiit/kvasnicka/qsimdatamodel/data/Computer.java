@@ -39,14 +39,13 @@ public class Computer extends NetworkNode {
      * creates new instanceEdge
      * <p/>
      * see NetworkNode javadoc for more explanation
-     *
      */
     public Computer(String name, String description, int maxTxBufferSize, int maxRxBufferSize, List<OutputQueue> queues, int maxIntputQueueSize, int maxProcessingPackets, double tcpDelay, double minProcessingDelay, double maxProcessingDelay) {
         super(name, description, createQosDef(), maxTxBufferSize, maxRxBufferSize, queues, maxIntputQueueSize, maxProcessingPackets, tcpDelay, minProcessingDelay, maxProcessingDelay);
     }
 
     private static QosMechanismDefinition createQosDef() {
-        return new QosMechanismDefinition(new FifoScheduling(),new BestEffortClassification(),new BestEffortQueueManagement());
+        return new QosMechanismDefinition(null, null, new FifoScheduling(), new BestEffortClassification(), new BestEffortQueueManagement());
     }
 
 
