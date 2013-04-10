@@ -308,7 +308,7 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
 
         comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.FIFO, "FIFO"));//0
         comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.PRIORITY_QUEUEING, "Priority queueing"));//1
-        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.ROUND_ROBIN, "Round robin"));//2
+        comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.ROUND_ROBIN, "Fair queueing"));//2
         comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.WEIGHTED_ROUND_ROBIN, "Weighted round robin"));//3
         comboQosScheduling.addItem(new ComboItem(PacketScheduling.Available.WFQ, "Weighted fair queueing (WFQ)"));//4
 
@@ -483,8 +483,16 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
     }
 
     private PacketScheduling createPacketScheduling() throws QosCreationException {
-       PacketScheduling packetScheduling;
+        PacketScheduling packetScheduling;
         PacketScheduling.Available schedAvailableEnum = ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());
+        PacketClassification.Available classifEnum = ((PacketClassification.Available) ((SwitchConfigurationDialog.ComboItem) comboQosClassif.getSelectedItem()).getValue());
+
+
+        if (schedAvailableEnum.isFlowBased() && classifEnum == Available.FLOW_BASED) {
+            //ok - it would be easier to think about better if condition than this...
+        } else {
+            throw new QosCreationException("Flow based classification and flow based packet scheduling (WFQ or CB-WFQ) must be used together.");
+        }
 
         //check for classes to be defined - if class based scheduling is selected
         if ((PacketScheduling.Available.WEIGHTED_ROUND_ROBIN == schedAvailableEnum)) {
