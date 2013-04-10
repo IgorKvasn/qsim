@@ -8,7 +8,7 @@ Basically qSim consists of 2 separate modules: simulation core and GUI. Both the
 == Extending simulation core ==
 The whole simulation core was designed in flexibility and scalability in mind.
 There are 2 elements in network topology:
-  * NetworkNode 
+  * [http://code.google.com/p/qsim/source/browse/trunk/Simulation/src/main/java/sk/stuba/fiit/kvasnicka/qsimdatamodel/data/Edge.java NetworkNode] 
      * represents routers, switches and PCs
      * contains main logic of all topology vertices
 
