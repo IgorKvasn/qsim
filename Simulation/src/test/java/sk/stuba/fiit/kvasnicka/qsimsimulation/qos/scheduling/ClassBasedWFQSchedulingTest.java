@@ -68,7 +68,7 @@ public class ClassBasedWFQSchedulingTest {
         });
 
 
-        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null, null, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null,null, null, null, null);
 
         node1 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
 
@@ -141,7 +141,7 @@ public class ClassBasedWFQSchedulingTest {
     }
 
     private void initRoute(Packet... packets) {
-        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null, null, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null,null, null, null, null, null);
         NetworkNode node2 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
 
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, null, 1, 1, 100, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 1, 2);
@@ -162,7 +162,7 @@ public class ClassBasedWFQSchedulingTest {
     }
 
     private void initRoute2(Packet... packets) {
-        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null, null, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null,null, null, null, null);
         NetworkNode node2 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
 
         SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, null, 1, 1, 100, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 3, 4);
