@@ -23,9 +23,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.ClassBasedWFQScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedRoundRobinScheduling;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -73,7 +71,7 @@ public class WeightedRoundRobinSchedulingTest {
     public void testConstructor_wrong_parameter_value_type() {
         try {
             new WeightedRoundRobinScheduling(new HashMap<String, Object>() {{
-                put(WeightedRoundRobinScheduling.CLASS_DEFINITIONS, "test");
+                put(WeightedRoundRobinScheduling.QUEUES_WEIGHT, "test");
             }});
             fail("parameter class count should has integer value - exception should be thrown");
         } catch (IllegalArgumentException e) {
@@ -84,25 +82,23 @@ public class WeightedRoundRobinSchedulingTest {
     @Test
     public void testConstructor_ok() {
         new WeightedRoundRobinScheduling(new HashMap<String, Object>() {{
-            put(WeightedRoundRobinScheduling.CLASS_DEFINITIONS, new ClassDefinition[]{});
+            put(WeightedRoundRobinScheduling.QUEUES_WEIGHT, new int[]{});
         }});
     }
 
 
     @Test
     public void testDecitePacketsToMoveFromOutputQueue_three_queues() {
-        final ClassDefinition[] classDef = new ClassDefinition[2];
-        classDef[0] = new ClassDefinition(0, 1);
-        classDef[1] = new ClassDefinition(2);
+        final int[] queueWeights = new int[]{1,2,1};
 
 
         weightedRoundRobinScheduling = new WeightedRoundRobinScheduling(new HashMap<String, Object>() {
             {
-                put(ClassBasedWFQScheduling.CLASS_DEFINITIONS, classDef);
+                put(WeightedRoundRobinScheduling.QUEUES_WEIGHT, queueWeights);
             }
         });
 
-        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null, null, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null, null, null, null);
 
         node1 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
 
@@ -130,106 +126,10 @@ public class WeightedRoundRobinSchedulingTest {
 
 
         assertTrue(packetList.get(0) == p1);
-        assertTrue(packetList.get(1) == p5);
-        assertTrue(packetList.get(2) == p3);
-        assertTrue(packetList.get(3) == p6);
-        assertTrue(packetList.get(4) == p2);
-        assertTrue(packetList.get(5) == p4);
-    }
-
-
-    @Test
-    public void testDecitePacketsToMoveFromOutputQueue_four_queues() {
-        final ClassDefinition[] classDef = new ClassDefinition[2];
-        classDef[0] = new ClassDefinition(0, 1);
-        classDef[1] = new ClassDefinition(2, 3);
-
-        weightedRoundRobinScheduling = new WeightedRoundRobinScheduling(new HashMap<String, Object>() {
-            {
-                put(ClassBasedWFQScheduling.CLASS_DEFINITIONS, classDef);
-            }
-        });
-
-        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null, null, null);
-
-        node1 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
-
-        final Packet p1 = new Packet(10, null, null, 0);
-        final Packet p2 = new Packet(10, null, null, 0);
-        final Packet p3 = new Packet(10, null, null, 0);
-        final Packet p4 = new Packet(10, null, null, 0);
-        final Packet p5 = new Packet(10, null, null, 0);
-        final Packet p6 = new Packet(10, null, null, 0);
-        final Packet p7 = new Packet(10, null, null, 0);
-        final Packet p8 = new Packet(10, null, null, 0);
-        Packet p9 = new Packet(10, null, null, 0);
-        Packet p10 = new Packet(10, null, null, 0);
-
-        Map<Integer, List<Packet>> outputPackets = new HashMap<Integer, List<Packet>>() {{
-            put(0, Arrays.asList(p1, p2));
-            put(1, Arrays.asList(p3, p4));
-            put(2, Arrays.asList(p5, p6));
-            put(3, Arrays.asList(p7, p8));
-        }};
-
-        List<Packet> packetList = weightedRoundRobinScheduling.decitePacketsToMoveFromOutputQueue(node1, outputPackets);
-
-        assertNotNull(packetList);
-        assertEquals(8, packetList.size());
-
-
-        assertTrue(packetList.get(0) == p1);
         assertTrue(packetList.get(1) == p3);
-        assertTrue(packetList.get(2) == p5);
-        assertTrue(packetList.get(3) == p7);
+        assertTrue(packetList.get(2) == p4);
+        assertTrue(packetList.get(3) == p5);
         assertTrue(packetList.get(4) == p2);
-        assertTrue(packetList.get(5) == p4);
-        assertTrue(packetList.get(6) == p6);
-        assertTrue(packetList.get(7) == p8);
-    }
-
-    @Test
-    public void testDecitePacketsToMoveFromOutputQueue_two_queues() {
-        final ClassDefinition[] classDef = new ClassDefinition[1];
-        classDef[0] = new ClassDefinition(0, 1, 2);
-
-        weightedRoundRobinScheduling = new WeightedRoundRobinScheduling(new HashMap<String, Object>() {
-            {
-                put(WeightedRoundRobinScheduling.CLASS_DEFINITIONS, classDef);
-            }
-        });
-        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null, null, null);
-
-        node1 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
-
-        final Packet p1 = new Packet(10, null, null, 0);
-        final Packet p2 = new Packet(10, null, null, 0);
-        final Packet p3 = new Packet(10, null, null, 0);
-        final Packet p4 = new Packet(10, null, null, 0);
-        final Packet p5 = new Packet(10, null, null, 0);
-        final Packet p6 = new Packet(10, null, null, 0);
-        final Packet p7 = new Packet(10, null, null, 0);
-        Packet p8 = new Packet(10, null, null, 0);
-        Packet p9 = new Packet(10, null, null, 0);
-        Packet p10 = new Packet(10, null, null, 0);
-
-        Map<Integer, List<Packet>> outputPackets = new HashMap<Integer, List<Packet>>() {{
-            put(0, Arrays.asList(p1, p2));
-            put(1, Arrays.asList(p3, p4, p7));
-            put(2, Arrays.asList(p5, p6));
-        }};
-
-        List<Packet> packetList = weightedRoundRobinScheduling.decitePacketsToMoveFromOutputQueue(node1, outputPackets);
-
-        assertNotNull(packetList);
-        assertEquals(7, packetList.size());
-
-        assertTrue(packetList.get(0) == p1);
-        assertTrue(packetList.get(1) == p3);
-        assertTrue(packetList.get(2) == p5);
-        assertTrue(packetList.get(3) == p2);
-        assertTrue(packetList.get(4) == p4);
         assertTrue(packetList.get(5) == p6);
-        assertTrue(packetList.get(6) == p7);
     }
 }

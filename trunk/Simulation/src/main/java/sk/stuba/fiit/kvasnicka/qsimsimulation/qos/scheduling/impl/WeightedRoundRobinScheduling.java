@@ -20,10 +20,10 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ParameterException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.QosUtils;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -36,18 +36,19 @@ import java.util.Map;
 public class WeightedRoundRobinScheduling extends PacketScheduling {
 
     private static final long serialVersionUID = - 4165594410407914293L;
-    private transient int currentClassNumber = 0; //number of currently processing class
-    private transient int[] currentQueues;//currently processing queue for each class
 
-    private transient int[] unprocessedPacketsInClass;
-
-    public static final String CLASS_DEFINITIONS = "class_definitions";
+    private transient int currentQueue;//currently processed queue
+    public static final String QUEUES_WEIGHT = "queues_weight";
 
     public WeightedRoundRobinScheduling(HashMap<String, Object> parameters) {
         super(parameters);
         try {
-            QosUtils.checkParameter(parameters, ClassDefinition[].class, CLASS_DEFINITIONS);
-            QosUtils.checkClassDefinition((ClassDefinition[]) parameters.get(CLASS_DEFINITIONS));
+            QosUtils.checkParameter(parameters, int[].class, QUEUES_WEIGHT);
+            int[] queueWeights = (int[]) parameters.get(QUEUES_WEIGHT);
+
+            for (int q : queueWeights) {
+                if (q <= 0) throw new ParameterException("One of the queue weights is negative or zero.");
+            }
         } catch (ParameterException e) {
             throw new IllegalArgumentException(e);
         }
@@ -61,145 +62,49 @@ public class WeightedRoundRobinScheduling extends PacketScheduling {
             return Collections.emptyList();
         }
 
-        ClassDefinition[] classDefinitions = (ClassDefinition[]) parameters.get(CLASS_DEFINITIONS);
 
-
-        currentQueues = new int[classDefinitions.length];
-        unprocessedPacketsInClass = new int[classDefinitions.length];
-
-        for (int i = 0; i < unprocessedPacketsInClass.length; i++) {
-            unprocessedPacketsInClass[i] = Integer.MAX_VALUE;//it is difficult and useless to calculate unprocessed packets - this will guarantee, that at least one round robin will be done
-        }
-
-        Map<Integer, List<Packet>> outputQueuePacketsCopy = outputQueueMakeCopy(outputQueuePackets);
-
-        int classCount = classDefinitions.length;
+        int[] queueWeights = (int[]) parameters.get(QUEUES_WEIGHT);
 
         List<Packet> packets = new LinkedList<Packet>();
-        int inactiveQueue = 0;
-        int startClass = currentClassNumber;
-        int packetsToProcess = calculatePacketsToProcess(outputQueuePacketsCopy.size(), classCount);//how many packets can be processed in one round robin run
-
-        while (true) {
-
-            if (isClassEmpty(currentClassNumber)) {       //this queue has no more packets left
-                inactiveQueue++;
-            } else {
-                //-----------perform inner round robin
-                List<List<Packet>> qosClass = extractQosClass(classDefinitions[currentClassNumber], outputQueuePacketsCopy);
-
-                performClassRoundRobin(currentClassNumber, qosClass, packets, packetsToProcess);
-                //--------------------------------------
-            }
-            currentClassNumber++;
-            currentClassNumber %= classCount;
-            if (currentClassNumber == startClass) {//I have performed one round robin circle
-
-                if (inactiveQueue == classCount) {
-                    break;//there are no more packets in output queue
-                } else {
-                    inactiveQueue = 0;
-                }
-            }
-        }
-
-        return packets;
-    }
-
-    /**
-     * returns all queues within same class
-     *
-     * @param classDefinition
-     * @param allQueues
-     * @return
-     */
-    private List<List<Packet>> extractQosClass(ClassDefinition classDefinition, Map<Integer, List<Packet>> allQueues) {
-        List<List<Packet>> result = new LinkedList<List<Packet>>();
-        for (int queue : classDefinition.getQueueNumbers()) {
-            result.add(allQueues.get(queue));
-        }
-        return result;
-    }
-
-    /**
-     * copies output queues to new List so that I can remove packets from it
-     *
-     * @param outputQueuePackets
-     * @return
-     */
-    private Map<Integer, List<Packet>> outputQueueMakeCopy(Map<Integer, List<Packet>> outputQueuePackets) {
-        Map<Integer, List<Packet>> result = new HashMap<Integer, List<Packet>>();
-        for (Map.Entry<Integer, List<Packet>> q : outputQueuePackets.entrySet()) {
-            List<Packet> list = new LinkedList<Packet>();
-            list.addAll(q.getValue());
-            result.put(q.getKey(), list);
-        }
-        return result;
-    }
-
-    /**
-     * detects if class is empty
-     *
-     * @param classNo
-     * @return
-     */
-    private boolean isClassEmpty(int classNo) {
-        return unprocessedPacketsInClass[classNo] == 0;
-    }
-
-    /**
-     * calculates how many packets cen be processed in one round robin (outer round robin)
-     *
-     * @param queueCount
-     * @param classCount
-     * @return
-     */
-    private int calculatePacketsToProcess(int queueCount, int classCount) {
-        return queueCount / classCount;
-    }
-
-    /**
-     * round robin over one class
-     *
-     * @return
-     */
-    private void performClassRoundRobin(int classNumber, List<List<Packet>> outputQueuePackets, List<Packet> result, int packetsToProcess) {
-
         int numberOfQueues = outputQueuePackets.size();
         int inactiveQueue = 0;
-        int startQueueClass = currentQueues[classNumber];
-        int processed = 0;
+        int startQueue = currentQueue;
+        int[] lastPacket = new int[queueWeights.length];//index of last processed packet in each queue
+        Arrays.fill(lastPacket, 0);//init
 
         while (true) {
-            if (packetsToProcess == processed) {
-                break;//I have used all my time - I need to wait for another round to finish
-            }
 
-            List<Packet> queue = outputQueuePackets.get(currentQueues[classNumber]);
+            List<Packet> queue = outputQueuePackets.get(currentQueue);
 
-            if (queue.size() <= 0) {       //this queue has no more packets left
+            if (queue.size() <= lastPacket[currentQueue]) {       //this queue has no more packets left
                 inactiveQueue++;
             } else {
-                result.add(queue.get(0));
-                queue.remove(0);
-                processed++;
+                for (int i = 0; i < queueWeights[currentQueue]; i++) {
+                    if (queue.size() <= lastPacket[currentQueue]) {
+                        break;//queue is empty
+                    }
+                    try {
+                        packets.add(queue.get(lastPacket[currentQueue]));
+                        lastPacket[currentQueue]++;
+                    } catch (Exception e) {
+                        break;//this should not happen - it should be taken care of in previous if-statement
+                    }
+                }
             }
 
-            currentQueues[classNumber]++;
-            currentQueues[classNumber] %= numberOfQueues;
-            if (currentQueues[classNumber] == startQueueClass) {//I have performed one round robin circle
+            currentQueue++;
+            currentQueue %= numberOfQueues;
+            if (currentQueue == startQueue) {//I have performed one round robin circle
 
                 if (inactiveQueue == numberOfQueues) {
                     break;//there are no more packets in output queue
                 } else {
                     inactiveQueue = 0;
                 }
+
             }
         }
 
-        unprocessedPacketsInClass[classNumber] = 0;
-        for (List<Packet> queue : outputQueuePackets) {
-            unprocessedPacketsInClass[classNumber] += queue.size();
-        }
+        return packets;
     }
 }

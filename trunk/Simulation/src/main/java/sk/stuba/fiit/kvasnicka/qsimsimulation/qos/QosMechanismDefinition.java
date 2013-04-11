@@ -59,6 +59,9 @@ public class QosMechanismDefinition implements Serializable {
     @Getter
     private FlowClassDefinition[] flowClassDefinitions;
 
+    @Getter
+    private int[] queueWeights;
+
     /**
      * creates new object that defines QoS
      *
@@ -67,7 +70,12 @@ public class QosMechanismDefinition implements Serializable {
      * @param packetClassification  packet classification mechanism
      * @param activeQueueManagement active queue management mechanism
      */
-    public QosMechanismDefinition(ClassDefinition[] classDefinitions, FlowClassDefinition[] flowClassDefinitions, PacketScheduling packetScheduling, PacketClassification packetClassification, ActiveQueueManagement activeQueueManagement) {
+    public QosMechanismDefinition(ClassDefinition[] classDefinitions, FlowClassDefinition[] flowClassDefinitions, int[] queueWeights, PacketScheduling packetScheduling, PacketClassification packetClassification, ActiveQueueManagement activeQueueManagement) {
+        if (queueWeights == null) {
+            this.queueWeights = new int[0];
+        } else {
+            this.queueWeights = Arrays.copyOf(queueWeights, queueWeights.length);
+        }
         if (classDefinitions == null) {
             this.classDefinitions = new ClassDefinition[0];
         } else {
