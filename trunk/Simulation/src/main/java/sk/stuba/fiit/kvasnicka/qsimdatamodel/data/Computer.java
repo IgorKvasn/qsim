@@ -45,7 +45,7 @@ public class Computer extends NetworkNode {
     }
 
     private static QosMechanismDefinition createQosDef() {
-        return new QosMechanismDefinition(null, null,null, new FifoScheduling(), new BestEffortClassification(), new BestEffortQueueManagement());
+        return new QosMechanismDefinition(null, null, new FifoScheduling(), new BestEffortClassification(), new BestEffortQueueManagement());
     }
 
 
