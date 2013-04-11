@@ -26,7 +26,6 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassific
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.ActiveQueueManagement;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.FlowClassDefinition;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -57,9 +56,6 @@ public class QosMechanismDefinition implements Serializable {
     private ClassDefinition[] classDefinitions;
 
     @Getter
-    private FlowClassDefinition[] flowClassDefinitions;
-
-    @Getter
     private int[] queueWeights;
 
     /**
@@ -70,7 +66,7 @@ public class QosMechanismDefinition implements Serializable {
      * @param packetClassification  packet classification mechanism
      * @param activeQueueManagement active queue management mechanism
      */
-    public QosMechanismDefinition(ClassDefinition[] classDefinitions, FlowClassDefinition[] flowClassDefinitions, int[] queueWeights, PacketScheduling packetScheduling, PacketClassification packetClassification, ActiveQueueManagement activeQueueManagement) {
+    public QosMechanismDefinition(ClassDefinition[] classDefinitions, int[] queueWeights, PacketScheduling packetScheduling, PacketClassification packetClassification, ActiveQueueManagement activeQueueManagement) {
         if (queueWeights == null) {
             this.queueWeights = new int[0];
         } else {
@@ -81,11 +77,7 @@ public class QosMechanismDefinition implements Serializable {
         } else {
             this.classDefinitions = Arrays.copyOf(classDefinitions, classDefinitions.length);
         }
-        if (flowClassDefinitions == null) {
-            this.flowClassDefinitions = new FlowClassDefinition[0];
-        } else {
-            this.flowClassDefinitions = Arrays.copyOf(flowClassDefinitions, flowClassDefinitions.length);
-        }
+
         this.packetScheduling = packetScheduling;
         this.packetClassification = packetClassification;
         this.activeQueueManagement = activeQueueManagement;

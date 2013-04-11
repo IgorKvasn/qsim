@@ -33,7 +33,8 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.BestEffort
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.ActiveQueueManagement;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl.RandomEarlyDetection;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.ClassBasedWFQScheduling;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedFairQueuingScheduling;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedRoundRobinScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.FlowClassDefinition;
 
 import java.io.ByteArrayInputStream;
@@ -67,9 +68,8 @@ public class SerialisationTest implements Serializable {
         classDef[0] = new FlowClassDefinition("className1", "srcPort!=3");
         classDef[1] = new FlowClassDefinition("className2", "srcPort=3");
 
-        qosMechanism = new QosMechanismDefinition(null,null,null,new ClassBasedWFQScheduling(new HashMap<String, Object>() {{
-            put(ClassBasedWFQScheduling.CLASS_DEFINITIONS, classDef);
-        }}), new BestEffortClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
+        qosMechanism = new QosMechanismDefinition(null, null,new WeightedFairQueuingScheduling()
+        , new BestEffortClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
             put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, .6);
             put(RandomEarlyDetection.MAX_PROBABILITY, 1.0);
             put(RandomEarlyDetection.MIN_THRESHOLD, .5);
@@ -211,12 +211,10 @@ public class SerialisationTest implements Serializable {
 
     @Test
     public void testPacketScheduling() throws Exception {
-        final FlowClassDefinition[] classDef = new FlowClassDefinition[2];
-        classDef[0] = new FlowClassDefinition("className1", "srcPort!=3");
-        classDef[1] = new FlowClassDefinition("className2", "srcPort=3");
+        final int[] classDef = new int[]{5,1,2};
 
-        PacketScheduling packetScheduling = new ClassBasedWFQScheduling(new HashMap<String, Object>() {{
-            put(ClassBasedWFQScheduling.CLASS_DEFINITIONS, classDef);
+        PacketScheduling packetScheduling = new WeightedRoundRobinScheduling(new HashMap<String, Object>() {{
+            put(WeightedRoundRobinScheduling.QUEUES_WEIGHT, classDef);
         }});
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();

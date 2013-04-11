@@ -79,33 +79,4 @@ public final class QosUtils {
             }
         }
     }
-//
-//    public static QosMechanismDefinition createQosMechanism(PacketClassification.Available classificationEnum, PacketScheduling.Available schedulingEnum, ActiveQueueManagement.Available queueManagementEnum) {
-//        if (classificationEnum == null) throw new IllegalArgumentException("QoS classification not defined");
-//        if (schedulingEnum == null) throw new IllegalArgumentException("QoS packet scheduling not defined");
-//        if (queueManagementEnum == null) throw new IllegalArgumentException("QoS active queue management not defined");
-//
-//        PacketScheduling packetScheduling;
-//        switch (schedulingEnum) {
-//            case CB_WFQ:
-//                packetScheduling = new C
-//                break;
-//            case FIFO:
-//                break;
-//            case PRIORITY_QUEUEING:
-//                break;
-//            case ROUND_ROBIN:
-//                break;
-//            case WEIGHTED_ROUND_ROBIN:
-//                break;
-//            case WFQ:
-//                break;
-//            default:
-//                throw new IllegalStateException("unknown packet scheduling mechanism enum: " + schedulingEnum);
-//        }
-//
-//        PacketClassification packetClassification;
-//        ActiveQueueManagement activeQueueManagement;
-//        return new QosMechanismDefinition(packetScheduling, packetClassification, activeQueueManagement);
-//    }
 }

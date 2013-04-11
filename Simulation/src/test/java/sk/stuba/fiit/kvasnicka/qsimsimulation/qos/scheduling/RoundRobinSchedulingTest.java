@@ -50,7 +50,7 @@ public class RoundRobinSchedulingTest {
 
     @Test
     public void testDecitePacketsToMoveFromOutputQueue_one_queue() {
-        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null,null, null, null, null, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null, null, null);
 
         node1 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
 
@@ -76,7 +76,7 @@ public class RoundRobinSchedulingTest {
 
     @Test
     public void testDecitePacketsToMoveFromOutputQueue_multiple_queues() {
-        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null,null, null, null, null, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null, null, null);
 
         node1 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
 
@@ -103,7 +103,7 @@ public class RoundRobinSchedulingTest {
 
     @Test
     public void testDecitePacketsToMoveFromOutputQueue_multiple_queues_multiple_calls() {
-        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null,null, null, null, null, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null, null, null);
 
         node1 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
 
@@ -134,7 +134,7 @@ public class RoundRobinSchedulingTest {
 
     @Test
     public void testDecitePacketsToMoveFromOutputQueue_empty_queues_1() {
-        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null,null, null, null, null, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null, null, null);
 
         node1 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
 
@@ -162,7 +162,7 @@ public class RoundRobinSchedulingTest {
 
     @Test
     public void testDecitePacketsToMoveFromOutputQueue_empty_queues_2() {
-        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null,null, null, null, null, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null, null, null);
 
         node1 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
 

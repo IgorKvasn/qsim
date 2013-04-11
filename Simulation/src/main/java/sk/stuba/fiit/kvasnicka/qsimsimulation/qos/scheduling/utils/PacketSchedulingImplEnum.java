@@ -24,6 +24,6 @@ public enum PacketSchedulingImplEnum {
     FIFO, PriorityQueue,
     WeightedRoundRobin,
     WeightedFairQueuing,
-    ClassBasedWFQ, RoundRobin
+    RoundRobin
 
 }

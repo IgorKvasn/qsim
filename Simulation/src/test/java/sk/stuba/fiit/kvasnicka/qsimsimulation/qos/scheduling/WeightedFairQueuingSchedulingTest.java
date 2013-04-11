@@ -87,7 +87,7 @@ public class WeightedFairQueuingSchedulingTest {
      * for one queue it has got no effect
      */
     public void testDecitePacketsToMoveFromOutputQueue_one_queue() {
-        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null,null, null, null, null, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null, null, null);
 
         node1 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
 
@@ -114,7 +114,7 @@ public class WeightedFairQueuingSchedulingTest {
 
     @Test
     public void testDecitePacketsToMoveFromOutputQueue_multiple_queues() {
-        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null,null, null, null, null, null);
+        QosMechanismDefinition qosMechanism = new QosMechanismDefinition(null, null, null, null, null);
 
         node1 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
 

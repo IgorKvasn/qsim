@@ -58,7 +58,6 @@ public abstract class PacketScheduling implements QosMechanism {
 
 
     public enum Available {
-        CB_WFQ(true, true),
         WFQ(false, true),
         FIFO(false, false),
         PRIORITY_QUEUEING(false, false),

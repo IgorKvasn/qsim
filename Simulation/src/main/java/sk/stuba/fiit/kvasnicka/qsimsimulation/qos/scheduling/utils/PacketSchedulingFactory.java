@@ -18,7 +18,6 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.utils;
 
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.PacketScheduling;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.ClassBasedWFQScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.FifoScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.PriorityQueuingScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.RoundRobinScheduling;
@@ -46,8 +45,6 @@ public final class PacketSchedulingFactory {
      */
     public static PacketScheduling createPacketScheduling(PacketSchedulingImplEnum schedulingEnum, HashMap<String, Object> params) {
         switch (schedulingEnum) {
-            case ClassBasedWFQ:
-                return new ClassBasedWFQScheduling(params);
             case FIFO:
                 return new FifoScheduling();
             case PriorityQueue:
