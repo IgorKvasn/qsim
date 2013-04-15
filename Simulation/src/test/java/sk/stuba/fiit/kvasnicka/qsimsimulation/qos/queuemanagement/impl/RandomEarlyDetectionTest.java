@@ -38,7 +38,7 @@ public class RandomEarlyDetectionTest {
     @Before
     public void before() {
         packet = new Packet(15, null, null, 1);
-        packet.setQosQueue(0);
+        packet.setQosQueue(0,1);
 
         red = new RandomEarlyDetection(new HashMap<String, Object>() {{
             put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, .02);
@@ -53,7 +53,7 @@ public class RandomEarlyDetectionTest {
         List<Packet> queue = new LinkedList<Packet>();
         for (int i = 0; i < 16; i++) {
             Packet p = new Packet(150, null, null, 1);
-            p.setQosQueue(0);
+            p.setQosQueue(0,1);
             queue.add(p);
         }
 
@@ -70,7 +70,7 @@ public class RandomEarlyDetectionTest {
         List<Packet> queue = new LinkedList<Packet>();
         for (int i = 0; i < 6; i++) {
             Packet p = new Packet(150, null, null, 1);
-            p.setQosQueue(0);
+            p.setQosQueue(0,1);
             queue.add(p);
         }
 

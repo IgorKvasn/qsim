@@ -53,7 +53,7 @@ public class NoClassificationTest {
     @Test
     public void testClassifyAndMarkPacket() {
         int QOS_MARKING = 4;
-        packet.setQosQueue(QOS_MARKING);
+        packet.setQosQueue(QOS_MARKING,10);
         assertEquals(QOS_MARKING, classification.classifyAndMarkPacket(node1, packet));
     }
 

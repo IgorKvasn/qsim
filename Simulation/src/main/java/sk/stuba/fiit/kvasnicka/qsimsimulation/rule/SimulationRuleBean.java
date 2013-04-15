@@ -127,11 +127,10 @@ public class SimulationRuleBean {
      * @see #setRoute(java.util.List)
      */
     public SimulationRuleBean(String name, NetworkNode source, NetworkNode destination, PacketCreationDelayFunction packetCreationDelayFunction, int numberOfPackets, int packetSize, double activeDelay, Layer4TypeEnum layer4Type, IpPrecedence ipPrecedence, DscpValuesEnum dscpValue, int srcPort, int destPort) {
-        this.packetCreationDelayFunction = packetCreationDelayFunction;
         if ((dscpValue != null) && (ipPrecedence != null)) {
             throw new IllegalArgumentException("DSCP and IP ToS must not be sent both");
         }
-
+        this.packetCreationDelayFunction = packetCreationDelayFunction;
         this.name = name;
         this.activationTime = activeDelay;
         this.layer4Type = layer4Type;

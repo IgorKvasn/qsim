@@ -289,8 +289,8 @@ public class NetworkNodeTest {
         Packet p1 = new Packet(19000, packetManager, null, 10);
         Packet p2 = new Packet(1001, packetManager, null, 30);
 
-        p1.setQosQueue(0);
-        p2.setQosQueue(0);
+        p1.setQosQueue(0,1);
+        p2.setQosQueue(0,1);
 
 
         initRoute(p1, p2);
@@ -385,8 +385,8 @@ public class NetworkNodeTest {
 
         initRoute(p1, p2);
 
-        p1.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p1));
-        p2.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p2));
+        p1.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p1),10);
+        p2.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p2),10);
 
         //add packets directly to output queue - NOT to output buffer
 
@@ -426,8 +426,8 @@ public class NetworkNodeTest {
 
         initRoute(p1, p2, p3);
 
-        p1.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p1));
-        p2.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p2));
+        p1.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p1),10);
+        p2.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p2),10);
 
         //add packets directly to output queue - NOT to output buffer
         Method privateStringMethod = NetworkNode.class.getDeclaredMethod("addToOutputQueue", Packet.class);
@@ -502,8 +502,8 @@ public class NetworkNodeTest {
         Packet p1 = new Packet(MTU * (MAX_TX_SIZE - 1), packetManager, null, 10);
         Packet p2 = new Packet(MTU * 2, packetManager, null, 30);
 
-        p1.setQosQueue(0);
-        p2.setQosQueue(0);
+        p1.setQosQueue(0,1);
+        p2.setQosQueue(0,1);
 
         initRoute(p1, p2);
 
@@ -596,8 +596,8 @@ public class NetworkNodeTest {
         Packet p1 = new Packet(10, packetManager, null, 10);
         Packet p2 = new Packet(10, packetManager, null, 30);
 
-        p1.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p1));
-        p2.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p2));
+        p1.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p1),10);
+        p2.setQosQueue(qosMechanism.classifyAndMarkPacket(node1, p2),10);
 
         //test
         Method privateStringMethod = NetworkNode.class.getDeclaredMethod("addToOutputQueue", Packet.class);
@@ -623,9 +623,9 @@ public class NetworkNodeTest {
         Packet p3 = new Packet(10, packetManager, null, 30);
 
 
-        p1.setQosQueue(1);
-        p2.setQosQueue(0);
-        p3.setQosQueue(1);
+        p1.setQosQueue(1,2);
+        p2.setQosQueue(0,2);
+        p3.setQosQueue(1,2);
 
         //test
         Method privateStringMethod = NetworkNode.class.getDeclaredMethod("addToOutputQueue", Packet.class);

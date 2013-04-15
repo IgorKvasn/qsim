@@ -143,15 +143,15 @@ public class TcpCongestionOutputQueueTest {
     public void testMoveFromProcessingToOutputQueue_overflow() {
         //create packets
         Packet p1 = new Packet(19000, packetManager, null, 10);
-        p1.setQosQueue(0);
+        p1.setQosQueue(0,1);
         Packet p2 = new Packet(1001, packetManager, null, 30);
-        p2.setQosQueue(0);
+        p2.setQosQueue(0,1);
         Packet p3 = new Packet(1001, packetManager, null, 330);//this creation time is important, because this is time when edge congestion happens
-        p3.setQosQueue(0);
+        p3.setQosQueue(0,1);
         Packet p4 = new Packet(1001, packetManager, null, 350);
-        p4.setQosQueue(0);
+        p4.setQosQueue(0,1);
         Packet p5 = new Packet(1001, packetManager, null, 550);//this creation time is important, because this is time when edge congestion happens
-        p5.setQosQueue(0);
+        p5.setQosQueue(0,1);
 
         initRoute(p1, p2, p3, p4, p5);
 
@@ -208,16 +208,16 @@ public class TcpCongestionOutputQueueTest {
         Packet p9 = new Packet(1001, packetManager, null, 350);
         Packet p10 = new Packet(1001, packetManager, null, 350);
 
-        p1.setQosQueue(0);
-        p2.setQosQueue(0);
-        p3.setQosQueue(0);
-        p4.setQosQueue(0);
-        p5.setQosQueue(0);
-        p6.setQosQueue(0);
-        p7.setQosQueue(0);
-        p8.setQosQueue(0);
-        p9.setQosQueue(0);
-        p10.setQosQueue(0);
+        p1.setQosQueue(0,1);
+        p2.setQosQueue(0,1);
+        p3.setQosQueue(0,1);
+        p4.setQosQueue(0,1);
+        p5.setQosQueue(0,1);
+        p6.setQosQueue(0,1);
+        p7.setQosQueue(0,1);
+        p8.setQosQueue(0,1);
+        p9.setQosQueue(0,1);
+        p10.setQosQueue(0,1);
 
 
         initRoute(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
@@ -307,16 +307,16 @@ public class TcpCongestionOutputQueueTest {
         Packet p9 = new Packet(1001, packetManager, null, 350);
         Packet p10 = new Packet(1001, packetManager, null, 750);
 
-        p1.setQosQueue(0);
-        p2.setQosQueue(0);
-        p3.setQosQueue(0);
-        p4.setQosQueue(0);
-        p5.setQosQueue(0);
-        p6.setQosQueue(0);
-        p7.setQosQueue(0);
-        p8.setQosQueue(0);
-        p9.setQosQueue(0);
-        p10.setQosQueue(0);
+        p1.setQosQueue(0,1);
+        p2.setQosQueue(0,1);
+        p3.setQosQueue(0,1);
+        p4.setQosQueue(0,1);
+        p5.setQosQueue(0,1);
+        p6.setQosQueue(0,1);
+        p7.setQosQueue(0,1);
+        p8.setQosQueue(0,1);
+        p9.setQosQueue(0,1);
+        p10.setQosQueue(0,1);
 
         initRoute(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
 
@@ -365,12 +365,12 @@ public class TcpCongestionOutputQueueTest {
         Packet p5 = new Packet(1001, packetManager, null, 350);
         Packet p6 = new Packet(1001, packetManager, null, 580);//this creation time is important, because this is time when edge congestion happens
 
-        p1.setQosQueue(0);
-        p2.setQosQueue(0);
-        p3.setQosQueue(0);
-        p4.setQosQueue(0);
-        p5.setQosQueue(0);
-        p6.setQosQueue(0);
+        p1.setQosQueue(0,1);
+        p2.setQosQueue(0,1);
+        p3.setQosQueue(0,1);
+        p4.setQosQueue(0,1);
+        p5.setQosQueue(0,1);
+        p6.setQosQueue(0,1);
 
 
         initRoute(p1, p2, p3, p4);

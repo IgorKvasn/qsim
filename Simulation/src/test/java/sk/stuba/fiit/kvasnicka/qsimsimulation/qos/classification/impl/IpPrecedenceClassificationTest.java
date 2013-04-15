@@ -19,7 +19,6 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl;
 
 import org.junit.Before;
 import org.junit.Test;
-import sk.stuba.fiit.kvasnicka.TestUtils;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
@@ -30,9 +29,9 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.fail;
 
 /**
  * @author Igor Kvasnicka
@@ -44,7 +43,16 @@ public class IpPrecedenceClassificationTest {
 
     @Before
     public void before() {
-        classification = new IpPrecedenceClassification();
+        final IpPrecedenceClassification.IpDefinition[] ipDefinitions = new IpPrecedenceClassification.IpDefinition[]{
+                      new IpPrecedenceClassification.IpDefinition(IpPrecedence.IP_PRECEDENCE_0,"destination('node3')"),
+                      new IpPrecedenceClassification.IpDefinition( IpPrecedence.IP_PRECEDENCE_7,"size = 4")
+              };
+
+        classification = new IpPrecedenceClassification(new HashMap<String, Object>(){{
+            put(IpPrecedenceClassification.IP_DEFINITIONS,ipDefinitions);
+            put(IpPrecedenceClassification.OUTPUT_QUEUE_COUNT,5);
+            put(IpPrecedenceClassification.NOT_DEFINED_QUEUE,new IpPrecedenceClassification.IpDefinition(IpPrecedence.IP_PRECEDENCE_2,"anything"));
+        }});
 
         node1 = new Router("node1", null, null, 100, 10, null, 10, 10, 100, 0, 0);
 
@@ -53,23 +61,9 @@ public class IpPrecedenceClassificationTest {
     }
 
     @Test
-    public void testClassifyAndMarkPacket_precedence_not_defined() {
-        try {
-            classification.classifyAndMarkPacket(node1, packet);
-            fail("IP precedence not defined in pakcet - exception should be thrown");
-        } catch (IllegalStateException e) {
-            //OK
-        }
-    }
-
-    @Test
     public void testClassifyAndMarkPacket() {
-        IpPrecedence precedence = IpPrecedence.IP_PRECEDENCE_2;
-
-        TestUtils.setWithoutSetter(SimulationRuleBean.class, packet.getSimulationRule(), "ipPrecedence", precedence);
-
         int queue = classification.classifyAndMarkPacket(node1, packet);
-        assertEquals(precedence.getIntRepresentation(), queue);
+        assertEquals(1, queue);
     }
 
     private void initRoute(Packet... packets) {
