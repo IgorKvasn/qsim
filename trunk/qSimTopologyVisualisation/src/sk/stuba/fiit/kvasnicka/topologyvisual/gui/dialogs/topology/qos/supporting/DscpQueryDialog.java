@@ -38,6 +38,7 @@ public class DscpQueryDialog extends javax.swing.JDialog {
         initOperandsList(flow);
         lblError.setVisible(false);
         jXTextArea1.setText(defaultQuery);
+        setLocationRelativeTo(parent);
     }
 
     private void initOperatorsList() {

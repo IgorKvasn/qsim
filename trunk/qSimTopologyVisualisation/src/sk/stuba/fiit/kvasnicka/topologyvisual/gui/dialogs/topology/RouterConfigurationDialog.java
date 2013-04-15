@@ -20,17 +20,12 @@ import java.awt.Dimension;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.SpinnerNumberModel;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.netbeans.api.javahelp.Help;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -62,12 +57,8 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.RoundRobinSche
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedFairQueuingScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.scheduling.impl.WeightedRoundRobinScheduling;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.FlowClassDefinition;
-import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.exceptions.QosCreationException;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.ConfirmDialogPanel;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.ClassDefinitionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.DscpClassificationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.IpClassificationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.RedQueueManagementDialog;
@@ -1139,40 +1130,20 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
             return;
         }
 
-        if (((ActiveQueueManagement.Available) ((ComboItem) comboQosQueue.getSelectedItem()).getValue()) == ActiveQueueManagement.Available.WRED) {
-            if (!areClassesDefined()) {//WRED requires classes to be defined
-                if (!PreferenciesHelper.isNeverShowQosClassConfirmation()) {
-                    ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(RouterConfigurationDialog.class, "class_definition_warning_queue_manag"));
-                    NotifyDescriptor.Confirmation descriptor = new NotifyDescriptor.Confirmation(
-                            panel, // instance of your panel
-                            NbBundle.getMessage(RouterConfigurationDialog.class, "warning_title"), // title of the dialog
-                            NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE);
+        ActiveQueueManagement.Available newSelected = ((ActiveQueueManagement.Available) ((ComboItem) comboQosQueue.getSelectedItem()).getValue());
 
-                    //show dialog
-                    DialogDisplayer.getDefault().notify(descriptor);
-
-
-                    if (panel.isNeverShow()) {
-                        PreferenciesHelper.setNeverShowQosClassConfirmation(panel.isNeverShow());
-                    }
-                }
-
-                //user cannot select this item, yet - reverse user selection                                
+        if (!isDscpClassificationSelected() && !isIpPrecedenceClassificationSelected()) {
+            if (newSelected == ActiveQueueManagement.Available.WRED) {//WRED can be selected only for IP or DSCP classification
                 comboQosQueue.setSelectedItem(selectedQueueManag);
+                JOptionPane.showMessageDialog(this,
+                        "WRED can be selected only, when DSCP or Type of service classification is selected as packet classification.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
                 return;
             }
         }
 
-        ActiveQueueManagement.Available newSelected = ((ActiveQueueManagement.Available) ((ComboItem) comboQosQueue.getSelectedItem()).getValue());
-
-        if (!isDscpClassificationSelected() || !isIpPrecedenceClassificationSelected()) {
-            if (newSelected == ActiveQueueManagement.Available.WRED) {//WRED can be selected only for IP or DSCP classification
-                btnConfigQueue.setEnabled(false);
-            }
-        } else {
-            btnConfigQueue.setEnabled(newSelected.hasParameters());
-        }
-
+        btnConfigQueue.setEnabled(newSelected.hasParameters());
         selectedQueueManag = ((ComboItem) comboQosQueue.getSelectedItem());
     }//GEN-LAST:event_comboQosQueueActionPerformed
 

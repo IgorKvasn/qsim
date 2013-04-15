@@ -51,7 +51,7 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
         super(owner, true);
         this.isDscp = isDscp;
         init();
-        saveBackupConfiguration();
+//        saveBackupConfiguration();
 
         classes = new ClassDefinition[params.length];
         for (int i = 0; i < params.length; i++) {
@@ -191,13 +191,18 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
                 return;
             }
             addClass(classDefinitionDialog.getClazz());
+            jList1.setSelectedIndex(listModel.size()-1);
         }
     }
 
     private void editClass(ClassDefinition def, int index) {
+        String oldName = def.getName();
         ClassDefinitionDialog classDefinitionDialog = new ClassDefinitionDialog(this, def, isDscp);
         classDefinitionDialog.showDialog();
-        if (!isClassNameUnique(classDefinitionDialog.getClazz().getName())) {
+        if (classDefinitionDialog.getClazz()==null){
+            return;
+        }
+        if (!oldName.equals(classDefinitionDialog.getClazz().getName()) && !isClassNameUnique(classDefinitionDialog.getClazz().getName())) {
             JOptionPane.showMessageDialog(this,
                     "Class name is not unique.",
                     "Error",
@@ -423,9 +428,8 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jButton2)
-                        .addComponent(jButton4))
+                    .addComponent(jButton4)
+                    .addComponent(jButton2)
                     .addComponent(jButton5))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
                 .addComponent(jButton1)
@@ -437,12 +441,11 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         saveConfiguration();
-        this.setVisible(false);
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         configuration.clear();
-        loadBackupConfiguration();
+//        loadBackupConfiguration();
 
         setVisible(false);
 
@@ -464,6 +467,7 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
             return;
         }
         listModel.remove(jList1.getSelectedIndex());
+        jList1.setSelectedIndex(listModel.size()-1);
     }//GEN-LAST:event_jButton4ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;

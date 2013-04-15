@@ -26,11 +26,13 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.supportin
  */
 public class IpClassificationDialog extends javax.swing.JDialog {
 
-        private DefaultTableModel tableModel;
+    private DefaultTableModel tableModel;
+    @Getter
+    private IpPrecedence defaultQueueNumber = null;
+    @Getter
+    private IpDefinition[] ipDefinitions = null;
 
-    
-
-     public IpClassificationDialog(JDialog parent) {
+    public IpClassificationDialog(JDialog parent) {
         super(parent, true);
 
         initComponents();
@@ -41,7 +43,7 @@ public class IpClassificationDialog extends javax.swing.JDialog {
         ComboItem[] items = new ComboItem[IpPrecedence.values().length];
         for (int i = 0; i < items.length; i++) {
             IpPrecedence dscpEn = IpPrecedence.values()[i];
-            items[i] = new ComboItem(dscpEn, dscpEn.getIntRepresentation()+"");
+            items[i] = new ComboItem(dscpEn, dscpEn.getIntRepresentation() + "");
         }
 
         col.setCellEditor(new MyComboBoxEditor(items));
@@ -50,7 +52,7 @@ public class IpClassificationDialog extends javax.swing.JDialog {
         jComboBox1.removeAllItems();
         for (int i = 0; i < IpPrecedence.values().length; i++) {
             IpPrecedence dscpEn = IpPrecedence.values()[i];
-            jComboBox1.addItem(new ComboItem(dscpEn, dscpEn.getIntRepresentation()+""));
+            jComboBox1.addItem(new ComboItem(dscpEn, dscpEn.getIntRepresentation() + ""));
         }
         setLocationRelativeTo(parent);
     }
@@ -64,7 +66,7 @@ public class IpClassificationDialog extends javax.swing.JDialog {
         this(parent);
 
         //default queue
-        String defaultQueueName = notDefinedQueue.getIpPrecedence().getIntRepresentation()+"";
+        String defaultQueueName = notDefinedQueue.getIpPrecedence().getIntRepresentation() + "";
         for (int i = 0; i < jComboBox1.getItemCount(); i++) {
             if (((ComboItem) jComboBox1.getItemAt(i)).getLabel().equals(defaultQueueName)) {
                 jComboBox1.setSelectedIndex(i);
@@ -73,7 +75,7 @@ public class IpClassificationDialog extends javax.swing.JDialog {
         }
         //ip queries
         for (IpDefinition def : ipDefinitions) {
-            tableModel.addRow(new Object[]{new ComboItem(def.getIpPrecedence(),def.getIpPrecedence()+""), def.getAcl()});
+            tableModel.addRow(new Object[]{new ComboItem(def.getIpPrecedence(), def.getIpPrecedence() + ""), def.getAcl()});
         }
     }
 
@@ -102,16 +104,16 @@ public class IpClassificationDialog extends javax.swing.JDialog {
      *
      * @return
      */
-    public IpDefinition[] getIpDefinitions() {
+    public IpDefinition[] makeIpDefinitions() {
         List<IpDefinition> result = new LinkedList<IpDefinition>();
         for (int i = 0; i < tableModel.getRowCount(); i++) {
-            IpDefinition res = new IpDefinition(((ComboItem) tableModel.getValueAt(i, 0)).getValue(),(String) jTable1.getValueAt(i, 1));
+            IpDefinition res = new IpDefinition(((ComboItem) tableModel.getValueAt(i, 0)).getValue(), (String) jTable1.getValueAt(i, 1));
             result.add(res);
         }
         return result.toArray(new IpDefinition[result.size()]);
     }
 
-    public IpPrecedence getDefaultQueueNumber() {
+    public IpPrecedence makeDefaultQueueNumber() {
         return ((ComboItem) jComboBox1.getSelectedItem()).value;
     }
 
@@ -121,12 +123,7 @@ public class IpClassificationDialog extends javax.swing.JDialog {
      *
      * @return true if everything is OK, false otherwise
      */
-    private boolean validateInput() {
-        if (jTable1.getRowCount() == 0) {
-            showErrorLabel(NbBundle.getMessage(IpClassificationDialog.class, "no_ip"));
-            return false;
-        }
-
+    private boolean validateInput() {       
         for (int i = 0; i < tableModel.getRowCount(); i++) {
             try {
                 ComboItem a = (ComboItem) tableModel.getValueAt(i, 0);
@@ -149,7 +146,7 @@ public class IpClassificationDialog extends javax.swing.JDialog {
         errLabel.setText(s);
         errLabel.setVisible(true);
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -168,6 +165,7 @@ public class IpClassificationDialog extends javax.swing.JDialog {
         jLabel2 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox();
         jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle(org.openide.util.NbBundle.getMessage(IpClassificationDialog.class, "IpClassificationDialog.title")); // NOI18N
@@ -236,6 +234,13 @@ public class IpClassificationDialog extends javax.swing.JDialog {
             }
         });
 
+        org.openide.awt.Mnemonics.setLocalizedText(jButton4, org.openide.util.NbBundle.getMessage(IpClassificationDialog.class, "IpClassificationDialog.jButton4.text")); // NOI18N
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -244,7 +249,9 @@ public class IpClassificationDialog extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(153, 153, 153)
-                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jLabel2)
@@ -285,7 +292,9 @@ public class IpClassificationDialog extends javax.swing.JDialog {
                     .addComponent(jLabel2)
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(20, 20, 20)
-                .addComponent(jButton3)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton3)
+                    .addComponent(jButton4))
                 .addContainerGap())
         );
 
@@ -306,9 +315,9 @@ public class IpClassificationDialog extends javax.swing.JDialog {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         if (jTable1.getSelectedRowCount() == 0) {
             JOptionPane.showMessageDialog(this,
-                "No IP query selected.",
-                "Unable to delete",
-                JOptionPane.ERROR_MESSAGE);
+                    "No IP query selected.",
+                    "Unable to delete",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
         tableModel.removeRow(jTable1.getSelectedRow());
@@ -316,23 +325,29 @@ public class IpClassificationDialog extends javax.swing.JDialog {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         if (validateInput()) {
+            ipDefinitions = makeIpDefinitions();
+            defaultQueueNumber = makeDefaultQueueNumber();
             this.setVisible(false);
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
- 
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        this.setVisible(false);
+    }//GEN-LAST:event_jButton4ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel errLabel;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
-  private static class ComboItem {
+
+    private static class ComboItem {
 
         @Getter
         private IpPrecedence value;
@@ -356,5 +371,4 @@ public class IpClassificationDialog extends javax.swing.JDialog {
             super(new JComboBox(items));
         }
     }
-
 }
