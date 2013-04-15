@@ -10,6 +10,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpValuesEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
@@ -31,6 +32,7 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
         super(parent, true);
         this.isDscp = isDscp;
         initComponents();
+        jList1.setModel(new DefaultListModel());
         this.listModel = (DefaultListModel) jList1.getModel();
         initComboBox(isDscp);
         setLocationRelativeTo(parent);
@@ -73,6 +75,7 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
                 DscpValuesEnum d = (DscpValuesEnum) cItem.value;
                 result.add(d);
             }
+            if (result.isEmpty()) throw new ParameterException("Class is empty.");
             cl = new ClassDefinition(null, result, jTextField1.getText());
         } else {
             List<IpPrecedence> result = new LinkedList<IpPrecedence>();
@@ -81,11 +84,9 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
                 IpPrecedence d = (IpPrecedence) cItem.value;
                 result.add(d);
             }
+            if (result.isEmpty()) throw new ParameterException("Class is empty.");
             cl = new ClassDefinition(result, null, jTextField1.getText());
         }
-
-        //check for problems
-        QosUtils.checkClassDefinition(new ClassDefinition[]{cl});
 
         return cl;
     }
@@ -264,6 +265,9 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
+            if (StringUtils.isEmpty(jTextField1.getText())){
+                throw new ParameterException("Name is nod defined.");
+            }
             clazz = makeClasses();
             setVisible(false);
         } catch (ParameterException ex) {
@@ -310,6 +314,11 @@ public class ClassDefinitionDialog extends javax.swing.JDialog {
         public ComboItem(String label, Object value) {
             this.label = label;
             this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return label;
         }
     }
 }

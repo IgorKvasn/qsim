@@ -1143,41 +1143,22 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
             return;
         }
 
-        if (((ActiveQueueManagement.Available) ((ComboItem) comboQosQueue.getSelectedItem()).getValue()) == ActiveQueueManagement.Available.WRED) {
-            if (!areClassesDefined()) {//WRED requires classes to be defined
-                if (!PreferenciesHelper.isNeverShowQosClassConfirmation()) {
-                    ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(RouterConfigurationDialog.class, "class_definition_warning_queue_manag"));
-                    NotifyDescriptor.Confirmation descriptor = new NotifyDescriptor.Confirmation(
-                            panel, // instance of your panel
-                            NbBundle.getMessage(RouterConfigurationDialog.class, "warning_title"), // title of the dialog
-                            NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE);
+      
 
-                    //show dialog
-                    DialogDisplayer.getDefault().notify(descriptor);
+        ActiveQueueManagement.Available newSelected = ((ActiveQueueManagement.Available) ((SwitchConfigurationDialog.ComboItem) comboQosQueue.getSelectedItem()).getValue());
 
-
-                    if (panel.isNeverShow()) {
-                        PreferenciesHelper.setNeverShowQosClassConfirmation(panel.isNeverShow());
-                    }
-                }
-
-                //user cannot select this item, yet - reverse user selection                                
+        if (!isDscpClassificationSelected() && !isIpPrecedenceClassificationSelected()) {
+            if (newSelected == ActiveQueueManagement.Available.WRED) {//WRED can be selected only for IP or DSCP classification
                 comboQosQueue.setSelectedItem(selectedQueueManag);
+                JOptionPane.showMessageDialog(this,
+                        "WRED can be selected only, when DSCP or Type of service classification is selected as packet classification.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
                 return;
             }
         }
 
-        ActiveQueueManagement.Available newSelected = ((ActiveQueueManagement.Available) ((SwitchConfigurationDialog.ComboItem) comboQosQueue.getSelectedItem()).getValue());
-
-        if (!isDscpClassificationSelected() || !isIpPrecedenceClassificationSelected()) {
-            if (newSelected == ActiveQueueManagement.Available.WRED) {//WRED can be selected only for IP or DSCP classification
-                btnConfigQueue.setEnabled(false);
-            }
-        } else {
-            btnConfigQueue.setEnabled(newSelected.hasParameters());
-        }
-
-
+        btnConfigQueue.setEnabled(newSelected.hasParameters());
         selectedQueueManag = ((ComboItem) comboQosQueue.getSelectedItem());
     }//GEN-LAST:event_comboQosQueueActionPerformed
 
