@@ -15,42 +15,42 @@ import javax.swing.table.TableColumn;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpDefinition;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpManager;
-import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpValuesEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.IpPrecedenceClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.IpPrecedenceClassification.IpDefinition;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.supporting.DscpQueryDialog;
 
 /**
  *
  * @author Igor Kvasnicka
  */
-public class DscpClassificationDialog extends javax.swing.JDialog {
+public class IpClassificationDialog extends javax.swing.JDialog {
 
-    private DefaultTableModel tableModel;
+        private DefaultTableModel tableModel;
 
-    public DscpClassificationDialog(JDialog parent) {
+    
+
+     public IpClassificationDialog(JDialog parent) {
         super(parent, true);
 
         initComponents();
         errLabel.setVisible(false);
         tableModel = (DefaultTableModel) jTable1.getModel();
 
-
-
         TableColumn col = jTable1.getColumnModel().getColumn(0);
-        ComboItem[] items = new ComboItem[DscpValuesEnum.values().length];
+        ComboItem[] items = new ComboItem[IpPrecedence.values().length];
         for (int i = 0; i < items.length; i++) {
-            DscpValuesEnum dscpEn = DscpValuesEnum.values()[i];
-            items[i] = new ComboItem(dscpEn, dscpEn.getTextName());
+            IpPrecedence dscpEn = IpPrecedence.values()[i];
+            items[i] = new ComboItem(dscpEn, dscpEn.getIntRepresentation()+"");
         }
 
         col.setCellEditor(new MyComboBoxEditor(items));
 
         //init default class
         jComboBox1.removeAllItems();
-        for (int i = 0; i < DscpValuesEnum.values().length; i++) {
-            DscpValuesEnum dscpEn = DscpValuesEnum.values()[i];
-            jComboBox1.addItem(new ComboItem(dscpEn, dscpEn.getTextName()));
+        for (int i = 0; i < IpPrecedence.values().length; i++) {
+            IpPrecedence dscpEn = IpPrecedence.values()[i];
+            jComboBox1.addItem(new ComboItem(dscpEn, dscpEn.getIntRepresentation()+""));
         }
         setLocationRelativeTo(parent);
     }
@@ -60,20 +60,20 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
      *
      * @param settings
      */
-    public DscpClassificationDialog(JDialog parent, DscpManager dscpManager) {
+    public IpClassificationDialog(JDialog parent, IpDefinition[] ipDefinitions, IpDefinition notDefinedQueue) {
         this(parent);
 
         //default queue
-        String defaultQueueName = dscpManager.getNotDefinedQueue().getTextName();
+        String defaultQueueName = notDefinedQueue.getIpPrecedence().getIntRepresentation()+"";
         for (int i = 0; i < jComboBox1.getItemCount(); i++) {
             if (((ComboItem) jComboBox1.getItemAt(i)).getLabel().equals(defaultQueueName)) {
                 jComboBox1.setSelectedIndex(i);
                 break;
             }
         }
-        //dscp queries
-        for (DscpDefinition def : dscpManager.getDefinitions()) {
-            tableModel.addRow(new Object[]{new ComboItem(def.getDscpValue(),def.getDscpValue().getTextName()), def.getQuery()});
+        //ip queries
+        for (IpDefinition def : ipDefinitions) {
+            tableModel.addRow(new Object[]{new ComboItem(def.getIpPrecedence(),def.getIpPrecedence()+""), def.getAcl()});
         }
     }
 
@@ -98,20 +98,20 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
     }
 
     /**
-     * returns validated result of DSCP configuration
+     * returns validated result of IP configuration
      *
      * @return
      */
-    public List<DscpDefinition> getDscpDefinitions() {
-        List<DscpDefinition> result = new LinkedList<DscpDefinition>();
+    public IpDefinition[] getIpDefinitions() {
+        List<IpDefinition> result = new LinkedList<IpDefinition>();
         for (int i = 0; i < tableModel.getRowCount(); i++) {
-            DscpDefinition res = new DscpDefinition((String) jTable1.getValueAt(i, 1), ((ComboItem) tableModel.getValueAt(i, 0)).getValue());
+            IpDefinition res = new IpDefinition(((ComboItem) tableModel.getValueAt(i, 0)).getValue(),(String) jTable1.getValueAt(i, 1));
             result.add(res);
         }
-        return result;
+        return result.toArray(new IpDefinition[result.size()]);
     }
 
-    public DscpValuesEnum getDefaultQueueNumber() {
+    public IpPrecedence getDefaultQueueNumber() {
         return ((ComboItem) jComboBox1.getSelectedItem()).value;
     }
 
@@ -123,7 +123,7 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
      */
     private boolean validateInput() {
         if (jTable1.getRowCount() == 0) {
-            showErrorLabel(NbBundle.getMessage(DscpClassificationDialog.class, "no_dscp"));
+            showErrorLabel(NbBundle.getMessage(IpClassificationDialog.class, "no_ip"));
             return false;
         }
 
@@ -138,7 +138,7 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
                     throw new ClassCastException();
                 }
             } catch (ClassCastException e) {
-                showErrorLabel(NbBundle.getMessage(DscpClassificationDialog.class, "invalid_dscp_setting"));
+                showErrorLabel(NbBundle.getMessage(IpClassificationDialog.class, "invalid_ip_setting"));
                 return false;
             }
         }
@@ -149,7 +149,7 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
         errLabel.setText(s);
         errLabel.setVisible(true);
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -159,25 +159,30 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jLabel1 = new javax.swing.JLabel();
+        errLabel = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        jButton3 = new javax.swing.JButton();
-        errLabel = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox();
+        jButton3 = new javax.swing.JButton();
 
-        setTitle(org.openide.util.NbBundle.getMessage(DscpClassificationDialog.class, "DscpClassificationDialog.title")); // NOI18N
-        setMinimumSize(new java.awt.Dimension(583, 511));
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setTitle(org.openide.util.NbBundle.getMessage(IpClassificationDialog.class, "IpClassificationDialog.title")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(IpClassificationDialog.class, "IpClassificationDialog.jLabel1.text")); // NOI18N
+
+        errLabel.setForeground(new java.awt.Color(255, 0, 0));
+        org.openide.awt.Mnemonics.setLocalizedText(errLabel, org.openide.util.NbBundle.getMessage(IpClassificationDialog.class, "IpClassificationDialog.errLabel.text")); // NOI18N
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "DSCP", "ACL query"
+                "IP CoS", "ACL query"
             }
         ) {
             Class[] types = new Class [] {
@@ -201,14 +206,11 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
             }
         });
         jScrollPane1.setViewportView(jTable1);
-        jTable1.getColumnModel().getColumn(0).setMinWidth(60);
-        jTable1.getColumnModel().getColumn(0).setPreferredWidth(70);
-        jTable1.getColumnModel().getColumn(0).setMaxWidth(90);
-        jTable1.getColumnModel().getColumn(0).setHeaderValue(org.openide.util.NbBundle.getMessage(DscpClassificationDialog.class, "DscpClassificationDialog.jTable1.columnModel.title0")); // NOI18N
-        jTable1.getColumnModel().getColumn(1).setHeaderValue(org.openide.util.NbBundle.getMessage(DscpClassificationDialog.class, "DscpClassificationDialog.jTable1.columnModel.title1")); // NOI18N
+        jTable1.getColumnModel().getColumn(0).setHeaderValue(org.openide.util.NbBundle.getMessage(IpClassificationDialog.class, "IpClassificationDialog.jTable1.columnModel.title0")); // NOI18N
+        jTable1.getColumnModel().getColumn(1).setHeaderValue(org.openide.util.NbBundle.getMessage(IpClassificationDialog.class, "IpClassificationDialog.jTable1.columnModel.title1")); // NOI18N
 
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/add.png"))); // NOI18N
-        org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(DscpClassificationDialog.class, "DscpClassificationDialog.jButton1.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(IpClassificationDialog.class, "IpClassificationDialog.jButton1.text")); // NOI18N
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -216,28 +218,23 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
         });
 
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sk/stuba/fiit/kvasnicka/topologyvisual/resources/files/remove.png"))); // NOI18N
-        org.openide.awt.Mnemonics.setLocalizedText(jButton2, org.openide.util.NbBundle.getMessage(DscpClassificationDialog.class, "DscpClassificationDialog.jButton2.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jButton2, org.openide.util.NbBundle.getMessage(IpClassificationDialog.class, "IpClassificationDialog.jButton2.text")); // NOI18N
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
             }
         });
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(DscpClassificationDialog.class, "DscpClassificationDialog.jLabel1.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(IpClassificationDialog.class, "IpClassificationDialog.jLabel2.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jButton3, org.openide.util.NbBundle.getMessage(DscpClassificationDialog.class, "DscpClassificationDialog.jButton3.text")); // NOI18N
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        org.openide.awt.Mnemonics.setLocalizedText(jButton3, org.openide.util.NbBundle.getMessage(IpClassificationDialog.class, "IpClassificationDialog.jButton3.text")); // NOI18N
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton3ActionPerformed(evt);
             }
         });
-
-        errLabel.setForeground(new java.awt.Color(255, 0, 0));
-        org.openide.awt.Mnemonics.setLocalizedText(errLabel, org.openide.util.NbBundle.getMessage(DscpClassificationDialog.class, "DscpClassificationDialog.errLabel.text")); // NOI18N
-
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(DscpClassificationDialog.class, "DscpClassificationDialog.jLabel2.text")); // NOI18N
-
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -267,7 +264,7 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(12, 12, 12)
                                 .addComponent(errLabel)))))
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -291,6 +288,8 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
                 .addComponent(jButton3)
                 .addContainerGap())
         );
+
+        pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
@@ -307,9 +306,9 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         if (jTable1.getSelectedRowCount() == 0) {
             JOptionPane.showMessageDialog(this,
-                    "No DSCP query selected.",
-                    "Unable to delete",
-                    JOptionPane.ERROR_MESSAGE);
+                "No IP query selected.",
+                "Unable to delete",
+                JOptionPane.ERROR_MESSAGE);
             return;
         }
         tableModel.removeRow(jTable1.getSelectedRow());
@@ -320,6 +319,8 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
             this.setVisible(false);
         }
     }//GEN-LAST:event_jButton3ActionPerformed
+
+ 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel errLabel;
     private javax.swing.JButton jButton1;
@@ -331,15 +332,14 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
-
-    private static class ComboItem {
+  private static class ComboItem {
 
         @Getter
-        private DscpValuesEnum value;
+        private IpPrecedence value;
         @Getter
         private String label;
 
-        public ComboItem(DscpValuesEnum value, String label) {
+        public ComboItem(IpPrecedence value, String label) {
             this.value = value;
             this.label = label;
         }
@@ -356,4 +356,5 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
             super(new JComboBox(items));
         }
     }
+
 }

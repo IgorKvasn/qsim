@@ -40,6 +40,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.helpers.DelayHelper;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanismDefinition;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification.Available;
+import static sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification.Available.IP_PRECEDENCE;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.BestEffortClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.DscpClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.FlowBasedClassification;
@@ -70,9 +71,10 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.NetbeansWindowHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.ConfirmDialogPanel;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.ClassDefinitionDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.DscpClassificationDialog;
-import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.FlowClassDefinitionDialog;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.IpClassificationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.RedQueueManagementDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.WredQueueManagementDialog;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.topology.qos.WrrConfigurationDialog;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.dialogs.utils.BlockingDialog;
 
 /**
@@ -83,10 +85,10 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
 
     private static Logger logg = Logger.getLogger(SwitchConfigurationDialog.class);
     private DscpClassificationDialog dscpClassificationDialog;
+    private IpClassificationDialog ipClassificationDialog;
     private RedQueueManagementDialog redQueueManagementDialog;
     private WredQueueManagementDialog wredQueueManagementDialog;
-    private ClassDefinitionDialog classDefinitionDialog;
-    private FlowClassDefinitionDialog flowClassDefinitionDialog;
+    private WrrConfigurationDialog wrrConfigurationDialog;
     private OutputQueuesConfigDialog outputQueuesConfigDialog;
     private boolean creatingComboboxes; //all comboboxes are listening for changes, what is not good when creating (populating) comboboxes
     private ComboItem selectedPacketClassification; //to temporary store selected classification mechanism
@@ -167,6 +169,10 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
                 comboQosClassif.setSelectedIndex(2);
                 break;
             case IP_PRECEDENCE:
+                HashMap<String, Object> paramsIp = ((IpPrecedenceClassification) (swi.getQosMechanism()).getPacketClassification()).getParameters();
+                IpPrecedenceClassification.IpDefinition[] ipDefinitions = (IpPrecedenceClassification.IpDefinition[]) paramsIp.get(IpPrecedenceClassification.IP_DEFINITIONS);
+                IpPrecedenceClassification.IpDefinition undefinedQueue = (IpPrecedenceClassification.IpDefinition) paramsIp.get(IpPrecedenceClassification.NOT_DEFINED_QUEUE);
+                ipClassificationDialog = new IpClassificationDialog(this, ipDefinitions, undefinedQueue);
                 comboQosClassif.setSelectedIndex(3);
                 break;
             case NONE:
@@ -189,7 +195,7 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
                 break;
             case WRED:
                 paramsQueue = ((WeightedRED) (swi.getQosMechanism()).getActiveQueueManagement()).getParameters();
-                wredQueueManagementDialog = new WredQueueManagementDialog(this, (WredDefinition[]) paramsQueue.get(WeightedRED.WRED_DEFINITION));
+                wredQueueManagementDialog = new WredQueueManagementDialog(this, (WredDefinition[]) paramsQueue.get(WeightedRED.WRED_DEFINITION), isDscpClassificationSelected());
                 comboQosQueue.setSelectedIndex(2);
                 break;
             default:
@@ -217,11 +223,8 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
                 throw new IllegalStateException("unknown packet scheduling enum: " + packetSchedEnum);
         }
 
-        if (swi.getQosMechanism().getClassDefinitions() != null) {
-            classDefinitionDialog = new ClassDefinitionDialog(this, swi.getQosMechanism().getClassDefinitions());
-        }
-        if (swi.getQosMechanism().getFlowClassDefinitions() != null) {
-            flowClassDefinitionDialog = new FlowClassDefinitionDialog(this, swi.getQosMechanism().getFlowClassDefinitions());
+        if (swi.getQosMechanism().getQueueWeights() != null) {
+            wrrConfigurationDialog = new WrrConfigurationDialog(this, swi.getQosMechanism().getQueueWeights());
         }
 
         selectedPacketClassification = (ComboItem) comboQosClassif.getSelectedItem();
@@ -351,6 +354,12 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
                 }
                 dscpClassificationDialog.setVisible(true);
                 break;
+            case IP_PRECEDENCE:
+                if (ipClassificationDialog == null) {
+                    ipClassificationDialog = new IpClassificationDialog(this);
+                }
+                ipClassificationDialog.setVisible(true);
+                break;
             default:
                 throw new IllegalStateException("undefined dialog for classification " + classEnum);
         }
@@ -375,15 +384,8 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
                 break;
 
             case WRED:
-                ClassDefinition[] classes = null;
-                if (areClassesDefined()) {
-                    classes = classDefinitionDialog.getClasses();
-                } else {
-                    //todo ask user if he wants to configure classes - if no, return and switch selected combobox item back
-                    //show class definition dialog and after that show Wred dialog
-                }
                 if (wredQueueManagementDialog == null) {
-                    wredQueueManagementDialog = new WredQueueManagementDialog(this, classes);
+                    wredQueueManagementDialog = new WredQueueManagementDialog(this, isDscpClassificationSelected());
                 }
                 wredQueueManagementDialog.setVisible(true);
 
@@ -401,16 +403,23 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
         PacketScheduling.Available classEnum = ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());
 
         if (!classEnum.hasParameters()) {
-            logg.warn("button for configuration of Qos active queuemanagement mechanism with no parameters was pressed - this should not happen...");
+            logg.warn("button for configuration of Qos packet scheduling mechanism with no parameters was pressed - this should not happen...");
             return;
         }
         switch (classEnum) {
             case WEIGHTED_ROUND_ROBIN:
-                showClassesConfiguration();
+                showWrrConfiguration();
                 break;
             default:
                 throw new IllegalStateException("undefined dialog for packet scheduling " + classEnum);
         }
+    }
+
+    private void showWrrConfiguration() {
+        if (wrrConfigurationDialog == null) {
+            wrrConfigurationDialog = new WrrConfigurationDialog(this, getOutputQueueCount());
+        }
+        wrrConfigurationDialog.setVisible(true);
     }
 
     private boolean isDscpClassificationSelected() {
@@ -421,38 +430,52 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
         return false;
     }
 
-    /**
-     * returns queue numbers of all defined queues
-     *
-     * @return null if flow based classification
-     */
-    private Set<Integer> getDefinedQueues() {
-        PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
-        Set<Integer> queues = new TreeSet<Integer>();
-
-        switch (classEnum) {
-            case BEST_EFFORT:
-                queues.add(0);
-                break;
-            case DSCP:
-                for (DscpDefinition def : dscpClassificationDialog.getDscpDefinitions()) {
-                    queues.add(def.getQueueNumber());
-                }
-                break;
-            case FLOW_BASED:
-                queues = null;
-                break;
-            case IP_PRECEDENCE:
-                for (int i = 0; i < 8; i++) {
-                    queues.add(i);
-                }
-                break;
-            case NONE:
-                break;
-            default:
-                throw new IllegalStateException("unable to predict numbe rof output queues for classification: " + classEnum);
+    private boolean isIpPrecedenceClassificationSelected() {
+        PacketClassification.Available classEnum = ((PacketClassification.Available) ((SwitchConfigurationDialog.ComboItem) comboQosClassif.getSelectedItem()).getValue());
+        if (PacketClassification.Available.IP_PRECEDENCE == classEnum) {
+            return true;
         }
-        return queues;
+        return false;
+    }
+
+//    /**
+//     * returns queue numbers of all defined queues
+//     *
+//     * @return null if flow based classification
+//     */
+//    private Set<Integer> getDefinedQueues() {
+//        PacketClassification.Available classEnum = ((PacketClassification.Available) ((ComboItem) comboQosClassif.getSelectedItem()).getValue());
+//        Set<Integer> queues = new TreeSet<Integer>();
+//
+//        switch (classEnum) {
+//            case BEST_EFFORT:
+//                queues.add(0);
+//                break;
+//            case DSCP:
+//                for (DscpDefinition def : dscpClassificationDialog.getDscpDefinitions()) {
+//                    queues.add(def.getQueueNumber());
+//                }
+//                break;
+//            case FLOW_BASED:
+//                queues = null;
+//                break;
+//            case IP_PRECEDENCE:
+//                for (int i = 0; i < 8; i++) {
+//                    queues.add(i);
+//                }
+//                break;
+//            case NONE:
+//                break;
+//            default:
+//                throw new IllegalStateException("unable to predict numbe rof output queues for classification: " + classEnum);
+//        }
+//        return queues;
+//    }
+    public int getOutputQueueCount() {
+        if (outputQueuesConfigDialog == null || outputQueuesConfigDialog.getUserInput() == null) {
+            return 0;
+        }
+        return outputQueuesConfigDialog.getUserInput().size();
     }
 
     /**
@@ -474,11 +497,16 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
         //qos classes
         ClassDefinition[] classes = null;
         if (areClassesDefined()) {
-            classes = classDefinitionDialog.getClasses();
+            classes = wredQueueManagementDialog.getAllClassDefinitions();
+        }
+        int[] qeueuWeights = null;
+        if (areQueueWeightsDefined()) {
+            qeueuWeights = wrrConfigurationDialog.getWeights();
         }
 
         //finally create QoS mechanism definition        
-        QosMechanismDefinition qosMechanismDefinition = new QosMechanismDefinition(classes, null, packetScheduling, packetClassification, activeQueueManagement);
+        QosMechanismDefinition qosMechanismDefinition = new QosMechanismDefinition(qeueuWeights, packetScheduling, packetClassification, activeQueueManagement);
+        qosMechanismDefinition.setClassDefinitions(classes);
         return qosMechanismDefinition;
     }
 
@@ -487,32 +515,7 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
         PacketScheduling.Available schedAvailableEnum = ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());
         PacketClassification.Available classifEnum = ((PacketClassification.Available) ((SwitchConfigurationDialog.ComboItem) comboQosClassif.getSelectedItem()).getValue());
 
-
-        if (schedAvailableEnum.isFlowBased() && classifEnum == Available.FLOW_BASED) {
-            //ok - it would be easier to think about better if condition than this...
-        } else {
-            throw new QosCreationException("Flow based classification and flow based packet scheduling (WFQ or CB-WFQ) must be used together.");
-        }
-
-        //check for classes to be defined - if class based scheduling is selected
-        if ((PacketScheduling.Available.WEIGHTED_ROUND_ROBIN == schedAvailableEnum)) {
-            if (!areClassesDefined()) {
-
-                int result = JOptionPane.showConfirmDialog(this, "Some of your QoS mechanisms require QoS classes to be configured."
-                        + "\nDo you want to configure them now?"
-                        + "\n(You will be not able to create a switch without configuring them.)", "QoS classes", JOptionPane.YES_NO_OPTION);
-
-                if (result == JOptionPane.YES_OPTION) {
-                    showClassesConfiguration();
-                }
-
-            }
-        }
-
-        if ((PacketScheduling.Available.WEIGHTED_ROUND_ROBIN == getSelectedPacketScheduling()) && !areClassesDefined()) {//user refused to define classes
-            throw new QosCreationException("No QoS classes defined");
-        }
-
+        //check for classes to be defined - if class based scheduling is selected      
 
         switch (schedAvailableEnum) {
             case FIFO:
@@ -525,12 +528,12 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
                 packetScheduling = new RoundRobinScheduling();
                 break;
             case WEIGHTED_ROUND_ROBIN:
-                if (classDefinitionDialog == null) {
+                if (wrrConfigurationDialog == null) {
                     throw new IllegalStateException("classDefinitionDialog is NULL - this should be taken care of");
                 }
                 packetScheduling = new WeightedRoundRobinScheduling(new HashMap<String, Object>() {
                     {
-                        put(WeightedRoundRobinScheduling.CLASS_DEFINITIONS, classDefinitionDialog.getClasses());
+                        put(WeightedRoundRobinScheduling.QUEUES_WEIGHT, wrrConfigurationDialog.getWeights());
                     }
                 });
                 break;
@@ -599,7 +602,7 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
                     throw new QosCreationException(NbBundle.getMessage(RouterConfigurationDialog.class, "classfication_not_configured"));
                 }
                 List<DscpDefinition> result = dscpClassificationDialog.getDscpDefinitions();
-                final DscpManager dscpManager = new DscpManager(result.toArray(new DscpDefinition[result.size()]), dscpClassificationDialog.getDefaultQueueNumber().getQosQueue());
+                final DscpManager dscpManager = new DscpManager(result.toArray(new DscpDefinition[result.size()]), dscpClassificationDialog.getDefaultQueueNumber(), getOutputQueueCount());
 
                 classification = new DscpClassification(new HashMap<String, Object>() {
                     {
@@ -611,7 +614,14 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
                 classification = new FlowBasedClassification();
                 break;
             case IP_PRECEDENCE:
-                classification = new IpPrecedenceClassification();
+                if (ipClassificationDialog == null) {
+                    throw new QosCreationException(NbBundle.getMessage(RouterConfigurationDialog.class, "classfication_not_configured"));
+                }
+                HashMap<String, Object> params = new HashMap<String, Object>();
+                params.put(IpPrecedenceClassification.NOT_DEFINED_QUEUE, ipClassificationDialog.getDefaultQueueNumber());
+                params.put(IpPrecedenceClassification.OUTPUT_QUEUE_COUNT, getOutputQueueCount());
+                params.put(IpPrecedenceClassification.IP_DEFINITIONS, ipClassificationDialog.getIpDefinitions());
+                classification = new IpPrecedenceClassification(params);
                 break;
             case NONE:
                 classification = new NoClassification();
@@ -624,10 +634,20 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
     }
 
     private boolean areClassesDefined() {
-        if (classDefinitionDialog == null) {
+        if (wredQueueManagementDialog == null) {
             return false;
         }
-        if (classDefinitionDialog.getClasses() == null) {
+        if (wredQueueManagementDialog.getAllClassDefinitions() == null) {
+            return false;
+        }
+        return wredQueueManagementDialog.getAllClassDefinitions().length != 0;
+    }
+
+    private boolean areQueueWeightsDefined() {
+        if (wrrConfigurationDialog == null) {
+            return false;
+        }
+        if (wrrConfigurationDialog.getWeights() == null) {
             return false;
         }
         return true;
@@ -635,13 +655,6 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
 
     private PacketScheduling.Available getSelectedPacketScheduling() {
         return ((PacketScheduling.Available) ((ComboItem) comboQosScheduling.getSelectedItem()).getValue());
-    }
-
-    private void showClassesConfiguration() {
-        if (classDefinitionDialog == null) {
-            classDefinitionDialog = new ClassDefinitionDialog(this, getDefinedQueues(), isDscpClassificationSelected());
-        }
-        classDefinitionDialog.showDialog();
     }
 
     /**
@@ -1154,8 +1167,17 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
             }
         }
 
+        ActiveQueueManagement.Available newSelected = ((ActiveQueueManagement.Available) ((SwitchConfigurationDialog.ComboItem) comboQosQueue.getSelectedItem()).getValue());
 
-        btnConfigQueue.setEnabled(((ActiveQueueManagement.Available) ((ComboItem) comboQosQueue.getSelectedItem()).getValue()).hasParameters());
+        if (!isDscpClassificationSelected() || !isIpPrecedenceClassificationSelected()) {
+            if (newSelected == ActiveQueueManagement.Available.WRED) {//WRED can be selected only for IP or DSCP classification
+                btnConfigQueue.setEnabled(false);
+            }
+        } else {
+            btnConfigQueue.setEnabled(newSelected.hasParameters());
+        }
+
+
         selectedQueueManag = ((ComboItem) comboQosQueue.getSelectedItem());
     }//GEN-LAST:event_comboQosQueueActionPerformed
 
@@ -1175,29 +1197,6 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
         }
 
         selectedPacketClassification = classEnum;
-
-        if (classDefinitionDialog != null) {
-            //erase QoS class configuration
-            classDefinitionDialog.dispose();
-            classDefinitionDialog = null;
-
-            if (!PreferenciesHelper.isNeverShowQosClassDeletedConfirmation()) {
-                ConfirmDialogPanel panel = new ConfirmDialogPanel(NbBundle.getMessage(RouterConfigurationDialog.class, "class_definition_erased"));
-                NotifyDescriptor descriptor = new NotifyDescriptor(
-                        panel, // instance of your panel
-                        NbBundle.getMessage(RouterConfigurationDialog.class, "info_title"), // title of the dialog
-                        NotifyDescriptor.YES_NO_OPTION, NotifyDescriptor.INFORMATION_MESSAGE, null,
-                        NotifyDescriptor.YES_OPTION // default option is "Yes"
-                        );
-
-                if (DialogDisplayer.getDefault().notify(descriptor) != NotifyDescriptor.YES_OPTION) {
-                    return;
-                }
-                if (panel.isNeverShow()) {
-                    PreferenciesHelper.setNeverShowQosClassDeletedConfirmation(panel.isNeverShow());
-                }
-            }
-        }
 
         //flow based classification and class based packet scheduling dont work together
         btnConfigClassif.setEnabled(((PacketClassification.Available) classEnum.getValue()).hasParameters());
