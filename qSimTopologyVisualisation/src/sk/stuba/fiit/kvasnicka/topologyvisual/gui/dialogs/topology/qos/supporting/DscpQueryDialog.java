@@ -31,7 +31,7 @@ public class DscpQueryDialog extends javax.swing.JDialog {
     public DscpQueryDialog(JDialog parent, String defaultQuery, boolean flow) {
         super(parent, true);
         initComponents();
-        jXTextArea1.setPrompt("DSCP query");
+        jXTextArea1.setPrompt("ACL query");
         listOperands.addListSelectionListener(new QueryListSelectionHandler(listOperands));
         listOperators.addListSelectionListener(new QueryListSelectionHandler(listOperators));
         initOperatorsList();
