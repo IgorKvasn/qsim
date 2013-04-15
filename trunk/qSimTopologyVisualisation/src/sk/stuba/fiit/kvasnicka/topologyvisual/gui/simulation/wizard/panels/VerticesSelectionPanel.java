@@ -176,6 +176,10 @@ public class VerticesSelectionPanel extends PanelInterface {
      * callback method when user selects vertex on topology
      */
     public void setVertexPicked(TopologyVertex v) {
+        if (v == null){
+            logg.error("setVertexPicked is NULL");
+            return;
+        }
         logg.debug("vertex selected: " + v.getName());
         pickingNameComboBox.setSelectedItem(v);
         pickingNameComboBox = null;

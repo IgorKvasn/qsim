@@ -43,7 +43,7 @@ public class OutputQueuesConfigDialog extends BlockingDialog<List<OutputQueue>> 
                 if (!(tableModel.getValueAt(i, 1) instanceof Integer) || (Integer) tableModel.getValueAt(i, 1) < 0) {
                     JOptionPane.showMessageDialog(this,
                             "One of the output queues is not configured properly.",
-                            "Inane error",
+                            "Error",
                             JOptionPane.ERROR_MESSAGE);
                     return null;
                 }
