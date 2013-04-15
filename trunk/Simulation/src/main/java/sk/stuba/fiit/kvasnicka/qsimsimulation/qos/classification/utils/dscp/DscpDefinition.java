@@ -22,26 +22,28 @@ import java.io.Serializable;
 /**
  * @author Igor Kvasnicka
  */
-public class DscpDefinition implements Serializable {
+public class DscpDefinition implements Serializable, Comparable<DscpDefinition> {
 
-    private static final long serialVersionUID = - 5681956667334834337L;
+    private static final long serialVersionUID = - 2152606228943815485L;
     private final String query;
-    private int queueNumber;
+    private DscpValuesEnum dscpValue;
 
-    public DscpDefinition(String query, int queueNumber) {
-        if (queueNumber < 0) {
-            throw new IllegalArgumentException("queue number is below 0");
-        }
+    public DscpDefinition(String query, DscpValuesEnum dscpValue) {
         this.query = query;
-        this.queueNumber = queueNumber;
+        this.dscpValue = dscpValue;
     }
 
 
-    public int getQueueNumber() {
-        return queueNumber;
+    public DscpValuesEnum getDscpValue() {
+        return dscpValue;
     }
 
     public String getQuery() {
         return query;
+    }
+
+    @Override
+    public int compareTo(DscpDefinition dscpDefinition) {
+        return this.dscpValue.compareTo(dscpDefinition.dscpValue) *-1;
     }
 }

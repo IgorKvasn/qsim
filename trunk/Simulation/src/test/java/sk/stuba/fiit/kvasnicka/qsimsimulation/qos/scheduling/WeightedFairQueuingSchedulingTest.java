@@ -50,11 +50,11 @@ public class WeightedFairQueuingSchedulingTest {
     @Test
     public void testFindSmallestPacket_1() {
         Packet p1 = new Packet(10, null, null, 0);
-        p1.setQosQueue(0);
+        p1.setQosQueue(0,1);
         Packet p2 = new Packet(16, null, null, 0);
-        p2.setQosQueue(0);
+        p2.setQosQueue(0,1);
         Packet p3 = new Packet(12, null, null, 0);
-        p3.setQosQueue(0);
+        p3.setQosQueue(0,1);
 
         List<Packet> list = Arrays.asList(p1, p2, p3);
         List<Packet> smallest = (List<Packet>) TestUtils.callPrivateMethod(WeightedFairQueuingScheduling.class, weightedFairQueuingScheduling, "findSmallestPacket", new Class[]{List.class}, new Object[]{list});
@@ -67,11 +67,11 @@ public class WeightedFairQueuingSchedulingTest {
     @Test
     public void testFindSmallestPacket_same_size() {
         Packet p1 = new Packet(10, null, null, 0);
-        p1.setQosQueue(0);
+        p1.setQosQueue(0,1);
         Packet p2 = new Packet(16, null, null, 0);
-        p2.setQosQueue(0);
+        p2.setQosQueue(0,1);
         Packet p3 = new Packet(10, null, null, 0);
-        p3.setQosQueue(0);
+        p3.setQosQueue(0,1);
 
         List<Packet> list = Arrays.asList(p1, p2, p3);
         List<Packet> smallest = (List<Packet>) TestUtils.callPrivateMethod(WeightedFairQueuingScheduling.class, weightedFairQueuingScheduling, "findSmallestPacket", new Class[]{List.class}, new Object[]{list});
@@ -92,11 +92,11 @@ public class WeightedFairQueuingSchedulingTest {
         node1 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
 
         final Packet p1 = new Packet(10, null, null, 0);
-        p1.setQosQueue(0);
+        p1.setQosQueue(0,1);
         final Packet p2 = new Packet(16, null, null, 0);
-        p2.setQosQueue(0);
+        p2.setQosQueue(0,1);
         final Packet p3 = new Packet(12, null, null, 0);
-        p3.setQosQueue(0);
+        p3.setQosQueue(0,1);
 
         Map<Integer, List<Packet>> outputPackets = new HashMap<Integer, List<Packet>>() {{
             put(0, Arrays.asList(p1, p2, p3));
@@ -119,16 +119,16 @@ public class WeightedFairQueuingSchedulingTest {
         node1 = new Router("node1", null, qosMechanism, 200, 10, null, 10, 10, 100, 0, 0);
 
         final Packet p1 = new Packet(10, null, null, 0);
-        p1.setQosQueue(0);
+        p1.setQosQueue(0,1);
         final Packet p2 = new Packet(16, null, null, 0);
-        p2.setQosQueue(0);
+        p2.setQosQueue(0,1);
         final Packet p3 = new Packet(12, null, null, 0);
-        p3.setQosQueue(0);
+        p3.setQosQueue(0,1);
 
         final Packet p4 = new Packet(8, null, null, 0);
-        p4.setQosQueue(1);
+        p4.setQosQueue(1,2);
         final Packet p5 = new Packet(15, null, null, 0);
-        p5.setQosQueue(1);
+        p5.setQosQueue(1,2);
 
 
         Map<Integer, List<Packet>> outputPackets = new HashMap<Integer, List<Packet>>() {{

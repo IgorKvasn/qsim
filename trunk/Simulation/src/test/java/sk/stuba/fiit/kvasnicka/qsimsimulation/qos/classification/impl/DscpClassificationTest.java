@@ -49,11 +49,11 @@ public class DscpClassificationTest {
     public void before() {
 
         final DscpDefinition[] dscpDefinitions = new DscpDefinition[]{
-                new DscpDefinition("destination('node2')", 1),
-                new DscpDefinition("size = 4", 2)
+                new DscpDefinition("destination('node2')", DscpValuesEnum.BEST_EFFORT),
+                new DscpDefinition("size = 4", DscpValuesEnum.EF)
         };
 
-        final DscpManager dscpManager = new DscpManager(dscpDefinitions, 0);
+        final DscpManager dscpManager = new DscpManager(dscpDefinitions, DscpValuesEnum.AF31, 5);
         classification = new DscpClassification(new HashMap<String, Object>() {{
             put(DscpClassification.DSCP_DEFINITIONS, dscpManager);
         }});
@@ -66,8 +66,24 @@ public class DscpClassificationTest {
 
 
     @Test
-    public void testClassifyAndMarkPacket() throws Exception {
-        assertEquals(1, classification.classifyAndMarkPacket(node1, packet));
+    public void testClassifyAndMarkPacket_more_queues_then_definitions() throws Exception {
+        assertEquals(2, classification.classifyAndMarkPacket(node1, packet));
+    }
+
+
+    @Test
+    public void testClassifyAndMarkPacket_less_queues_then_definitions() throws Exception {
+        final DscpDefinition[] dscpDefinitions = new DscpDefinition[]{
+                new DscpDefinition("destination('node2')", DscpValuesEnum.EF),
+                new DscpDefinition("size = 4", DscpValuesEnum.BEST_EFFORT)
+        };
+
+        final DscpManager dscpManager = new DscpManager(dscpDefinitions, DscpValuesEnum.AF31, 2);
+        classification = new DscpClassification(new HashMap<String, Object>() {{
+            put(DscpClassification.DSCP_DEFINITIONS, dscpManager);
+        }});
+
+        assertEquals(0, classification.classifyAndMarkPacket(node1, packet));
     }
 
     @Test
@@ -75,10 +91,10 @@ public class DscpClassificationTest {
 
         NetworkNode node2 = new Router("this is not node2", null, null, 100, 10, null, 10, 10, 100, 0, 0);
 
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, null,1, 1, 100,  Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, null, 1, 1, 100, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         Packet packet2 = new Packet(1, null, simulationRuleBean, 10);
 
-        assertEquals(0, classification.classifyAndMarkPacket(node1, packet2));
+        assertEquals(1, classification.classifyAndMarkPacket(node1, packet2));
     }
 
     @Test
@@ -111,7 +127,7 @@ public class DscpClassificationTest {
         NetworkNode node2 = new Router("node2", null, null, 100, 10, null, 10, 10, 100, 0, 0);
 
 
-        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, null,1, 1, 100,  Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null,  0, 0);
+        SimulationRuleBean simulationRuleBean = new SimulationRuleBean("", node1, node2, null, 1, 1, 100, Layer4TypeEnum.UDP, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         simulationRuleBean.setRoute(Arrays.asList(node1, node2));
 
         for (Packet p : packets) {

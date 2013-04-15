@@ -41,10 +41,10 @@ public class WeightedREDTest {
     public void before() {
 
         packet1 = new Packet(15, null, null, 1);
-        packet1.setQosQueue(0);
+        packet1.setQosQueue(0,2);
 
         packet2 = new Packet(15, null, null, 1);
-        packet2.setQosQueue(1);
+        packet2.setQosQueue(1,2);
 
         ClassDefinition classDefinition1 = new ClassDefinition("name1", 0);
         ClassDefinition classDefinition2 = new ClassDefinition("name2", 1);
@@ -64,7 +64,7 @@ public class WeightedREDTest {
         List<Packet> queue = new LinkedList<Packet>();
         for (int i = 0; i < 16; i++) {
             Packet p = new Packet(150, null, null, 1);
-            p.setQosQueue(0);
+            p.setQosQueue(0,2);
             queue.add(p);
         }
 
@@ -78,7 +78,7 @@ public class WeightedREDTest {
     public void testManageQueue_wrong_queue() {
         List<Packet> queue2 = new LinkedList<Packet>();
         Packet p = new Packet(15, null, null, 1);
-        p.setQosQueue(10);
+        p.setQosQueue(10,100);
         try {
             wred.manageQueue(queue2, p);
             fail("undefined queue number - exception should be thrown");
@@ -103,7 +103,7 @@ public class WeightedREDTest {
 
         List<Packet> queue2 = new LinkedList<Packet>();
         Packet p = new Packet(15, null, null, 1);
-        p.setQosQueue(10);
+        p.setQosQueue(10,100);
         wred.manageQueue(queue2, p);//all I care about is if no exception is thrown
     }
 }

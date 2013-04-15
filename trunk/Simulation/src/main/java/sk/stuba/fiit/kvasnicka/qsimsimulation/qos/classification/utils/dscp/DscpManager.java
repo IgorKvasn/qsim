@@ -24,6 +24,11 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.Classific
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.ClassificationUtil;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author Igor Kvasnicka
@@ -34,7 +39,8 @@ public class DscpManager implements Serializable {
     @Getter
     private final DscpDefinition[] definitions;
     @Getter
-    private int notDefinedQueue;
+    private DscpValuesEnum notDefinedQueue;
+    private HashMap<DscpValuesEnum, Integer> convertDscpToQueue = new HashMap<DscpValuesEnum, Integer>();
     private static Logger logg = Logger.getLogger(DscpManager.class);
 
     /**
@@ -43,11 +49,32 @@ public class DscpManager implements Serializable {
      * @param dscpDefinitions DSCP definitions
      * @param notDefinedQueue queue number where to put packets that does not meet definitions above
      */
-    public DscpManager(DscpDefinition[] dscpDefinitions, int notDefinedQueue) {
-        if (notDefinedQueue < 0) throw new IllegalArgumentException("notDefinedQueue must not be lower than 0");
+    public DscpManager(DscpDefinition[] dscpDefinitions, DscpValuesEnum notDefinedQueue, int outputQueueNumber) {
         definitions = new DscpDefinition[dscpDefinitions.length];
         System.arraycopy(dscpDefinitions, 0, definitions, 0, dscpDefinitions.length);
+        Arrays.sort(definitions);
         this.notDefinedQueue = notDefinedQueue;
+
+        Set<DscpValuesEnum> enums = new TreeSet<DscpValuesEnum>(new Comparator<DscpValuesEnum>() {
+            @Override
+            public int compare(DscpValuesEnum dscpValuesEnum, DscpValuesEnum dscpValuesEnum2) {
+                return dscpValuesEnum.compareTo(dscpValuesEnum2)*-1;
+            }
+        });
+        for (DscpDefinition def : definitions) {
+            enums.add(def.getDscpValue());
+        }
+        enums.add(notDefinedQueue);
+
+        int queue = 0;
+        for (DscpValuesEnum e : enums) {
+            if (queue >= outputQueueNumber) {//there are more definitions then output queues
+                convertDscpToQueue.put(e, outputQueueNumber - 1);
+            } else {
+                convertDscpToQueue.put(e, queue);
+                queue++;
+            }
+        }
     }
 
 
@@ -62,13 +89,13 @@ public class DscpManager implements Serializable {
         for (DscpDefinition def : definitions) {
             try {
                 if (ClassificationUtil.isClassificationRuleApplied(def.getQuery(), packet)) {
-                    return def.getQueueNumber();
+                    return convertDscpToQueue.get(def.getDscpValue());
                 }
             } catch (ClassificationException e) {
                 logg.error(e.getMessage());
             }
         }
         //none of the DSCP definitions were satisfied
-        return notDefinedQueue;
+        return convertDscpToQueue.get(notDefinedQueue);
     }
 }

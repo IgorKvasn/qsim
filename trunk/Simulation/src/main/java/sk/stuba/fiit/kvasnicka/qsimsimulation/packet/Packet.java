@@ -56,6 +56,8 @@ public class Packet implements PacketDscpClassificationInterf {
     private double simulationTime;
     @Setter
     private double timeWhenCameToQueue;
+    private IpPrecedence ipPrecedence;
+    private DscpValuesEnum dscpValuesEnum;
 
 
     private final double creationTime;
@@ -79,11 +81,19 @@ public class Packet implements PacketDscpClassificationInterf {
         this.creationTime = creationTime;
     }
 
+    public void setMarking(IpPrecedence ipPrecedence, DscpValuesEnum dscpValuesEnum){
+        if (dscpValuesEnum!=null && ipPrecedence!=null){
+            return;
+        }
+        this.dscpValuesEnum = dscpValuesEnum;
+        this.ipPrecedence = ipPrecedence;
+    }
+
     public Layer4TypeEnum getLayer4() {
         return simulationRule.getLayer4Type();
     }
 
-    public Layer4TypeEnum getProtocol(){
+    public Layer4TypeEnum getProtocol() {
         return getLayer4();
     }
 
@@ -94,10 +104,12 @@ public class Packet implements PacketDscpClassificationInterf {
         this.simulationTime = simulationTime;
     }
 
-    public void setQosQueue(int queue) {
-        if (qosQueue == - 1) {
-            if (queue <= - 1) throw new IllegalArgumentException("queue number cannot be set to -1 or below");
+    public void setQosQueue(int queue, int queueCount) {
+        if (queue <= - 1) throw new IllegalArgumentException("queue number cannot be set to -1 or below");
+        if (queueCount == 0) {
             this.qosQueue = queue;
+        } else {
+            this.qosQueue = queue % queueCount;
         }
     }
 

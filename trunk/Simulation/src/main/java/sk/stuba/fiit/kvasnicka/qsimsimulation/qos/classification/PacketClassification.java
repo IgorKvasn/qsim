@@ -57,7 +57,7 @@ public abstract class PacketClassification implements QosMechanism {
         BEST_EFFORT(false),
         DSCP(true),
         FLOW_BASED(false),
-        IP_PRECEDENCE(false),
+        IP_PRECEDENCE(true),
         NONE(false);
         private boolean parameters;
 
