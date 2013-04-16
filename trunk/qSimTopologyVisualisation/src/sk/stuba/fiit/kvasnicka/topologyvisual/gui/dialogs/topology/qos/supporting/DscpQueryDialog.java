@@ -51,7 +51,6 @@ public class DscpQueryDialog extends javax.swing.JDialog {
         model.addElement(new ListItem("!=", 0));
         model.addElement(new ListItem("<=", 0));
         model.addElement(new ListItem("=>", 0));
-        model.addElement(new ListItem("OR", 0));
 
     }
 
@@ -77,6 +76,9 @@ public class DscpQueryDialog extends javax.swing.JDialog {
         }
         if (!flow) {
             model.addElement(new ListItem("ipPrecedence", 0));
+        }
+         if (!flow) {
+            model.addElement(new ListItem("dscp", 0));
         }
     }
 

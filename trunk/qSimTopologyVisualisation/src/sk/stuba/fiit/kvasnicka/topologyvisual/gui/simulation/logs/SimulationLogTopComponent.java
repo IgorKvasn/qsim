@@ -50,8 +50,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 //@ConvertAsProperties(dtd = "-//sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs//SimulationLogTopComponent//EN",
 //autostore = false)
 @TopComponent.Description(preferredID = "SimulationLogTopComponent",
-//iconBase="SET/PATH/TO/ICON/HERE", 
-persistenceType = TopComponent.PERSISTENCE_ALWAYS)
+        //iconBase="SET/PATH/TO/ICON/HERE", 
+        persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "output", openAtStartup = false)
 @ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs.SimulationLogTopComponent")
 //@ActionReference(path = "Menu/Window" /*
@@ -288,8 +288,8 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
         table.setModel(new javax.swing.table.DefaultTableModel(
                 new Object[][]{},
                 new String[]{
-                    "#", "Category", "Message", "Simulation time"
-                }) {
+            "#", "Category", "Message", "Simulation time"
+        }) {
             Class[] types = new Class[]{
                 Integer.class, java.lang.String.class, java.lang.Object.class, java.lang.String.class
             };
@@ -549,6 +549,8 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
                 comp.setBackground(Color.WHITE);
                 comp.setForeground(Color.BLACK);
             }
+
+            setToolTipText(value.toString());
 
             return comp;
         }

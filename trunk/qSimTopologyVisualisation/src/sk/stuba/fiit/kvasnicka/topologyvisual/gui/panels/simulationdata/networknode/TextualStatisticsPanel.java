@@ -14,8 +14,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.ListModel;
-import javax.swing.RowFilter;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellRenderer;
@@ -167,18 +165,27 @@ public class TextualStatisticsPanel extends javax.swing.JPanel implements Simula
                 usages.add(model.processingNode.getUsageStatistics());
             }
             //output queues
+            if (model.outputRootNode.isInChart()) {
+                usages.add(model.outputRootNode.getUsageStatistics());
+            }
             for (MyDataNode oNode : model.outputNodes) {
                 if (oNode.isInChart()) {
                     usages.add(oNode.getUsageStatistics());
                 }
             }
             //RX
+            if (model.rxRootNode.isInChart()) {
+                usages.add(model.rxRootNode.getUsageStatistics());
+            }
             for (MyDataNode rNode : model.rxNodes.values()) {
                 if (rNode.isInChart()) {
                     usages.add(rNode.getUsageStatistics());
                 }
             }
             //TX
+            if (model.txRootNode.isInChart()) {
+                usages.add(model.txRootNode.getUsageStatistics());
+            }
             for (MyDataNode tNode : model.txNodes.values()) {
                 if (tNode.isInChart()) {
                     usages.add(tNode.getUsageStatistics());
