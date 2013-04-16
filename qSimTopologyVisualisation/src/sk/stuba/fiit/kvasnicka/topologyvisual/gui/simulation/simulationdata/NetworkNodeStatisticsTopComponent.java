@@ -189,6 +189,7 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
 
     @Override
     public void componentClosed() {
+        cleanUp();
     }
 
     void writeProperties(java.util.Properties p) {

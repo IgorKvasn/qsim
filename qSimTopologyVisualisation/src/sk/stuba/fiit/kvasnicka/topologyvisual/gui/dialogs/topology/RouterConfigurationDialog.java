@@ -454,7 +454,7 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
 //    }
     public int getOutputQueueCount() {
         if (outputQueuesConfigDialog == null || outputQueuesConfigDialog.getUserInput() == null) {
-            return 0;
+            return 1;
         }
         return outputQueuesConfigDialog.getUserInput().size();
     }
