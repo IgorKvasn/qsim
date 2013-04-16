@@ -18,8 +18,13 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl;
 
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpValuesEnum;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * uses previously classified packet settings
@@ -37,5 +42,10 @@ public class NoClassification extends PacketClassification {
             return 0;
         }
         return packet.getQosQueue();
+    }
+
+    @Override
+    public List<Integer> convertClassificationToQueue(List<IpPrecedence> ipPrecedenceList, List<DscpValuesEnum> dscpValuesEnums) {
+        return Collections.<Integer>emptyList();
     }
 }

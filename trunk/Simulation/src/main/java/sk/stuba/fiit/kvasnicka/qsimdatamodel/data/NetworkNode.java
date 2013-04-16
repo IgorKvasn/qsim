@@ -28,6 +28,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.TxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.InputQueue;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.Layer4TypeEnum;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.drop.PacketDropEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.exceptions.NotEnoughBufferSpaceException;
@@ -392,6 +393,8 @@ public abstract class NetworkNode implements Serializable {
                     logg.debug("no space left in output queue -> packet dropped");
                 }
                 simulLog.log(new SimulationLog(LogCategory.INFO, "No space left in output queue -> packet dropped", getName(), LogSource.VERTEX, packet.getSimulationTime()));
+                simulLog.packetDropped(this, packet.getSimulationRule(), PacketDropEvent.LocationEnum.OUTPUT_QUEUE);
+
                 if (packet.getLayer4().isRetransmissionEnabled()) {
                     retransmittPacket(packet);
                 } else {
@@ -579,7 +582,8 @@ public abstract class NetworkNode implements Serializable {
                 logg.debug("no space left in RX buffer -> packet dropped");
             }
 
-            simulLog.log(new SimulationLog(LogCategory.INFO, "No space left in TX buffer -> packet dropped", getName(), LogSource.VERTEX, fragment.getReceivedTime()));
+            simulLog.log(new SimulationLog(LogCategory.INFO, "No space left in RX buffer -> packet dropped", getName(), LogSource.VERTEX, fragment.getReceivedTime()));
+
 
             if (fragment.getOriginalPacket().getLayer4().isRetransmissionEnabled()) {
                 retransmittPacket(fragment.getOriginalPacket());
@@ -625,7 +629,9 @@ public abstract class NetworkNode implements Serializable {
                     if (logg.isDebugEnabled()) {
                         logg.debug("no space left in input queue -> packet dropped");
                     }
+                    simulLog.packetDropped(this, packet.getSimulationRule(),  PacketDropEvent.LocationEnum.INPUT_QUEUE);
                     simulLog.log(new SimulationLog(LogCategory.INFO, "No space left in input queue -> packet dropped", getName(), LogSource.VERTEX, packet.getSimulationTime()));
+
                     if (packet.getLayer4().isRetransmissionEnabled()) {
                         retransmittPacket(packet);
                     } else {

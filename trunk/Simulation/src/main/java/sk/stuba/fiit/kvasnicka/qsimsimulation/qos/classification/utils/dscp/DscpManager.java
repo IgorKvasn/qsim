@@ -58,7 +58,7 @@ public class DscpManager implements Serializable {
         Set<DscpValuesEnum> enums = new TreeSet<DscpValuesEnum>(new Comparator<DscpValuesEnum>() {
             @Override
             public int compare(DscpValuesEnum dscpValuesEnum, DscpValuesEnum dscpValuesEnum2) {
-                return dscpValuesEnum.compareTo(dscpValuesEnum2)*-1;
+                return dscpValuesEnum.compareTo(dscpValuesEnum2) * - 1;
             }
         });
         for (DscpDefinition def : definitions) {
@@ -89,6 +89,7 @@ public class DscpManager implements Serializable {
         for (DscpDefinition def : definitions) {
             try {
                 if (ClassificationUtil.isClassificationRuleApplied(def.getQuery(), packet)) {
+                    packet.setMarking(null, def.getDscpValue());
                     return convertDscpToQueue.get(def.getDscpValue());
                 }
             } catch (ClassificationException e) {
@@ -96,6 +97,15 @@ public class DscpManager implements Serializable {
             }
         }
         //none of the DSCP definitions were satisfied
+        packet.setMarking(null, notDefinedQueue);
         return convertDscpToQueue.get(notDefinedQueue);
+    }
+
+    public Integer convertDscpToQueue(DscpValuesEnum dscp) {
+        try {
+            return convertDscpToQueue.get(dscp);
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }

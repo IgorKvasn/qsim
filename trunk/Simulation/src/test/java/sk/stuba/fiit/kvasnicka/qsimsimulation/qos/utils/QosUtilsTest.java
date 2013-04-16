@@ -17,9 +17,17 @@
 
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils;
 
+import org.easymock.EasyMock;
+import org.easymock.IAnswer;
+import org.junit.Before;
 import org.junit.Test;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.IpPrecedenceClassification;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.fail;
@@ -28,6 +36,27 @@ import static org.junit.Assert.fail;
  * @author Igor Kvasnicka
  */
 public class QosUtilsTest {
+
+    PacketClassification packetClassification;
+
+    @Before
+    public void before() {
+        packetClassification = EasyMock.createMock(IpPrecedenceClassification.class);
+        EasyMock.expect(packetClassification.convertClassificationToQueue(EasyMock.anyObject(List.class), EasyMock.anyObject(List.class))).andAnswer(new IAnswer<List<Integer>>() {
+            @Override
+            public List<Integer> answer() throws Throwable {
+                List<IpPrecedence> list = (List<IpPrecedence>) EasyMock.getCurrentArguments()[0];
+                if (list.contains(IpPrecedence.IP_PRECEDENCE_0)) {
+                    return Arrays.asList(1);
+                } else {
+                    return Arrays.asList(0);
+                }
+            }
+        }).times(4);
+
+        EasyMock.replay(packetClassification);
+    }
+
 
     @Test
     public void testCheckParameter_ok() {
@@ -109,19 +138,28 @@ public class QosUtilsTest {
 
     @Test
     public void testClassDefinition_ok() throws Exception {
+
+
         ClassDefinition[] classes = new ClassDefinition[2];
-        classes[0] = new ClassDefinition(0, 1);
-        classes[1] = new ClassDefinition(2, 3, 4);
-        QosUtils.checkClassDefinition(classes);
+        ClassDefinition classDefinition1 = new ClassDefinition(Arrays.asList(IpPrecedence.IP_PRECEDENCE_0), null, "name1");
+        ClassDefinition classDefinition2 = new ClassDefinition(Arrays.asList(IpPrecedence.IP_PRECEDENCE_1, IpPrecedence.IP_PRECEDENCE_2), null, "name2");
+
+        classDefinition1.setClassification(packetClassification);
+        classDefinition2.setClassification(packetClassification);
+
+        QosUtils.checkClassDefinition(new ClassDefinition[]{classDefinition1, classDefinition2});
     }
 
     @Test
     public void testClassDefinition_wrong() throws Exception {
-        ClassDefinition[] classes = new ClassDefinition[2];
-        classes[0] = new ClassDefinition(0, 1);
-        classes[1] = new ClassDefinition(2, 0, 4);
+        ClassDefinition classDefinition1 = new ClassDefinition(Arrays.asList(IpPrecedence.IP_PRECEDENCE_0), null, "name1");
+        ClassDefinition classDefinition2 = new ClassDefinition(Arrays.asList(IpPrecedence.IP_PRECEDENCE_0, IpPrecedence.IP_PRECEDENCE_2), null, "name2");
+
+        classDefinition1.setClassification(packetClassification);
+        classDefinition2.setClassification(packetClassification);
+
         try {
-            QosUtils.checkClassDefinition(classes);
+            QosUtils.checkClassDefinition(new ClassDefinition[]{classDefinition1, classDefinition2});
             fail("parameter exception should be thrown - one queue is in multiple classes");
         } catch (ParameterException e) {
             //OK

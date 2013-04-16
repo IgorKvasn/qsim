@@ -25,6 +25,7 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.ClassificationException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.ClassificationUtil;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpValuesEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ParameterException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.QosUtils;
 
@@ -32,6 +33,8 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -104,10 +107,10 @@ public class IpPrecedenceClassification extends PacketClassification {
         if (packet == null) {
             throw new IllegalArgumentException("packet is NULL");
         }
-        if (packet == null) throw new IllegalArgumentException("packet is NULL");
         for (IpDefinition def : definitions) {
             try {
                 if (ClassificationUtil.isClassificationRuleApplied(def.getAcl(), packet)) {
+                    packet.setMarking(def.ipPrecedence, null);
                     return convertIpToQueue.get(def.getIpPrecedence());
                 }
             } catch (ClassificationException e) {
@@ -115,8 +118,23 @@ public class IpPrecedenceClassification extends PacketClassification {
             }
         }
         //none of the DSCP definitions were satisfied
+        packet.setMarking(notDefinedQueue.ipPrecedence, null);
         return convertIpToQueue.get(notDefinedQueue.getIpPrecedence());
     }
+
+    @Override
+    public List<Integer> convertClassificationToQueue(List<IpPrecedence> ipPrecedenceList, List<DscpValuesEnum> dscpValuesEnums) {
+        List<Integer> result = new LinkedList<Integer>();
+        for (IpPrecedence ipPrecedence : ipPrecedenceList) {
+            try {
+                result.add(convertIpToQueue.get(ipPrecedence));
+            } catch (Exception e) {
+                result.add(0);
+            }
+        }
+        return result;
+    }
+
 
     @Getter
     public static class IpDefinition implements Serializable, Comparable<IpDefinition> {
@@ -131,7 +149,7 @@ public class IpPrecedenceClassification extends PacketClassification {
 
         @Override
         public int compareTo(IpDefinition ipDefinition) {
-            return this.ipPrecedence.compareTo(ipDefinition.getIpPrecedence()) *-1;
+            return this.ipPrecedence.compareTo(ipDefinition.getIpPrecedence()) * - 1;
         }
     }
 }

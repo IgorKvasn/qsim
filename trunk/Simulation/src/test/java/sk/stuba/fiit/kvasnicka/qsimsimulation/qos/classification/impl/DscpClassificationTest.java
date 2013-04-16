@@ -35,7 +35,6 @@ import java.util.HashMap;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
 
 /**
  * @author Igor Kvasnicka
@@ -101,25 +100,6 @@ public class DscpClassificationTest {
     public void testDscpValueName() {
         assertTrue("AF11".equals(DscpValuesEnum.AF11.getTextName()));
         assertTrue("Best effort".equals(DscpValuesEnum.BEST_EFFORT.getTextName()));
-    }
-
-    @Test
-    public void testFindDscpValueByQueueNumber() {
-        try {
-            DscpClassification.findDscpValueByQueueNumber(- 1);
-            fail("ArrayIndexOutOfBoundsException should be thrown");
-        } catch (ArrayIndexOutOfBoundsException e) {
-            //OK
-        }
-
-        try {
-            DscpClassification.findDscpValueByQueueNumber(100);
-            fail("ArrayIndexOutOfBoundsException should be thrown");
-        } catch (ArrayIndexOutOfBoundsException e) {
-            //OK
-        }
-
-        assertEquals(DscpValuesEnum.AF11, DscpClassification.findDscpValueByQueueNumber(1));
     }
 
     private void initRoute(Packet... packets) {

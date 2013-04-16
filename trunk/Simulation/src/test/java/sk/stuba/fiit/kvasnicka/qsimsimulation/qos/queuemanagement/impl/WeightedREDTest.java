@@ -17,11 +17,17 @@
 
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.queuemanagement.impl;
 
+import org.easymock.EasyMock;
+import org.easymock.IAnswer;
 import org.junit.Before;
 import org.junit.Test;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl.IpPrecedenceClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ClassDefinition;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,18 +42,39 @@ import static org.junit.Assert.fail;
 public class WeightedREDTest {
     WeightedRED wred;
     Packet packet1, packet2;
+    PacketClassification packetClassification;
 
     @Before
     public void before() {
 
         packet1 = new Packet(15, null, null, 1);
-        packet1.setQosQueue(0,2);
+        packet1.setQosQueue(0, 2);
+        packet1.setMarking(IpPrecedence.IP_PRECEDENCE_0, null);
 
         packet2 = new Packet(15, null, null, 1);
-        packet2.setQosQueue(1,2);
+        packet2.setMarking(IpPrecedence.IP_PRECEDENCE_2, null);
+        packet2.setQosQueue(1, 2);
 
-        ClassDefinition classDefinition1 = new ClassDefinition("name1", 0);
-        ClassDefinition classDefinition2 = new ClassDefinition("name2", 1);
+        ClassDefinition classDefinition1 = new ClassDefinition(Arrays.asList(IpPrecedence.IP_PRECEDENCE_0), null, "name1");
+        ClassDefinition classDefinition2 = new ClassDefinition(Arrays.asList(IpPrecedence.IP_PRECEDENCE_1), null, "name2");
+
+        packetClassification = EasyMock.createMock(IpPrecedenceClassification.class);
+        EasyMock.expect(packetClassification.convertClassificationToQueue(EasyMock.anyObject(List.class), EasyMock.anyObject(List.class))).andAnswer(new IAnswer<List<Integer>>() {
+            @Override
+            public List<Integer> answer() throws Throwable {
+                List<IpPrecedence> list = (List<IpPrecedence>) EasyMock.getCurrentArguments()[0];
+                if (list.contains(IpPrecedence.IP_PRECEDENCE_0)) {
+                    return Arrays.asList(1);
+                } else {
+                    return Arrays.asList(0);
+                }
+            }
+        }).times(4);
+
+        EasyMock.replay(packetClassification);
+
+        classDefinition1.setClassification(packetClassification);
+        classDefinition2.setClassification(packetClassification);
 
 
         final WeightedRED.WredDefinition[] defs = new WeightedRED.WredDefinition[2];
@@ -64,7 +91,7 @@ public class WeightedREDTest {
         List<Packet> queue = new LinkedList<Packet>();
         for (int i = 0; i < 16; i++) {
             Packet p = new Packet(150, null, null, 1);
-            p.setQosQueue(0,2);
+            p.setQosQueue(0, 2);
             queue.add(p);
         }
 
@@ -78,7 +105,7 @@ public class WeightedREDTest {
     public void testManageQueue_wrong_queue() {
         List<Packet> queue2 = new LinkedList<Packet>();
         Packet p = new Packet(15, null, null, 1);
-        p.setQosQueue(10,100);
+        p.setQosQueue(10, 100);
         try {
             wred.manageQueue(queue2, p);
             fail("undefined queue number - exception should be thrown");
@@ -89,8 +116,11 @@ public class WeightedREDTest {
 
     @Test
     public void testManageQueue_default_red_definition() {
-        ClassDefinition classDefinition1 = new ClassDefinition("name1", 1);
-        ClassDefinition classDefinition2 = new ClassDefinition("", 2);
+        ClassDefinition classDefinition1 = new ClassDefinition(Arrays.asList(IpPrecedence.IP_PRECEDENCE_0), null, "name1");
+        ClassDefinition classDefinition2 = new ClassDefinition(Arrays.asList(IpPrecedence.IP_PRECEDENCE_1), null, "");
+        classDefinition1.setClassification(packetClassification);
+        classDefinition2.setClassification(packetClassification);
+
 
         final WeightedRED.WredDefinition[] defs = new WeightedRED.WredDefinition[2];
         defs[0] = new WeightedRED.WredDefinition(classDefinition1, .02, .2, .1, .9);
@@ -103,7 +133,7 @@ public class WeightedREDTest {
 
         List<Packet> queue2 = new LinkedList<Packet>();
         Packet p = new Packet(15, null, null, 1);
-        p.setQosQueue(10,100);
+        p.setQosQueue(10, 100);
         wred.manageQueue(queue2, p);//all I care about is if no exception is thrown
     }
 }
