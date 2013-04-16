@@ -19,10 +19,13 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification;
 
 import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.QosMechanism;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpValuesEnum;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Igor Kvasnicka
@@ -43,6 +46,9 @@ public abstract class PacketClassification implements QosMechanism {
 
     public abstract int classifyAndMarkPacket(NetworkNode networkNode, Packet packet);
 
+
+    public abstract List<Integer> convertClassificationToQueue(List<IpPrecedence> ipPrecedenceList, List<DscpValuesEnum> dscpValuesEnums);
+
     /**
      * identifies, if this QoS mechanism depends on some parameters that must be provided to properly configure mechanism
      *
@@ -52,6 +58,8 @@ public abstract class PacketClassification implements QosMechanism {
     public boolean hasParameters() {
         return parameters != null;
     }
+
+
 
     public enum Available {
         BEST_EFFORT(false),

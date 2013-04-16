@@ -17,8 +17,12 @@
 
 package sk.stuba.fiit.kvasnicka.qsimsimulation.logs;
 
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.drop.PacketDropEvent;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.drop.PacketDropListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 /**
  * util class handling simulation logs
@@ -41,9 +45,21 @@ public final class SimulationLogUtils {
      * @param log
      */
     public void log(SimulationLog log) {
-        firePingRuleAddedEvent(new SimulationLogEvent(this, log));
+        fireSimulationLogEvent(new SimulationLogEvent(this, log));
     }
 
+    public void packetDropped(NetworkNode where, SimulationRuleBean rule, PacketDropEvent.LocationEnum location){
+        firePacketDropEvent(new PacketDropEvent(this,where,location,rule));
+    }
+
+    private void firePacketDropEvent(PacketDropEvent evt) {
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = 0; i < listeners.length; i += 2) {
+            if (listeners[i].equals(PacketDropListener.class)) {
+                ((PacketDropListener) listeners[i + 1]).packetDropOccurred(evt);
+            }
+        }
+    }
 
     public void addSimulationLogListener(SimulationLogListener listener) {
         listenerList.add(SimulationLogListener.class, listener);
@@ -53,12 +69,20 @@ public final class SimulationLogUtils {
         listenerList.remove(SimulationLogListener.class, listener);
     }
 
-    private void firePingRuleAddedEvent(SimulationLogEvent evt) {
+    private void fireSimulationLogEvent(SimulationLogEvent evt) {
         Object[] listeners = listenerList.getListenerList();
         for (int i = 0; i < listeners.length; i += 2) {
             if (listeners[i].equals(SimulationLogListener.class)) {
                 ((SimulationLogListener) listeners[i + 1]).simulationLogOccurred(evt);
             }
         }
+    }
+
+    public void addPacketDropListener(PacketDropListener listener) {
+        listenerList.add(PacketDropListener.class, listener);
+    }
+
+    public void removePacketDropListener(PacketDropListener listener) {
+        listenerList.remove(PacketDropListener.class, listener);
     }
 }

@@ -18,10 +18,11 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils;
 
 import lombok.Getter;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpValuesEnum;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -30,48 +31,63 @@ import java.util.List;
  *
  * @author Igor Kvasnicka
  */
-@Getter
+
 public class ClassDefinition implements Serializable {
     private static final long serialVersionUID = 4352954903028246499L;
 
-    private List<Integer> queueNumbers;
+    @Getter
+    private List<IpPrecedence> ipPrecedenceList = null;
+    @Getter
+    private List<DscpValuesEnum> dscpValuesEnums = null;
+    @Getter
     private String name;
+    private PacketClassification classification;
 
-    public ClassDefinition(List<Integer> queueNumbers, String name) {
-
-        if (queueNumbers == null) throw new IllegalArgumentException("queue numbers is NULL");
-        if (queueNumbers.isEmpty()) throw new IllegalArgumentException("queue numbers is empty");
+    public ClassDefinition(List<IpPrecedence> ipPrecedenceList, List<DscpValuesEnum> dscpValuesEnums, String name) {
+        if (ipPrecedenceList == null && dscpValuesEnums == null) {
+            throw new IllegalArgumentException("none of classifications is defined");
+        }
 
         if (name == null) {
             this.name = "";
         } else {
             this.name = name;
         }
-
-        this.queueNumbers = queueNumbers;
+        this.ipPrecedenceList = ipPrecedenceList;
+        this.dscpValuesEnums = dscpValuesEnums;
     }
 
-    public ClassDefinition(List<Integer> queueNumbers) {
-        this(queueNumbers, "N/A");
+    public ClassDefinition(List<IpPrecedence> ipPrecedenceList, List<DscpValuesEnum> dscpValuesEnums) {
+        this(ipPrecedenceList, dscpValuesEnums, "N/A");
     }
 
-    public ClassDefinition(Integer... queueNumbers) {
-        if (queueNumbers == null) throw new IllegalArgumentException("queueNumbers is NULL");
-        if (queueNumbers.length == 0) throw new IllegalArgumentException("queueNumbers is empty");
-
-        this.queueNumbers = new ArrayList<Integer>(Arrays.asList(queueNumbers));
+    public List<Integer> getQueueNumbers() {
+        if (classification==null) throw new IllegalStateException("classification is NULL");
+        return classification.convertClassificationToQueue(ipPrecedenceList, dscpValuesEnums);
     }
 
-    public ClassDefinition(String name, Integer... queueNumbers) {
-        if (name == null) {
-            this.name = "";
-        } else {
-            this.name = name;
-        }
-
-        if (queueNumbers == null) throw new IllegalArgumentException("queueNumbers is NULL");
-        if (queueNumbers.length == 0) throw new IllegalArgumentException("queueNumbers is empty");
-
-        this.queueNumbers = new ArrayList<Integer>(Arrays.asList(queueNumbers));
+    public void setClassification(PacketClassification classification) {
+        this.classification = classification;
     }
+
+
+//    public ClassDefinition(Integer... queueNumbers) {
+//        if (queueNumbers == null) throw new IllegalArgumentException("queueNumbers is NULL");
+//        if (queueNumbers.length == 0) throw new IllegalArgumentException("queueNumbers is empty");
+//
+//        this.queueNumbers = new ArrayList<Integer>(Arrays.asList(queueNumbers));
+//    }
+
+//    public ClassDefinition(String name, Integer... queueNumbers) {
+//        if (name == null) {
+//            this.name = "";
+//        } else {
+//            this.name = name;
+//        }
+//
+//        if (queueNumbers == null) throw new IllegalArgumentException("queueNumbers is NULL");
+//        if (queueNumbers.length == 0) throw new IllegalArgumentException("queueNumbers is empty");
+//
+//        this.queueNumbers = new ArrayList<Integer>(Arrays.asList(queueNumbers));
+//    }
 }

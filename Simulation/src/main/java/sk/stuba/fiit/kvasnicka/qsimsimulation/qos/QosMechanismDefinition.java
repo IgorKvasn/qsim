@@ -61,12 +61,11 @@ public class QosMechanismDefinition implements Serializable {
     /**
      * creates new object that defines QoS
      *
-     * @param classDefinitions      null if no classes are used
      * @param packetScheduling      packet scheduling mechanism
      * @param packetClassification  packet classification mechanism
      * @param activeQueueManagement active queue management mechanism
      */
-    public QosMechanismDefinition(ClassDefinition[] classDefinitions, int[] queueWeights, PacketScheduling packetScheduling, PacketClassification packetClassification, ActiveQueueManagement activeQueueManagement) {
+    public QosMechanismDefinition(int[] queueWeights, PacketScheduling packetScheduling, PacketClassification packetClassification, ActiveQueueManagement activeQueueManagement) {
         if (queueWeights == null) {
             this.queueWeights = new int[0];
         } else {
@@ -81,6 +80,15 @@ public class QosMechanismDefinition implements Serializable {
         this.packetScheduling = packetScheduling;
         this.packetClassification = packetClassification;
         this.activeQueueManagement = activeQueueManagement;
+    }
+
+    public void setClassDefinitions(ClassDefinition[] classDefinitions) {
+        this.classDefinitions = classDefinitions;
+        if (classDefinitions != null) {
+            for (ClassDefinition def : classDefinitions) {
+                def.setClassification(this.packetClassification);
+            }
+        }
     }
 
     /**

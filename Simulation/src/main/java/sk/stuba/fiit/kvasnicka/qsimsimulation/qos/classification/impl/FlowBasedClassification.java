@@ -18,12 +18,16 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl;
 
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpValuesEnum;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -72,6 +76,11 @@ public class FlowBasedClassification extends PacketClassification {
         nextQueueNumber++;
         flows.put(flow, queue);
         return queue;
+    }
+
+    @Override
+    public List<Integer> convertClassificationToQueue(List<IpPrecedence> ipPrecedenceList, List<DscpValuesEnum> dscpValuesEnums) {
+        return Collections.<Integer>emptyList();
     }
 
     private static final class Flow {

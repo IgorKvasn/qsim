@@ -18,6 +18,7 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl;
 
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpManager;
@@ -26,6 +27,8 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.ParameterException;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.utils.QosUtils;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Igor Kvasnicka
@@ -56,20 +59,34 @@ public class DscpClassification extends PacketClassification {
         return dscpManager.determineMarkingByDscpDefinitions(packet);
     }
 
-    /**
-     * for a given queue number, finds DSCP value (AF11,AF12,EF,..)
-     *
-     * @param queueNumber
-     * @return
-     * @throws ArrayIndexOutOfBoundsException if queueNumber is below 0 or higher than max defined value
-     */
-    public static DscpValuesEnum findDscpValueByQueueNumber(int queueNumber) {
-        if (queueNumber < 0) throw new ArrayIndexOutOfBoundsException("invalid queueNumber number: " + queueNumber);
-        for (DscpValuesEnum dscpValuesEnum : DscpValuesEnum.values()) {
-            if (dscpValuesEnum.getQosQueue() == queueNumber) {
-                return dscpValuesEnum;
+    @Override
+    public List<Integer> convertClassificationToQueue(List<IpPrecedence> ipPrecedenceList, List<DscpValuesEnum> dscpValuesEnums) {
+        List<Integer> result = new LinkedList<Integer>();
+        DscpManager dscpManager = (DscpManager) parameters.get(DSCP_DEFINITIONS);
+        for (DscpValuesEnum dscp : dscpValuesEnums) {
+            try {
+                result.add(dscpManager.convertDscpToQueue(dscp));
+            } catch (Exception e) {
+                result.add(0);
             }
         }
-        throw new ArrayIndexOutOfBoundsException("invalid queueNumber number: " + queueNumber);
+        return result;
     }
+
+//    /**
+//     * for a given queue number, finds DSCP value (AF11,AF12,EF,..)
+//     *
+//     * @param queueNumber
+//     * @return
+//     * @throws ArrayIndexOutOfBoundsException if queueNumber is below 0 or higher than max defined value
+//     */
+//    public static DscpValuesEnum findDscpValueByQueueNumber(int queueNumber) {
+//        if (queueNumber < 0) throw new ArrayIndexOutOfBoundsException("invalid queueNumber number: " + queueNumber);
+//        for (DscpValuesEnum dscpValuesEnum : DscpValuesEnum.values()) {
+//            if (dscpValuesEnum.getQosQueue() == queueNumber) {
+//                return dscpValuesEnum;
+//            }
+//        }
+//        throw new ArrayIndexOutOfBoundsException("invalid queueNumber number: " + queueNumber);
+//    }
 }

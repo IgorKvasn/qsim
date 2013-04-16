@@ -68,7 +68,7 @@ public class SerialisationTest implements Serializable {
         classDef[0] = new FlowClassDefinition("className1", "srcPort!=3");
         classDef[1] = new FlowClassDefinition("className2", "srcPort=3");
 
-        qosMechanism = new QosMechanismDefinition(null, null,new WeightedFairQueuingScheduling()
+        qosMechanism = new QosMechanismDefinition(null,new WeightedFairQueuingScheduling()
         , new BestEffortClassification(), new RandomEarlyDetection(new HashMap<String, Object>() {{
             put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, .6);
             put(RandomEarlyDetection.MAX_PROBABILITY, 1.0);

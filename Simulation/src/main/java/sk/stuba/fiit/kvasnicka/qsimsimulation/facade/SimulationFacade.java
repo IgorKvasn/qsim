@@ -20,6 +20,7 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.facade;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Edge;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.drop.PacketDropListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.log.SimulationLogListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.packet.PacketDeliveredListener;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.ping.PingPacketDeliveredListener;
@@ -149,9 +150,10 @@ public class SimulationFacade {
 
     /**
      * returns default simulation speed
+     *
      * @return
      */
-    public static double getDefaultSimulationSpeed(){
+    public static double getDefaultSimulationSpeed() {
         return SimulationTimer.DEFAULT_SIMULATION_SPEED_UP;
     }
 
@@ -207,7 +209,7 @@ public class SimulationFacade {
         }
     }
 
-    public void removeAllSimulationRules(){
+    public void removeAllSimulationRules() {
         pingManager.removeAllPing();
         simulationManager.removeAllSimulationRule();
     }
@@ -301,9 +303,10 @@ public class SimulationFacade {
 
     /**
      * returns speed of simulation
+     *
      * @return
      */
-    public double getSimulationSpeed(){
+    public double getSimulationSpeed() {
         if (timer == null) throw new IllegalStateException("timer is NULL");
         return timer.getSpeedUp();
     }
@@ -363,26 +366,48 @@ public class SimulationFacade {
     }
 
     /**
-        * adds listener to be notified when non-ping packet reaches its destination
-        *
-        * @param l
-        */
-       public void addPacketDeliveredListener(PacketDeliveredListener l) {
-           for (SimulationRuleBean rule : getSimulationRules()) {
-               rule.addPacketDeliveredListener(l);
-           }
-       }
+     * adds listener to packet drops
+     *
+     * @param l
+     */
+    public void addPacketDroppedListener(PacketDropListener l) {
+        if (simulationLogUtils == null) {
+            throw new IllegalStateException("simulationLogUtils is NULL; call initTimer() method before");
+        }
+        simulationLogUtils.addPacketDropListener(l);
+    }
 
-       /**
-        * removes listener
-        *
-        * @param l
-        */
-       public void removePacketDeliveredListener(PacketDeliveredListener l) {
-           for (SimulationRuleBean rule : getSimulationRules()) {
-               rule.addPacketDeliveredListener(l);
-           }
-       }
+    /**
+     * removes listener for simulation logs, e.g. packet delivery, topology errors/informations, etc.
+     */
+    public void removePacketDroppedListener(PacketDropListener l) {
+        if (simulationLogUtils == null) {
+            throw new IllegalStateException("simulationLogUtils is NULL; call initTimer() method before");
+        }
+        simulationLogUtils.removePacketDropListener(l);
+    }
+
+    /**
+     * adds listener to be notified when non-ping packet reaches its destination
+     *
+     * @param l
+     */
+    public void addPacketDeliveredListener(PacketDeliveredListener l) {
+        for (SimulationRuleBean rule : getSimulationRules()) {
+            rule.addPacketDeliveredListener(l);
+        }
+    }
+
+    /**
+     * removes listener
+     *
+     * @param l
+     */
+    public void removePacketDeliveredListener(PacketDeliveredListener l) {
+        for (SimulationRuleBean rule : getSimulationRules()) {
+            rule.addPacketDeliveredListener(l);
+        }
+    }
 
     /**
      * adds listener to be notified when ping packet reaches its destination

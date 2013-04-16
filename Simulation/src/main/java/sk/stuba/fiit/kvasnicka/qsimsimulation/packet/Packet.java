@@ -114,7 +114,7 @@ public class Packet implements PacketDscpClassificationInterf {
     }
 
     public IpPrecedence getIpPrecedenceEnum() {
-        return simulationRule.getIpPrecedence();
+        return ipPrecedence;
     }
 
     public int getIpTos() {
@@ -135,7 +135,7 @@ public class Packet implements PacketDscpClassificationInterf {
 
     @Override
     public DscpValuesEnum getDscp() {
-        return simulationRule.getDscpValue();
+        return dscpValuesEnum;
     }
 
     /**

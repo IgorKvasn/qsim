@@ -18,8 +18,13 @@
 package sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.impl;
 
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.PacketClassification;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.qos.classification.utils.dscp.DscpValuesEnum;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * all packets are put into one queue
@@ -32,5 +37,10 @@ public class BestEffortClassification extends PacketClassification {
     @Override
     public int classifyAndMarkPacket(NetworkNode networkNode, Packet packet) {
         return 0;
+    }
+
+    @Override
+    public List<Integer> convertClassificationToQueue(List<IpPrecedence> ipPrecedenceList, List<DscpValuesEnum> dscpValuesEnums) {
+        return Collections.<Integer>emptyList();
     }
 }
