@@ -60,7 +60,7 @@ public class RandomEarlyDetection extends ActiveQueueManagement {
         }
 
         if ((Double) parameters.get(EXPONENTIAL_WEIGHT_FACTOR) > 1) {
-            throw new IllegalArgumentException("EXPONENTIAL_WEIGHT_FACTOR must not be greater than 1");
+         //   throw new IllegalArgumentException("EXPONENTIAL_WEIGHT_FACTOR must not be greater than 1");
         }
     }
 
@@ -84,8 +84,10 @@ public class RandomEarlyDetection extends ActiveQueueManagement {
         double threshMin = (Double) parameters.get(MIN_THRESHOLD);
         double threshMax = (Double) parameters.get(MAX_THRESHOLD);
 
-        if (averageQueueSize <= threshMin) return true;//no packet dropping
-        if (averageQueueSize > threshMax) return false;//everything is dropped
+        if (averageQueueSize <= threshMin)
+            return true;//no packet dropping
+        if (averageQueueSize > threshMax)
+            return false;//everything is dropped
 
         double pmax = (Double) parameters.get(MAX_PROBABILITY);
         double q = (Double) parameters.get(EXPONENTIAL_WEIGHT_FACTOR);

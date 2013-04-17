@@ -48,8 +48,8 @@ public final class SimulationLogUtils {
         fireSimulationLogEvent(new SimulationLogEvent(this, log));
     }
 
-    public void packetDropped(NetworkNode where, SimulationRuleBean rule, PacketDropEvent.LocationEnum location){
-        firePacketDropEvent(new PacketDropEvent(this,where,location,rule));
+    public void packetDropped(NetworkNode where, SimulationRuleBean rule, PacketDropEvent.LocationEnum location, double when){
+        firePacketDropEvent(new PacketDropEvent(this,where,location,rule,when));
     }
 
     private void firePacketDropEvent(PacketDropEvent evt) {

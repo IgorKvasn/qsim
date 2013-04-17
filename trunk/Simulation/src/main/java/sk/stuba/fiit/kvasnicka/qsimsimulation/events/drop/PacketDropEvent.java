@@ -34,13 +34,16 @@ public class PacketDropEvent extends EventObject {
     private final LocationEnum location;
     @Getter
     private final SimulationRuleBean rule;
+    @Getter
+    private final double when;
 
 
-    public PacketDropEvent(Object source, NetworkNode where, LocationEnum location, SimulationRuleBean rule) {
+    public PacketDropEvent(Object source, NetworkNode where, LocationEnum location, SimulationRuleBean rule, double when) {
         super(source);
         this.where = where;
         this.location = location;
         this.rule = rule;
+        this.when = when;
     }
 
     public enum LocationEnum {
