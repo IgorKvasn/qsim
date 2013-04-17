@@ -19,6 +19,7 @@ package sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components;
 
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.drop.PacketDropEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
 import java.io.Serializable;
@@ -167,14 +168,17 @@ public class OutputQueueManager implements Serializable {
         List<Packet> queue = getPacketsInOutputQueues(p.getSimulationTime()).get(p.getQosQueue());
         if (! node.getQosMechanism().performActiveQueueManagement(queue, p)) {
             //packet should be dropped
+            node.packetDopActiveQueueManagement(p, PacketDropEvent.LocationEnum.OUTPUT_QUEUE);
             if (p.getLayer4().isRetransmissionEnabled()) {
                 node.retransmittPacket(p);
             } else {
-                p.getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
+                if (p.getSimulationRule().isPing()) {
+                    p.getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
+                }
             }
+        } else {
+            queues.get(p.getQosQueue()).addPacket(p);
         }
-
-        queues.get(p.getQosQueue()).addPacket(p);
     }
 
 

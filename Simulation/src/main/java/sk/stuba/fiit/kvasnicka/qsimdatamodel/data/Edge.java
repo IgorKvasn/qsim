@@ -129,6 +129,7 @@ public class Edge implements Serializable, UsageStatistics {
         applyCongestion(packet.getSimulationTime());
 
         if (speedMap.containsKey(packet.getSimulationRule())) {
+           // System.out.println("speed: " + speedMap.get(packet.getSimulationRule()) + " edge: " + this);
             return speedMap.get(packet.getSimulationRule());
         }
         speedMap.put(packet.getSimulationRule(), maxSpeed);

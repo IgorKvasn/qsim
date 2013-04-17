@@ -37,6 +37,7 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.buffers.RxBuffer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.InputQueue;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues.OutputQueue;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.PacketCreationDelayFunction;
+import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.creationdelay.ConstantNoiseCreationDelay;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.creationdelay.GaussNormalCreationDelay;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.PacketGenerator;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
@@ -743,7 +744,7 @@ public class NetworkNodeTest {
     @Test
     public void testGeneratePackets_multiple_packets_created() throws Exception {
 
-        PacketCreationDelayFunction creation =  new GaussNormalCreationDelay(0.7, 100, 0.0, 1.0);
+        PacketCreationDelayFunction creation =  new ConstantNoiseCreationDelay(0.2,0.0);
 
         SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, creation,2, 50, 0, layer4, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
         rule.setRoute(Arrays.asList(node1, node2));
@@ -773,6 +774,44 @@ public class NetworkNodeTest {
         int fragments = node1.getTxInterfaces().get(node2).getFragmentsCount();
         assertEquals(2, fragments);
     }
+
+
+    /**
+        * creating new packets according to SimulationRuleBean
+        * with packet creation delay
+        */
+       @Test
+       public void testGeneratePackets_multiple_packets_created_one_quantum() throws Exception {
+
+           PacketCreationDelayFunction creation =  new ConstantNoiseCreationDelay(0.2,0.0);
+
+           SimulationRuleBean rule = new SimulationRuleBean("", node1, node2, creation,-1, 50, 0, layer4, IpPrecedence.IP_PRECEDENCE_0, null, 0, 0);
+           rule.setRoute(Arrays.asList(node1, node2));
+
+           SimulationTimer timer = new SimulationTimer(Arrays.asList(edge), Arrays.asList(node1, node2), new SimulationLogUtils());
+
+           SimulationManager simulationManager = new SimulationManager();
+           simulationManager.addSimulationRule(rule);
+
+           setWithoutSetter(SimulationTimer.class, timer, "simulationManager", simulationManager);
+
+           timer.startSimulationTimer(simulationManager, new PingManager(), new LinkedList<SimulationRuleActivationListener>()); //need to init all the stuff
+
+
+           Field privateStringField = SimulationTimer.class.getDeclaredField("packetGenerator");
+           privateStringField.setAccessible(true);
+           PacketGenerator generator = (PacketGenerator) privateStringField.get(timer);
+
+           generator.generatePackets(0, SimulationTimer.TIME_QUANTUM);
+
+           PowerMock.verifyAll();
+
+           assertNotNull(node1.getTxInterfaces());
+           assertNotNull(node1.getTxInterfaces().get(node2));
+           int fragments = node1.getTxInterfaces().get(node2).getFragmentsCount();
+           assertEquals(3, fragments);
+       }
+
 
     /**
      * one fragment was dropped

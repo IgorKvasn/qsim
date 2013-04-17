@@ -393,12 +393,14 @@ public abstract class NetworkNode implements Serializable {
                     logg.debug("no space left in output queue -> packet dropped");
                 }
                 simulLog.log(new SimulationLog(LogCategory.INFO, "No space left in output queue -> packet dropped", getName(), LogSource.VERTEX, packet.getSimulationTime()));
-                simulLog.packetDropped(this, packet.getSimulationRule(), PacketDropEvent.LocationEnum.OUTPUT_QUEUE);
+                simulLog.packetDropped(this, packet.getSimulationRule(), PacketDropEvent.LocationEnum.OUTPUT_QUEUE, packet.getSimulationTime());
 
                 if (packet.getLayer4().isRetransmissionEnabled()) {
                     retransmittPacket(packet);
                 } else {
-                    packet.getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
+                    if (packet.getSimulationRule().isPing()) {
+                        packet.getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
+                    }
                 }
                 if (Layer4TypeEnum.TCP == packet.getLayer4()) {
                     nodeCongested(packet);
@@ -548,8 +550,8 @@ public abstract class NetworkNode implements Serializable {
 
         TxBuffer txInterface = txInterfaces.get(nextHop);
 
-        if (txInterface.getFragmentsCount() + fragments.length > txInterface.getMaxBufferSize()) {
-            throw new NotEnoughBufferSpaceException("Not enough space in RX buffer");
+        if (!txInterface.canAddPacketToTx(fragments.length)) {
+            throw new NotEnoughBufferSpaceException("Not enough space in TX buffer");
         }
 
         for (Fragment f : fragments) {
@@ -588,7 +590,9 @@ public abstract class NetworkNode implements Serializable {
             if (fragment.getOriginalPacket().getLayer4().isRetransmissionEnabled()) {
                 retransmittPacket(fragment.getOriginalPacket());
             } else {
-                fragment.getOriginalPacket().getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
+                if (fragment.getOriginalPacket().getSimulationRule().isPing()) {
+                    fragment.getOriginalPacket().getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
+                }
             }
 
             return;
@@ -629,13 +633,15 @@ public abstract class NetworkNode implements Serializable {
                     if (logg.isDebugEnabled()) {
                         logg.debug("no space left in input queue -> packet dropped");
                     }
-                    simulLog.packetDropped(this, packet.getSimulationRule(),  PacketDropEvent.LocationEnum.INPUT_QUEUE);
+                    simulLog.packetDropped(this, packet.getSimulationRule(), PacketDropEvent.LocationEnum.INPUT_QUEUE, packet.getSimulationTime());
                     simulLog.log(new SimulationLog(LogCategory.INFO, "No space left in input queue -> packet dropped", getName(), LogSource.VERTEX, packet.getSimulationTime()));
 
                     if (packet.getLayer4().isRetransmissionEnabled()) {
                         retransmittPacket(packet);
                     } else {
-                        fragment.getOriginalPacket().getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
+                        if (fragment.getOriginalPacket().getSimulationRule().isPing()) {
+                            fragment.getOriginalPacket().getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
+                        }
                     }
                     if (Layer4TypeEnum.TCP == packet.getLayer4()) {
                         nodeCongested(packet);
@@ -643,6 +649,16 @@ public abstract class NetworkNode implements Serializable {
                 }
             }
         }
+    }
+
+    /**
+     * packet was dropped because of active queue management said so
+     *
+     * @param packet packet to drop
+     */
+    public void packetDopActiveQueueManagement(Packet packet, PacketDropEvent.LocationEnum location) {
+        simulLog.packetDropped(this, packet.getSimulationRule(), location, packet.getSimulationTime());
+        simulLog.log(new SimulationLog(LogCategory.INFO, "No space left in input queue -> packet dropped", getName(), LogSource.VERTEX, packet.getSimulationTime()));
     }
 
 

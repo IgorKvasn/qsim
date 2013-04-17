@@ -20,6 +20,7 @@ package sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.queues;
 import lombok.Getter;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.components.UsageStatistics;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.events.drop.PacketDropEvent;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 
 import java.io.IOException;
@@ -77,15 +78,18 @@ public class InputQueue implements UsageStatistics, Serializable {
         }
 
         if (! node.getQosMechanism().performActiveQueueManagement(inputQueue, packet)) {
+            node.packetDopActiveQueueManagement(packet, PacketDropEvent.LocationEnum.INPUT_QUEUE);
             //packet should be dropped
             if (packet.getLayer4().isRetransmissionEnabled()) {
                 node.retransmittPacket(packet);
             } else {
-                packet.getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
+                if (packet.getSimulationRule().isPing()) {
+                    packet.getSimulationRule().setCanCreateNewPacket(true); //in case this is a ICMP packet this allows to generate new packet on the src node
+                }
             }
+        } else {
+            inputQueue.add(packet);
         }
-
-        inputQueue.add(packet);
     }
 
     public boolean isAvailable() {

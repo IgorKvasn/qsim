@@ -58,6 +58,9 @@ public class TxBuffer implements UsageStatistics, Serializable {
     @Getter
     private String name;
 
+    @Getter
+    private int savedFragments = 0;
+
     public TxBuffer(int maxBufferSize, NetworkNode currentNode, NetworkNode networknodeNextHop, TopologyManager topologyManager) {
 
         if (maxBufferSize == - 1) {
@@ -85,11 +88,21 @@ public class TxBuffer implements UsageStatistics, Serializable {
      * @return
      */
     public int getFragmentsCount() {
+        if (fragments.size() > maxBufferSize) return maxBufferSize;
         return fragments.size();
+    }
+
+    public boolean canAddPacketToTx(int fragmentCountToAdd) {
+        if (fragmentCountToAdd <= savedFragments + (maxBufferSize - fragments.size())) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void reset() {
         serialisationEndTime = 0;
+        savedFragments = 0;
         fragments.clear();
     }
 

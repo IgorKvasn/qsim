@@ -27,6 +27,8 @@ import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.Packet;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.packet.PingPacket;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -118,13 +120,13 @@ public class PacketGenerator {
         double timeSpent = 0 - rule.getCreationTimeSaved();
         double creationTime = rule.getActivationTime() % timeQuantum;
 
-        while (timeSpent <= creationTime && (rule.getNumberOfPackets() > 0 || rule.getNumberOfPackets() == - 1)) {
+        while (timeSpent <= creationTime + timeQuantum && (rule.getNumberOfPackets() > 0 || rule.getNumberOfPackets() == - 1)) {
             if (rule.isPing() && packets.size() == 1) { //there can be created only 1 ICMP ping at a time
                 break;
             }
 
             double creationDelay = DelayHelper.calculatePacketCreationDelay(rule, rule.getPacketSize(), simulationTime + timeSpent);
-            if (timeSpent + creationDelay > timeQuantum) break; //no time left to spent
+            if (round(timeSpent + creationDelay) > timeQuantum) break; //no time left to spent
             packets.add(createPacket(rule, rule.getActivationTime() % timeQuantum + simulationTime));
             timeSpent += creationDelay;//I have spent some time
             rule.decreaseNumberOfPackets();
@@ -137,6 +139,18 @@ public class PacketGenerator {
         }
         rule.setCreationTimeSaved(timeQuantum-timeSpent);
         return packets;
+    }
+
+    /**
+     * there is a problem when using double:
+     * when summing two doubles, there is precision error, e.g: 0.2+0.4=0.6000000000000001
+     * @param unrounded
+     * @return
+     */
+    private double round(double unrounded){
+        BigDecimal bd = new BigDecimal(unrounded);
+           BigDecimal rounded = bd.setScale(6, RoundingMode.HALF_UP);
+           return rounded.doubleValue();
     }
 
     /**
