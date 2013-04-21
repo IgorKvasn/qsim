@@ -77,7 +77,7 @@ public class RedQueueManagementDialog extends javax.swing.JDialog {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(RedQueueManagementDialog.class, "RedQueueManagementDialog.jLabel4.text")); // NOI18N
 
-        jSpinner1.setModel(new javax.swing.SpinnerNumberModel(0.002d, 0.0d, 1.0d, 0.1d));
+        jSpinner1.setModel(new javax.swing.SpinnerNumberModel(0.9d, 0.0d, 1.0d, 0.1d));
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(RedQueueManagementDialog.class, "RedQueueManagementDialog.jLabel5.text")); // NOI18N
 
@@ -128,7 +128,7 @@ public class RedQueueManagementDialog extends javax.swing.JDialog {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(116, 116, 116)
                         .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel1, jLabel2, jLabel3, jLabel4});

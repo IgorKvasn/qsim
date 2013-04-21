@@ -247,6 +247,10 @@
                 <binary-origin>release/modules/ext/jide-oss-2.9.7.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
+                <runtime-relative-path>ext/jcommon-1.0.17.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jcommon-1.0.17.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
                 <runtime-relative-path>ext/PgsLookAndFeel.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/PgsLookAndFeel.jar</binary-origin>
             </class-path-extension>
@@ -283,6 +287,10 @@
                 <binary-origin>release/modules/ext/jung-io-2.0.1.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
+                <runtime-relative-path>ext/jfreechart-1.0.14.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jfreechart-1.0.14.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
                 <runtime-relative-path>ext/commons-logging-api-1.1.1.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/commons-logging-api-1.1.1.jar</binary-origin>
             </class-path-extension>
@@ -305,10 +313,6 @@
             <class-path-extension>
                 <runtime-relative-path>ext/commons-lang3-3.1.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/commons-lang3-3.1.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jfreechart-1.0.12.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/jfreechart-1.0.12.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/jdtcore-3.1.0.jar</runtime-relative-path>
@@ -377,10 +381,6 @@
             <class-path-extension>
                 <runtime-relative-path>ext/commons-codec-1.7.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/commons-codec-1.7.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jcommon-1.0.15.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/jcommon-1.0.15.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/jackson-core-2.1.1.jar</runtime-relative-path>

@@ -59,6 +59,7 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
     private JMenuItem menuItemDeleteEdge;
     private JMenuItem menuItemEditVertex;
     private JMenuItem menuItemEditEdge;
+    private JMenuItem menuItemSimulLog;
 
     /**
      * Creates a new instance of PopupVertexEdgeMenuMousePlugin
@@ -133,9 +134,11 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
         if (topology.getTopolElementTopComponent().isSimulationRunning()) {
             menuItemDeleteVertex.setEnabled(false);
             menuItemEditVertex.setText(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "view"));
+            menuItemSimulLog.setEnabled(true);
         } else {
             menuItemDeleteVertex.setEnabled(true);
             menuItemEditVertex.setText(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "edit"));
+            menuItemSimulLog.setEnabled(false);
         }
     }
 
@@ -159,12 +162,12 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
         menuItemDeleteVertex = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "delete"));
         menuItemDeleteVertex.setEnabled(true);
 
-        vertexPopup.add(menuItemDeleteVertex);
         vertexPopup.add(menuItemEditVertex);
+        vertexPopup.add(menuItemDeleteVertex);
 
-        JMenuItem menuSimulLog = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "simul_log"));
-        menuSimulLog.addActionListener(new ShowSimulationLogsMenuItem());
-        vertexPopup.add(menuSimulLog);
+        menuItemSimulLog = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "simul_log"));
+        menuItemSimulLog.addActionListener(new ShowSimulationLogsMenuItem());
+        vertexPopup.add(menuItemSimulLog);
 
         JMenuItem menuCopy = new JMenuItem(NbBundle.getMessage(PopupVertexEdgeMenuMousePlugin.class, "copy"));
         menuCopy.addActionListener(new CopyVertexListener());

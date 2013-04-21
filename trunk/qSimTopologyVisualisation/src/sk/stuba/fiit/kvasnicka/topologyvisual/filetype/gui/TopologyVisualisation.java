@@ -56,11 +56,13 @@ import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Computer;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Router;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.Switch;
+import sk.stuba.fiit.kvasnicka.qsimsimulation.SimulationTimer;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.facade.SimulationFacade;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.rule.SimulationRuleBean;
 import sk.stuba.fiit.kvasnicka.topologyvisual.PreferenciesHelper;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.ConfigureSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.NetworkNodeStatsAction;
+import sk.stuba.fiit.kvasnicka.topologyvisual.actions.PacketDropAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.PauseSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.RunSimulationAction;
 import sk.stuba.fiit.kvasnicka.topologyvisual.actions.SimulationSpeedAction;
@@ -96,6 +98,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectio
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.palette.events.PaletteSelectionListener;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.AddSimulationTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.SimulationTopComponent;
+import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.drops.DropRateTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs.SimulationLogTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.NetworkNodeStatisticsTopComponent;
 import sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.SimulRuleReviewTopComponent;
@@ -154,6 +157,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     @Getter
     private transient NetworkNodeStatsManager networkNodeStatsManager;
     private transient SimulationLogTopComponent logTopComponent;
+    private transient DropRateTopComponent dropRateTopComponent;
 
     public TopologyVisualisation(TopologyFileTypeDataObject dataObject) {
         this.dataObject = dataObject;
@@ -251,6 +255,11 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
             //user cannot paste vertices
             updatePasteButton(false);
+            SimulationSpeedAction.getInstance().updateSpeed(1.0);
+
+            //create and init packet drop top component so it will listen to packet drops
+            dropRateTopComponent = new DropRateTopComponent();
+            dropRateTopComponent.init(simulationFacade, topology.getVertexFactory().getAllVertices(), simulationRules);
 
             statManager = new SimulRuleStatisticalDataManager(simulationRules);
             simulationFacade.addPingRuleListener(statManager);
@@ -305,6 +314,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         simulationFacade.removeSimulationRuleListener(statManager);
         simulationFacade.removePingPacketDeliveredListener(statManager);
         simulationFacade.removeSimulationLogListener(logTopComponent);
+        dropRateTopComponent.removeListener();
 
         //no need to do this - simulation timer is nulled anyway networkNodeStatsManager.removeStatisticsListeners();
         closeSimulationWindows();
@@ -404,6 +414,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
                 PauseSimulationAction.getInstance().updateState(null);
                 StopSimulationAction.getInstance().updateState(null);
                 ConfigureSimulationAction.getInstance().updateState(null);
+                PacketDropAction.getInstance().updateState(null);
                 NetworkNodeStatsAction.getInstance().updateState(null);
                 SimulationSpeedAction.getInstance().updateState(null);
             } else {
@@ -413,6 +424,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
                 ConfigureSimulationAction.getInstance().updateState(simulationState);
                 NetworkNodeStatsAction.getInstance().updateState(simulationState);
                 SimulationSpeedAction.getInstance().updateState(simulationState);
+                PacketDropAction.getInstance().updateState(simulationState);
             }
         }
     }
@@ -669,6 +681,13 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
         logg.debug("vertex deletion: " + VerticesUtil.getVerticesNames(topology.getSelectedVertices()));
         return true;
+    }
+
+    public void openDropTopComponent() {
+        Mode outputMode = WindowManager.getDefault().findMode("myoutput");
+        outputMode.dockInto(dropRateTopComponent);
+        dropRateTopComponent.open();
+        dropRateTopComponent.requestActive();
     }
 
     public void showEdgeEditDialog(TopologyEdge edge) {
@@ -1230,7 +1249,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
     public void setMultiViewCallback(MultiViewElementCallback callback) {
         this.callback = callback;
         if (dataObject == null) {
-            return;            
+            return;
         }
         if (dataObject.isDirty()) {
             callback.updateTitle(dataObject.getPrimaryFile().getNameExt() + "*");
