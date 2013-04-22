@@ -15,8 +15,6 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.statistics.HistogramType;
 import org.netbeans.api.settings.ConvertAsProperties;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.events.drop.PacketDropEvent;
@@ -36,8 +34,8 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.drops.PacketDropManager
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_NEVER)
 @TopComponent.Registration(mode = "myoutput", openAtStartup = false)
-@ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.drops.DropRateTopComponent")
-@ActionReference(path = "Menu/Window" /*, position = 333 */)
+//@ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.drops.DropRateTopComponent")
+//@ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
         displayName = "#CTL_DropRateAction",
         preferredID = "DropRateTopComponent")
@@ -58,6 +56,8 @@ public final class DropRateTopComponent extends TopComponent {
         setName(Bundle.CTL_DropRateTopComponent());
         setToolTipText(Bundle.HINT_DropRateTopComponent());
         putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
+        jList1.setModel(new DefaultListModel());
+        jList2.setModel(new DefaultListModel());
         model1 = (DefaultListModel) jList1.getModel();
         model2 = (DefaultListModel) jList2.getModel();
     }
@@ -127,6 +127,9 @@ public final class DropRateTopComponent extends TopComponent {
         if (jCheckBox1.isSelected()) {
             return 0;
         } else {
+              if (jSpinner2.getValue() instanceof Integer){
+               return ((Integer) jSpinner2.getValue())/1.0;
+            }
             return (Double) jSpinner2.getValue();
         }
 
@@ -136,6 +139,9 @@ public final class DropRateTopComponent extends TopComponent {
         if (jCheckBox2.isSelected()) {
             return -1;
         } else {
+            if (jSpinner3.getValue() instanceof Integer){
+               return ((Integer) jSpinner3.getValue())/1.0;
+            }
             return (Double) jSpinner3.getValue();
         }
     }
@@ -192,7 +198,8 @@ public final class DropRateTopComponent extends TopComponent {
         setToolTipText(org.openide.util.NbBundle.getMessage(DropRateTopComponent.class, "DropRateTopComponent.toolTipText")); // NOI18N
         setLayout(new java.awt.BorderLayout());
 
-        jSplitPane1.setDividerLocation(451);
+        jSplitPane1.setDividerLocation(421);
+        jSplitPane1.setOneTouchExpandable(true);
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(DropRateTopComponent.class, "DropRateTopComponent.jLabel1.text")); // NOI18N
 
@@ -271,11 +278,11 @@ public final class DropRateTopComponent extends TopComponent {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel5))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel6))))
-                .addContainerGap(26, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -284,22 +291,22 @@ public final class DropRateTopComponent extends TopComponent {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(jCheckBox1)
                     .addComponent(jSpinner2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel4)
                         .addComponent(jCheckBox2))
                     .addComponent(jSpinner3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel5)

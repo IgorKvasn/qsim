@@ -104,17 +104,17 @@ public class IpClassificationDialog extends javax.swing.JDialog {
      *
      * @return
      */
-    public IpDefinition[] makeIpDefinitions() {
+    public void makeIpDefinitions() {
         List<IpDefinition> result = new LinkedList<IpDefinition>();
         for (int i = 0; i < tableModel.getRowCount(); i++) {
             IpDefinition res = new IpDefinition(((ComboItem) tableModel.getValueAt(i, 0)).getValue(), (String) jTable1.getValueAt(i, 1));
             result.add(res);
         }
-        return result.toArray(new IpDefinition[result.size()]);
+        ipDefinitions = result.toArray(new IpDefinition[result.size()]);
     }
 
-    public IpPrecedence makeDefaultQueueNumber() {
-        return ((ComboItem) jComboBox1.getSelectedItem()).value;
+    public void makeDefaultQueueNumber() {
+        defaultQueueNumber = ((ComboItem) jComboBox1.getSelectedItem()).value;
     }
 
     /**
@@ -123,7 +123,7 @@ public class IpClassificationDialog extends javax.swing.JDialog {
      *
      * @return true if everything is OK, false otherwise
      */
-    private boolean validateInput() {       
+    private boolean validateInput() {
         for (int i = 0; i < tableModel.getRowCount(); i++) {
             try {
                 ComboItem a = (ComboItem) tableModel.getValueAt(i, 0);
@@ -325,8 +325,8 @@ public class IpClassificationDialog extends javax.swing.JDialog {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         if (validateInput()) {
-            ipDefinitions = makeIpDefinitions();
-            defaultQueueNumber = makeDefaultQueueNumber();
+            makeIpDefinitions();
+            makeDefaultQueueNumber();
             this.setVisible(false);
         }
     }//GEN-LAST:event_jButton3ActionPerformed

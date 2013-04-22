@@ -26,6 +26,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
 import javax.swing.RowFilter;
+import javax.swing.ToolTipManager;
 import javax.swing.table.*;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
@@ -80,6 +81,7 @@ public final class SimulationLogTopComponent extends TopComponent implements Sim
 
     public SimulationLogTopComponent() {
         initComponents();
+        ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
         setName(Bundle.CTL_SimulationLogTopComponent());
         setToolTipText(Bundle.HINT_SimulationLogTopComponent());
         putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
