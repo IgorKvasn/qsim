@@ -10,7 +10,6 @@ Algorithms to determine the order in which packets are to be sent.
   * (Fair queueing) Round robin 
   * Weighted round robin (WRR)
   * Weighted Fair Queing (WFQ)
-  * Class-Based WFQ
 
 
 == Packet classification & marking ==
