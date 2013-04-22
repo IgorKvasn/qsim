@@ -259,7 +259,6 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
             //create and init packet drop top component so it will listen to packet drops
             dropRateTopComponent = new DropRateTopComponent();
-            dropRateTopComponent.init(simulationFacade, topology.getVertexFactory().getAllVertices(), simulationRules);
 
             statManager = new SimulRuleStatisticalDataManager(simulationRules);
             simulationFacade.addPingRuleListener(statManager);
@@ -273,6 +272,7 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
 
             List<NetworkNode> networkNodeList = VerticesUtil.convertTopologyVertexList2NetworkNodeList(topology.getVertexFactory().getAllVertices());
             simulationFacade.initTimer(EdgeUtils.convertTopologyEdgeListToEdgeList(topology.getG().getEdges()), networkNodeList);
+            dropRateTopComponent.init(simulationFacade, topology.getVertexFactory().getAllVertices(), simulationRules);
             networkNodeStatsManager = new NetworkNodeStatsManager(networkNodeList, simulationFacade);
             networkNodeStatisticsTopComponent = new NetworkNodeStatisticsTopComponent(this, networkNodeStatsManager);
 

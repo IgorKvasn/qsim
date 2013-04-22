@@ -531,11 +531,9 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
                 if (wrrConfigurationDialog == null) {
                     throw new IllegalStateException("classDefinitionDialog is NULL - this should be taken care of");
                 }
-                packetScheduling = new WeightedRoundRobinScheduling(new HashMap<String, Object>() {
-                    {
-                        put(WeightedRoundRobinScheduling.QUEUES_WEIGHT, wrrConfigurationDialog.getWeights());
-                    }
-                });
+                HashMap<String, Object> params = new HashMap<String, Object>();
+                params.put(WeightedRoundRobinScheduling.QUEUES_WEIGHT, wrrConfigurationDialog.getWeights());
+                packetScheduling = new WeightedRoundRobinScheduling(params);
                 break;
             case WFQ:
                 packetScheduling = new WeightedFairQueuingScheduling();
@@ -558,15 +556,12 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
                 if (redQueueManagementDialog == null) {
                     throw new QosCreationException(NbBundle.getMessage(RouterConfigurationDialog.class, "queue_management_not_configured"));
                 }
-
-                queueManagement = new RandomEarlyDetection(new HashMap<String, Object>() {
-                    {
-                        put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, redQueueManagementDialog.getExponentialWeightFactor());
-                        put(RandomEarlyDetection.MAX_PROBABILITY, redQueueManagementDialog.getMaxProbability());
-                        put(RandomEarlyDetection.MIN_THRESHOLD, redQueueManagementDialog.getMinThreshlod());
-                        put(RandomEarlyDetection.MAX_THRESHOLD, redQueueManagementDialog.getMaxThreshlod());
-                    }
-                });
+                HashMap<String, Object> params = new HashMap<String, Object>();
+                params.put(RandomEarlyDetection.EXPONENTIAL_WEIGHT_FACTOR, redQueueManagementDialog.getExponentialWeightFactor());
+                params.put(RandomEarlyDetection.MAX_PROBABILITY, redQueueManagementDialog.getMaxProbability());
+                params.put(RandomEarlyDetection.MIN_THRESHOLD, redQueueManagementDialog.getMinThreshlod());
+                params.put(RandomEarlyDetection.MAX_THRESHOLD, redQueueManagementDialog.getMaxThreshlod());
+                queueManagement = new RandomEarlyDetection(params);
                 break;
             case WRED:
                 if (wredQueueManagementDialog == null) {
@@ -577,11 +572,9 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
                 }
                 Collection<WredDefinition> configuration = wredQueueManagementDialog.getConfiguration();
                 final WeightedRED.WredDefinition[] definitions = configuration.toArray(new WredDefinition[configuration.size()]);
-                queueManagement = new WeightedRED(new HashMap<String, Object>() {
-                    {
-                        put(WeightedRED.WRED_DEFINITION, definitions);
-                    }
-                });
+                HashMap<String, Object> params2 = new HashMap<String, Object>();
+                params2.put(WeightedRED.WRED_DEFINITION, definitions);
+                queueManagement = new WeightedRED(params2);
                 break;
             default:
                 throw new IllegalStateException("unknown enum for active queue management: " + classEnum);
@@ -599,24 +592,26 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
                 break;
             case DSCP:
                 if (dscpClassificationDialog == null) {
-                    throw new QosCreationException(NbBundle.getMessage(RouterConfigurationDialog.class, "classfication_not_configured"));
+                    dscpClassificationDialog = new DscpClassificationDialog(this);
                 }
+                dscpClassificationDialog.makeDefaultQueueNumber();
+                dscpClassificationDialog.makeDefinitions();
                 List<DscpDefinition> result = dscpClassificationDialog.getDscpDefinitions();
                 final DscpManager dscpManager = new DscpManager(result.toArray(new DscpDefinition[result.size()]), dscpClassificationDialog.getDefaultQueueNumber(), getOutputQueueCount());
 
-                classification = new DscpClassification(new HashMap<String, Object>() {
-                    {
-                        put(DscpClassification.DSCP_DEFINITIONS, dscpManager);
-                    }
-                });
+                HashMap<String, Object> params2 = new HashMap<String, Object>();
+                params2.put(DscpClassification.DSCP_DEFINITIONS, dscpManager);
+                classification = new DscpClassification(params2);
                 break;
             case FLOW_BASED:
                 classification = new FlowBasedClassification();
                 break;
             case IP_PRECEDENCE:
                 if (ipClassificationDialog == null) {
-                    throw new QosCreationException(NbBundle.getMessage(RouterConfigurationDialog.class, "classfication_not_configured"));
+                    ipClassificationDialog = new IpClassificationDialog(this);
                 }
+                ipClassificationDialog.makeDefaultQueueNumber();
+                ipClassificationDialog.makeIpDefinitions();
                 HashMap<String, Object> params = new HashMap<String, Object>();
                 params.put(IpPrecedenceClassification.NOT_DEFINED_QUEUE, ipClassificationDialog.getDefaultQueueNumber());
                 params.put(IpPrecedenceClassification.OUTPUT_QUEUE_COUNT, getOutputQueueCount());
@@ -1143,7 +1138,7 @@ public class SwitchConfigurationDialog extends BlockingDialog<Switch> {
             return;
         }
 
-      
+
 
         ActiveQueueManagement.Available newSelected = ((ActiveQueueManagement.Available) ((SwitchConfigurationDialog.ComboItem) comboQosQueue.getSelectedItem()).getValue());
 

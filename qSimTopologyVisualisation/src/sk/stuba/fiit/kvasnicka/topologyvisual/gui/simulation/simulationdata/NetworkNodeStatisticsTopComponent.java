@@ -31,9 +31,9 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.nodes.NetworkNodeStatsM
  * Top component which displays something.
  */
 @TopComponent.Description(
-    preferredID = "PokusTopComponentTopComponent",
-//iconBase="SET/PATH/TO/ICON/HERE", 
-persistenceType = TopComponent.PERSISTENCE_NEVER)
+        preferredID = "PokusTopComponentTopComponent",
+        //iconBase="SET/PATH/TO/ICON/HERE", 
+        persistenceType = TopComponent.PERSISTENCE_NEVER)
 @TopComponent.Registration(mode = "myoutput", openAtStartup = false)
 @ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.PokusTopComponentTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
@@ -98,7 +98,11 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
     }
 
     public void cleanUp() {
-        topologyVisualisation.getSimulationFacade().removeSimulationTimerListener(textualStatisticsPanel);
+        try {
+            topologyVisualisation.getSimulationFacade().removeSimulationTimerListener(textualStatisticsPanel);
+        } catch (Exception e) {
+            logg.error(e);
+        }
     }
 
     /**
@@ -216,9 +220,14 @@ public final class NetworkNodeStatisticsTopComponent extends TopComponent {
         showingTraces.clear();
 
         for (UsageStatistics usageStatistics : list) {
-            NetworkNodeStatisticsBean.TraceIdentifier traceIdentifier = topologyVisualisation.getNetworkNodeStatsManager().getTrace(usageStatistics);
-            chart2D1.addTrace(traceIdentifier.getTrace());
-            traceIdentifier.setVisible(true);
+            try {
+                NetworkNodeStatisticsBean.TraceIdentifier traceIdentifier = topologyVisualisation.getNetworkNodeStatsManager().getTrace(usageStatistics);
+                chart2D1.addTrace(traceIdentifier.getTrace());
+                traceIdentifier.setVisible(true);
+            } catch (IllegalArgumentException e) {
+                //duplicate trace - exception thrown by Chart2D
+                logg.error(e);
+            }
         }
     }
 

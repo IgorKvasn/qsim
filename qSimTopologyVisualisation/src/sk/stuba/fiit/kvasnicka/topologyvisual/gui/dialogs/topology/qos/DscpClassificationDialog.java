@@ -106,17 +106,17 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
      *
      * @return
      */
-    public List<DscpDefinition> makeDefinitions() {
+    public void makeDefinitions() {
         List<DscpDefinition> result = new LinkedList<DscpDefinition>();
         for (int i = 0; i < tableModel.getRowCount(); i++) {
             DscpDefinition res = new DscpDefinition((String) jTable1.getValueAt(i, 1), ((ComboItem) tableModel.getValueAt(i, 0)).getValue());
             result.add(res);
         }
-        return result;
+        dscpDefinitions = result;
     }
 
-    public DscpValuesEnum makeDefaultQueueNumber() {
-        return ((ComboItem) jComboBox1.getSelectedItem()).value;
+    public void makeDefaultQueueNumber() {
+        defaultQueueNumber = ((ComboItem) jComboBox1.getSelectedItem()).value;
     }
 
     /**
@@ -329,8 +329,8 @@ public class DscpClassificationDialog extends javax.swing.JDialog {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         if (validateInput()) {
-            dscpDefinitions = makeDefinitions();
-            defaultQueueNumber = makeDefaultQueueNumber();
+            makeDefinitions();
+            makeDefaultQueueNumber();
             this.setVisible(false);
         }
     }//GEN-LAST:event_jButton3ActionPerformed
