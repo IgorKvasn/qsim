@@ -273,15 +273,15 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(WredQueueManagementDialog.class, "WredQueueManagementDialog.jLabel5.text")); // NOI18N
 
-        jSpinner1.setModel(new javax.swing.SpinnerNumberModel(0.002d, 0.0d, 1.0d, 0.1d));
+        jSpinner1.setModel(new javax.swing.SpinnerNumberModel(0.9d, 0.0d, 1.0d, 0.1d));
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(WredQueueManagementDialog.class, "WredQueueManagementDialog.jLabel4.text")); // NOI18N
 
-        jSpinner2.setModel(new javax.swing.SpinnerNumberModel(0.2d, 0.0d, 1.0d, 0.1d));
+        jSpinner2.setModel(new javax.swing.SpinnerNumberModel(Double.valueOf(2.0d), Double.valueOf(0.0d), null, Double.valueOf(1.0d)));
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(WredQueueManagementDialog.class, "WredQueueManagementDialog.jLabel2.text")); // NOI18N
 
-        jSpinner3.setModel(new javax.swing.SpinnerNumberModel(0.8d, 0.0d, 1.0d, 0.1d));
+        jSpinner3.setModel(new javax.swing.SpinnerNumberModel(Double.valueOf(8.0d), Double.valueOf(0.0d), null, Double.valueOf(1.0d)));
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(WredQueueManagementDialog.class, "WredQueueManagementDialog.jLabel3.text")); // NOI18N
 
@@ -411,7 +411,7 @@ public class WredQueueManagementDialog extends javax.swing.JDialog {
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(32, 32, 32)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(28, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)

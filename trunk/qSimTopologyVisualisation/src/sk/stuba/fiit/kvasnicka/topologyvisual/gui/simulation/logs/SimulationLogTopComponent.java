@@ -52,7 +52,7 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.topology.Topology;
 //autostore = false)
 @TopComponent.Description(preferredID = "SimulationLogTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE", 
-        persistenceType = TopComponent.PERSISTENCE_ALWAYS)
+        persistenceType = TopComponent.PERSISTENCE_NEVER)
 @TopComponent.Registration(mode = "output", openAtStartup = false)
 @ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.logs.SimulationLogTopComponent")
 //@ActionReference(path = "Menu/Window" /*
