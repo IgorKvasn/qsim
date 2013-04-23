@@ -49,6 +49,9 @@ public class FifoScheduling extends PacketScheduling {
         if (outputQueuePackets.size() != 1) {         //there must be only one queue, otherwise FIFI scheduling cannot be applied
             throw new IllegalStateException("FIFO scheduling can be applied only if network node has only 1 output queue, network node: " + node.getName() + " has " + outputQueuePackets.size() + " queues");
         }
-        return outputQueuePackets.get(0);
+        for (int i = 0; i < outputQueuePackets.size(); i++) {
+            if (!outputQueuePackets.get(i).isEmpty()) return outputQueuePackets.get(i);
+        }
+        return outputQueuePackets.get(0);  //all queues are empty
     }
 }

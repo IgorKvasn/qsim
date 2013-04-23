@@ -266,6 +266,7 @@ public abstract class NetworkNode implements Serializable {
      * @return
      */
     public int getMaxRxSizeTotal() {
+        if (maxRxBufferSize==-1) return Integer.MAX_VALUE;
         return maxRxBufferSize * rxInterfaces.size();
     }
 
@@ -275,6 +276,7 @@ public abstract class NetworkNode implements Serializable {
      * @return
      */
     public int getMaxTxSizeTotal() {
+        if (maxTxBufferSize==-1) return Integer.MAX_VALUE;
         return maxTxBufferSize * txInterfaces.size();
     }
 
@@ -318,6 +320,7 @@ public abstract class NetworkNode implements Serializable {
      * creates TX buffers
      */
     private void initTxBuffers() {
+        txInterfaces.clear();
         List<Edge> edgesList = topologyManager.findEdgesWithNode(this);
         for (Edge edge : edgesList) {
             NetworkNode oppositeNode = edge.findOppositeNetworkNode(this);
@@ -329,6 +332,7 @@ public abstract class NetworkNode implements Serializable {
      * creates RX buffers
      */
     private void initRxBuffers() {
+        rxInterfaces.clear();
         List<Edge> edgesList = topologyManager.findEdgesWithNode(this);
         for (Edge edge : edgesList) {
             NetworkNode oppositeNode = edge.findOppositeNetworkNode(this);
