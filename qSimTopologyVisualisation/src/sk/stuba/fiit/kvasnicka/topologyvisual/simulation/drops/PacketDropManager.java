@@ -26,22 +26,12 @@ public class PacketDropManager implements PacketDropListener {
         //filter all drops
         synchronized (drops) {
             for (PacketDrop drop : drops) {
-                if (start >= drop.when && drop.when <= endCorrected && drop.nodeName.equals(node) && drop.ruleName.equals(rule) && location == drop.location) {
+                if (start <= drop.when && drop.when <= endCorrected && drop.nodeName.equals(node) && drop.ruleName.equals(rule) && location == drop.location) {
                     filtered.add(drop);
                 }
             }
         }
-        if (end == -1) {
-            endCorrected = findEnd(filtered);
-        }
 
-        //assign drops to classes
-        long classNumber;
-        if ((endCorrected - start) % classWidth == 0) {
-            classNumber = Math.round((endCorrected - start) / classWidth);
-        } else {
-            classNumber = Math.round((endCorrected - start) / classWidth + 1);
-        }
         //create list of values (times)
         double[] values = new double[filtered.size()];
         for (int i = 0; i < filtered.size(); i++) {
@@ -50,11 +40,20 @@ public class PacketDropManager implements PacketDropListener {
 
         return values;
     }
-    
-    private double findEnd(List<PacketDrop> drops){
+
+    public long calculateHistogramBins(int classWidth, int start, double[] data) {
+        double end = findEnd(data);
+        if ((end - start) % classWidth == 0) {
+            return Math.round((end - start) / classWidth);
+        } else {
+            return Math.round((end - start) / classWidth + 1);
+        }
+    }
+
+    private double findEnd(double[] drops) {
         double result = 0;
-        for (PacketDrop d:drops){
-            result = Math.max(result, d.when);
+        for (double d : drops) {
+            result = Math.max(result, d);
         }
         return result;
     }

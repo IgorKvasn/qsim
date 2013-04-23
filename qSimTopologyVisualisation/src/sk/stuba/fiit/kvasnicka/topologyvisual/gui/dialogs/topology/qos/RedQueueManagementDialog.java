@@ -81,9 +81,9 @@ public class RedQueueManagementDialog extends javax.swing.JDialog {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(RedQueueManagementDialog.class, "RedQueueManagementDialog.jLabel5.text")); // NOI18N
 
-        jSpinner2.setModel(new javax.swing.SpinnerNumberModel(0.2d, 0.0d, 1.0d, 0.1d));
+        jSpinner2.setModel(new javax.swing.SpinnerNumberModel(Double.valueOf(2.0d), Double.valueOf(0.0d), null, Double.valueOf(1.0d)));
 
-        jSpinner3.setModel(new javax.swing.SpinnerNumberModel(0.8d, 0.0d, 1.0d, 0.1d));
+        jSpinner3.setModel(new javax.swing.SpinnerNumberModel(Double.valueOf(8.0d), Double.valueOf(0.0d), null, Double.valueOf(1.0d)));
 
         jSpinner4.setModel(new javax.swing.SpinnerNumberModel(0.2d, 0.0d, 1.0d, 0.1d));
 

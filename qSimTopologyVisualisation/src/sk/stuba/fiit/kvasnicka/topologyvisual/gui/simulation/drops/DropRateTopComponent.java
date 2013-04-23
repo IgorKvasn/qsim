@@ -117,10 +117,12 @@ public final class DropRateTopComponent extends TopComponent {
         PlotOrientation orientation = PlotOrientation.VERTICAL;
         boolean toolTips = false;
         boolean urls = false;
-        JFreeChart chart = ChartFactory.createHistogram(plotTitle, xaxis, yaxis, dataset, orientation, true, toolTips, urls);
+        JFreeChart chart = ChartFactory.createHistogram(plotTitle, xaxis, yaxis, dataset, orientation, false, toolTips, urls);
         jPanel2.removeAll();
         histogram = new ChartPanel(chart);
         jPanel2.add(histogram, BorderLayout.CENTER);
+        jPanel2.repaint();
+        jPanel2.revalidate();
     }
 
     private double start() {
@@ -194,6 +196,7 @@ public final class DropRateTopComponent extends TopComponent {
         jSpinner2 = new javax.swing.JSpinner();
         jSpinner3 = new javax.swing.JSpinner();
         jPanel2 = new javax.swing.JPanel();
+        jLabel7 = new javax.swing.JLabel();
 
         setToolTipText(org.openide.util.NbBundle.getMessage(DropRateTopComponent.class, "DropRateTopComponent.toolTipText")); // NOI18N
         setLayout(new java.awt.BorderLayout());
@@ -204,6 +207,7 @@ public final class DropRateTopComponent extends TopComponent {
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(DropRateTopComponent.class, "DropRateTopComponent.jLabel1.text")); // NOI18N
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Input queue", "Output queues" }));
+        jComboBox1.setSelectedIndex(1);
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(DropRateTopComponent.class, "DropRateTopComponent.jLabel2.text")); // NOI18N
 
@@ -255,7 +259,7 @@ public final class DropRateTopComponent extends TopComponent {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -324,6 +328,13 @@ public final class DropRateTopComponent extends TopComponent {
         jSplitPane1.setLeftComponent(jPanel1);
 
         jPanel2.setLayout(new java.awt.BorderLayout());
+
+        jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel7, org.openide.util.NbBundle.getMessage(DropRateTopComponent.class, "DropRateTopComponent.jLabel7.text")); // NOI18N
+        jLabel7.setToolTipText(org.openide.util.NbBundle.getMessage(DropRateTopComponent.class, "DropRateTopComponent.jLabel7.toolTipText")); // NOI18N
+        jLabel7.setAlignmentX(0.5F);
+        jPanel2.add(jLabel7, java.awt.BorderLayout.CENTER);
+
         jSplitPane1.setRightComponent(jPanel2);
 
         add(jSplitPane1, java.awt.BorderLayout.CENTER);
@@ -345,6 +356,7 @@ public final class DropRateTopComponent extends TopComponent {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JList jList1;
     private javax.swing.JList jList2;
     private javax.swing.JPanel jPanel1;
