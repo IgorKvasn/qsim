@@ -49,11 +49,18 @@ public final class SimulRuleStatisticalDataManager implements PingRuleListener, 
     }
 
     private void removeData(SimulationRuleBean rule) {
+        if (rule == null) {
+            removeAllRules();
+            return;
+        }
         if (!dataMap.containsKey(rule.getUniqueID())) {
             throw new IllegalStateException("no such simulation rule already exists in StatisticalDataManager");
         }
         dataMap.remove(rule.getUniqueID());
+    }
 
+    public void removeAllRules() {
+        dataMap.clear();
     }
 
     private SimulRuleStatisticalData createStatisticalData(SimulationRuleBean rule) {

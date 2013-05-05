@@ -36,13 +36,13 @@ import sk.stuba.fiit.kvasnicka.topologyvisual.simulation.rules.SimulRuleStatisti
 //@ConvertAsProperties(dtd = "-//sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata//SimulRuleReview//EN",
 //autostore = false)
 @TopComponent.Description(preferredID = "SimulRuleReviewTopComponent",
-//iconBase="SET/PATH/TO/ICON/HERE", 
-persistenceType = TopComponent.PERSISTENCE_NEVER)
+        //iconBase="SET/PATH/TO/ICON/HERE", 
+        persistenceType = TopComponent.PERSISTENCE_NEVER)
 @TopComponent.Registration(mode = "commonpalette", openAtStartup = false)
 @ActionID(category = "Window", id = "sk.stuba.fiit.kvasnicka.topologyvisual.gui.simulation.simulationdata.SimulRuleReviewTopComponent")
 @ActionReference(path = "Menu/Window" /*
- * , position = 333
- */)
+         * , position = 333
+         */)
 //@TopComponent.OpenActionRegistration(displayName = "#CTL_SimulRuleReviewAction",
 //preferredID = "SimulRuleReviewTopComponent")
 @Messages({
@@ -125,6 +125,12 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
     }
 
     private void removeRow(DefaultTableModel model, SimulationRuleBean rule) {
+        if (rule == null) {
+            while (model.getRowCount() != 0) {
+                model.removeRow(0);
+            }
+            return;
+        }
         int row = findRowBySimulationRule(rule, model);
         model.removeRow(row);
     }
@@ -254,7 +260,7 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
             outputMode.dockInto(simulDataTopComponent);
             simulDataTopComponent.open();
             simulDataTopComponent.requestActive();
-        }else{
+        } else {
             simulDataTopComponent.requestActive();
             simulDataTopComponent.requestFocus();
         }
@@ -342,7 +348,6 @@ public final class SimulRuleReviewTopComponent extends TopComponent implements S
     private void btnStatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStatActionPerformed
         showStatisticalData();
     }//GEN-LAST:event_btnStatActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnActivate;
     private javax.swing.JButton btnStat;
