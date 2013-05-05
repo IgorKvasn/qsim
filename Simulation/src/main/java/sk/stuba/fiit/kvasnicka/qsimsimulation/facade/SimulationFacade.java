@@ -209,6 +209,10 @@ public class SimulationFacade {
         }
     }
 
+    /**
+     * removes all simulation rules
+     * fires PingRuleEvent and SimulationRuleEvent events with SimulationRuleBean parameter set to null
+     */
     public void removeAllSimulationRules() {
         pingManager.removeAllPing();
         simulationManager.removeAllSimulationRule();

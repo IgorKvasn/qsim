@@ -79,6 +79,7 @@ public class PingManager implements PingPacketDeliveredListener {
     public void removeAllPing() {
         pingDefinitions.clear();
         rules.clear();
+        firePingRuleRemovedEvent(new PingRuleEvent(this,null));
     }
 
     /**
@@ -103,7 +104,7 @@ public class PingManager implements PingPacketDeliveredListener {
         }
 
         //just switch source and destination nodes
-        SimulationRuleBean rule = new SimulationRuleBean(simulationRule.getName(), simulationRule.getDestination(), simulationRule.getSource(), simulationRule.getPacketCreationDelayFunction(), simulationRule.getNumberOfPackets(), simulationRule.getPacketSize(), 0, simulationRule.getLayer4Type(), simulationRule.getIpPrecedence(), simulationRule.getDscpValue(), 0, 0);
+        SimulationRuleBean rule = new SimulationRuleBean(simulationRule.getUniqueID(), simulationRule.getName(), simulationRule.getDestination(), simulationRule.getSource(), simulationRule.getPacketCreationDelayFunction(), simulationRule.getNumberOfPackets(), simulationRule.getPacketSize(), 0, simulationRule.getLayer4Type(), simulationRule.getIpPrecedence(), simulationRule.getDscpValue(), 0, 0);
         List<NetworkNode> newRoute = new LinkedList<NetworkNode>(simulationRule.getRoute());
         Collections.reverse(newRoute);//also switch route
         rule.setRoute(newRoute);

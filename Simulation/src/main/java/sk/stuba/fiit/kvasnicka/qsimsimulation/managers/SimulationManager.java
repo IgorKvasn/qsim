@@ -70,6 +70,7 @@ public class SimulationManager {
      */
     public void removeAllSimulationRule() {
         rules.clear();
+        fireSimulationRuleRemovedEvent(new SimulationRuleEvent(this,null));
     }
 
     /**
