@@ -24,6 +24,7 @@ package sk.stuba.fiit.kvasnicka.qsimsimulation.rule;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.NetworkNode;
 import sk.stuba.fiit.kvasnicka.qsimdatamodel.data.utils.PacketCreationDelayFunction;
 import sk.stuba.fiit.kvasnicka.qsimsimulation.enums.IpPrecedence;
@@ -51,7 +52,7 @@ import java.util.UUID;
 @EqualsAndHashCode(of = "uniqueID")
 public class SimulationRuleBean {
 
-    private final String uniqueID = UUID.randomUUID().toString();
+    private final String uniqueID;
 
     @Setter
     private boolean active;
@@ -117,6 +118,7 @@ public class SimulationRuleBean {
      * do not forget to set route
      * <p/>
      *
+     * @param id              if null or empty, it will be generated
      * @param source
      * @param destination
      * @param numberOfPackets
@@ -126,9 +128,14 @@ public class SimulationRuleBean {
      * @param destPort
      * @see #setRoute(java.util.List)
      */
-    public SimulationRuleBean(String name, NetworkNode source, NetworkNode destination, PacketCreationDelayFunction packetCreationDelayFunction, int numberOfPackets, int packetSize, double activeDelay, Layer4TypeEnum layer4Type, IpPrecedence ipPrecedence, DscpValuesEnum dscpValue, int srcPort, int destPort) {
+    public SimulationRuleBean(String id, String name, NetworkNode source, NetworkNode destination, PacketCreationDelayFunction packetCreationDelayFunction, int numberOfPackets, int packetSize, double activeDelay, Layer4TypeEnum layer4Type, IpPrecedence ipPrecedence, DscpValuesEnum dscpValue, int srcPort, int destPort) {
         if ((dscpValue != null) && (ipPrecedence != null)) {
             throw new IllegalArgumentException("DSCP and IP ToS must not be sent both");
+        }
+        if (StringUtils.isEmpty(id)) {
+            uniqueID = UUID.randomUUID().toString();
+        } else {
+            uniqueID = id;
         }
         this.packetCreationDelayFunction = packetCreationDelayFunction;
         this.name = name;
@@ -144,6 +151,10 @@ public class SimulationRuleBean {
         this.numberOfPackets = numberOfPackets;
         this.packetSize = packetSize;
         routes = new HashMap<NetworkNode, NetworkNode>();
+    }
+
+    public SimulationRuleBean(String name, NetworkNode source, NetworkNode destination, PacketCreationDelayFunction packetCreationDelayFunction, int numberOfPackets, int packetSize, double activeDelay, Layer4TypeEnum layer4Type, IpPrecedence ipPrecedence, DscpValuesEnum dscpValue, int srcPort, int destPort) {
+        this("",name,source,destination,packetCreationDelayFunction,numberOfPackets,packetSize,activeDelay,layer4Type, ipPrecedence, dscpValue,srcPort,destPort);
     }
 
     public void setCanCreateNewPacket(boolean canCreateNewPacket) {
