@@ -91,6 +91,7 @@ public class PacketSendingPanel extends PanelInterface {
             count = -1;
         }
         iterator.getStoredData().setPacketCount(count);
+        iterator.getStoredData().setOriginalPacketCount(count);
         iterator.getStoredData().setPacketSize((Integer) spinSize.getValue());
         iterator.getStoredData().setActivationDelay(getActivationDelay());
         if (layer4prot == Layer4TypeEnum.ICMP) {

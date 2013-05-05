@@ -32,7 +32,7 @@ public class SimulationRuleHelper {
      * @return simulation rule
      */
     private static SimulationRuleBean createSimulationRule(SimulationData.Data data) {
-        SimulationRuleBean rule = new SimulationRuleBean(data.getName(), data.getSourceVertex().getDataModel(), data.getDestinationVertex().getDataModel(), data.getPacketCreationDelayFunction(),  data.getPacketCount(), data.getPacketSize(), data.getActivationDelay(), data.getLayer4protocol(), data.getIpPrecedence(), data.getDscpValuesEnum(), data.getSrcPort(), data.getDestPort());
+        SimulationRuleBean rule = new SimulationRuleBean(data.getId(), data.getName(), data.getSourceVertex().getDataModel(), data.getDestinationVertex().getDataModel(), data.getPacketCreationDelayFunction(),  data.getPacketCount(), data.getPacketSize(), data.getActivationDelay(), data.getLayer4protocol(), data.getIpPrecedence(), data.getDscpValuesEnum(), data.getSrcPort(), data.getDestPort());
         return rule;
     }
 

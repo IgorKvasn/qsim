@@ -299,6 +299,7 @@ public class SimulationData {
         private Layer4TypeEnum layer4protocol;
         private int packetSize;
         private int packetCount;
+        private int originalPacketCount;
         private int activationDelay;
         private PacketCreationDelayFunction packetCreationDelayFunction;
 

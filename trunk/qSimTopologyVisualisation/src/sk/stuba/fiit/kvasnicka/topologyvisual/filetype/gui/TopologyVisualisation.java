@@ -316,6 +316,18 @@ public final class TopologyVisualisation extends JPanel implements VertexCreated
         simulationFacade.removeSimulationLogListener(logTopComponent);
         dropRateTopComponent.removeListener();
 
+        //update packet count
+          //simulation rules
+        for (SimulationRuleBean rule : simulationFacade.getSimulationRules()) {
+            Data data = simulationData.findSimulationData(rule.getUniqueID());
+            data.setPacketCount(data.getOriginalPacketCount());
+        }
+        //ping rules
+        for (SimulationRuleBean rule : simulationFacade.getPingSimulationRules()) {
+            Data data = simulationData.findSimulationData(rule.getUniqueID());
+            data.setPacketCount(data.getOriginalPacketCount());
+        }
+        
         //no need to do this - simulation timer is nulled anyway networkNodeStatsManager.removeStatisticsListeners();
         closeSimulationWindows();
 
