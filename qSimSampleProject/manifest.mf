@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: sk.stuba.fiit.kvasnicka.sample
+OpenIDE-Module-Localizing-Bundle: sk/stuba/fiit/kvasnicka/sample/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
