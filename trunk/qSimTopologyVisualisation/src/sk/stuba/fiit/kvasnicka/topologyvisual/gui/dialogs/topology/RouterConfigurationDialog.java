@@ -748,19 +748,19 @@ public class RouterConfigurationDialog extends BlockingDialog<Router> {
 
         jLabel2.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel2.text")); // NOI18N
 
-        spinProcessing.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
+        spinProcessing.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(5), Integer.valueOf(1), null, Integer.valueOf(1)));
 
         jLabel3.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel3.text")); // NOI18N
 
-        spinTx.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(-1), null, Integer.valueOf(1)));
+        spinTx.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(10), Integer.valueOf(-1), null, Integer.valueOf(1)));
 
         jLabel4.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel4.text")); // NOI18N
 
-        spinRx.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(-1), null, Integer.valueOf(1)));
+        spinRx.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(10), Integer.valueOf(-1), null, Integer.valueOf(1)));
 
         jLabel5.setText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jLabel5.text")); // NOI18N
 
-        spinInputQueue.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
+        spinInputQueue.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(10), Integer.valueOf(1), null, Integer.valueOf(1)));
 
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jPanel4.border.title"))); // NOI18N
         jPanel4.setToolTipText(org.openide.util.NbBundle.getMessage(RouterConfigurationDialog.class, "RouterConfigurationDialog.jPanel4.toolTipText")); // NOI18N

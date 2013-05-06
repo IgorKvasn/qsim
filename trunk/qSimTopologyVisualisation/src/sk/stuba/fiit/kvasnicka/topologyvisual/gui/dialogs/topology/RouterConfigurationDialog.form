@@ -293,7 +293,7 @@
             <Component class="javax.swing.JSpinner" name="spinProcessing">
               <Properties>
                 <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                  <SpinnerModel initial="1" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                  <SpinnerModel initial="5" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
                 </Property>
               </Properties>
             </Component>
@@ -307,7 +307,7 @@
             <Component class="javax.swing.JSpinner" name="spinTx">
               <Properties>
                 <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                  <SpinnerModel initial="1" minimum="-1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                  <SpinnerModel initial="10" minimum="-1" numberType="java.lang.Integer" stepSize="1" type="number"/>
                 </Property>
               </Properties>
             </Component>
@@ -321,7 +321,7 @@
             <Component class="javax.swing.JSpinner" name="spinRx">
               <Properties>
                 <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                  <SpinnerModel initial="1" minimum="-1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                  <SpinnerModel initial="10" minimum="-1" numberType="java.lang.Integer" stepSize="1" type="number"/>
                 </Property>
               </Properties>
             </Component>
@@ -335,7 +335,7 @@
             <Component class="javax.swing.JSpinner" name="spinInputQueue">
               <Properties>
                 <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                  <SpinnerModel initial="1" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                  <SpinnerModel initial="10" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
                 </Property>
               </Properties>
             </Component>

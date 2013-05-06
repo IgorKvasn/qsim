@@ -171,19 +171,19 @@ public class ComputerConfigurationDialog extends BlockingDialog<Computer> {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(ComputerConfigurationDialog.class, "ComputerConfigurationDialog.jLabel2.text")); // NOI18N
 
-        spinProcessing.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
+        spinProcessing.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(10), Integer.valueOf(1), null, Integer.valueOf(1)));
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(ComputerConfigurationDialog.class, "ComputerConfigurationDialog.jLabel3.text")); // NOI18N
 
-        spinTx.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(-1), null, Integer.valueOf(1)));
+        spinTx.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(100), Integer.valueOf(-1), null, Integer.valueOf(1)));
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(ComputerConfigurationDialog.class, "ComputerConfigurationDialog.jLabel4.text")); // NOI18N
 
-        spinRx.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(-1), null, Integer.valueOf(1)));
+        spinRx.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(100), Integer.valueOf(-1), null, Integer.valueOf(1)));
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(ComputerConfigurationDialog.class, "ComputerConfigurationDialog.jLabel5.text")); // NOI18N
 
-        spinInputQueue.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
+        spinInputQueue.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(100), Integer.valueOf(1), null, Integer.valueOf(1)));
 
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ComputerConfigurationDialog.class, "ComputerConfigurationDialog.jPanel4.border.title"))); // NOI18N
         jPanel4.setToolTipText(org.openide.util.NbBundle.getMessage(ComputerConfigurationDialog.class, "ComputerConfigurationDialog.jPanel4.toolTipText")); // NOI18N
