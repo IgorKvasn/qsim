@@ -1,0 +1,28 @@
+# Roadmap #
+
+I divided the whole project into smaller, (more or less) independent stages:
+  1. creating topology (**done**)
+  1. routing (**done**)
+  1. sending packets (**done**)
+  1. QoS mechanisms (**done**)
+  1. testing (**done**)
+  1. post-release support (**in progress**)
+
+### 1. Creating topology ###
+In this development stage is meant to create universal framework for creating network topology - routers, switches, computers and optionally hubs (or in fact _any_ network device). Creating edges between them. It involves data model (data representation of network topology) but also graphical representation.
+
+### 2. Routing ###
+The second stage is intened to create routing topology - that means: routing mechanizms/protocols - static or dynamic routing (dynamic routing can be link-state or distance vector).
+
+### 3. Sending packets ###
+Propbably the hardest stage which involves:
+  * creation of "simulation time" (pseudo-real time)
+  * implementing input/output buffers
+  * simulation of packet sending (also data representation of packets)
+  * delays: serialisation delay, transmittion delay, processing delay, etc. Some delays are dependent only on link speed or CPU speed (let's call that - constant parameters because they does not change during simulation). Then there are dynamic that are dependeding on link usage, CPU usage (e.g. processing delay is higher when router has got lots of "work" to do).
+
+### 4. QoS mechanizms ###
+The final stage when QoS mechanizms will be implemented.
+
+### 5. Testing ###
+It is crucial that simulator's output corresponds reality. Testing and comparing results with **real hardware** is therefore _MUST_ priority.
